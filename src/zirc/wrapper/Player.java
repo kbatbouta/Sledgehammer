@@ -1,7 +1,7 @@
 package zirc.wrapper;
 
 import zirc.ZIRC;
-import zirc.ZIRCUtil;
+import zirc.util.ZUtil;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 
@@ -14,14 +14,14 @@ public class Player {
 	public Player(IsoPlayer iso) {
 		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
 		this.iso = iso;
-		connection = ZIRCUtil.getConnection(iso);
+		connection = ZUtil.getConnection(iso);
 		init();
 	}
 	
 	public Player(UdpConnection connection) {
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
-		this.iso = ZIRCUtil.getPlayer(connection);
+		this.iso = ZUtil.getPlayer(connection);
 		init();
 	}
 	
@@ -30,7 +30,7 @@ public class Player {
 	}
 	
 	public Player(String username) {
-		this.iso = ZIRCUtil.getPlayer(username);
+		this.iso = ZUtil.getPlayer(username);
 		for(UdpConnection conn : ZIRC.instance.getUdpEngine().connections) {
 			if(conn.username.equalsIgnoreCase(username)) {
 				this.connection = conn;

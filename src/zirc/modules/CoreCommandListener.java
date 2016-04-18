@@ -2,12 +2,12 @@ package zirc.modules;
 
 import java.sql.SQLException;
 
-import zirc.Chat;
 import zirc.ZIRC;
 import zirc.event.CommandEvent;
 import zirc.event.LogEvent;
 import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
+import zirc.util.Chat;
 import zirc.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;

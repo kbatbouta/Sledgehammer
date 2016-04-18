@@ -3,7 +3,6 @@ package zirc.modules;
 import java.util.List;
 import java.util.Map;
 
-import zirc.Chat;
 import zirc.ZIRC;
 import zirc.event.ChatEvent;
 import zirc.event.ConnectEvent;
@@ -12,6 +11,7 @@ import zirc.event.DisconnectEvent;
 import zirc.event.Event;
 import zirc.event.PVPKillEvent;
 import zirc.interfaces.EventListener;
+import zirc.util.Chat;
 import zirc.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;

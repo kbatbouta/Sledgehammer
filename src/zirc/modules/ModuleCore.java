@@ -5,9 +5,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-import zirc.Chat;
 import zirc.ZIRC;
 import zirc.module.SQLModule;
+import zirc.util.Chat;
 import zombie.network.DataBaseBuffer;
 
 public class ModuleCore extends SQLModule {

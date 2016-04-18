@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import zirc.INI;
 import zirc.ZIRC;
 import zirc.event.Event;
 import zirc.interfaces.CommandListener;
 import zirc.interfaces.EventListener;
 import zirc.interfaces.LogListener;
 import zirc.interfaces.ModuleSettingsHandler;
+import zirc.util.INI;
 import zombie.GameWindow;
 
 public abstract class Module {

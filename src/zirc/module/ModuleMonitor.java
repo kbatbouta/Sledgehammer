@@ -14,10 +14,10 @@ import java.util.Map;
 
 import org.github.jamm.MemoryMeter;
 
-import zirc.ZIRCUtil;
 import zirc.event.CommandEvent;
 import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
+import zirc.util.ZUtil;
 import zirc.wrapper.Player;
 import zombie.iso.IsoWorld;
 
@@ -34,7 +34,7 @@ public class ModuleMonitor extends Module {
 	}
 
 	public void onStart() {
-		if(!ZIRCUtil.isClass("org.github.jamm.MemoryMeter")) {
+		if(!ZUtil.isClass("org.github.jamm.MemoryMeter")) {
 			println("JAMM must be set as Java Agent in order to use this module.");
 			unload();
 			return;

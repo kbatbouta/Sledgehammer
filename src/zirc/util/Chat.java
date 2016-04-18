@@ -1,16 +1,11 @@
-package zirc;
+package zirc.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import zirc.event.ChatEvent;
-import zirc.event.DeathEvent;
-import zirc.event.Event;
-import zirc.event.PVPKillEvent;
-import zirc.interfaces.EventListener;
-import zirc.wrapper.Player;
+import zirc.ZIRC;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;

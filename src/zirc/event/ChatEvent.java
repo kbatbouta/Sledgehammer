@@ -2,7 +2,7 @@ package zirc.event;
 
 import java.util.List;
 
-import zirc.Chat;
+import zirc.util.Chat;
 import zirc.wrapper.Player;
 
 public class ChatEvent extends PlayerEvent {
