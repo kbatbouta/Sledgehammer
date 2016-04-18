@@ -21,6 +21,8 @@ import zirc.interfaces.LogListener;
 import zirc.module.Module;
 import zirc.module.ModuleMonitor;
 import zirc.module.ModuleVanilla;
+import zirc.modules.CoreCommandListener;
+import zirc.modules.ModuleCore;
 import zirc.wrapper.NPC;
 import zirc.wrapper.Player;
 import zombie.GameWindow;
@@ -44,7 +46,7 @@ public class ZIRC {
 	private List<LogListener> listLogListeners;
 	private List<Module> listUnloadNext;
 	private ModuleVanilla moduleVanilla;
-	private CommandListener coreCommandListener;
+	private ModuleCore moduleCore;
 	private UdpEngine udpEngine;
 	private long timeThen;
 	private String[] listPluginsRaw;
@@ -134,8 +136,10 @@ public class ZIRC {
 		// Core Modules.
 		moduleVanilla = new ModuleVanilla();
 		moduleVanilla.loadModule();
-		coreCommandListener = new ZIRCCommandListener();
-
+		
+		moduleCore = new ModuleCore();
+		moduleCore.loadModule();
+		
 		// onLoad()
 		Iterator<Module> modules = listModules.iterator();
 		while (modules.hasNext()) {
@@ -365,14 +369,18 @@ public class ZIRC {
 				}
 			}
 			
-			// Force vanilla chat event to be last, for modification potential.
-			if(event.getName() == ChatEvent.ID) {
-				EventListener listener = chat.getChatListener();
-				if(listener != null) listener.handleEvent(event);
-			}
-			
 			if(event.canceled()) return event;
 			
+			// Force Core Event-handling to be last, for modification potential.
+			if(!event.handled()) {
+				if(event.getName() == ChatEvent.ID) {
+					EventListener listener = chat.getChatListener();
+					if(listener != null) listener.handleEvent(event);
+				} 
+				moduleCore.getEventListener().handleEvent(event);					
+			}
+			
+			if(event.canceled()) return event;			
 			if(logEvent) logEvent(event);
 			
 		} catch(Exception e) {
@@ -450,6 +458,8 @@ public class ZIRC {
 					vanillaListener.onCommand(c);
 				}
 				
+				CoreCommandListener coreCommandListener = moduleCore.getCommandListener();
+				
 				if(!c.handled() && coreCommandListener != null) {
 					coreCommandListener.onCommand(c);
 				}
@@ -502,6 +512,9 @@ public class ZIRC {
 				}
 			}
 		}
+		
+		CoreCommandListener coreCommandListener = moduleCore.getCommandListener();
+		
 		if(coreCommandListener != null) {
 			String[] commands = coreCommandListener.getCommands();
 			if(commands != null) {					

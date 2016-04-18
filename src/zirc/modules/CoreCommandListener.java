@@ -1,7 +1,9 @@
-package zirc;
+package zirc.modules;
 
 import java.sql.SQLException;
 
+import zirc.Chat;
+import zirc.ZIRC;
 import zirc.event.CommandEvent;
 import zirc.event.LogEvent;
 import zirc.event.CommandEvent.Result;
@@ -14,8 +16,14 @@ import zombie.core.znet.SteamUtils;
 import zombie.network.PacketTypes;
 import zombie.network.ServerWorldDatabase;
 
-public class ZIRCCommandListener implements CommandListener {
+public class CoreCommandListener implements CommandListener {
 
+	private ModuleCore module;
+
+	public CoreCommandListener(ModuleCore module) {
+		this.module = module;
+	}
+	
 	@Override
 	public String[] getCommands() {
 		return new String[] {
@@ -26,6 +34,7 @@ public class ZIRCCommandListener implements CommandListener {
 //				"commitsuicide",
 				"ban",
 				"unban",
+				"muteglobal",
 		};
 	}
 
@@ -129,7 +138,7 @@ public class ZIRCCommandListener implements CommandListener {
 				c.setResponse(Result.FAILURE, response);
 				return;
         	}
-        }
+        } else
 		if(command.equalsIgnoreCase("unban")) {
         	if(args.length > 0) {        		
         		try {
@@ -144,7 +153,15 @@ public class ZIRCCommandListener implements CommandListener {
 				c.setResponse(Result.FAILURE, response);
 				return;
         	}
-        }
+        } else
+    	if(command.equalsIgnoreCase("muteglobal")) {
+    			response = module.toggleGlobalMute(username);
+    			String toggle = "on";
+    			if(chat.listGlobalMuters.contains(username.toLowerCase())) toggle = "off";
+    			c.setResponse(Result.SUCCESS, response);
+    			c.setLoggedMessage(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
+    			return;
+    		}
 	}
 	
 	private void ban(CommandEvent c, String[] args) throws SQLException {
@@ -431,7 +448,11 @@ public class ZIRCCommandListener implements CommandListener {
 		} else
 		if(command.equalsIgnoreCase("pm")) {
 			return "Private messages a player. ex: /pm \"player\" \"message\"";
+		} else
+		if(command.equalsIgnoreCase("muteglobal")) {
+			return "Toggles global chat.";
 		}
+		
 		if(player.isAdmin()) {
 			if(command.equalsIgnoreCase("warn")) {
 				return "Warns a player. ex: /warn \"player\" \"message\"";
