@@ -1,15 +1,24 @@
 package zirc.module;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import zirc.INI;
 import zirc.ZIRC;
 import zirc.event.Event;
 import zirc.interfaces.CommandListener;
 import zirc.interfaces.EventListener;
 import zirc.interfaces.LogListener;
+import zirc.interfaces.ModuleSettingsHandler;
+import zombie.GameWindow;
 
 public abstract class Module {
+	
+	private INI ini;
+	private File iniFile;
+	public boolean loadedSettings = false;
 	
 	private boolean loaded = false;
 	private boolean started = false;
@@ -21,6 +30,54 @@ public abstract class Module {
 		
 	}
 	
+	public void loadSettings(ModuleSettingsHandler handler) {
+
+		if (handler == null)
+			throw new IllegalArgumentException("Settings Handler given is null!");
+
+		loadedSettings = false;
+
+		if (ini == null)
+			getINI();
+
+		if (iniFile.exists()) {
+			handler.createSettings(getINI());
+			try {
+				ini.read();
+				loadedSettings = true;
+			} catch (IOException e) {
+				println("Failed to read settings.");
+				e.printStackTrace();
+			}
+		} else {
+			println("WARNING: No settings file found. Creating one.");
+			println("WARNING: " + getModuleName() + " may require modified settings to run properly.");
+			println("Settings file is located at: " + ini.getFile().getAbsolutePath());
+			handler.createSettings(ini);
+			loadedSettings = true;
+			try {
+				ini.save();
+			} catch (IOException e) {
+				println("Failed to save settings.");
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public boolean loadedSettings() {
+		return this.loadedSettings;
+	}
+
+	public INI getINI() {
+		if (ini == null) {
+			iniFile = new File(GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "ZIRC"
+					+ File.separator + "plugins" + File.separator + getJarName() + ".ini");
+			ini = new INI(iniFile);
+		}
+
+		return this.ini;
+	}
+
 	public void println(Object... messages) {
 		for (Object message : messages) System.out.println("MODULE (" + getModuleName() + "): " + message.toString());
 		if(messages.length == 0) System.out.println("MODULE (" + getModuleName() + "): \n");
