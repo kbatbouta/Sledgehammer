@@ -9,6 +9,7 @@ import zombie.GameWindow;
 
 public abstract class SettingsModule extends Module {
 	private INI ini;
+	private File iniFile;
 	public boolean loadedSettings = false;
 	
 	public SettingsModule() {}
@@ -19,10 +20,10 @@ public abstract class SettingsModule extends Module {
 		
 		loadedSettings = false;
 		
-		File file = new File(GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "ZIRC" + File.separator + "plugins" + File.separator + getJarName() + ".ini");
-		ini = new INI(file);
-		if(file.exists()) {
-			handler.createSettings(ini);
+		if(ini == null) getINI();
+		
+		if(iniFile.exists()) {
+			handler.createSettings(getINI());
 			try {
 				ini.read();
 				loadedSettings = true;
@@ -50,6 +51,11 @@ public abstract class SettingsModule extends Module {
 	}
 	
 	public INI getINI() {
+		if(ini == null) {			
+			iniFile = new File(GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "ZIRC" + File.separator + "plugins" + File.separator + getJarName() + ".ini");
+			ini = new INI(iniFile);
+		}
+		
 		return this.ini;
 	}
 
