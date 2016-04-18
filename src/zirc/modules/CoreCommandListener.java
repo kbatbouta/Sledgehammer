@@ -157,7 +157,7 @@ public class CoreCommandListener implements CommandListener {
     	if(command.equalsIgnoreCase("muteglobal")) {
     			response = module.toggleGlobalMute(username);
     			String toggle = "on";
-    			if(chat.listGlobalMuters.contains(username.toLowerCase())) toggle = "off";
+    			if(chat.getGlobalMuters().contains(username.toLowerCase())) toggle = "off";
     			c.setResponse(Result.SUCCESS, response);
     			c.setLoggedMessage(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
     			return;

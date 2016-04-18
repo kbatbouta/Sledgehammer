@@ -172,29 +172,20 @@ public class Chat {
 				}
 			}
 		}
-		
 		return stripped;
 	}
 
-	public List<String> listGlobalMuters;
+	private List<String> listGlobalMuters;
 	private UdpEngine udpEngine;
-	private EventListener chatListener;
-	private EventListener deathListener;
 	
 	public Chat(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
 		this.mapPlayerTimeStamps = new HashMap<>();
 		this.listGlobalMuters = new ArrayList<>();
-		this.chatListener = new ChatListener();
-		this.deathListener = new DeathListener();
 	}
 	
-	public EventListener getChatListener() {
-		return this.chatListener;
-	}
-	
-	public EventListener getDeathListener() {
-		return this.deathListener;
+	public List<String> getGlobalMuters() {
+		return this.listGlobalMuters;
 	}
 	
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
@@ -247,17 +238,12 @@ public class Chat {
 		if(!bypassMute && listGlobalMuters.contains(connection.username.toLowerCase())) return "User muted their global chat.";
 		
 		String message = "";
-		if(addTimeStamp) {
-			message += "[T]";
-		}
-		if(header != null && !header.isEmpty()) {
-			message += headerColor + " " + header;
-			
-		}
+		if(addTimeStamp) message += "[T]";
+
+		if(header != null && !header.isEmpty()) message += headerColor + " " + header;
 		
-		if(textColor != null && !textColor.isEmpty()) {
-			message += textColor + " ";
-		}
+		if(textColor != null && !textColor.isEmpty()) message += textColor + " ";
+		
 		message += text + CHAT_COLOR_WHITE + " ";
 		
 		ByteBufferWriter b2 = connection.startPacket();
@@ -309,114 +295,5 @@ public class Chat {
 			bufferWriter.putUTF(messageOut);
 			connection.endPacketImmediate();
 		}
-	}
-	
-	public class ChatListener implements EventListener {
-
-		@Override
-		public String[] getTypes() {
-			return new String[] {ChatEvent.ID};
-		}
-
-		@Override
-		public void handleEvent(Event event) {
-			if(event.getName() == ChatEvent.ID) {
-				handleChatEvent((ChatEvent) event);
-			}
-		}
-
-		private void handleChatEvent(ChatEvent event) {
-			Player player = event.getPlayer();
-			String text = event.getText();
-			UdpConnection connectionCommander = player.getConnection();
-
-			text = Chat.getStripped(text, false);
-			text = text.replaceAll("<", "&lt;");
-			text = text.replaceAll(">", "&gt;");						
-			if(event.isGlobal()) {
-				if(listGlobalMuters.contains(player.getUsername().toLowerCase())) {
-					messagePlayer(player.getConnection(), "[NOTICE]: ", Chat.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", Chat.CHAT_COLOR_LIGHT_GREEN, true, true);
-					return;
-				}
-				
-				for (UdpConnection connection : ZIRC.instance.getUdpEngine().connections) {
-					messagePlayer(connection, event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, false);
-				}			
-			} else {
-				IsoPlayer isoPlayer = player.get();
-				int playerID = isoPlayer != null ? isoPlayer.OnlineID : -1;
-				byte sayIt = (byte) (event.sayIt() ? 1 : 0);
-				byte chatType = event.getChatType();
-
-				if(isoPlayer != null && !text.startsWith("[SERVERMSG]")) {
-					if(chatType == 0) {
-						isoPlayer.Say(text);
-					} else if(chatType == 1) {
-						isoPlayer.SayWhisper(text);
-					} else if(chatType == 2) {
-						isoPlayer.SayShout(text);
-					}
-				}
-				
-				for (UdpConnection connection : ZIRC.instance.getUdpEngine().connections) {
-					try {
-						if (connectionCommander == null 
-								|| connectionCommander != null
-									&& connection.getConnectedGUID() != connectionCommander.getConnectedGUID()
-									&& player != null
-									&& connection.ReleventTo(isoPlayer.x, isoPlayer.y)) {
-							localMessage(connection, playerID, text, chatType, sayIt);
-						}
-					} catch(NullPointerException e) {
-						// This is when a player is checked, but disconnects asynchronously.
-					}
-				}
-			}
-		}
-	}
-	
-	long timeThen = 0L;
-	
-	public void update() {
-		long timeNow = System.currentTimeMillis();
-		if(timeNow - timeThen > 5000) {
-			mapPlayerTimeStamps.clear();
-			timeThen = timeNow;
-		}
-	}
-	
-	public class DeathListener implements EventListener {
-		
-		public String[] getTypes() { return new String[] {DeathEvent.ID, PVPKillEvent.ID};}
-		
-		public void handleEvent(Event event) {
-			if(!event.shouldAnnounce()) return;
-			String text = event.getLogMessage();
-			if(event.getName() == DeathEvent.ID) {
-				String username = ((DeathEvent)event).getPlayer().getUsername();
-				Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-				if(timeStamp != null) {
-					event.setHandled(true);
-					event.setCanceled(true);
-					return;
-				}
-				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
-				ZIRC.instance.handleCommand((UdpConnection)null, "/thunder start", false);
-			} else 
-			if(event.getName() == PVPKillEvent.ID) {
-				String username = ((PVPKillEvent)event).getKilled().getUsername();
-				Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-				if(timeStamp != null) {
-					event.setHandled(true);
-					event.setCanceled(true);
-					return;
-				}
-				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
-				ZIRC.instance.handleCommand((UdpConnection)null, "/thunder start", false);
-			}
-		}
-		
 	}
 }

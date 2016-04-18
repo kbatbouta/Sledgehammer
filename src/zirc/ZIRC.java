@@ -130,9 +130,6 @@ public class ZIRC {
 			}
 		}
 		
-		// ZIRC Event Listeners
-		registerEventListener(chat.getDeathListener());
-		
 		// Core Modules.
 		moduleVanilla = new ModuleVanilla();
 		moduleVanilla.loadModule();
@@ -184,7 +181,6 @@ public class ZIRC {
 	
 	public void update() {
 		synchronized(concurrentLock) {			
-			chat.update();
 			long timeNow = System.currentTimeMillis();
 			updateModules(timeNow);
 			timeThen = timeNow;
@@ -194,7 +190,6 @@ public class ZIRC {
 				unloadModule(module, false);
 				modules.remove();
 			}
-			
 			updateNPCs();
 		}
 	}
@@ -221,32 +216,32 @@ public class ZIRC {
 				boolean onFire = (flags & 32) != 0;
 				
 				for(UdpConnection c : udpEngine.connections) {
-					ByteBufferWriter var34 = c.startPacket();
-					PacketTypes.doPacket((byte)7, var34);
-					var34.putShort((short)npc.OnlineID);
-					var34.putByte((byte)npc.dir.index());
-					var34.putFloat(npc.getX());
-					var34.putFloat(npc.getY());
-					var34.putFloat(npc.getZ());
-					var34.putFloat(npc.playerMoveDir.x * 2);
-					var34.putFloat(npc.playerMoveDir.y * 2);
-					var34.putByte(npc.NetRemoteState);
+					ByteBufferWriter byteBufferWriter = c.startPacket();
+					PacketTypes.doPacket((byte)7, byteBufferWriter);
+					byteBufferWriter.putShort((short)npc.OnlineID);
+					byteBufferWriter.putByte((byte)npc.dir.index());
+					byteBufferWriter.putFloat(npc.getX());
+					byteBufferWriter.putFloat(npc.getY());
+					byteBufferWriter.putFloat(npc.getZ());
+					byteBufferWriter.putFloat(npc.playerMoveDir.x * 2);
+					byteBufferWriter.putFloat(npc.playerMoveDir.y * 2);
+					byteBufferWriter.putByte(npc.NetRemoteState);
 					if(npc.sprite != null) {
-						var34.putByte((byte)npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim));
+						byteBufferWriter.putByte((byte)npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim));
 					} else {
-						var34.putByte((byte)0);
+						byteBufferWriter.putByte((byte)0);
 					}
-					var34.putByte((byte)((int)npc.def.Frame));
-					var34.putFloat(npc.def.AnimFrameIncrease);
-					var34.putFloat(npc.mpTorchDist);
-					var34.putFloat(npc.mpTorchStrength);
+					byteBufferWriter.putByte((byte)((int)npc.def.Frame));
+					byteBufferWriter.putFloat(npc.def.AnimFrameIncrease);
+					byteBufferWriter.putFloat(npc.mpTorchDist);
+					byteBufferWriter.putFloat(npc.mpTorchStrength);
 					if(npc.def.Finished) flags = (byte)(flags | 1);
 					if(npc.def.Looped) flags = (byte)(flags | 2);
 					if(npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0) flags = (byte)(flags | 4);
 					if(npc.bSneaking) flags = (byte)(flags | 8);
 					if(torchCone) flags = (byte)(flags | 16);
 					if(onFire) flags = (byte)(flags | 32);
-					var34.putByte(flags);
+					byteBufferWriter.putByte(flags);
 					c.endPacketSuperHighUnreliable();
 				}
 			}
@@ -273,6 +268,9 @@ public class ZIRC {
 				updateModule(module, delta);
 			}
 		}
+		
+		// Update the core last.
+		updateModule(moduleCore, delta);
 	}
 	
 	private void updateModule(Module module, long delta) {
@@ -306,6 +304,9 @@ public class ZIRC {
 			stopModule(module);
 		}
 		
+		// Stop the core module last.
+		stopModule(moduleCore);
+		
 	}
 	
 	private void stopModule(Module module) {
@@ -328,6 +329,9 @@ public class ZIRC {
 			if(module != null) unloadModule(module, false);
 			modules.remove();
 		}
+		
+		// Unload the core module last.
+		unloadModule(moduleCore, false);
 	}
 	
 	private void unloadModule(Module module, boolean remove) {
@@ -373,10 +377,6 @@ public class ZIRC {
 			
 			// Force Core Event-handling to be last, for modification potential.
 			if(!event.handled()) {
-				if(event.getName() == ChatEvent.ID) {
-					EventListener listener = chat.getChatListener();
-					if(listener != null) listener.handleEvent(event);
-				} 
 				moduleCore.getEventListener().handleEvent(event);					
 			}
 			
@@ -569,7 +569,7 @@ public class ZIRC {
 		}
 	}
 	
-	private void registerEventListener(EventListener listener) {
+	public void registerEventListener(EventListener listener) {
 		if(listener == null) throw new IllegalArgumentException("Listener is null!");
 		String[] types = listener.getTypes();
 		if(types == null) throw new IllegalArgumentException("listener.getTypes() array is null!");

@@ -3,6 +3,7 @@ package zirc.modules;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import zirc.Chat;
 import zirc.ZIRC;
@@ -40,27 +41,28 @@ public class ModuleCore extends SQLModule {
 		if(username == null) return "Username is null.";
 		try {
 			Chat chat = ZIRC.instance.getChat();
+			List<String> listGlobalMuters = chat.getGlobalMuters();
 			String muted = get(TABLE_GLOBAL_MUTE, "name", username, "mute");
 			if(muted != null) {
 				if(muted.equals("1")) {
 					PreparedStatement statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MUTE + " SET mute = \"0\" where name = \"" + username + "\"");
 					statement.executeUpdate();
 					statement.close();
-					chat.listGlobalMuters.remove(username);
+					listGlobalMuters.remove(username);
 					return "Global mute disabled.";
 				} else
 				if(muted.equals("0")) {
 					PreparedStatement statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MUTE + " SET mute = \"1\" where name = \"" + username + "\"");
 					statement.executeUpdate();
 					statement.close();
-					if(!chat.listGlobalMuters.contains(username)) chat.listGlobalMuters.add(username);
+					if(!listGlobalMuters.contains(username)) listGlobalMuters.add(username);
 					return "Global mute enabled. To disable it, type \"/globalmute\"";
 				}
 			} else {
 				PreparedStatement statement = prepareStatement("INSERT INTO " + TABLE_GLOBAL_MUTE + " (name, mute) VALUES (\"" + username + "\", \"1\")");
 				statement.executeUpdate();
 				statement.close();
-				if(!chat.listGlobalMuters.contains(username)) chat.listGlobalMuters.add(username);
+				if(!listGlobalMuters.contains(username)) listGlobalMuters.add(username);
 				return "Global mute enabled. To disable it, type \"/globalmute\"";
 			}
 		} catch(Exception e) {
@@ -105,7 +107,7 @@ public class ModuleCore extends SQLModule {
 
 	@Override
 	public void onUpdate(long delta) {
-		
+		eventListener.update();
 	}
 
 	@Override
@@ -135,5 +137,5 @@ public class ModuleCore extends SQLModule {
 	public CoreEventListener getEventListener() {
 		return this.eventListener;
 	}
-
+	
 }
