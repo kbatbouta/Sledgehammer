@@ -1,5 +1,6 @@
 package zirc.module;
 
+import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -10,8 +11,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import zombie.GameWindow;
+
 public abstract class SQLModule extends Module {
-	private Connection connection;
+	private Connection connection = null;
 	
 	public static final String SQL_STORAGE_CLASS_NULL    = "NULL"   ;
 	public static final String SQL_STORAGE_CLASS_TEXT    = "TEXT"   ;
@@ -27,6 +30,10 @@ public abstract class SQLModule extends Module {
 	
 	public SQLModule(Connection connection) {
 		this.connection = connection;
+	}
+	
+	public SQLModule() {
+		super();
 	}
 	
 	public int getSchemaVersion() {
@@ -240,6 +247,14 @@ public abstract class SQLModule extends Module {
 			}
 			return hashString.toString();
 		}
+	}
+	
+	public void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+	
+	public String getDBCacheDirectory() {
+		return GameWindow.getCacheDir() + File.separator + "db" + File.separator;
 	}
 	
 //	public void restartConnection() {

@@ -26,6 +26,7 @@ import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
 import zirc.interfaces.EventListener;
 import zirc.interfaces.LogListener;
+import zirc.interfaces.PermissionHandler;
 import zirc.module.Module;
 import zirc.module.ModuleMonitor;
 import zirc.module.ModuleVanilla;
@@ -61,6 +62,8 @@ public class ZIRC {
 	private long timeThen;
 	private String[] listPluginsRaw;
 	
+	private List<PermissionHandler> listPermissionHandlers;
+	
 	static String fs = File.separator;
 	public static String pluginLocation = GameWindow.getCacheDir() + fs + "Server" + fs + "ZIRC" + fs + "plugins" + fs;
 	static File pluginFolder = new File(pluginLocation);
@@ -74,12 +77,13 @@ public class ZIRC {
 	}
 	
 	public void init() {
-		listNPCs            = new ArrayList<>();
-		listModules         = new ArrayList<>();
-		mapEventListeners   = new HashMap<>();
-		mapCommandListeners = new HashMap<>();
-		listLogListeners    = new ArrayList<>();
-		listUnloadNext      = new ArrayList<>();
+		listNPCs               = new ArrayList<>();
+		listModules            = new ArrayList<>();
+		mapEventListeners      = new HashMap<>();
+		mapCommandListeners    = new HashMap<>();
+		listLogListeners       = new ArrayList<>();
+		listUnloadNext         = new ArrayList<>();
+		listPermissionHandlers = new ArrayList<>();
 		mapCommandListeners.put("*", new ArrayList<CommandListener>());
 		chat = new Chat(udpEngine);
 		loadSettings();
