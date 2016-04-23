@@ -221,6 +221,28 @@ public abstract class SQLModule extends Module {
 
 	}
 	
+	public List<String> getAll(String tableName, String targetName) throws SQLException {
+		PreparedStatement statement;
+		List<String> list = new ArrayList<>();
+		statement = prepareStatement("SELECT * FROM " + tableName);
+		ResultSet result = statement.executeQuery();
+		while (result.next()) list.add(result.getString(targetName));
+		result.close();
+		statement.close();
+		return list;
+	}
+	
+	public List<String> getAll(String tableName, String matchName, String matchValue, String targetName) throws SQLException {
+		PreparedStatement statement;
+		List<String> list = new ArrayList<>();
+		statement = prepareStatement("SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
+		ResultSet result = statement.executeQuery();
+		while (result.next()) list.add(result.getString(targetName));
+		result.close();
+		statement.close();
+		return list;
+	}
+	
 	public String get(String tableName, String matchName, String matchValue, String targetName) throws SQLException {
 		PreparedStatement statement;
 		statement = prepareStatement("SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");

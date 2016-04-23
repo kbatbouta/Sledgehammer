@@ -20,6 +20,8 @@ import zombie.network.DataBaseBuffer;
 
 public class ModuleNPC extends SQLModule {
 
+	public static final String ID = "zirc_npc";
+	
 	private Map<IsoNPCPlayer, IsoGameCharacter> mapSpawners;
 	
 	public ModuleNPC() {
@@ -87,5 +89,10 @@ public class ModuleNPC extends SQLModule {
 	public void onUnload() {}
 	public String getModuleName() { return "FakePlayer"; }
 	public String getVersion()    { return "1.00";       }
+
+	@Override
+	public String getModuleID() {
+		return ID;
+	}
 
 }

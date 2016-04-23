@@ -204,11 +204,16 @@ public abstract class Module {
 		ZIRC.instance.handleEvent(event);
 	}
 	
+	public Module getModuleByID(String ID) {
+		return ZIRC.instance.getModuleByID(ID);
+	}
+	
 	public abstract void onLoad();
 	public abstract void onStart();
 	public abstract void onUpdate(long delta);
 	public abstract void onStop();
 	public abstract void onUnload();
 	public abstract String getModuleName();
+	public abstract String getModuleID();
 	public abstract String getVersion();
 }

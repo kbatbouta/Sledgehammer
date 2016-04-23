@@ -22,6 +22,9 @@ import zirc.wrapper.Player;
 import zombie.iso.IsoWorld;
 
 public class ModuleMonitor extends Module {
+	
+	public static final String ID = "zirc_monitor";
+	
 	private static final String newLine = System.getProperty("line.separator");
 	long timeThen = 0L;
 	
@@ -269,5 +272,10 @@ public class ModuleMonitor extends Module {
 
 	public String getModuleName() { return "Memory Monitor"; }
 	public String getVersion()    { return "1.00";           }
+
+	@Override
+	public String getModuleID() {
+		return ID;
+	}
 
 }
