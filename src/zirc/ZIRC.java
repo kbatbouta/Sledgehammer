@@ -400,11 +400,11 @@ public class ZIRC {
 			if (event == null)
 				throw new IllegalArgumentException("Event is null!");
 
-			if (event.getName() == CommandEvent.ID) {
+			if (event.getID() == CommandEvent.ID) {
 				return (handleCommand((CommandEvent) event, logEvent));
 			}
 
-			List<EventListener> listEventListeners = mapEventListeners.get(event.getName());
+			List<EventListener> listEventListeners = mapEventListeners.get(event.getID());
 			if (listEventListeners != null) {
 				for (EventListener listener : listEventListeners) {
 					listener.handleEvent(event);
@@ -446,7 +446,7 @@ public class ZIRC {
 			}
 
 			String log = "ZIRC";
-			String eName = event.getName();
+			String eName = event.getID();
 			if (eName.equalsIgnoreCase(ChatEvent.ID)) {
 				log += "-CHAT";
 			} else if (eName.equalsIgnoreCase(CommandEvent.ID)) {

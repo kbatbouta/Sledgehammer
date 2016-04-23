@@ -13,30 +13,6 @@ public abstract class Event {
 		timeStamp = System.currentTimeMillis();
 	}
 	
-//	public Type getType() {
-//		return this.type;
-//	}
-//
-//	public enum Type {
-//		EVENT_PLAYER_CONNECT,
-//		EVENT_PLAYER_DISCONNECT,
-//		EVENT_PLAYER_DEATH,
-//		EVENT_PLAYER_GRANTED_ADMIN,
-//		EVENT_PLAYER_REMOVED_ADMIN,
-//		EVENT_PLAYER_BANNED,
-//		EVENT_PLAYER_KICKED,
-//		EVENT_PLAYER_PVP_TOGGLE,
-//		EVENT_PLAYER_PVP_ATTACK,
-//		EVENT_PLAYER_PVP_KILL,
-//		
-//		EVENT_CHAT,
-//		EVENT_COMMAND,
-//		
-//		EVENT_LOG,
-//		EVENT_SERVER,
-//		EVENT_MISC
-//	}
-	
 	public abstract String getLogMessage();
 	
 	public void setHandled(boolean handled) {
@@ -67,7 +43,7 @@ public abstract class Event {
 		this.canceled  = canceled;
 	}
 	
-	public abstract String getName();
+	public abstract String getID();
 	
 
 }

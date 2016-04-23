@@ -41,10 +41,10 @@ public class CoreEventListener implements EventListener {
 		List<String> listGlobalMuters = chat.getGlobalMuters();
 		String text = event.getLogMessage();
 		
-		if(event.getName() == ChatEvent.ID) {
+		if(event.getID() == ChatEvent.ID) {
 			handleChatEvent((ChatEvent) event);
 		} else
-		if(event.getName() == ConnectEvent.ID) {
+		if(event.getID() == ConnectEvent.ID) {
 			Player player = ((ConnectEvent)event).getPlayer();
 			String username = player.getUsername().toLowerCase();
 			boolean isGlobalMuted = module.getGlobalMuted(username);
@@ -55,11 +55,11 @@ public class CoreEventListener implements EventListener {
 				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", Chat.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".", Chat.CHAT_COLOR_LIGHT_GREEN, true, true);
 			}
 		} else
-		if(event.getName() == DisconnectEvent.ID) {
+		if(event.getID() == DisconnectEvent.ID) {
 			String username = ((DisconnectEvent)event).getPlayer().getUsername();
 			listGlobalMuters.remove(username);
 		} else
-		if(event.getName() == DeathEvent.ID) {
+		if(event.getID() == DeathEvent.ID) {
 			if(!event.shouldAnnounce()) return;
 			String username = ((DeathEvent)event).getPlayer().getUsername();
 			Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
@@ -72,7 +72,7 @@ public class CoreEventListener implements EventListener {
 			ZIRC.instance.getChat().globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
 			ZIRC.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		} else 
-		if(event.getName() == PVPKillEvent.ID) {
+		if(event.getID() == PVPKillEvent.ID) {
 			if(!event.shouldAnnounce()) return;
 			String username = ((PVPKillEvent)event).getKilled().getUsername();
 			Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());

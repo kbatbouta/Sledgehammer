@@ -16,7 +16,7 @@ public class ConnectEvent extends PlayerEvent {
 	}
 
 	@Override
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 

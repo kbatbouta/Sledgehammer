@@ -152,7 +152,7 @@ public class CommandEvent extends PlayerEvent {
 	}
 
 	@Override
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 	

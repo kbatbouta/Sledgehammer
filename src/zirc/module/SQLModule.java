@@ -13,6 +13,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import zirc.ZIRC;
+import zirc.util.ZUtil;
 import zombie.GameWindow;
 
 public abstract class SQLModule extends Module {
@@ -61,16 +63,9 @@ public abstract class SQLModule extends Module {
 		if(fileName.contains(".")) {
 			finalFileName = finalFileName.split(".")[0];
 		}
-		establishConnection();
-	}
-	
-	public void establishConnection() {
-		if (dbFile == null) throw new IllegalStateException("Database File has not been defined yet!");
 		
-		dbFile.setReadable(true, false);
-		dbFile.setExecutable(true, false);
-		dbFile.setWritable(true, false);
-		Connection connection = null;
+		dbFile = new File(getDBCacheDirectory() + fileName + ".db");
+		
 		if (!dbFile.exists()) {
 			try {
 				dbFile.createNewFile();
@@ -78,6 +73,18 @@ public abstract class SQLModule extends Module {
 				e.printStackTrace();
 			}
 		}
+		
+		establishConnection();
+	}
+	
+	public void establishConnection() {
+		if (dbFile == null) throw new IllegalStateException("Database File has not been defined yet!");
+		dbFile.setReadable(true, false);
+		dbFile.setExecutable(true, false);
+		dbFile.setWritable(true, false);
+
+		Connection connection = null;
+		
 		try {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());

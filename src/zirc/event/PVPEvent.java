@@ -20,7 +20,7 @@ public class PVPEvent extends PlayerEvent {
 		return getPlayer().getUsername() + " " + (isPVPEnabled()?"enabled":"disabled") + " PVP.";
 	}
 
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 }
