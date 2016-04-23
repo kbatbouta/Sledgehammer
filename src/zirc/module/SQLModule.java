@@ -1,9 +1,11 @@
 package zirc.module;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,8 +34,60 @@ public abstract class SQLModule extends Module {
 		this.connection = connection;
 	}
 	
+	File dbFile;
+	
 	public SQLModule() {
 		super();
+	}
+	
+	public SQLModule(String fileName) {
+		super();
+		establishConnection(fileName);
+	}
+	
+	public SQLModule(File file) {
+		if(file == null) throw new IllegalArgumentException("File is null!");
+		
+		dbFile = file;
+		
+	}
+	
+	public void establishConnection(String fileName) {
+		if (fileName == null || fileName.isEmpty()) {
+			throw new IllegalArgumentException("Database File name is null or empty!");
+		}
+		
+		String finalFileName = fileName;
+		if(fileName.contains(".")) {
+			finalFileName = finalFileName.split(".")[0];
+		}
+		establishConnection();
+	}
+	
+	public void establishConnection() {
+		if (dbFile == null) throw new IllegalStateException("Database File has not been defined yet!");
+		
+		dbFile.setReadable(true, false);
+		dbFile.setExecutable(true, false);
+		dbFile.setWritable(true, false);
+		Connection connection = null;
+		if (!dbFile.exists()) {
+			try {
+				dbFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		try {
+			Class.forName("org.sqlite.JDBC");
+			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		setConnection(connection);
 	}
 	
 	public int getSchemaVersion() {
