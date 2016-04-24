@@ -1,6 +1,4 @@
-package zirc.module;
-
-import zirc.util.Result;
+package zirc.util;
 
 public class Response {
 	String response;
