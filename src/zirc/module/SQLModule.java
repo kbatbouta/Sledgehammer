@@ -11,10 +11,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import zirc.ZIRC;
-import zirc.util.ZUtil;
 import zombie.GameWindow;
 
 public abstract class SQLModule extends Module {
@@ -237,6 +237,79 @@ public abstract class SQLModule extends Module {
 		result.close();
 		statement.close();
 		return list;
+	}
+	
+	
+	public Map<String, List<String>> getAll(String tableName, String[] targetNames) throws SQLException {
+		
+		// Create a Map to store each field respectively in lists.
+		Map<String, List<String>> map = new HashMap<>();
+		
+		// Create a List for each field. 
+		for(String field : targetNames) {
+			List<String> listField = new ArrayList<>();
+			map.put(field, listField);
+		}
+
+		// Create a statement retrieving matched rows.
+		PreparedStatement statement;
+		statement = prepareStatement("SELECT * FROM " + tableName);
+		
+		// Execute and fetch iterator for returned rows.
+		ResultSet result = statement.executeQuery();
+		
+		// Go through each row.
+		while (result.next()) {
+			
+			// For each row, we go through the field(s) desired, and store their values in the same order.			
+			for(String field : targetNames) {
+				List<String> listField = map.get(field);
+				listField.add(result.getString(field));
+			}
+			
+		}
+		// Close SQL handlers, and return the map.
+		result.close();
+		statement.close();
+		return map;
+	}
+	
+	public Map<String, List<String>> getAll(String tableName, String matchName, String matchValue, String[] targetNames) throws SQLException {
+	
+		// Create a Map to store each field respectively in lists.
+		Map<String, List<String>> map = new HashMap<>();
+		
+		// List<String> listMatches = new ArrayList<>();
+		
+		// Create a List for each field. 
+		for(String field : targetNames) {
+			List<String> listField = new ArrayList<>();
+			map.put(field, listField);
+		}
+
+		// Create a statement retrieving matched rows.
+		PreparedStatement statement;
+		statement = prepareStatement("SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
+		
+		// Execute and fetch iterator for returned rows.
+		ResultSet result = statement.executeQuery();
+		
+		// Go through each row.
+		while (result.next()) {
+			
+			// listMatches.add(result.getString(matchName));
+			
+			// For each row, we go through the field(s) desired, and store their values in the same order.			
+			for(String field : targetNames) {
+				List<String> listField = map.get(field);
+				listField.add(result.getString(field));
+			}
+			
+		}
+		// Close SQL handlers, and return the map.
+		result.close();
+		statement.close();
+		return map;
 	}
 	
 	public List<String> getAll(String tableName, String matchName, String matchValue, String targetName) throws SQLException {
