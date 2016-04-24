@@ -15,8 +15,8 @@ import java.util.Map;
 import org.github.jamm.MemoryMeter;
 
 import zirc.event.CommandEvent;
-import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
+import zirc.util.Result;
 import zirc.util.ZUtil;
 import zirc.wrapper.Player;
 import zombie.iso.IsoWorld;

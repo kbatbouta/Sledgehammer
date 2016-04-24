@@ -1,6 +1,6 @@
 package zirc.module;
 
-import zirc.event.CommandEvent.Result;
+import zirc.util.Result;
 
 public class Response {
 	String response;

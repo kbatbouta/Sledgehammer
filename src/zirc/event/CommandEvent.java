@@ -3,6 +3,7 @@ package zirc.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import zirc.util.Result;
 import zirc.wrapper.Player;
 
 public class CommandEvent extends PlayerEvent {
@@ -114,11 +115,6 @@ public class CommandEvent extends PlayerEvent {
 			args = new String[0];
 		}
 		return args;
-	}
-	
-	public static enum Result {
-		SUCCESS,
-		FAILURE;
 	}
 
 	public void setLoggedImportant(boolean b) {

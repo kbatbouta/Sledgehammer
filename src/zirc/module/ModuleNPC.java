@@ -5,8 +5,8 @@ import java.util.Map;
 
 import zirc.ZIRC;
 import zirc.event.CommandEvent;
-import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
+import zirc.util.Result;
 import zirc.wrapper.NPC;
 import zirc.wrapper.Player;
 import zombie.Lua.LuaManager;
