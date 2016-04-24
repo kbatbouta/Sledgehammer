@@ -1,4 +1,4 @@
-package zirc.modules;
+package zirc.modules.core;
 
 import java.sql.SQLException;
 

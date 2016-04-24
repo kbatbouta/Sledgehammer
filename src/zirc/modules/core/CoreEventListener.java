@@ -1,4 +1,4 @@
-package zirc.modules;
+package zirc.modules.core;
 
 import java.util.List;
 import java.util.Map;
