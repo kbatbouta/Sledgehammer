@@ -62,15 +62,17 @@ public class CoreEventListener implements EventListener {
 		if(event.getID() == DeathEvent.ID) {
 			if(!event.shouldAnnounce()) return;
 			String username = ((DeathEvent)event).getPlayer().getUsername();
-			Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-			if(timeStamp != null) {
-				event.setHandled(true);
-				event.setCanceled(true);
-				return;
+			if(username != null) {				
+				Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
+				if(timeStamp != null) {
+					event.setHandled(true);
+					event.setCanceled(true);
+					return;
+				}
+				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
+				ZIRC.instance.getChat().globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
+				ZIRC.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 			}
-			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			ZIRC.instance.getChat().globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
-			ZIRC.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		} else 
 		if(event.getID() == PVPKillEvent.ID) {
 			if(!event.shouldAnnounce()) return;
