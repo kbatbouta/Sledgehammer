@@ -2,7 +2,6 @@
 bin/
 
 # Legal exclusion of class files.
-src/zombie/*.java
 zombie/
 
 tmp/

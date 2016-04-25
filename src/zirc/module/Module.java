@@ -11,6 +11,7 @@ import zirc.interfaces.CommandListener;
 import zirc.interfaces.EventListener;
 import zirc.interfaces.LogListener;
 import zirc.interfaces.ModuleSettingsHandler;
+import zirc.interfaces.PermissionHandler;
 import zirc.util.INI;
 import zombie.GameWindow;
 
@@ -101,11 +102,6 @@ public abstract class Module {
 		}
 	}
 	
-	public void unload() {
-		started = false;
-		ZIRC.instance.unloadModule(this);
-	}
-	
 	public void register(LogListener listener) {
 		ZIRC.instance.registerLogListener(listener);
 	}
@@ -121,6 +117,15 @@ public abstract class Module {
 		for(String command : commands) {
 			ZIRC.instance.registerCommandListener(command, listener);			
 		}
+	}
+	
+	public void register(PermissionHandler handler) {
+		ZIRC.instance.registerPermissionHandler(handler);
+	}
+	
+	public void unload() {
+		started = false;
+		ZIRC.instance.unloadModule(this);
 	}
 	
 	public boolean loadModule() {
@@ -206,6 +211,10 @@ public abstract class Module {
 	
 	public Module getModuleByID(String ID) {
 		return ZIRC.instance.getModuleByID(ID);
+	}
+	
+	public boolean hasPermission(String username, String context) {
+		return ZIRC.instance.hasPermission(username, context);
 	}
 	
 	public abstract void onLoad();

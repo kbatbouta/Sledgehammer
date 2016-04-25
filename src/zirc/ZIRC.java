@@ -34,6 +34,7 @@ import zirc.modules.vanilla.ModuleVanilla;
 import zirc.util.Chat;
 import zirc.util.INI;
 import zirc.util.Result;
+import zirc.util.ZUtil;
 import zirc.wrapper.NPC;
 import zirc.wrapper.Player;
 import zombie.GameWindow;
@@ -47,26 +48,87 @@ import zombie.network.PacketTypes;
 
 public class ZIRC {
 
+	/**
+	 * Singleton instance of the ZIRC engine.
+	 */
 	public static ZIRC instance;
+	
+	/**
+	 * The concurrent Object for synchronization.
+	 */
 	private static Object concurrentLock = new Object();
+	
+	/**
+	 * Chat instance for working with chat packets and chat filtering.
+	 */
 	private Chat chat;
 
+	/**
+	 * List for modules.
+	 */
 	private List<Module> listModules;
+	
+	/**
+	 * Map for modules, organized by their associated IDs.
+	 */
 	private Map<String, Module> mapModules;
+	
+	/**
+	 * Map for registered EventListener interfaces.
+	 */
 	private Map<String, List<EventListener>> mapEventListeners;
+	
+	/**
+	 * Map for registered CommandListener interfaces.
+	 */
 	private Map<String, List<CommandListener>> mapCommandListeners;
+	
+	/**
+	 * List for registered LogListener interfaces.
+	 */
 	private List<LogListener> listLogListeners;
+	
+	/**
+	 * List of Modules, ready to be unloaded in the next update tick.
+	 */
 	private List<Module> listUnloadNext;
+	
+	/**
+	 * ModuleVanilla instance to communicate with vanilla commands, and handlers from the original game code.
+	 * NOTE: This module's code is not accessible in respect to the proprietary nature of the game.
+	 */
 	private ModuleVanilla moduleVanilla;
+	
+	/**
+	 * ModuleCore instance to handle core-level components of ZIRC.
+	 */
 	private ModuleCore moduleCore;
+	
+	/**
+	 * UdpEngine pointer for the Project Zomboid GameServer UdpEngine instance, to communicate with connections.
+	 */
 	private UdpEngine udpEngine;
+	
+	/**
+	 * Long variable to measure update-tick deltas.
+	 */
 	private long timeThen;
+	
+	/**
+	 * String Array to store the list of the plugins from ZIRC.ini Settings.
+	 */
 	private String[] listPluginsRaw;
 
+	/**
+	 * List of registered PermissionHandler interfaces.
+	 */
 	private List<PermissionHandler> listPermissionHandlers;
 
+	
 	static String fs = File.separator;
+	
 	public static String pluginLocation = GameWindow.getCacheDir() + fs + "Server" + fs + "ZIRC" + fs + "plugins" + fs;
+	
 	static File pluginFolder = new File(pluginLocation);
 
 	private List<NPC> listNPCs;
@@ -78,17 +140,19 @@ public class ZIRC {
 	}
 
 	public void init() {
-		listNPCs = new ArrayList<>();
-		listModules = new ArrayList<>();
-		mapEventListeners = new HashMap<>();
-		mapCommandListeners = new HashMap<>();
-		listLogListeners = new ArrayList<>();
-		listUnloadNext = new ArrayList<>();
+		mapEventListeners      = new HashMap<>();
+		mapCommandListeners    = new HashMap<>();
+		mapModules             = new HashMap<>();
+		listNPCs               = new ArrayList<>();
+		listModules            = new ArrayList<>();
+		listLogListeners       = new ArrayList<>();
+		listUnloadNext         = new ArrayList<>();
 		listPermissionHandlers = new ArrayList<>();
-		mapModules = new HashMap<>();
 
 		mapCommandListeners.put("*", new ArrayList<CommandListener>());
+
 		chat = new Chat(udpEngine);
+		
 		loadSettings();
 		loadModules();
 		startModules();
@@ -386,11 +450,6 @@ public class ZIRC {
 		}
 	}
 
-	public void reload() {
-		stop();
-		init();
-	}
-
 	public Event handleEvent(Event event) {
 		return handleEvent(event, true);
 	}
@@ -437,26 +496,39 @@ public class ZIRC {
 		return event;
 	}
 
+	/**
+	 * Logs a Event, running through each LogListener interface.
+	 * @param event
+	 */
 	public void logEvent(Event event) {
 		try {
+			// Create a new LogEvent instance for the Event.
 			LogEvent logEvent = new LogEvent(event);
+			
+			// Go through each LogListener interface and fire it.
 			for (LogListener listener : listLogListeners) {
-				if (listener != null)
-					listener.onLogEntry(logEvent);
+				if (listener != null) listener.onLogEntry(logEvent);
 			}
 
 			String log = "ZIRC";
+			
+			// Grab the ID of the event.
 			String eName = event.getID();
+			
+			// For organization purposes.
 			if (eName.equalsIgnoreCase(ChatEvent.ID)) {
 				log += "-CHAT";
 			} else if (eName.equalsIgnoreCase(CommandEvent.ID)) {
 				log += "-COMMAND";
 			}
-			if (!logEvent.isImportant()) {
-				LoggerManager.getLogger(log).write(logEvent.getLogMessage());
-			} else {
+
+			// If important, log as such. Else log normally.
+			if (logEvent.isImportant()) {
 				LoggerManager.getLogger(log).write(logEvent.getLogMessage(), "IMPORTANT");
+			} else {
+				LoggerManager.getLogger(log).write(logEvent.getLogMessage());
 			}
+			
 		} catch (Exception e) {
 			println("Error logging event " + event + ": " + e.getMessage());
 			for (StackTraceElement o : e.getStackTrace()) {
@@ -466,25 +538,49 @@ public class ZIRC {
 
 	}
 
+	/**
+	 * Handles a command.
+	 * @param connection
+	 * @param input
+	 * @return
+	 */
 	public CommandEvent handleCommand(UdpConnection connection, String input) {
 		return handleCommand(connection, input, true);
 	}
 
+	/**
+	 * Handles a command.
+	 * @param connection
+	 * @param input
+	 * @param logEvent
+	 * @return
+	 */
 	public CommandEvent handleCommand(UdpConnection connection, String input, boolean logEvent) {
 		Player player = null;
-		if (connection == null)
-			player = new Player();
-		else
-			player = new Player(connection);
+		
+		// Create a Player instance.
+		if (connection == null) player = new Player();
+		else player = new Player(connection);
+		
+		// Create a CommandEvent.
 		CommandEvent c = new CommandEvent(player, input);
+		
+		// Fire the CommandEvent handle method, and return its result.
 		return handleCommand(c, logEvent);
 	}
 
+	/**
+	 * Handles a CommandEvent. 
+	 * @param c
+	 * @param logEvent
+	 * @return
+	 */
 	private CommandEvent handleCommand(CommandEvent c, boolean logEvent) {
 		synchronized (concurrentLock) {
 			try {
 				String command = c.getCommand();
 
+				// If '/help' is fired.
 				if (command.equalsIgnoreCase("help")) {
 					help(c);
 					return c;
@@ -492,21 +588,22 @@ public class ZIRC {
 
 				// Run through selected command listeners first (Optimization).
 				List<CommandListener> listListeners = mapCommandListeners.get(c.getCommand());
+				
 				if (listListeners != null) {
 					for (CommandListener listener : listListeners) {
-						if (listener != null)
-							listener.onCommand(c);
-						if (c.handled())
-							break;
+						// If the listener is not null, fire the CommandListener.
+						if (listener != null) listener.onCommand(c);
+						
+						// If the listener set the command as handled, break the loop.
+						if (c.handled()) break;
 					}
 				}
 
 				// Force Vanilla CommandListener to last for modification
 				// potential.
 				CommandListener vanillaListener = moduleVanilla.getCommandListener();
-				if (!c.handled() && vanillaListener != null) {
-					vanillaListener.onCommand(c);
-				}
+				if (!c.handled() && vanillaListener != null) vanillaListener.onCommand(c);
+	
 
 				CoreCommandListener coreCommandListener = moduleCore.getCommandListener();
 
@@ -540,6 +637,10 @@ public class ZIRC {
 		return c;
 	}
 
+	/**
+	 * Method executing the '/help' command.
+	 * @param command
+	 */
 	private void help(CommandEvent command) {
 		Player player = command.getPlayer();
 		String response = "Commands: " + Chat.CHAT_LINE + " " + Chat.CHAT_COLOR_WHITE + " ";
@@ -604,7 +705,36 @@ public class ZIRC {
 
 		command.setResponse(Result.SUCCESS, response);
 	}
+	
+	
+	/**
+	 * Returns whether or not a user has a allowed permissions context.
+	 * @param username
+	 * @param context
+	 * @return
+	 */
+	public boolean hasPermission(String username, String context) {
+		
+		if(ZUtil.isUserAdmin(username)) return true;
+		
+		// Loop through each handler and if any returns true, return true.
+		for(PermissionHandler handler : this.listPermissionHandlers) {
+			try {				
+				if(handler.hasPermission(username, context)) return true;
+			} catch(Exception e) {
+				println("Error handling permission check: " + handler.getClass().getName() + " Error: " + e.getMessage());
+				ZUtil.printStackTrace(e);
+			}
+		}
+		
+		// If no permissions handler identified as true, return false.
+		return false;
+	}
 
+	/**
+	 * Registers a ZIRC Module.
+	 * @param module
+	 */
 	public void registerModule(Module module) {
 		synchronized (concurrentLock) {
 			if (module == null)
@@ -628,6 +758,11 @@ public class ZIRC {
 		}
 	}
 
+	/**
+	 * Registers an EventListener interface, with a Event ID, given as a String.
+	 * @param event
+	 * @param listener
+	 */
 	public void registerEventListener(String event, EventListener listener) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null!");
@@ -641,6 +776,10 @@ public class ZIRC {
 		}
 	}
 
+	/**
+	 * Registers an EventListener interface, with all Event IDs listed in the interface as String[] getTypes().
+	 * @param listener
+	 */
 	public void registerEventListener(EventListener listener) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null!");
@@ -653,9 +792,13 @@ public class ZIRC {
 
 	}
 
+	/**
+	 * Registers a CommandListener interface, with a command, given as a String.
+	 * @param command
+	 * @param listener
+	 */
 	public void registerCommandListener(String command, CommandListener listener) {
-		if (listener == null)
-			throw new IllegalArgumentException("Listener is null!");
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
 
 		command = command.toLowerCase();
 
@@ -669,37 +812,87 @@ public class ZIRC {
 		}
 	}
 
+	/**
+	 * Registers a LogListener interface.
+	 * @param listener
+	 */
 	public void registerLogListener(LogListener listener) {
-		if (listener == null)
-			throw new IllegalArgumentException("Listener is null!");
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
 		listLogListeners.add(listener);
 	}
+	
+	/**
+	 * Registers a PermissionHandler interface.
+	 * @param handler
+	 */
+	public void registerPermissionHandler(PermissionHandler handler) {
+		if(handler != null) {			
+			if(!listPermissionHandlers.contains(handler)) listPermissionHandlers.add(handler);
+		}
+	}
+	
+	/**
+	 * Reloads ZIRC entirely.
+	 */
+	public void reload() {
+		stop();
+		init();
+	}
 
+	/**
+	 * Returns a Module with a given ID.
+	 * @param ID
+	 * @return
+	 */
 	public Module getModuleByID(String ID) {
 		return mapModules.get(ID);
 	}
 
+	/**
+	 * Returns Project Zomboid's UdpEngine instance.
+	 * @return
+	 */
 	public UdpEngine getUdpEngine() {
 		return this.udpEngine;
 	}
 
+	/**
+	 * Sets ZIRC's reference to Project Zomboid's UdpEngine instance.
+	 * @param udpEngine
+	 */
 	public void setUdpEngine(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
 	}
 
+	/**
+	 * Prints lines with "ZIRC: [message...]".
+	 * @param messages
+	 */
 	public static void println(Object... messages) {
 		for (Object message : messages)
 			System.out.println("ZIRC: " + message);
 	}
 
+	/**
+	 * Unloads a module.
+	 * @param module
+	 */
 	public void unloadModule(Module module) {
 		this.listUnloadNext.add(module);
 	}
 
+	/**
+	 * Returns the list of all loaded modules.
+	 * @return
+	 */
 	public List<Module> getLoadedModules() {
 		return this.listModules;
 	}
 
+	/**
+	 * Returns the map of EventListener interfaces registered.
+	 * @return
+	 */
 	public Map<String, List<EventListener>> getEventListeners() {
 		return this.mapEventListeners;
 	}
