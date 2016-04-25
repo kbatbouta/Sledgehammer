@@ -507,8 +507,7 @@ public class ZIRC {
 
 	public Event handleEvent(Event event, boolean logEvent) {
 		try {
-			if (event == null)
-				throw new IllegalArgumentException("Event is null!");
+			if (event == null) throw new IllegalArgumentException("Event is null!");
 
 			if (event.getID() == CommandEvent.ID) {
 				return (handleCommand((CommandEvent) event, logEvent));
@@ -525,18 +524,19 @@ public class ZIRC {
 				}
 			}
 
-			if (event.canceled())
-				return event;
+			// If the Event is set to canceled, return.
+			if (event.canceled()) return event;
 
 			// Force Core Event-handling to be last, for modification potential.
 			if (!event.handled()) {
 				moduleCore.getEventListener().handleEvent(event);
 			}
 
-			if (event.canceled())
-				return event;
-			if (logEvent)
-				logEvent(event);
+			// If the Event is set to canceled, return before logging it.
+			if (event.canceled()) return event;
+			
+			// Log the Event.
+			if (logEvent) logEvent(event);
 
 		} catch (Exception e) {
 			println("Error handling event " + event + ": " + e.getMessage());
