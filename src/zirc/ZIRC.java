@@ -124,36 +124,50 @@ public class ZIRC {
 	 */
 	private List<PermissionHandler> listPermissionHandlers;
 
-	
-	static String fs = File.separator;
-	
-	public static String pluginLocation = GameWindow.getCacheDir() + fs + "Server" + fs + "ZIRC" + fs + "plugins" + fs;
-	
-	static File pluginFolder = new File(pluginLocation);
-
+	/**
+	 * List of live NPC instances on the server.
+	 */
 	private List<NPC> listNPCs;
 
+	/**
+	 * INI file for ZIRC Settings.
+	 */
 	private INI ini;
 
+	/**
+	 * Main constructor. Requires UdpEngine instance from GameServer to initialize.
+	 * @param udpEngine
+	 */
 	public ZIRC(UdpEngine udpEngine) {
 		setUdpEngine(udpEngine);
 	}
-
+	
+	/**
+	 * Initializes the ZIRC engine.
+	 */
 	public void init() {
+		// Initialize Maps.
 		mapEventListeners      = new HashMap<>();
 		mapCommandListeners    = new HashMap<>();
 		mapModules             = new HashMap<>();
+		
+		// Initialize Lists.
 		listNPCs               = new ArrayList<>();
 		listModules            = new ArrayList<>();
 		listLogListeners       = new ArrayList<>();
 		listUnloadNext         = new ArrayList<>();
 		listPermissionHandlers = new ArrayList<>();
 
+		// Put a wild-card List for the CommandListener interface Map.
 		mapCommandListeners.put("*", new ArrayList<CommandListener>());
 
+		// Initialize the Chat Engine.
 		chat = new Chat(udpEngine);
 		
+		// Load the settings for ZIRC.
 		loadSettings();
+		
+		// Load and start the Modules.
 		loadModules();
 		startModules();
 	}
@@ -165,9 +179,20 @@ public class ZIRC {
 		ini = new INI(iniFile);
 		if (iniFile.exists()) {
 			try {
+				// Read the settings file.
 				ini.read();
+				
+				// Grab the list of plugins as a string.
 				String listPluginsRaw = ini.getVariableAsString("GENERAL", "plugins");
-				this.listPluginsRaw = listPluginsRaw.split(",");
+				
+				// If the setting is blank, handle properly.
+				if(listPluginsRaw.isEmpty()) {
+					this.listPluginsRaw = new String[0];
+				} else {					
+					// The plug-in entries are comma-delimited.
+					this.listPluginsRaw = listPluginsRaw.split(",");
+				}
+				
 			} catch (IOException e) {
 				println("Failed to read settings.");
 				e.printStackTrace();
@@ -185,8 +210,10 @@ public class ZIRC {
 
 	public void loadModules() {
 		registerModule(new ModuleMonitor());
+		
 		// registerModule(new ModuleNPC());
-		verifyPluginFolder();
+		
+		ZUtil.initPluginFolder();
 
 		for (String plugin : listPluginsRaw) {
 			if (plugin != null && !plugin.isEmpty()) {
@@ -263,6 +290,28 @@ public class ZIRC {
 			}
 		}
 	}
+	
+	public NPC addNPC(NPC npc) {
+		GameServer.PlayerToAddressMap.put(npc, -1L);
+		GameServer.playerToCoordsMap.put(Integer.valueOf(npc.PlayerIndex), new Vector2());
+		GameServer.IDToPlayerMap.put(Integer.valueOf(npc.PlayerIndex), npc);
+		GameServer.Players.add(npc);
+
+		UdpEngine udpEngine = ZIRC.instance.getUdpEngine();
+		for (UdpConnection c : udpEngine.connections) {
+			GameServer.sendPlayerConnect(npc, c);
+		}
+
+		listNPCs.add(npc);
+		return npc;
+	}
+
+	public void destroyNPC(NPC npc) {
+		GameServer.PlayerToAddressMap.remove(npc);
+		GameServer.playerToCoordsMap.remove(npc.PlayerIndex);
+		GameServer.IDToPlayerMap.remove(npc.PlayerIndex);
+		GameServer.Players.remove(npc);
+	}
 
 	public void update() {
 		synchronized (concurrentLock) {
@@ -310,34 +359,38 @@ public class ZIRC {
 					PacketTypes.doPacket((byte) 7, byteBufferWriter);
 					byteBufferWriter.putShort((short) npc.OnlineID);
 					byteBufferWriter.putByte((byte) npc.dir.index());
-					byteBufferWriter.putFloat(npc.getX());
-					byteBufferWriter.putFloat(npc.getY());
-					byteBufferWriter.putFloat(npc.getZ());
+					
+					byteBufferWriter.putFloat(npc.getX()             );
+					byteBufferWriter.putFloat(npc.getY()             );
+					byteBufferWriter.putFloat(npc.getZ()             );
 					byteBufferWriter.putFloat(npc.playerMoveDir.x * 2);
 					byteBufferWriter.putFloat(npc.playerMoveDir.y * 2);
+					
 					byteBufferWriter.putByte(npc.NetRemoteState);
+					
+					// Send the current animation state.
 					if (npc.sprite != null) {
 						byteBufferWriter.putByte((byte) npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim));
 					} else {
 						byteBufferWriter.putByte((byte) 0);
 					}
+					
 					byteBufferWriter.putByte((byte) ((int) npc.def.Frame));
+					
+					// Send the Animation frame delta and lighting data.
 					byteBufferWriter.putFloat(npc.def.AnimFrameIncrease);
-					byteBufferWriter.putFloat(npc.mpTorchDist);
-					byteBufferWriter.putFloat(npc.mpTorchStrength);
-					if (npc.def.Finished)
-						flags = (byte) (flags | 1);
-					if (npc.def.Looped)
-						flags = (byte) (flags | 2);
-					if (npc.legsSprite != null && npc.legsSprite.CurrentAnim != null
-							&& npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0)
-						flags = (byte) (flags | 4);
-					if (npc.bSneaking)
-						flags = (byte) (flags | 8);
-					if (torchCone)
-						flags = (byte) (flags | 16);
-					if (onFire)
-						flags = (byte) (flags | 32);
+					byteBufferWriter.putFloat(npc.mpTorchDist          );
+					byteBufferWriter.putFloat(npc.mpTorchStrength      );
+					
+					boolean legAnimation = npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0;
+					
+					if (npc.def.Finished) flags = (byte) (flags |  1);
+					if (npc.def.Looped)   flags = (byte) (flags |  2);
+					if (legAnimation)     flags = (byte) (flags |  4);
+					if (npc.bSneaking)    flags = (byte) (flags |  8);
+					if (torchCone)        flags = (byte) (flags | 16);
+					if (onFire)           flags = (byte) (flags | 32);
+					
 					byteBufferWriter.putByte(flags);
 					c.endPacketSuperHighUnreliable();
 				}
@@ -374,9 +427,7 @@ public class ZIRC {
 
 		if (module == null)
 			throw new IllegalArgumentException("module is null!");
-		if (delta < 0)
-			return; // throw new IllegalArgumentException("Delta must be 0 or
-					// greater!");
+		if (delta < 0) return;
 		try {
 			module.updateModule(delta);
 		} catch (Exception e) {
@@ -909,33 +960,10 @@ public class ZIRC {
 		return chat;
 	}
 
-	@SuppressWarnings("unchecked")
-	public NPC addNPC(NPC npc) {
-		GameServer.PlayerToAddressMap.put(npc, -1L);
-		GameServer.playerToCoordsMap.put(Integer.valueOf(npc.PlayerIndex), new Vector2());
-		GameServer.IDToPlayerMap.put(Integer.valueOf(npc.PlayerIndex), npc);
-		GameServer.Players.add(npc);
-
-		UdpEngine udpEngine = ZIRC.instance.getUdpEngine();
-		for (UdpConnection c : udpEngine.connections) {
-			GameServer.sendPlayerConnect(npc, c);
-		}
-
-		listNPCs.add(npc);
-		return npc;
-	}
-
-	public void destroyNPC(NPC npc) {
-		GameServer.PlayerToAddressMap.remove(npc);
-		GameServer.playerToCoordsMap.remove(npc.PlayerIndex);
-		GameServer.IDToPlayerMap.remove(npc.PlayerIndex);
-		GameServer.Players.remove(npc);
-	}
-
 	private static Module loadPlugin(String name)
 			throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
-		String pluginName = pluginLocation + name + ".jar";
+		String pluginName = ZUtil.pluginLocation + name + ".jar";
 		File pluginFile = new File(pluginName);
 		if (!pluginFile.exists())
 			throw new IllegalArgumentException("Jar file not found: " + pluginName);
@@ -971,11 +999,6 @@ public class ZIRC {
 		instance.setPluginSettings(pluginSettings);
 		instance.setJarName(name);
 		return instance;
-	}
-
-	private static void verifyPluginFolder() {
-		if (!pluginFolder.exists())
-			pluginFolder.mkdirs();
 	}
 
 	private static Map<String, String> getSettings(String fileName) {

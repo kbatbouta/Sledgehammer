@@ -1,9 +1,6 @@
 .metadata
 bin/
 
-# Legal exclusion of class files.
-zombie/
-
 tmp/
 *.tmp
 *.bak
@@ -52,3 +49,81 @@ local.properties
 
 # Code Recommenders
 .recommenders/
+
+
+
+# Project Zomboid
+_CommonRedist/
+com/
+de/
+dumps/
+fmod/
+gdx-jnigen/
+javax/
+jnigen/
+joptsimple/
+jre/
+jre64/
+launcher/
+license/
+media/
+mods/
+org/
+PZServerSettings/
+rcon/
+sun/
+Workshop/
+ZNetJNI32.dll
+ZNetJNI64.dll
+ZNetNoSteam32.dll
+ZNetNoSteam64.dll
+uncommons-maths-1.2.3.jar
+terms and conditions.txt
+SVNRevision.txt
+steam-network.iml
+steam_appid.txt
+steam_api.dll
+steam_api64.dll
+stdlib.lua
+stdlib.lbc
+sqlitejdbc-v056.jar
+sqlite-jdbc-3.8.10.1.jar
+sqlite-jdbc-3.8.7.jar
+serialize.lua
+runasadmin.vdf
+rebel.xml
+RakNet32.dll
+RakNet64.dll
+ProjectZomboid32.exe
+ProjectZomboid64.exe
+ProjectZomboid32.json
+ProjectZomboid64.json
+ProjectZomboid32.bat
+ProjectZomboid64.bat
+OpenALSoft32.dll
+OpenAL32.dll
+OpenAL64.dll
+lwjgl-debug.jar
+lwjgl64.dll
+lwjgl_util_applet.jar
+lwjgl_util.jar
+lwjgl_test.jar
+lwjgl.jar
+lwjgl.dll
+jinput-raw.dll
+jinput-raw_64.dll
+jinput-dx8.dll
+jinput-dx8_64.dll
+jinput-dx8_64d.dll
+jinput.jar
+fmodstudio.dll
+fmodstudio64.dll
+fmodintegration32.dll
+fmodintegration64.dll
+fmod.dll
+fmod64.dll
+
+# Legal exclusion of class files.
+zombie/
+zombie - Copy/
+

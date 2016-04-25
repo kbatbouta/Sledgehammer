@@ -1,10 +1,12 @@
 package zirc.util;
 
+import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import zirc.ZIRC;
+import zombie.GameWindow;
 import zombie.characters.IsoPlayer;
 import zombie.core.Core;
 import zombie.core.raknet.UdpConnection;
@@ -13,10 +15,43 @@ import zombie.network.GameServer;
 
 public class ZUtil {
 	
+	/**
+	 * Short-hand for File.Separator.
+	 */
+	public static String fs = File.separator;
+	
+	/**
+	 * The location for plug-ins, as a String. 
+	 */
+	public static String pluginLocation = GameWindow.getCacheDir() + fs + "Server" + fs + "ZIRC" + fs + "plugins" + fs;
+	
+	/**
+	 * The location for plug-ins, as a File.
+	 */
+	public static File pluginFolder = new File(ZUtil.pluginLocation);
+	
+	/**
+	 * Initializes the plug-in folder, before using it.
+	 */
+	public static void initPluginFolder() {
+		if (!ZUtil.pluginFolder.exists())
+			ZUtil.pluginFolder.mkdirs();
+	}
+	
+	/**
+	 * Returns a UdpConnection instance tied with the IsoPlayer instance given.
+	 * @param player
+	 * @return
+	 */
 	public static UdpConnection getConnection(IsoPlayer player) {
 		return GameServer.getConnectionFromPlayer(player);
 	}
 	
+	/**
+	 * 
+	 * @param username
+	 * @return
+	 */
 	public static IsoPlayer getPlayer(String username) {
 		return GameServer.getPlayerByUserName(username);
 	}
