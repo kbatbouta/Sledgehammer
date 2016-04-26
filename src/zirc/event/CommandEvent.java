@@ -3,6 +3,7 @@ package zirc.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import zirc.util.Result;
 import zirc.wrapper.Player;
 
 public class CommandEvent extends PlayerEvent {
@@ -49,6 +50,12 @@ public class CommandEvent extends PlayerEvent {
 	public void setResponse(Result result, String response) {
 		this.result = result;
 		this.response = response;
+		this.setHandled(true);
+	}
+	
+	public void deny() {
+		this.result = Result.FAILURE;
+		this.response = "You do not have permission.";
 		this.setHandled(true);
 	}
 	
@@ -115,11 +122,6 @@ public class CommandEvent extends PlayerEvent {
 		}
 		return args;
 	}
-	
-	public static enum Result {
-		SUCCESS,
-		FAILURE;
-	}
 
 	public void setLoggedImportant(boolean b) {
 		this.logImportant = b;
@@ -152,7 +154,7 @@ public class CommandEvent extends PlayerEvent {
 	}
 
 	@Override
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 	

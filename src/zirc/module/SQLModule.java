@@ -1,17 +1,24 @@
 package zirc.module;
 
+import java.io.File;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import zombie.GameWindow;
 
 public abstract class SQLModule extends Module {
-	private Connection connection;
+	private Connection connection = null;
 	
 	public static final String SQL_STORAGE_CLASS_NULL    = "NULL"   ;
 	public static final String SQL_STORAGE_CLASS_TEXT    = "TEXT"   ;
@@ -27,6 +34,67 @@ public abstract class SQLModule extends Module {
 	
 	public SQLModule(Connection connection) {
 		this.connection = connection;
+	}
+	
+	File dbFile;
+	
+	public SQLModule() {
+		super();
+	}
+	
+	public SQLModule(String fileName) {
+		super();
+		establishConnection(fileName);
+	}
+	
+	public SQLModule(File file) {
+		if(file == null) throw new IllegalArgumentException("File is null!");
+		
+		dbFile = file;
+		
+	}
+	
+	public void establishConnection(String fileName) {
+		if (fileName == null || fileName.isEmpty()) {
+			throw new IllegalArgumentException("Database File name is null or empty!");
+		}
+		
+		String finalFileName = fileName;
+		if(fileName.contains(".")) {
+			finalFileName = finalFileName.split(".")[0];
+		}
+		
+		dbFile = new File(getDBCacheDirectory() + fileName + ".db");
+		
+		if (!dbFile.exists()) {
+			try {
+				dbFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		establishConnection();
+	}
+	
+	public void establishConnection() {
+		if (dbFile == null) throw new IllegalStateException("Database File has not been defined yet!");
+		dbFile.setReadable(true, false);
+		dbFile.setExecutable(true, false);
+		dbFile.setWritable(true, false);
+
+		Connection connection = null;
+		
+		try {
+			Class.forName("org.sqlite.JDBC");
+			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
+		setConnection(connection);
 	}
 	
 	public int getSchemaVersion() {
@@ -160,6 +228,101 @@ public abstract class SQLModule extends Module {
 
 	}
 	
+	public List<String> getAll(String tableName, String targetName) throws SQLException {
+		PreparedStatement statement;
+		List<String> list = new ArrayList<>();
+		statement = prepareStatement("SELECT * FROM " + tableName);
+		ResultSet result = statement.executeQuery();
+		while (result.next()) list.add(result.getString(targetName));
+		result.close();
+		statement.close();
+		return list;
+	}
+	
+	
+	public Map<String, List<String>> getAll(String tableName, String[] targetNames) throws SQLException {
+		
+		// Create a Map to store each field respectively in lists.
+		Map<String, List<String>> map = new HashMap<>();
+		
+		// Create a List for each field. 
+		for(String field : targetNames) {
+			List<String> listField = new ArrayList<>();
+			map.put(field, listField);
+		}
+
+		// Create a statement retrieving matched rows.
+		PreparedStatement statement;
+		statement = prepareStatement("SELECT * FROM " + tableName);
+		
+		// Execute and fetch iterator for returned rows.
+		ResultSet result = statement.executeQuery();
+		
+		// Go through each row.
+		while (result.next()) {
+			
+			// For each row, we go through the field(s) desired, and store their values in the same order.			
+			for(String field : targetNames) {
+				List<String> listField = map.get(field);
+				listField.add(result.getString(field));
+			}
+			
+		}
+		// Close SQL handlers, and return the map.
+		result.close();
+		statement.close();
+		return map;
+	}
+	
+	public Map<String, List<String>> getAll(String tableName, String matchName, String matchValue, String[] targetNames) throws SQLException {
+	
+		// Create a Map to store each field respectively in lists.
+		Map<String, List<String>> map = new HashMap<>();
+		
+		// List<String> listMatches = new ArrayList<>();
+		
+		// Create a List for each field. 
+		for(String field : targetNames) {
+			List<String> listField = new ArrayList<>();
+			map.put(field, listField);
+		}
+
+		// Create a statement retrieving matched rows.
+		PreparedStatement statement;
+		statement = prepareStatement("SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
+		
+		// Execute and fetch iterator for returned rows.
+		ResultSet result = statement.executeQuery();
+		
+		// Go through each row.
+		while (result.next()) {
+			
+			// listMatches.add(result.getString(matchName));
+			
+			// For each row, we go through the field(s) desired, and store their values in the same order.			
+			for(String field : targetNames) {
+				List<String> listField = map.get(field);
+				listField.add(result.getString(field));
+			}
+			
+		}
+		// Close SQL handlers, and return the map.
+		result.close();
+		statement.close();
+		return map;
+	}
+	
+	public List<String> getAll(String tableName, String matchName, String matchValue, String targetName) throws SQLException {
+		PreparedStatement statement;
+		List<String> list = new ArrayList<>();
+		statement = prepareStatement("SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
+		ResultSet result = statement.executeQuery();
+		while (result.next()) list.add(result.getString(targetName));
+		result.close();
+		statement.close();
+		return list;
+	}
+	
 	public String get(String tableName, String matchName, String matchValue, String targetName) throws SQLException {
 		PreparedStatement statement;
 		statement = prepareStatement("SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
@@ -173,6 +336,26 @@ public abstract class SQLModule extends Module {
 		result.close();
 		statement.close();
 		return null;
+	}
+	
+	public boolean hasIgnoreCase(String tableName, String matchName, String matchValue) throws SQLException {
+		PreparedStatement statement;
+		if(matchValue == null) matchValue = "NULL";
+		statement = prepareStatement("SELECT * FROM " + tableName);
+		ResultSet result = statement.executeQuery();
+		
+		while (result.next()) {
+			String matchedValue = result.getString(matchName);
+			if(matchedValue.equalsIgnoreCase(matchValue)) {
+				result.close();
+				statement.close();
+				return true;
+			}
+		}
+		
+		result.close();
+		statement.close();
+		return false;
 	}
 	
 	public boolean has(String tableName, String matchName, String matchValue) throws SQLException {
@@ -240,6 +423,14 @@ public abstract class SQLModule extends Module {
 			}
 			return hashString.toString();
 		}
+	}
+	
+	public void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+	
+	public String getDBCacheDirectory() {
+		return GameWindow.getCacheDir() + File.separator + "db" + File.separator;
 	}
 	
 //	public void restartConnection() {

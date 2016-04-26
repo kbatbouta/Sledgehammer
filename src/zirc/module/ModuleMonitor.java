@@ -15,13 +15,16 @@ import java.util.Map;
 import org.github.jamm.MemoryMeter;
 
 import zirc.event.CommandEvent;
-import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
+import zirc.util.Result;
 import zirc.util.ZUtil;
 import zirc.wrapper.Player;
 import zombie.iso.IsoWorld;
 
 public class ModuleMonitor extends Module {
+	
+	public static final String ID = "zirc_monitor";
+	
 	private static final String newLine = System.getProperty("line.separator");
 	long timeThen = 0L;
 	
@@ -59,7 +62,7 @@ public class ModuleMonitor extends Module {
 			public void onCommand(CommandEvent c) {
 				String command = c.getCommand();
 				Player player = c.getPlayer();
-				if(player.isAdmin()) {
+				if(hasPermission(player.getUsername(), getPermissionContext("gcdump"))) {
 					if(command.equalsIgnoreCase("gcdump")) {
 						gcdump();
 						c.setResponse(Result.SUCCESS, "Dumping global Map object information to file.");
@@ -68,8 +71,14 @@ public class ModuleMonitor extends Module {
 				return;
 			}
 
-			@Override
 			public String onTooltip(Player player, String command) {
+				return null;
+			}
+
+			public String getPermissionContext(String command) {
+				if(command.equalsIgnoreCase("gcdump")) {
+					return "zirc.monitor.gcdump";
+				}
 				return null;
 			}
 			
@@ -269,5 +278,10 @@ public class ModuleMonitor extends Module {
 
 	public String getModuleName() { return "Memory Monitor"; }
 	public String getVersion()    { return "1.00";           }
+
+	@Override
+	public String getModuleID() {
+		return ID;
+	}
 
 }

@@ -81,7 +81,7 @@ public class DisconnectEvent extends PlayerEvent {
 	}
 
 	@Override
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 }

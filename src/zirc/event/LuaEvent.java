@@ -10,6 +10,6 @@ public class LuaEvent extends Event {
 
 	
 	public String getLogMessage() { return null;}
-	public String getName()       { return ID; }
+	public String getID()       { return ID; }
 
 }

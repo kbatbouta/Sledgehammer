@@ -1,4 +1,4 @@
-package zirc.modules;
+package zirc.modules.core;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -12,6 +12,8 @@ import zombie.network.DataBaseBuffer;
 
 public class ModuleCore extends SQLModule {
 
+	public static final String ID = "zirc_core";
+	
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	
@@ -136,6 +138,11 @@ public class ModuleCore extends SQLModule {
 	
 	public CoreEventListener getEventListener() {
 		return this.eventListener;
+	}
+
+	@Override
+	public String getModuleID() {
+		return ID;
 	}
 	
 }

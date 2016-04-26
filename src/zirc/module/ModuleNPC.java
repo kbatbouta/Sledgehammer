@@ -5,8 +5,8 @@ import java.util.Map;
 
 import zirc.ZIRC;
 import zirc.event.CommandEvent;
-import zirc.event.CommandEvent.Result;
 import zirc.interfaces.CommandListener;
+import zirc.util.Result;
 import zirc.wrapper.NPC;
 import zirc.wrapper.Player;
 import zombie.Lua.LuaManager;
@@ -20,6 +20,8 @@ import zombie.network.DataBaseBuffer;
 
 public class ModuleNPC extends SQLModule {
 
+	public static final String ID = "zirc_npc";
+	
 	private Map<IsoNPCPlayer, IsoGameCharacter> mapSpawners;
 	
 	public ModuleNPC() {
@@ -34,12 +36,10 @@ public class ModuleNPC extends SQLModule {
 	public void onStart() {
 		register(new CommandListener() {
 
-			@Override
 			public String[] getCommands() {
 				return new String[] { "addfakeplayer" };
 			}
 
-			@Override
 			public void onCommand(CommandEvent c) {
 				String command = c.getCommand();
 				String[] args = c.getArguments();
@@ -63,13 +63,21 @@ public class ModuleNPC extends SQLModule {
 				}
 			}
 
-			@Override
 			public String onTooltip(Player player, String command) {
 				if(player.isAdmin()) {
 					if(command.equalsIgnoreCase("addfakeplayer")) {
 						return "Adds a fake player at current location. ex: /addfakeplayer \"name\"";
 					}
 				}
+				return null;
+			}
+
+			public String getPermissionContext(String command) {
+				
+				if(command.equalsIgnoreCase("addfakeplayer")) {
+					return "zirc.npc.addfakeplayer";
+				}
+				
 				return null;
 			}
 		});
@@ -87,5 +95,9 @@ public class ModuleNPC extends SQLModule {
 	public void onUnload() {}
 	public String getModuleName() { return "FakePlayer"; }
 	public String getVersion()    { return "1.00";       }
+
+	public String getModuleID() {
+		return ID;
+	}
 
 }

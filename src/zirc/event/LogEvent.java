@@ -65,7 +65,7 @@ public class LogEvent extends Event {
 	}
 
 	@Override
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 }

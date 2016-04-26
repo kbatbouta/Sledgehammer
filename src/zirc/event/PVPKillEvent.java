@@ -29,7 +29,7 @@ public class PVPKillEvent extends Event {
 	}
 
 	@Override
-	public String getName() {
+	public String getID() {
 		return ID;
 	}
 }
