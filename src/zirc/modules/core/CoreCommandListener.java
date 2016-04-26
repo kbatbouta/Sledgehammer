@@ -16,6 +16,8 @@ import zombie.core.znet.SteamUtils;
 import zombie.network.PacketTypes;
 import zombie.network.ServerWorldDatabase;
 
+
+// TODO Implement permission checks.
 public class CoreCommandListener implements CommandListener {
 
 	private ModuleCore module;
@@ -31,7 +33,7 @@ public class CoreCommandListener implements CommandListener {
 				"pm",
 				"warn",
 				"broadcast",
-//				"commitsuicide",
+				"commitsuicide",
 				"ban",
 				"unban",
 				"muteglobal",
@@ -474,6 +476,35 @@ public class CoreCommandListener implements CommandListener {
 				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + Chat.CHAT_LINE +
 				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"";
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public String getPermissionContext(String command) {
+		if(command.equalsIgnoreCase("colors")) {
+			return "zirc.core.colors";
+		} else
+		if(command.equalsIgnoreCase("pm")) {
+			return "zirc.core.pm";
+		} else
+		if(command.equalsIgnoreCase("warn")) {
+			return "zirc.core.warn";
+		} else
+		if(command.equalsIgnoreCase("broadcast")) {
+			return "zirc.core.broadcast";
+		} else
+		if(command.equalsIgnoreCase("commitsuicide")) {
+			return "zirc.core.commitsuicide";
+		} else
+		if(command.equalsIgnoreCase("ban")) {
+			return "zirc.core.ban";
+		} else
+		if(command.equalsIgnoreCase("unban")) {
+			return "zirc.core.unban";
+		} else
+		if(command.equalsIgnoreCase("muteglobal")) {
+			return "zirc.core.muteglobal";
 		}
 		return null;
 	}

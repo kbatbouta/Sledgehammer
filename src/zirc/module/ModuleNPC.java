@@ -36,12 +36,10 @@ public class ModuleNPC extends SQLModule {
 	public void onStart() {
 		register(new CommandListener() {
 
-			@Override
 			public String[] getCommands() {
 				return new String[] { "addfakeplayer" };
 			}
 
-			@Override
 			public void onCommand(CommandEvent c) {
 				String command = c.getCommand();
 				String[] args = c.getArguments();
@@ -65,13 +63,21 @@ public class ModuleNPC extends SQLModule {
 				}
 			}
 
-			@Override
 			public String onTooltip(Player player, String command) {
 				if(player.isAdmin()) {
 					if(command.equalsIgnoreCase("addfakeplayer")) {
 						return "Adds a fake player at current location. ex: /addfakeplayer \"name\"";
 					}
 				}
+				return null;
+			}
+
+			public String getPermissionContext(String command) {
+				
+				if(command.equalsIgnoreCase("addfakeplayer")) {
+					return "zirc.npc.addfakeplayer";
+				}
+				
 				return null;
 			}
 		});
@@ -90,7 +96,6 @@ public class ModuleNPC extends SQLModule {
 	public String getModuleName() { return "FakePlayer"; }
 	public String getVersion()    { return "1.00";       }
 
-	@Override
 	public String getModuleID() {
 		return ID;
 	}

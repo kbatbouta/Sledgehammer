@@ -62,7 +62,7 @@ public class ModuleMonitor extends Module {
 			public void onCommand(CommandEvent c) {
 				String command = c.getCommand();
 				Player player = c.getPlayer();
-				if(player.isAdmin()) {
+				if(hasPermission(player.getUsername(), getPermissionContext("gcdump"))) {
 					if(command.equalsIgnoreCase("gcdump")) {
 						gcdump();
 						c.setResponse(Result.SUCCESS, "Dumping global Map object information to file.");
@@ -71,8 +71,14 @@ public class ModuleMonitor extends Module {
 				return;
 			}
 
-			@Override
 			public String onTooltip(Player player, String command) {
+				return null;
+			}
+
+			public String getPermissionContext(String command) {
+				if(command.equalsIgnoreCase("gcdump")) {
+					return "zirc.monitor.gcdump";
+				}
 				return null;
 			}
 			

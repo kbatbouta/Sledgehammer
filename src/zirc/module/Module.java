@@ -81,7 +81,7 @@ public abstract class Module {
 
 	public void println(Object... messages) {
 		for (Object message : messages) System.out.println("MODULE (" + getModuleName() + "): " + message.toString());
-		if(messages.length == 0) System.out.println("MODULE (" + getModuleName() + "): \n");
+		if(messages.length == 0) System.out.println(/*"MODULE (" + getModuleName() + "): \n"*/);
 	}
 	
 	public void register(String type, EventListener listener) {

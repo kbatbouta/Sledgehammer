@@ -347,10 +347,8 @@ public class ZIRC {
 					flags = (byte) (flags | 4);
 				if (npc.bSneaking)
 					flags = (byte) (flags | 8);
-				if (npc.isTorchCone())
-					flags = (byte) (flags | 16);
-				if (npc.isOnFire())
-					flags = (byte) (flags | 32);
+				if (npc.isTorchCone()) flags = (byte) (flags | 16);
+				if (npc.isOnFire()) flags = (byte) (flags | 32);
 				boolean torchCone = (flags & 16) != 0;
 				boolean onFire = (flags & 32) != 0;
 

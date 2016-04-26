@@ -16,6 +16,8 @@ public class Response {
 	}
 	
 	public String getLogMessage() {
+		if(log == null  ) return null;
+		if(log.isEmpty()) return null;
 		return this.log;
 	}
 	

@@ -53,6 +53,12 @@ public class CommandEvent extends PlayerEvent {
 		this.setHandled(true);
 	}
 	
+	public void deny() {
+		this.result = Result.FAILURE;
+		this.response = "You do not have permission.";
+		this.setHandled(true);
+	}
+	
 	public LogEvent.LogType getLoggedID() {
 		return loggedID;
 	}

@@ -338,6 +338,26 @@ public abstract class SQLModule extends Module {
 		return null;
 	}
 	
+	public boolean hasIgnoreCase(String tableName, String matchName, String matchValue) throws SQLException {
+		PreparedStatement statement;
+		if(matchValue == null) matchValue = "NULL";
+		statement = prepareStatement("SELECT * FROM " + tableName);
+		ResultSet result = statement.executeQuery();
+		
+		while (result.next()) {
+			String matchedValue = result.getString(matchName);
+			if(matchedValue.equalsIgnoreCase(matchValue)) {
+				result.close();
+				statement.close();
+				return true;
+			}
+		}
+		
+		result.close();
+		statement.close();
+		return false;
+	}
+	
 	public boolean has(String tableName, String matchName, String matchValue) throws SQLException {
 		PreparedStatement statement;
 		if(matchValue == null) matchValue = "NULL";
