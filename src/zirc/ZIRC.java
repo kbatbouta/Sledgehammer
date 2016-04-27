@@ -135,6 +135,11 @@ public class ZIRC {
 	private INI ini;
 
 	/**
+	 * Permission Denied message to send to players.
+	 */
+	private String permissionDeniedMessage = "Permission denied.";
+
+	/**
 	 * Main constructor. Requires UdpEngine instance from GameServer to initialize.
 	 * @param udpEngine
 	 */
@@ -179,11 +184,16 @@ public class ZIRC {
 		ini = new INI(iniFile);
 		if (iniFile.exists()) {
 			try {
+				
+				// Create default settings before overwriting any from the file.
+				createSettings(ini);
+				
 				// Read the settings file.
 				ini.read();
 				
 				// Grab the list of plugins as a string.
 				String listPluginsRaw = ini.getVariableAsString("GENERAL", "plugins");
+				
 				
 				// If the setting is blank, handle properly.
 				if(listPluginsRaw.isEmpty()) {
@@ -198,14 +208,20 @@ public class ZIRC {
 				e.printStackTrace();
 			}
 		} else {
-			ini.createSection("GENERAL");
-			ini.setVariable("GENERAL", "plugins", "");
+			createSettings(ini);
 			try {
 				ini.save();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+		this.permissionDeniedMessage  = ini.getVariableAsString("GENERAL", "permissiondeniedmessage");
+	}
+	
+	private void createSettings(INI ini) {
+		ini.createSection("GENERAL");
+			ini.setVariable("GENERAL", "plugins", "");
+			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 	}
 
 	public void loadModules() {
@@ -952,6 +968,10 @@ public class ZIRC {
 
 	public Map<String, List<CommandListener>> getCommandListeners() {
 		return this.mapCommandListeners;
+	}
+	
+	public String getPermissionDeniedMessage() {
+		return this.permissionDeniedMessage;
 	}
 
 	public Chat getChat() {

@@ -3,6 +3,7 @@ package zirc.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import zirc.ZIRC;
 import zirc.util.Result;
 import zirc.wrapper.Player;
 
@@ -55,7 +56,7 @@ public class CommandEvent extends PlayerEvent {
 	
 	public void deny() {
 		this.result = Result.FAILURE;
-		this.response = "You do not have permission.";
+		this.response = ZIRC.instance.getPermissionDeniedMessage();
 		this.setHandled(true);
 	}
 	
