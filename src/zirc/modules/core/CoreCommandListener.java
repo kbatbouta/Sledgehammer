@@ -17,7 +17,6 @@ import zombie.network.PacketTypes;
 import zombie.network.ServerWorldDatabase;
 
 
-// TODO Implement permission checks.
 public class CoreCommandListener implements CommandListener {
 
 	private ModuleCore module;
@@ -26,7 +25,6 @@ public class CoreCommandListener implements CommandListener {
 		this.module = module;
 	}
 	
-	@Override
 	public String[] getCommands() {
 		return new String[] {
 				"colors",
@@ -39,8 +37,35 @@ public class CoreCommandListener implements CommandListener {
 				"muteglobal",
 		};
 	}
+	
+	public String getPermissionContext(String command) {
+		if(command.equalsIgnoreCase("colors")) {
+			return "zirc.core.colors";
+		} else
+		if(command.equalsIgnoreCase("pm")) {
+			return "zirc.core.pm";
+		} else
+		if(command.equalsIgnoreCase("warn")) {
+			return "zirc.core.warn";
+		} else
+		if(command.equalsIgnoreCase("broadcast")) {
+			return "zirc.core.broadcast";
+		} else
+		if(command.equalsIgnoreCase("commitsuicide")) {
+			return "zirc.core.commitsuicide";
+		} else
+		if(command.equalsIgnoreCase("ban")) {
+			return "zirc.core.ban";
+		} else
+		if(command.equalsIgnoreCase("unban")) {
+			return "zirc.core.unban";
+		} else
+		if(command.equalsIgnoreCase("muteglobal")) {
+			return "zirc.core.muteglobal";
+		}
+		return null;
+	}
 
-	@Override
 	public void onCommand(CommandEvent c) {
 		Chat chat = ZIRC.instance.getChat();
 		Player player = c.getPlayer();
@@ -49,51 +74,67 @@ public class CoreCommandListener implements CommandListener {
 		String[] args = c.getArguments();
 		String response = null;
 		if(command.startsWith("colors")) {
-			c.setResponse(Result.SUCCESS, Chat.listColors());
-			return;
+			if(module.hasPermission(username, getPermissionContext("colors"))) {				
+				c.setResponse(Result.SUCCESS, Chat.listColors());
+				return;
+			} else {
+				c.deny();
+				return;
+			}
 		}
 		if(command.startsWith("pm")) {
-    		if(args.length >= 2) {
-    			String playerName = args[0];
-    			String msg = "";
-    			for(int x = 1; x < args.length; x++) {
-    				msg += args[x] + " ";
+    		if(module.hasPermission(username, getPermissionContext("pm"))) {    			
+    			if(args.length >= 2) {
+    				String playerName = args[0];
+    				String msg = "";
+    				for(int x = 1; x < args.length; x++) {
+    					msg += args[x] + " ";
+    				}
+    				msg = msg.substring(0, msg.length() - 1);
+    				response = chat.privateMessage(username, playerName, msg);
+    				c.setResponse(Result.SUCCESS, response);
+    				c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
+    				return;
+    			} else {
+    				response = "/pm [player] [message...]";
     			}
-    			msg = msg.substring(0, msg.length() - 1);
-    			response = chat.privateMessage(username, playerName, msg);
-    			c.setResponse(Result.SUCCESS, response);
-    			c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
-    			return;
     		} else {
-    			response = "/pm [player] [message...]";
+    			c.deny();
+    			return;
     		}
         } else
-        	if(command.startsWith("warn")) {
-        	if(player.isAdmin()) {
-        		if(args.length >= 2) {
-        			String playerName = args[0];
-        			String msg = "";
-        			for(int x = 1; x < args.length; x++) {
-        				msg += args[x] + " ";
-        			}
-        			msg = msg.substring(0, msg.length() - 1);
-        			response = chat.warnPlayer(username, playerName, msg);
-        			c.setResponse(Result.SUCCESS, response);
-        			c.setLoggedMessage(LogEvent.LogType.STAFF, "WARNED " + playerName + " with message: \"" + msg + "\".");
-        			return;
-        		} else {
-        			response = "/warn [player] [message...]";
-        			c.setResponse(Result.FAILURE, response);
-        			return;
-        		}
-        	} else {        		
-        		response = "Permission denied.";
-    			c.setResponse(Result.FAILURE, response);
-    			return;
-        	}
+		if (command.startsWith("warn")) {
+			if(module.hasPermission(username, getPermissionContext("warn"))) {
+				if (player.isAdmin()) {
+					if (args.length >= 2) {
+						String playerName = args[0];
+						String msg = "";
+						for (int x = 1; x < args.length; x++) {
+							msg += args[x] + " ";
+						}
+						msg = msg.substring(0, msg.length() - 1);
+						response = chat.warnPlayer(username, playerName, msg);
+						c.setResponse(Result.SUCCESS, response);
+						c.setLoggedMessage(LogEvent.LogType.STAFF,
+								"WARNED " + playerName + " with message: \"" + msg + "\".");
+						return;
+					} else {
+						response = "/warn [player] [message...]";
+						c.setResponse(Result.FAILURE, response);
+						return;
+					}
+				} else {
+					response = "Permission denied.";
+					c.setResponse(Result.FAILURE, response);
+					return;
+				}
+			} else {
+				c.deny();
+				return;
+			}
         } else
 		if(command.startsWith("broadcast")) {
-        	if(player.isAdmin()) {
+        	if(module.hasPermission(username, getPermissionContext("broadcast"))) {
         		if(args.length > 1) {
         			String color = Chat.getColor(args[0]);
         			if(color == null) color = Chat.CHAT_COLOR_LIGHT_RED;
@@ -109,61 +150,80 @@ public class CoreCommandListener implements CommandListener {
         			return;
         		}
         	} else {
-        		response = "Permission denied.";
-    			c.setResponse(Result.FAILURE, response);
-    			return;
+        		c.deny();
+        		return;
         	}
         } else
         if(command.startsWith("commitsuicide")) {
-        	IsoPlayer iso = player.get();
-        	if(iso != null) {        		
-        		iso.setHealth(-1.0F);
-        		iso.DoDeath(iso.bareHands, iso, true);
+        	if(module.hasPermission(username, getPermissionContext("commitsuicide"))) {        		
+        		IsoPlayer iso = player.get();
+        		if(iso != null) {        		
+        			iso.setHealth(-1.0F);
+        			iso.DoDeath(iso.bareHands, iso, true);
+        		}
+        		response = "Done.";
+        		c.setResponse(Result.SUCCESS, response);
+        		c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " commited suicide.");
+        		
+        		return;
+        	} else {
+        		c.deny();
+        		return;
         	}
-        	response = "Done.";
-        	c.setResponse(Result.SUCCESS, response);
-        	c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " commited suicide.");
-        	
-			return;
         } else
         if(command.equalsIgnoreCase("ban")) {
-        	if(args.length > 0) {        		
-        		try {
-					ban(c, args);
-					return;
-				} catch (SQLException e) {
-					ZIRC.println("SQL Error!");
-					e.printStackTrace();
-				}
+        	if(module.hasPermission(username, getPermissionContext("ban"))) {        		
+        		if(args.length > 0) {        		
+        			try {
+        				ban(c, args);
+        				return;
+        			} catch (SQLException e) {
+        				ZIRC.println("SQL Error!");
+        				e.printStackTrace();
+        			}
+        		} else {
+        			response = onTooltip(c.getPlayer(),"ban");
+        			c.setResponse(Result.FAILURE, response);
+        			return;
+        		}
         	} else {
-				response = onTooltip(c.getPlayer(),"ban");
-				c.setResponse(Result.FAILURE, response);
-				return;
+        		c.deny();
+        		return;
         	}
         } else
 		if(command.equalsIgnoreCase("unban")) {
-        	if(args.length > 0) {        		
-        		try {
-					unban(c, args);
-					return;
-				} catch (SQLException e) {
-					ZIRC.println("SQL Error!");
-					e.printStackTrace();
-				}
+        	if(module.hasPermission(username, getPermissionContext("unban"))) {        		
+        		if(args.length > 0) {        		
+        			try {
+        				unban(c, args);
+        				return;
+        			} catch (SQLException e) {
+        				ZIRC.println("SQL Error!");
+        				e.printStackTrace();
+        			}
+        		} else {
+        			response = onTooltip(c.getPlayer(), "unban");
+        			c.setResponse(Result.FAILURE, response);
+        			return;
+        		}
         	} else {
-				response = onTooltip(c.getPlayer(), "unban");
-				c.setResponse(Result.FAILURE, response);
-				return;
+        		c.deny();
+        		return;
         	}
         } else
     	if(command.equalsIgnoreCase("muteglobal")) {
+    		if(module.hasPermission(username, getPermissionContext("muteglobal"))) {    			
     			response = module.toggleGlobalMute(username);
     			String toggle = "on";
     			if(chat.getGlobalMuters().contains(username.toLowerCase())) toggle = "off";
     			c.setResponse(Result.SUCCESS, response);
     			c.setLoggedMessage(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
     			return;
+    		} else {
+    			c.deny();
+    			return;
     		}
+		}
 	}
 	
 	private void ban(CommandEvent c, String[] args) throws SQLException {
@@ -476,35 +536,6 @@ public class CoreCommandListener implements CommandListener {
 				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + Chat.CHAT_LINE +
 				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"";
 			}
-		}
-		return null;
-	}
-
-	@Override
-	public String getPermissionContext(String command) {
-		if(command.equalsIgnoreCase("colors")) {
-			return "zirc.core.colors";
-		} else
-		if(command.equalsIgnoreCase("pm")) {
-			return "zirc.core.pm";
-		} else
-		if(command.equalsIgnoreCase("warn")) {
-			return "zirc.core.warn";
-		} else
-		if(command.equalsIgnoreCase("broadcast")) {
-			return "zirc.core.broadcast";
-		} else
-		if(command.equalsIgnoreCase("commitsuicide")) {
-			return "zirc.core.commitsuicide";
-		} else
-		if(command.equalsIgnoreCase("ban")) {
-			return "zirc.core.ban";
-		} else
-		if(command.equalsIgnoreCase("unban")) {
-			return "zirc.core.unban";
-		} else
-		if(command.equalsIgnoreCase("muteglobal")) {
-			return "zirc.core.muteglobal";
 		}
 		return null;
 	}
