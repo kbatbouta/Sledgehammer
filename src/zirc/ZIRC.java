@@ -702,6 +702,7 @@ public class ZIRC {
 		return c;
 	}
 
+	// TODO: Permission Integration.
 	/**
 	 * Method executing the '/help' command.
 	 * @param command

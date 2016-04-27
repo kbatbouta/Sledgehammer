@@ -1,6 +1,8 @@
 package zirc.modules.core;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import zirc.ZIRC;
 import zirc.event.CommandEvent;
@@ -21,8 +23,55 @@ public class CoreCommandListener implements CommandListener {
 
 	private ModuleCore module;
 
+	private Map<String, String> mapContexts;
+	private Map<String, String> mapTooltips;
+	
 	public CoreCommandListener(ModuleCore module) {
 		this.module = module;
+		
+		mapTooltips = new HashMap<>();
+		mapTooltips.put("colors"       , "Displays all supported colors on this server.");
+		mapTooltips.put("pm"           , "Private messages a player. ex: /pm \"player\" \"message\"");
+		mapTooltips.put("warn"         , "Warns a player. ex: /warn \"player\" \"message\"");
+		mapTooltips.put("broadcast"    , "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"");
+		mapTooltips.put("commitsuicide", "End your character's life.");
+		mapTooltips.put("muteglobal"   , "Toggles global chat.");
+		mapTooltips.put("ban"          , 
+				"Bans a player. Flags:" + Chat.CHAT_LINE + 
+				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + Chat.CHAT_LINE + 
+				" -S: SteamID flag (ID required!) ex: /ban -S \"11330\"" + Chat.CHAT_LINE + 
+				" -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\"" + Chat.CHAT_LINE + 
+				" -i: IP flag (No IP required, but must be online!)" + Chat.CHAT_LINE + 
+				" -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)");
+		mapTooltips.put("unban"        , 
+				"Unbans a player. Flags:" + Chat.CHAT_LINE + 
+				" -U: Username flag (Required!) ex: /unban -U \"username\"" + Chat.CHAT_LINE + 
+				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + Chat.CHAT_LINE +
+				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
+		
+		mapContexts = new HashMap<>();
+		mapContexts.put("pm"           , "zirc.core.basic.pm"            );
+		mapContexts.put("colors"       , "zirc.core.basic.colors"        );
+		mapContexts.put("muteglobal"   , "zirc.core.basic.muteglobal"    );
+		mapContexts.put("commitsuicide", "zirc.core.basic.commitsuicide" );
+		mapContexts.put("ban"          , "zirc.core.moderation.ban"      );
+		mapContexts.put("warn"         , "zirc.core.moderation.warn"     );
+		mapContexts.put("unban"        , "zirc.core.moderation.unban"    );
+		mapContexts.put("broadcast"    , "zirc.core.moderation.broadcast");
+	}
+	
+	@Override
+	public String onTooltip(Player player, String command) {
+		if(player == null) return null;
+		if(command == null || command.isEmpty()) return null;
+		
+		String username = player.getUsername();
+		
+		if(module.hasPermission(username, getPermissionContext(command))) {
+			return mapTooltips.get(command);
+		}
+		
+		return null;
 	}
 	
 	public String[] getCommands() {
@@ -39,31 +88,11 @@ public class CoreCommandListener implements CommandListener {
 	}
 	
 	public String getPermissionContext(String command) {
-		if(command.equalsIgnoreCase("colors")) {
-			return "zirc.core.colors";
-		} else
-		if(command.equalsIgnoreCase("pm")) {
-			return "zirc.core.pm";
-		} else
-		if(command.equalsIgnoreCase("warn")) {
-			return "zirc.core.warn";
-		} else
-		if(command.equalsIgnoreCase("broadcast")) {
-			return "zirc.core.broadcast";
-		} else
-		if(command.equalsIgnoreCase("commitsuicide")) {
-			return "zirc.core.commitsuicide";
-		} else
-		if(command.equalsIgnoreCase("ban")) {
-			return "zirc.core.ban";
-		} else
-		if(command.equalsIgnoreCase("unban")) {
-			return "zirc.core.unban";
-		} else
-		if(command.equalsIgnoreCase("muteglobal")) {
-			return "zirc.core.muteglobal";
-		}
-		return null;
+		if(command == null) return null;
+		
+		command = command.toLowerCase().trim();
+		
+		return mapContexts.get(command);
 	}
 
 	public void onCommand(CommandEvent c) {
@@ -501,43 +530,6 @@ public class CoreCommandListener implements CommandListener {
 		c.setLoggedImportant(true);
 		c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " unbanned " + username + ".");
 		return;
-	}
-	
-	@Override
-	public String onTooltip(Player player, String command) {
-		if(command.equalsIgnoreCase("colors")) {
-			return "Displays all supported colors on this server.";
-		} else
-		if(command.equalsIgnoreCase("pm")) {
-			return "Private messages a player. ex: /pm \"player\" \"message\"";
-		} else
-		if(command.equalsIgnoreCase("muteglobal")) {
-			return "Toggles global chat.";
-		}
-		
-		if(player.isAdmin()) {
-			if(command.equalsIgnoreCase("warn")) {
-				return "Warns a player. ex: /warn \"player\" \"message\"";
-			} else
-			if(command.equalsIgnoreCase("broadcast")) {
-				return "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"";
-			} else
-			if(command.equalsIgnoreCase("ban")) {
-				return "Bans a player. Flags:" + Chat.CHAT_LINE + 
-				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + Chat.CHAT_LINE + 
-				" -S: SteamID flag (ID required!) ex: /ban -S \"11330\"" + Chat.CHAT_LINE + 
-				" -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\"" + Chat.CHAT_LINE + 
-				" -i: IP flag (No IP required, but must be online!)" + Chat.CHAT_LINE + 
-				" -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)"; 
-			} else
-			if(command.equalsIgnoreCase("unban")) {
-				return "Unbans a player. Flags:" + Chat.CHAT_LINE + 
-				" -U: Username flag (Required!) ex: /unban -U \"username\"" + Chat.CHAT_LINE + 
-				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + Chat.CHAT_LINE +
-				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"";
-			}
-		}
-		return null;
 	}
 	
 }
