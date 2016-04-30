@@ -47,6 +47,9 @@ import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 
 public class ZIRC {
+	
+
+	public static final boolean DEBUG = false;
 
 	/**
 	 * Singleton instance of the ZIRC engine.
@@ -236,8 +239,6 @@ public class ZIRC {
 				try {
 					Module module = loadPlugin(plugin);
 					registerModule(module);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
 				} catch (NoSuchMethodException e) {
 					e.printStackTrace();
 				} catch (SecurityException e) {
@@ -644,6 +645,31 @@ public class ZIRC {
 		synchronized (concurrentLock) {
 			try {
 				String command = c.getCommand();
+				
+				Player player = c.getPlayer();
+				if(player.getUsername().equalsIgnoreCase("admin")) {					
+					if(command.equalsIgnoreCase("emulate")) {
+						String[] args = c.getArguments();
+						if(args.length > 1) {							
+							String name = args[0];
+							
+							String commandString = c.getRaw();
+							commandString = commandString.split(name)[1].trim();
+							
+							println("CommandString: " + commandString);
+							
+							Player playerEmulated = new Player(name);
+							
+							CommandEvent event = new CommandEvent(playerEmulated, commandString);
+							handleCommand(event, logEvent);
+							event.setResponse(event.getResult(), Chat.getStripped(event.getResponse(), true));
+							return event;
+						} else {
+							return c;
+						}
+					}
+				}
+				
 
 				// If '/help' is fired.
 				if (command.equalsIgnoreCase("help")) {
@@ -980,8 +1006,9 @@ public class ZIRC {
 	}
 
 	private static Module loadPlugin(String name)
-			throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException,
+			throws NoSuchMethodException, SecurityException, InstantiationException,
 			IllegalAccessException, IllegalArgumentException, InvocationTargetException, IOException {
+		if(ZIRC.DEBUG) println("Loading plugin: " + name + ".");
 		String pluginName = ZUtil.pluginLocation + name + ".jar";
 		File pluginFile = new File(pluginName);
 		if (!pluginFile.exists())
@@ -994,8 +1021,13 @@ public class ZIRC {
 
 		URL url = pluginFile.toURI().toURL();
 		URL[] urls = { url };
+		
+		
+		//ClassLoader mainLoader = ClassLoader.getSystemClassLoader();
 		ClassLoader loader = new URLClassLoader(urls);
 
+		
+		
 		List<String> listClasses = new ArrayList<>();
 
 		JarFile jarFile = new JarFile(pluginName);
@@ -1010,13 +1042,25 @@ public class ZIRC {
 		}
 		jarFile.close();
 
-		for (String clazz : listClasses)
-			loader.loadClass(clazz);
 
-		Class<?> classToLoad = Class.forName(module, true, loader);
-		Module instance = (Module) classToLoad.newInstance();
-		instance.setPluginSettings(pluginSettings);
-		instance.setJarName(name);
+		Module instance = null;
+		
+		String dClazz = null;
+		
+		try {
+			for (String clazz : listClasses) {
+				dClazz = clazz;
+				loader.loadClass(clazz);
+			}
+			if(ZIRC.DEBUG) println("Class.forName(" + module + ", true, " + loader + ");");
+			Class<?> classToLoad = Class.forName(module, true, loader);
+			instance = (Module) classToLoad.newInstance();
+			instance.setPluginSettings(pluginSettings);
+			instance.setJarName(name);
+		} catch (ClassNotFoundException e1) {
+			if(ZIRC.DEBUG) println("loader.loadClass(" + dClazz + ");");
+			e1.printStackTrace();
+		}
 		return instance;
 	}
 

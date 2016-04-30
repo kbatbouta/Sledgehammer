@@ -1,5 +1,4 @@
 .metadata
-bin/
 
 tmp/
 *.tmp
@@ -124,6 +123,7 @@ fmod.dll
 fmod64.dll
 
 # Legal exclusion of class files.
-zombie-code/
-zombie - Copy/
+src/zombie
+src/zirc/modules/vanilla/VanillaCommandListener.java
 
+/bin/

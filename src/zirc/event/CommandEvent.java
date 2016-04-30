@@ -57,7 +57,6 @@ public class CommandEvent extends PlayerEvent {
 	public void deny() {
 		this.result = Result.FAILURE;
 		this.response = ZIRC.instance.getPermissionDeniedMessage();
-		this.setHandled(true);
 	}
 	
 	public LogEvent.LogType getLoggedID() {
