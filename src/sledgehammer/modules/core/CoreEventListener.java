@@ -1,5 +1,6 @@
 package sledgehammer.modules.core;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +25,7 @@ public class CoreEventListener implements EventListener {
 
 	public CoreEventListener(ModuleCore module) {
 		this.module = module;
+		mapPlayerTimeStamps = new HashMap<>();
 	}
 	
 	public Map<String, Long> getPlayerTimeStamps() {
