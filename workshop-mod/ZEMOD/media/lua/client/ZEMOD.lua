@@ -196,7 +196,7 @@ function ISChat:onCommandEntered()
         return;
     end
     local commandProcessed, isShout, isWhisper = false, false, false;
-    if luautils.stringStarts(command, "/all") and ServerOptions.getBoolean("GlobalChat") then
+    if luautils.stringStarts(command, "/all") and getServerOptions():getBoolean("GlobalChat") then
         local message = luautils.trim(string.gsub(command, "/all", ""));
         if message ~= "" then
             sendWorldMessage(message);

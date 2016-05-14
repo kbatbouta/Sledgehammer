@@ -13,7 +13,6 @@ import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionHandler;
 import sledgehammer.util.INI;
-import zombie.GameWindow;
 
 public abstract class Module {
 	

@@ -131,7 +131,7 @@ public class ModuleMonitor extends Module {
 	Map<String, Map<?,?>> mapMaps = new HashMap<>();
 	private void printMaps(FileWriter writer) throws IOException {
 		try {
-			getSize("zombie.characters.professions.ProfessionFactory.ProfessionMap",zombie.characters.professions.ProfessionFactory.ProfessionMap);
+			getSize("zombie.characters.professions.ProfessionFactory.ProfessionMap" ,zombie.characters.professions.ProfessionFactory.ProfessionMap);
 			getSize("zombie.characters.skills.PerkFactory.PerkMap"					,zombie.characters.skills.PerkFactory.PerkMap);
 			getSize("zombie.characters.traits.ObservationFactory.ObservationMap"	,zombie.characters.traits.ObservationFactory.ObservationMap);
 			getSize("zombie.characters.traits.TraitFactory.TraitMap"				,zombie.characters.traits.TraitFactory.TraitMap);
@@ -177,7 +177,6 @@ public class ModuleMonitor extends Module {
 			getSize("zombie.gameStates.ChooseGameInfo.Maps"							,(Map<?,?>)getPrivate("zombie.gameStates.ChooseGameInfo.Maps"));
 			try {getSize("zombie.Lua.LuaManager.loadedReturn",zombie.Lua.LuaManager.loadedReturn);} catch(ExceptionInInitializerError e){};
 			if(IsoWorld.instance != null && IsoWorld.instance.spriteManager != null) {
-				getSize("IsoWorld.instance.spriteManager.SpriteMap"	,IsoWorld.instance.spriteManager.SpriteMap);
 				getSize("IsoWorld.instance.spriteManager.IntMap"   	,IsoWorld.instance.spriteManager.IntMap);
 				getSize("IsoWorld.instance.spriteManager.NamedMap" 	,IsoWorld.instance.spriteManager.NamedMap);
 			}

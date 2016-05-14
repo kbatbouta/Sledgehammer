@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import sledgehammer.SledgeHammer;
-import zombie.GameWindow;
 import zombie.characters.IsoPlayer;
 import zombie.core.Core;
 import zombie.core.raknet.UdpConnection;
