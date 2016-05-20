@@ -87,7 +87,7 @@ public class ModuleNPC extends SQLModule {
 	public NPC createFakePlayer(String name, float x, float y, float z) {
 		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
 		NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
-		return SledgeHammer.instance.addNPC(npc);
+		return SledgeHammer.instance.getNPCEngine().addNPC(npc);
 	}
 
 	public void onUpdate(long delta) {}

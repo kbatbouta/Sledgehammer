@@ -33,18 +33,14 @@ import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
 import sledgehammer.util.Chat;
 import sledgehammer.util.INI;
+import sledgehammer.util.NPCEngine;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
-import sledgehammer.wrapper.NPC;
 import sledgehammer.wrapper.Player;
 import zombie.GameWindow;
 import zombie.core.logger.LoggerManager;
-import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
-import zombie.iso.Vector2;
-import zombie.network.GameServer;
-import zombie.network.PacketTypes;
 
 public class SledgeHammer {
 	
@@ -52,14 +48,21 @@ public class SledgeHammer {
 	public static final boolean DEBUG = false;
 
 	/**
+	 * The concurrent Object for synchronization.
+	 */
+	private static Object concurrentLock = new Object();
+
+	/**
+	 * For update delta calculation.
+	 */
+	private long timeThen;
+	
+	/**
 	 * Singleton instance of the SledgeHammer engine.
 	 */
 	public static SledgeHammer instance;
 	
-	/**
-	 * The concurrent Object for synchronization.
-	 */
-	private static Object concurrentLock = new Object();
+	private NPCEngine npcEngine;
 	
 	/**
 	 * Chat instance for working with chat packets and chat filtering.
@@ -113,11 +116,6 @@ public class SledgeHammer {
 	private UdpEngine udpEngine;
 	
 	/**
-	 * Long variable to measure update-tick deltas.
-	 */
-	private long timeThen;
-	
-	/**
 	 * String Array to store the list of the plugins from SledgeHammer.ini Settings.
 	 */
 	private String[] listPluginsRaw;
@@ -126,11 +124,6 @@ public class SledgeHammer {
 	 * List of registered PermissionHandler interfaces.
 	 */
 	private List<PermissionHandler> listPermissionHandlers;
-
-	/**
-	 * List of live NPC instances on the server.
-	 */
-	private List<NPC> listNPCs;
 
 	/**
 	 * INI file for SledgeHammer Settings.
@@ -166,7 +159,6 @@ public class SledgeHammer {
 		mapModules             = new HashMap<>();
 		
 		// Initialize Lists.
-		listNPCs               = new ArrayList<>();
 		listModules            = new ArrayList<>();
 		listLogListeners       = new ArrayList<>();
 		listUnloadNext         = new ArrayList<>();
@@ -177,6 +169,9 @@ public class SledgeHammer {
 
 		// Initialize the Chat Engine.
 		chat = new Chat(udpEngine);
+		
+		// Initialize the NPC Engine.
+		npcEngine = new NPCEngine(this);
 		
 		// Load the settings for SledgeHammer.
 		loadSettings();
@@ -316,28 +311,6 @@ public class SledgeHammer {
 			}
 		}
 	}
-	
-	public NPC addNPC(NPC npc) {
-		GameServer.PlayerToAddressMap.put(npc, -1L);
-		GameServer.playerToCoordsMap.put(Integer.valueOf(npc.PlayerIndex), new Vector2());
-		GameServer.IDToPlayerMap.put(Integer.valueOf(npc.PlayerIndex), npc);
-		GameServer.Players.add(npc);
-
-		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
-		for (UdpConnection c : udpEngine.connections) {
-			GameServer.sendPlayerConnect(npc, c);
-		}
-
-		listNPCs.add(npc);
-		return npc;
-	}
-
-	public void destroyNPC(NPC npc) {
-		GameServer.PlayerToAddressMap.remove(npc);
-		GameServer.playerToCoordsMap.remove(npc.PlayerIndex);
-		GameServer.IDToPlayerMap.remove(npc.PlayerIndex);
-		GameServer.Players.remove(npc);
-	}
 
 	public void update() {
 		synchronized (concurrentLock) {
@@ -350,75 +323,7 @@ public class SledgeHammer {
 				unloadModule(module, false);
 				modules.remove();
 			}
-			updateNPCs();
-		}
-	}
-
-	public void updateNPCs() {
-		for (NPC npc : listNPCs) {
-			npc.preupdate();
-			npc.update();
-			npc.postupdate();
-		}
-
-		if (System.currentTimeMillis() - timeThen > 200) {
-			for (NPC npc : listNPCs) {
-				byte flags = 0;
-				if (npc.def.Finished)
-					flags = (byte) (flags | 1);
-				if (npc.def.Looped)
-					flags = (byte) (flags | 2);
-				if (npc.legsSprite != null && npc.legsSprite.CurrentAnim != null
-						&& npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0)
-					flags = (byte) (flags | 4);
-				if (npc.bSneaking)
-					flags = (byte) (flags | 8);
-				if (npc.isTorchCone()) flags = (byte) (flags | 16);
-				if (npc.isOnFire()) flags = (byte) (flags | 32);
-				boolean torchCone = (flags & 16) != 0;
-				boolean onFire = (flags & 32) != 0;
-
-				for (UdpConnection c : udpEngine.connections) {
-					ByteBufferWriter byteBufferWriter = c.startPacket();
-					PacketTypes.doPacket((byte) 7, byteBufferWriter);
-					byteBufferWriter.putShort((short) npc.OnlineID);
-					byteBufferWriter.putByte((byte) npc.dir.index());
-					
-					byteBufferWriter.putFloat(npc.getX()             );
-					byteBufferWriter.putFloat(npc.getY()             );
-					byteBufferWriter.putFloat(npc.getZ()             );
-					byteBufferWriter.putFloat(npc.playerMoveDir.x * 2);
-					byteBufferWriter.putFloat(npc.playerMoveDir.y * 2);
-					
-					byteBufferWriter.putByte(npc.NetRemoteState);
-					
-					// Send the current animation state.
-					if (npc.sprite != null) {
-						byteBufferWriter.putByte((byte) npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim));
-					} else {
-						byteBufferWriter.putByte((byte) 0);
-					}
-					
-					byteBufferWriter.putByte((byte) ((int) npc.def.Frame));
-					
-					// Send the Animation frame delta and lighting data.
-					byteBufferWriter.putFloat(npc.def.AnimFrameIncrease);
-					byteBufferWriter.putFloat(npc.mpTorchDist          );
-					byteBufferWriter.putFloat(npc.mpTorchStrength      );
-					
-					boolean legAnimation = npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0;
-					
-					if (npc.def.Finished) flags = (byte) (flags |  1);
-					if (npc.def.Looped)   flags = (byte) (flags |  2);
-					if (legAnimation)     flags = (byte) (flags |  4);
-					if (npc.bSneaking)    flags = (byte) (flags |  8);
-					if (torchCone)        flags = (byte) (flags | 16);
-					if (onFire)           flags = (byte) (flags | 32);
-					
-					byteBufferWriter.putByte(flags);
-					c.endPacketSuperHighUnreliable();
-				}
-			}
+			npcEngine.update();
 		}
 	}
 
@@ -1098,6 +1003,10 @@ public class SledgeHammer {
 
 	public String getFolder() {
 		return folder;
+	}
+
+	public NPCEngine getNPCEngine() {
+		return this.npcEngine;
 	}
 
 }
