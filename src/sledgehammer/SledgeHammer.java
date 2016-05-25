@@ -238,7 +238,7 @@ public class SledgeHammer {
 	public void loadModules() {
 		registerModule(new ModuleMonitor());
 		
-		registerModule(new ModuleNPC());
+		//registerModule(new ModuleNPC());
 		
 		ZUtil.initPluginFolder();
 

@@ -4,7 +4,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import fmod.fmod.DummySoundEmitter;
 import fmod.fmod.DummySoundListener;
-import sledgehammer.SledgeHammer;
 import sledgehammer.util.ZUtil;
 import zombie.ai.states.StaggerBackState;
 import zombie.characters.DummyCharacterSoundEmitter;
@@ -12,8 +11,6 @@ import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.skills.PerkFactory;
-import zombie.core.raknet.UdpConnection;
-import zombie.core.raknet.UdpEngine;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoMovingObject;

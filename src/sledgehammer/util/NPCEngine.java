@@ -2,7 +2,6 @@ package sledgehammer.util;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.wrapper.NPC;
@@ -41,8 +40,6 @@ public class NPCEngine {
 		listNPCs = new ArrayList<>();
 	}
 	
-	private static Random random = new Random();
-	
 	public NPC addNPC(NPC npc) {
 		
 		//long guid = random.nextLong();
@@ -66,10 +63,11 @@ public class NPCEngine {
 		GameServer.IDToPlayerMap.remove(npc.PlayerIndex);
 		GameServer.Players.remove(npc);
 		
-		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
-		for (UdpConnection c : udpEngine.connections) {
-			
-		}
+		// TODO: Send out disconnection of NPC Player.
+//		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
+//		for (UdpConnection c : udpEngine.connections) {
+//			
+//		}
 		
 	}
 	
