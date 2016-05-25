@@ -13,6 +13,7 @@ import sledgehammer.event.Event;
 import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.util.Chat;
+import sledgehammer.wrapper.NPC;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -77,8 +78,14 @@ public class CoreEventListener implements EventListener {
 			}
 		} else 
 		if(event.getID() == PVPKillEvent.ID) {
+			
 			if(!event.shouldAnnounce()) return;
-			String username = ((PVPKillEvent)event).getKilled().getUsername();
+			
+			Player killed = ((PVPKillEvent)event).getKilled();
+			if(killed.get() instanceof NPC) return;
+			
+			String username = killed.getUsername();
+			
 			Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
 			if(timeStamp != null) {
 				event.setHandled(true);

@@ -75,10 +75,22 @@ public class NPCEngine {
 	
 	public void update() {
 		
-		for (NPC npc : listNPCs) {
-			npc.preupdate();
-			npc.update();
-			npc.postupdate();
+		List<NPC> listDead = new ArrayList<>();
+		
+		for (int index = 0; index < listNPCs.size(); index++) {
+			NPC npc = listNPCs.get(index);
+			if(npc.isDead()) {
+				listDead.add(npc);
+			} else {
+				npc.preupdate();
+				npc.update();
+				npc.postupdate();				
+			}
+		}
+		
+		// Remove the dead NPCs from the list.
+		for (NPC npc : listDead) {
+			listNPCs.remove(npc);
 		}
 
 		if (System.currentTimeMillis() - timeThen > 200) {

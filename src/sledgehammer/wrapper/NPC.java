@@ -4,10 +4,17 @@ import org.lwjgl.util.vector.Vector3f;
 
 import fmod.fmod.DummySoundEmitter;
 import fmod.fmod.DummySoundListener;
+import sledgehammer.SledgeHammer;
 import sledgehammer.util.ZUtil;
+import zombie.ai.states.StaggerBackState;
 import zombie.characters.DummyCharacterSoundEmitter;
+import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
+import zombie.characters.skills.PerkFactory;
+import zombie.core.raknet.UdpConnection;
+import zombie.core.raknet.UdpEngine;
+import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
@@ -36,18 +43,19 @@ public class NPC extends IsoPlayer {
 			}
 		}
 
-		this.PlayerIndex          =            playerIndex;
-		this.username             =               username;
-		this.OnlineChunkGridWidth =                      3;
-		this.OnlineID             = (short) ZUtil.random.nextInt(28000);
-		this.bRemote              =                   true;
-		this.setHealth(100.0F);
-		this.invisible = false;
-		this.emitter = new DummyCharacterSoundEmitter(this);
-		this.soundListener = new DummySoundListener(this.PlayerIndex);
-		this.testemitter = new DummySoundEmitter();
+		this.PlayerIndex          =                          playerIndex;
+		this.username             =                             username;
+		this.OnlineChunkGridWidth =                                    3;
+		this.OnlineID             =  (short) ZUtil.random.nextInt(28000);
+		this.bRemote              =                                 true;
+		this.invisible            =                                false;
+		this.emitter              = new DummyCharacterSoundEmitter(this);
+		this.soundListener        =  new DummySoundListener(PlayerIndex);
+		this.testemitter          =              new DummySoundEmitter();
 		
+		setHealth(1.0F);
 		PlayAnim("Idle");
+		
 	}
 
 	public void follow(IsoMovingObject target) {
@@ -121,4 +129,52 @@ public class NPC extends IsoPlayer {
 		tempo.normalize();
 		this.DirectionFromVector(tempo);
 	}
+	
+	@Override
+	public void hitConsequences(HandWeapon weapon, IsoGameCharacter wielder, boolean bIgnoreDamage, float damage,
+			boolean bKnockdown) {
+		System.out.println("NPC hit");
+
+		if (bIgnoreDamage) {
+			this.sendObjectChange("Shove", new Object[] { "hitDirX", Float.valueOf(this.getHitDir().getX()), "hitDirY",
+					Float.valueOf(this.getHitDir().getY()), "force", Float.valueOf(this.getHitForce()) });
+			return;
+		}
+
+		this.BodyDamage.DamageFromWeapon(weapon);
+
+		if (wielder instanceof IsoPlayer) {
+			if (!bIgnoreDamage) {
+				if (weapon.isAimedFirearm()) {
+					this.Health -= damage * 0.7F;
+				} else {
+					this.Health -= damage * 0.15F;
+				}
+			}
+		} else if (!bIgnoreDamage) {
+			if (weapon.isAimedFirearm()) {
+				this.Health -= damage * 0.7F;
+			} else {
+				this.Health -= damage * 0.15F;
+			}
+		}
+
+		if (this.Health > 0.0F && this.BodyDamage.getHealth() > 0.0F && (!weapon.isAlwaysKnockdown() && !bKnockdown)) {
+			if (weapon.isSplatBloodOnNoDeath()) {
+				this.splatBlood(3, 0.3F);
+			}
+
+			if (weapon.isKnockBackOnNoDeath()) {
+				if (wielder.xp != null) {
+					wielder.xp.AddXP(PerkFactory.Perks.Strength, 2.0F);
+				}
+
+				this.stateMachine.changeState(StaggerBackState.instance());
+			}
+		} else {
+			this.DoDeath(weapon, wielder);
+		}
+
+	}
+
 }
