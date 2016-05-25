@@ -15,14 +15,13 @@ import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.SurvivorFactory;
 import zombie.iso.IsoCell;
-import zombie.iso.IsoNPCPlayer;
 import zombie.network.DataBaseBuffer;
 
 public class ModuleNPC extends SQLModule {
 
 	public static final String ID = "sledgehammer_npc";
 	
-	private Map<IsoNPCPlayer, IsoGameCharacter> mapSpawners;
+	private Map<NPC, IsoGameCharacter> mapSpawners;
 	
 	public ModuleNPC() {
 		super(DataBaseBuffer.getDatabaseConnection());
@@ -53,9 +52,11 @@ public class ModuleNPC extends SQLModule {
 							z = player.z;							
 						}
 						String name = args[0];
-						println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z + ").");
-						IsoNPCPlayer fakePlayer = createFakePlayer(name, x, y, z);
+						NPC fakePlayer = createFakePlayer(name, x, y, z);
+						println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z + "). PlayerIndex: " + fakePlayer.PlayerIndex + " OnlineID: " + fakePlayer.OnlineID);
+						fakePlayer.follow(player);
 						mapSpawners.put(fakePlayer, player);
+						
 						c.setResponse(Result.SUCCESS, "Fake player created.");
 					} else {
 						c.setResponse(Result.FAILURE, onTooltip(c.getPlayer(), command));
@@ -86,6 +87,7 @@ public class ModuleNPC extends SQLModule {
 	
 	public NPC createFakePlayer(String name, float x, float y, float z) {
 		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
+		System.out.println("SurvivorDesc ID: " + desc.getID());
 		NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
 		return SledgeHammer.instance.getNPCEngine().addNPC(npc);
 	}

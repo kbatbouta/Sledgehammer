@@ -25,9 +25,11 @@ import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.LogListener;
+import sledgehammer.interfaces.MapGenerator;
 import sledgehammer.interfaces.PermissionHandler;
 import sledgehammer.module.Module;
 import sledgehammer.module.ModuleMonitor;
+import sledgehammer.module.ModuleNPC;
 import sledgehammer.modules.core.CoreCommandListener;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
@@ -145,6 +147,8 @@ public class SledgeHammer {
 		setUdpEngine(udpEngine);
 	}
 	
+	private MapGenerator mapGenerator = null;
+	
 	/**
 	 * Initializes the SledgeHammer engine.
 	 */
@@ -234,7 +238,7 @@ public class SledgeHammer {
 	public void loadModules() {
 		registerModule(new ModuleMonitor());
 		
-		// registerModule(new ModuleNPC());
+		registerModule(new ModuleNPC());
 		
 		ZUtil.initPluginFolder();
 
@@ -917,6 +921,14 @@ public class SledgeHammer {
 
 	public Chat getChat() {
 		return chat;
+	}
+	
+	public MapGenerator getMapGenerator() {
+		return this.mapGenerator;
+	}
+	
+	public void setMapGenerator(MapGenerator mapGenerator) {
+		this.mapGenerator = mapGenerator;
 	}
 
 	private static Module loadPlugin(String name)

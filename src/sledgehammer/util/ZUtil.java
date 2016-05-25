@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Random;
 
 import sledgehammer.SledgeHammer;
 import zombie.characters.IsoPlayer;
@@ -23,6 +24,8 @@ public class ZUtil {
 	 * The location for plug-ins, as a File.
 	 */
 	public static File pluginFolder = new File(ZUtil.pluginLocation);
+
+	public static Random random = new Random();
 	
 	/**
 	 * Initializes the plug-in folder, before using it.

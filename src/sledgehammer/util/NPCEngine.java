@@ -2,6 +2,7 @@ package sledgehammer.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.wrapper.NPC;
@@ -40,10 +41,14 @@ public class NPCEngine {
 		listNPCs = new ArrayList<>();
 	}
 	
+	private static Random random = new Random();
+	
 	public NPC addNPC(NPC npc) {
-		GameServer.PlayerToAddressMap.put(npc, -1L);
+		
+		//long guid = random.nextLong();
+		GameServer.PlayerToAddressMap.put(npc, (long) npc.PlayerIndex);
 		GameServer.playerToCoordsMap.put(Integer.valueOf(npc.PlayerIndex), new Vector2());
-		GameServer.IDToPlayerMap.put(Integer.valueOf(npc.PlayerIndex), npc);
+		GameServer.IDToPlayerMap.put(npc.PlayerIndex, npc);
 		GameServer.Players.add(npc);
 
 		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
@@ -60,9 +65,16 @@ public class NPCEngine {
 		GameServer.playerToCoordsMap.remove(npc.PlayerIndex);
 		GameServer.IDToPlayerMap.remove(npc.PlayerIndex);
 		GameServer.Players.remove(npc);
+		
+		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
+		for (UdpConnection c : udpEngine.connections) {
+			
+		}
+		
 	}
 	
 	public void update() {
+		
 		for (NPC npc : listNPCs) {
 			npc.preupdate();
 			npc.update();
@@ -97,8 +109,8 @@ public class NPCEngine {
 					byteBufferWriter.putFloat(npc.getX()             );
 					byteBufferWriter.putFloat(npc.getY()             );
 					byteBufferWriter.putFloat(npc.getZ()             );
-					byteBufferWriter.putFloat(npc.playerMoveDir.x * 2);
-					byteBufferWriter.putFloat(npc.playerMoveDir.y * 2);
+					byteBufferWriter.putFloat(npc.playerMoveDir.x    );
+					byteBufferWriter.putFloat(npc.playerMoveDir.y    );
 					
 					byteBufferWriter.putByte(npc.NetRemoteState);
 					
