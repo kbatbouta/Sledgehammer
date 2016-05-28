@@ -175,7 +175,7 @@ public class ModuleMonitor extends Module {
 			getSize("zombie.radio.ZomboidRadio.getInstance().CustomTriggerLastRan"	,(Map<?,?>)getPrivate(zombie.scripting.ScriptManager.instance,"CustomTriggerLastRan"));
 			getSize("zombie.scripting.ScriptManager.instance.CachedModules"			,(Map<?,?>)getPrivate(zombie.scripting.ScriptManager.instance,"CachedModules"));
 			getSize("zombie.gameStates.ChooseGameInfo.Maps"							,(Map<?,?>)getPrivate("zombie.gameStates.ChooseGameInfo.Maps"));
-			try {getSize("zombie.Lua.LuaManager.loadedReturn",zombie.Lua.LuaManager3427.loadedReturn);} catch(ExceptionInInitializerError e){};
+			try {getSize("zombie.Lua.LuaManager.loadedReturn",zombie.Lua.LuaManager.loadedReturn);} catch(ExceptionInInitializerError e){};
 			if(IsoWorld.instance != null && IsoWorld.instance.spriteManager != null) {
 				getSize("IsoWorld.instance.spriteManager.IntMap"   	,IsoWorld.instance.spriteManager.IntMap);
 				getSize("IsoWorld.instance.spriteManager.NamedMap" 	,IsoWorld.instance.spriteManager.NamedMap);
