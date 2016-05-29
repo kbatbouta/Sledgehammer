@@ -1,4 +1,7 @@
-package sledgehammer.wrapper;
+package sledgehammer.npc;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -13,22 +16,26 @@ import zombie.characters.SurvivorDesc;
 import zombie.characters.skills.PerkFactory;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoCell;
-import zombie.iso.IsoMovingObject;
+import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
-import zombie.iso.IsoUtils;
 import zombie.network.GameServer;
+import zombie.network.ServerMap;
 
+// TODO: Work on transferring items to the deadBody onDeath.
 public class NPC extends IsoPlayer {
 
 	private static final long serialVersionUID = 8799144318873059045L;
-
-	private boolean followObject = false;
-	private IsoObject followTarget = null;
-
+	private List<Behavior> listBehaviors;
 	private Vector3f destination = new Vector3f();
+	private float speed = 0f;
 	
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
+		
+		// Update position in world.
+		updateSquare();
+
+		listBehaviors = new ArrayList<>();
 		
 		// Generates an index.
 		int playerIndex = 0;
@@ -52,86 +59,29 @@ public class NPC extends IsoPlayer {
 		
 		setHealth(1.0F);
 		PlayAnim("Idle");
-		
 	}
-
-	public void follow(IsoMovingObject target) {
-		followTarget = target;
-		followObject = followTarget == null ? false : true;
-	}
-
-	private long timeThen = System.currentTimeMillis();
-	
-	private float speed = 0f;
 	
 	public void update() {
-		
 		super.update();
-		if (followObject) {
-			setDestination(followTarget.getX(), followTarget.getY(), followTarget.getZ());
-			
-			long timeNow = System.currentTimeMillis();
-			long delta = timeNow - timeThen;
-			
-			if(delta >= 500L) {				
-				faceDirection(followTarget);
-				timeThen = timeNow;
-			}
-			
-			float distanceFromTarget = DistTo(followTarget);
-			
-			if (distanceFromTarget > 5) {
-				this.speed = this.getMoveSpeed();
-				this.PlayAnim("Run");
-				this.bRunning = true;
-			} else if(distanceFromTarget > 2){
-				this.speed = getPathSpeed();
-				this.bRunning = false;
-				this.PlayAnim("Walk");				
-			} else {
-				this.speed = 0.0F;
-				this.bRunning = false;
-				this.PlayAnim("Idle");
-			}
-			
-			//Move(playerMoveDir);
-			MoveForward(speed);
+		for(Behavior behavior: listBehaviors) {
+			behavior.updateBehavior();
 		}
 		
+		updateSquare();
 	}
 	
-	public float getNPCSpeed() {
-		return this.speed;
-	}
-	
-	public Vector3f getDestination() {
-		return this.destination;
-	}
-
-	public void setDestination(float x, float y, float z) {
-		this.destination.x = x;
-		this.destination.y = y;
-		this.destination.z = z;
+	private void updateSquare() {
+		int ix = (int) Math.floor(getX());
+		int iy = (int) Math.floor(getY());
+		int iz = (int) Math.floor(getZ());
+		IsoGridSquare square = ServerMap.instance.getGridSquare(ix, iy, iz);
+		this.setCurrent(square);
+		this.setSquare(square);		
 	}
 
-	public float DistTo(IsoObject other) {
-		return IsoUtils.DistanceManhatten(getX(), getY(), other.getX(), other.getY());
-	}
-
-	public void faceDirection(IsoObject other) {
-		tempo.x  = other.getX();
-		tempo.y  = other.getY();
-		tempo.x -=       getX();
-		tempo.y -=       getY();
-		tempo.normalize();
-		this.DirectionFromVector(tempo);
-	}
-	
 	@Override
 	public void hitConsequences(HandWeapon weapon, IsoGameCharacter wielder, boolean bIgnoreDamage, float damage,
 			boolean bKnockdown) {
-		System.out.println("NPC hit");
-
 		if (bIgnoreDamage) {
 			this.sendObjectChange("Shove", new Object[] { "hitDirX", Float.valueOf(this.getHitDir().getX()), "hitDirY",
 					Float.valueOf(this.getHitDir().getY()), "force", Float.valueOf(this.getHitForce()) });
@@ -171,7 +121,47 @@ public class NPC extends IsoPlayer {
 		} else {
 			this.DoDeath(weapon, wielder);
 		}
+		
+	}
+	
+	public List<Behavior> getBehaviorStates() {
+		return listBehaviors;
+	}
+	
+	public void addBehavior(Behavior behaviorState) {
+		if(!listBehaviors.contains(behaviorState)) {
+			listBehaviors.add(behaviorState);
+		}
+	}
+	
+	public void removeBehavior(Behavior behaviorState) {
+		listBehaviors.remove(behaviorState);
+	}
+	
+	public float getNPCSpeed() {
+		return this.speed;
+	}
+	
+	public Vector3f getDestination() {
+		return this.destination;
+	}
 
+	public void setDestination(float x, float y, float z) {
+		this.destination.x = x;
+		this.destination.y = y;
+		this.destination.z = z;
+	}
+	
+	public void setDestination(IsoObject o) {
+		this.destination.set(o.getX(), o.getY(), o.getZ());
+	}
+
+	public float getSpeed() {
+		return this.speed;
+	}
+	
+	public void setSpeed(float speed) {
+		this.speed = speed;
 	}
 
 }

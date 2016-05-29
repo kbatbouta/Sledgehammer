@@ -33,9 +33,9 @@ import sledgehammer.module.ModuleNPC;
 import sledgehammer.modules.core.CoreCommandListener;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
+import sledgehammer.npc.NPCEngine;
 import sledgehammer.util.Chat;
 import sledgehammer.util.INI;
-import sledgehammer.util.NPCEngine;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
 import sledgehammer.wrapper.Player;
@@ -238,7 +238,7 @@ public class SledgeHammer {
 	public void loadModules() {
 		registerModule(new ModuleMonitor());
 		
-		//registerModule(new ModuleNPC());
+		registerModule(new ModuleNPC());
 		
 		ZUtil.initPluginFolder();
 

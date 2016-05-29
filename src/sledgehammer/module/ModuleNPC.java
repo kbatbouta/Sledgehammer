@@ -6,8 +6,9 @@ import java.util.Map;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.interfaces.CommandListener;
+import sledgehammer.npc.BehaviorSurvive;
+import sledgehammer.npc.NPC;
 import sledgehammer.util.Result;
-import sledgehammer.wrapper.NPC;
 import sledgehammer.wrapper.Player;
 import zombie.Lua.LuaManager;
 import zombie.characters.IsoGameCharacter;
@@ -36,13 +37,13 @@ public class ModuleNPC extends SQLModule {
 		register(new CommandListener() {
 
 			public String[] getCommands() {
-				return new String[] { "addfakeplayer" };
+				return new String[] { "addnpc" };
 			}
 
 			public void onCommand(CommandEvent c) {
 				String command = c.getCommand();
 				String[] args = c.getArguments();
-				if(command.equalsIgnoreCase("addfakeplayer")) {
+				if(command.equalsIgnoreCase("addnpc")) {
 					if(args.length == 1) {
 						IsoPlayer player = c.getPlayer().get();
 						float x = 0, y = 0, z = 0;
@@ -54,7 +55,14 @@ public class ModuleNPC extends SQLModule {
 						String name = args[0];
 						NPC fakePlayer = createFakePlayer(name, x, y, z);
 						println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z + "). PlayerIndex: " + fakePlayer.PlayerIndex + " OnlineID: " + fakePlayer.OnlineID);
-						fakePlayer.follow(player);
+
+						BehaviorSurvive behavior = new BehaviorSurvive(fakePlayer);
+						behavior.followDefault(player);
+						behavior.setActive(true);
+						fakePlayer.addBehavior(behavior);
+						
+						
+						
 						mapSpawners.put(fakePlayer, player);
 						
 						c.setResponse(Result.SUCCESS, "Fake player created.");
@@ -66,8 +74,8 @@ public class ModuleNPC extends SQLModule {
 
 			public String onTooltip(Player player, String command) {
 				if(player.isAdmin()) {
-					if(command.equalsIgnoreCase("addfakeplayer")) {
-						return "Adds a fake player at current location. ex: /addfakeplayer \"name\"";
+					if(command.equalsIgnoreCase("addnpc")) {
+						return "Adds a fake player at current location. ex: /addnpc \"name\"";
 					}
 				}
 				return null;
@@ -75,15 +83,14 @@ public class ModuleNPC extends SQLModule {
 
 			public String getPermissionContext(String command) {
 				
-				if(command.equalsIgnoreCase("addfakeplayer")) {
-					return "sledgehammer.npc.addfakeplayer";
+				if(command.equalsIgnoreCase("addnpc")) {
+					return "sledgehammer.npc.addnpc";
 				}
 				
 				return null;
 			}
 		});
 	}
-
 	
 	public NPC createFakePlayer(String name, float x, float y, float z) {
 		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();

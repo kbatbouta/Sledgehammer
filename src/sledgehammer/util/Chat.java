@@ -1,9 +1,9 @@
 package sledgehammer.util;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import zombie.characters.IsoPlayer;
@@ -15,6 +15,9 @@ import zombie.network.PacketTypes;
 
 public class Chat {
 	public static HashMap<String, String> mapColors;
+	
+	private static ByteBuffer bb = ByteBuffer.allocate(65535);
+	private static ByteBufferWriter bbw = new ByteBufferWriter(bb);
 
 	public static final String CHAT_COLOR_WHITE        = " <RGB:1,1,1>"       ;
 	public static final String CHAT_COLOR_LIGHT_GRAY   = " <RGB:0.7,0.7,0.7>" ;
@@ -41,8 +44,6 @@ public class Chat {
 	public static final String CHAT_COLOR_DARK_PURPLE  = " <RGB:0.6,0,0.6>"   ;
 	public static final String CHAT_COLOR_PINK         = " <RGB:1,0.45,1>"    ;
 	public static final String CHAT_LINE               = " <LINE>"            ;
-	
-	Map<String, Long> mapPlayerTimeStamps;
 	
 	static {
 		mapColors = new HashMap<>();
@@ -118,53 +119,36 @@ public class Chat {
 		
 		for(int index = 0; index < text.length(); index++) {
 			char c = textArray[index];
-			
 			if(inCode) {
 				if(c == '>') {
 					inCode = false;
-					index += 1;
+					index++;
 					continue;
-				} else {
-					continue;
-				}
+				} else continue;
 			} else {
 				if(c == '<') {
 					if(index + 4 <= text.length() - 1) {
-						char cn1 = '\u9999';
-						if(index-1 >= 0) cn1 = textArray[index - 1];
-						char c1 = textArray[index + 1];
-						char c2 = textArray[index + 2];
-						char c3 = textArray[index + 3];
-						char c4 = textArray[index + 4];
-						if(c1 == 'r' || c1 == 'R') {
-							if(c2 == 'g' || c2 == 'G') {
-								if(c3 == 'b' || c3 == 'B') {
-									if(c4 == ':') {
-										inCode = true;
-										if(cn1 == ' ') {
-											stripped = stripped.substring(0, stripped.length() - 1);
-										}
-										continue;
-									}
-								}
-							}
+						char cn1 = (index-1 >= 0) ? textArray[index - 1] : '\u9999';
+						char c1  = textArray[index + 1];
+						char c2  = textArray[index + 2];
+						char c3  = textArray[index + 3];
+						char c4  = textArray[index + 4];
+						if((c1 == 'r' || c1 == 'R') && 
+						   (c2 == 'g' || c2 == 'G') &&
+						   (c3 == 'b' || c3 == 'B') && c4 == ':') {
+							inCode = true;
+							if(cn1 == ' ') stripped = stripped.substring(0, stripped.length() - 1);
+							continue;
 						} else
-						if(c1 == 'L' || c1 == 'l') {
-							if(c2 == 'I' || c2 == 'i') {
-								if(c3 == 'N' || c3 == 'n') {
-									if(c4 == 'E' || c4 == 'e') {
-										inCode = true;
-										if(cn1 == ' ') {
-											stripped = stripped.substring(0, stripped.length() - 1) + (newLine ? "\n":"");
-										}
-									}
-								}
-							}
+						if((c1 == 'L' || c1 == 'l') &&
+						   (c2 == 'I' || c2 == 'i') && 
+						   (c3 == 'N' || c3 == 'n') && 
+						   (c4 == 'E' || c4 == 'e')) {
+							inCode = true;
+							if(cn1 == ' ') stripped = stripped.substring(0, stripped.length() - 1) + (newLine ? "\n":"");
 						}
 					}
-				} else {
-					stripped += c;
-				}
+				} else stripped += c;
 			}
 		}
 		return stripped;
@@ -175,7 +159,6 @@ public class Chat {
 	
 	public Chat(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
-		this.mapPlayerTimeStamps = new HashMap<>();
 		this.listGlobalMuters = new ArrayList<>();
 	}
 	
@@ -283,12 +266,16 @@ public class Chat {
 	
 	public void broadcastChat(String message, String messageColor) {
 		if(messageColor == null || messageColor.isEmpty()) messageColor = CHAT_COLOR_LIGHT_RED;
+		String messageOut = "[B]" + messageColor + " " + message;
+		
+		bb.clear();
+		PacketTypes.doPacket(PacketTypes.ReceiveCommand, bbw);
+		bbw.putUTF(messageOut);
+		
 		for (UdpConnection connection : udpEngine.connections) {
-			String messageOut = "[B]" + messageColor + " " + message;
-			ByteBufferWriter bufferWriter = connection.startPacket();
-			PacketTypes.doPacket((byte) 81, bufferWriter);
-			bufferWriter.putUTF(messageOut);
+			connection.setPacket(bb);
 			connection.endPacketImmediate();
 		}
+		
 	}
 }
