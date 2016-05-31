@@ -22,7 +22,6 @@ public class BehaviorSurvive extends Behavior {
 	
 		if(seesItemWorth) {
 			// Set the item to follow.
-	
 			if(hasArrived()) {
 				boolean added = addItemToInventory(worldItemWorth);
 				
@@ -75,7 +74,6 @@ public class BehaviorSurvive extends Behavior {
 				break;
 			}
 		}
-
 	}
 
 }

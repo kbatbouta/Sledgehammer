@@ -67,12 +67,12 @@ public abstract class Behavior {
 			
 			if (distanceFromTarget > distanceToRun) {
 				setSpeed(getPathSpeed());
-				playAnimation("Run");
+				playAnimation(getRunAnimation());
 				setRunning(true);
 			} else if(distanceFromTarget > distanceToWalk){
 				setSpeed(getPathSpeed());
 				setRunning(false);
-				playAnimation("Walk");				
+				playAnimation(getWalkAnimation());				
 			} else {
 				setSpeed(0.0F);
 				setRunning(false);
@@ -84,6 +84,14 @@ public abstract class Behavior {
 		}		
 	}
 	
+	private String getWalkAnimation() {
+		return getNPC().getWalkAnimation();
+	}
+
+	private String getRunAnimation() {
+		return getNPC().getRunAnimation();
+	}
+
 	/**
 	 * Returns all Objects on the ground within a radius.
 	 * @param radius

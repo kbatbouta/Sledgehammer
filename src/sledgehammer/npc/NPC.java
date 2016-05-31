@@ -14,6 +14,7 @@ import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.skills.PerkFactory;
+import zombie.inventory.InventoryItem;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
@@ -28,6 +29,7 @@ public class NPC extends IsoPlayer {
 	private List<Behavior> listBehaviors;
 	private Vector3f destination = new Vector3f();
 	private float speed = 0f;
+	private String runAnim;
 	
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
@@ -162,6 +164,42 @@ public class NPC extends IsoPlayer {
 	
 	public void setSpeed(float speed) {
 		this.speed = speed;
+	}
+	
+	public void setAnimations() {
+		
+		String weaponType = "bat";
+		
+		InventoryItem itemPrimary = getPrimaryHandItem();
+		if(itemPrimary != null && itemPrimary instanceof HandWeapon) {
+			HandWeapon handPrimary = (HandWeapon) itemPrimary;
+			weaponType = handPrimary.getSwingAnim();
+			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
+				weaponType = "Bat";
+            }
+			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
+            this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
+            this.walkAnim    = "Walk_Aim_"   + weaponType       ;
+            this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
+            this.runAnim     = handPrimary.RunAnim              ; 
+            this.lastWeapon  = handPrimary                      ;
+		} else {
+			this.strafeRAnim = "Strafe_R";
+            this.strafeAnim  = "Strafe"  ;
+            this.walkAnim    = "Walk"    ;
+            this.walkRAnim   = "Walk_R"  ;
+            this.runAnim     = "Run"     ;
+            this.lastWeapon  = null      ;
+		}
+		
+	}
+	
+	public String getWalkAnimation() {
+		return this.walkAnim;
+	}
+	
+	public String getRunAnimation() {
+		return this.runAnim;
 	}
 
 }
