@@ -29,11 +29,16 @@ public class NPC extends IsoPlayer {
 	private List<Behavior> listBehaviors;
 	private Vector3f destination = new Vector3f();
 	private float speed = 0f;
-	private String runAnim;
+	private String walkAnim = "Walk";
+	private String runAnim  = "Run";
+	private String idleAnim = "Idle";
+	
+	private HandWeapon weapon = null;
 	
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
 		
+		updateHands();
 		// Update position in world.
 		updateSquare();
 
@@ -65,6 +70,9 @@ public class NPC extends IsoPlayer {
 	
 	public void update() {
 		super.update();
+
+		updateHands();
+		
 		for(Behavior behavior: listBehaviors) {
 			behavior.updateBehavior();
 		}
@@ -72,6 +80,29 @@ public class NPC extends IsoPlayer {
 		updateSquare();
 	}
 	
+	/**
+	 * Updates Hand-related data.
+	 */
+	private void updateHands() {
+		InventoryItem itemPrimary = getPrimaryHandItem();
+		if(itemPrimary instanceof HandWeapon) {
+			HandWeapon oldWeapon = weapon;
+			weapon = (HandWeapon) itemPrimary;
+			if(oldWeapon != null) {
+				// If the weapon has changed.
+				if(!weapon.getName().equals(oldWeapon.getName())) {
+					// Update the current animations.
+					updateAnimations();
+				}				
+			}
+		} else {
+			weapon = null;
+		}
+	}
+	
+	/**
+	 * Updates the square the NPC is on.
+	 */
 	private void updateSquare() {
 		int ix = (int) Math.floor(getX());
 		int iy = (int) Math.floor(getY());
@@ -166,14 +197,12 @@ public class NPC extends IsoPlayer {
 		this.speed = speed;
 	}
 	
-	public void setAnimations() {
+	public void updateAnimations() {
 		
 		String weaponType = "bat";
 		
-		InventoryItem itemPrimary = getPrimaryHandItem();
-		if(itemPrimary != null && itemPrimary instanceof HandWeapon) {
-			HandWeapon handPrimary = (HandWeapon) itemPrimary;
-			weaponType = handPrimary.getSwingAnim();
+		if(weapon != null) {
+			weaponType = weapon.getSwingAnim();
 			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
 				weaponType = "Bat";
             }
@@ -181,14 +210,16 @@ public class NPC extends IsoPlayer {
             this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
             this.walkAnim    = "Walk_Aim_"   + weaponType       ;
             this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
-            this.runAnim     = handPrimary.RunAnim              ; 
-            this.lastWeapon  = handPrimary                      ;
+            this.runAnim     = weapon.RunAnim                   ; 
+            this.lastWeapon  = weapon                           ;
+            this.idleAnim    = weapon.IdleAnim                  ;
 		} else {
 			this.strafeRAnim = "Strafe_R";
             this.strafeAnim  = "Strafe"  ;
             this.walkAnim    = "Walk"    ;
             this.walkRAnim   = "Walk_R"  ;
             this.runAnim     = "Run"     ;
+            this.idleAnim    = "Idle"    ;
             this.lastWeapon  = null      ;
 		}
 		

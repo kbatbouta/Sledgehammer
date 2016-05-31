@@ -141,7 +141,8 @@ public abstract class Behavior {
 		
 		if(itemWeight + inventoryWeight <= inventoryMaxWeight) {			
 			inventory.addItem(worldItem.getItem());
-
+			inventory.addItemOnServer(worldItem.getItem());
+			
 			// Network remove the item from the ground.
 			GameServer.RemoveItemFromMap(worldItem);
 			
