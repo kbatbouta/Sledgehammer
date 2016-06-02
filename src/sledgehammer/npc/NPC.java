@@ -68,16 +68,18 @@ public class NPC extends IsoPlayer {
 	}
 	
 	public void update() {
-		super.update();
-
-		updateHands();
-		updateAnimations();
-		
-		for(Behavior behavior: listBehaviors) {
-			behavior.updateBehavior();
+		if(!isDead()) {			
+			super.update();
+			
+			updateHands();
+			updateAnimations();
+			
+			for(Behavior behavior: listBehaviors) {
+				behavior.updateBehavior();
+			}
+			
+			updateSquare();
 		}
-		
-		updateSquare();
 	}
 	
 	/**
