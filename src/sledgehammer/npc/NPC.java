@@ -20,6 +20,7 @@ import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
 import zombie.network.GameServer;
+import zombie.network.ServerLOS;
 import zombie.network.ServerMap;
 
 // TODO: Work on transferring items to the deadBody onDeath.
@@ -28,7 +29,6 @@ public class NPC extends IsoPlayer {
 	private static final long serialVersionUID = 8799144318873059045L;
 	private List<Behavior> listBehaviors;
 	private Vector3f destination = new Vector3f();
-	private float speed = 0f;
 	private String walkAnim = "Walk";
 	private String runAnim  = "Run";
 	private String idleAnim = "Idle";
@@ -38,21 +38,20 @@ public class NPC extends IsoPlayer {
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
 		
+		ServerLOS.instance.addPlayer(this);
+		
+		initializePerks();
+
 		updateHands();
+		
 		// Update position in world.
 		updateSquare();
 
+		
 		listBehaviors = new ArrayList<>();
 		
 		// Generates an index.
-		int playerIndex = 0;
-		for (int index = Byte.MIN_VALUE; index < 0; index++) {
-			Object objectPlayer = GameServer.IDToPlayerMap.get(index);
-			if (objectPlayer == null) {
-				playerIndex = index;
-				break;
-			}
-		}
+		int playerIndex = 1;
 
 		this.PlayerIndex          =                          playerIndex;
 		this.username             =                             username;
@@ -72,6 +71,7 @@ public class NPC extends IsoPlayer {
 		super.update();
 
 		updateHands();
+		updateAnimations();
 		
 		for(Behavior behavior: listBehaviors) {
 			behavior.updateBehavior();
@@ -86,18 +86,61 @@ public class NPC extends IsoPlayer {
 	private void updateHands() {
 		InventoryItem itemPrimary = getPrimaryHandItem();
 		if(itemPrimary instanceof HandWeapon) {
-			HandWeapon oldWeapon = weapon;
+//			HandWeapon oldWeapon = weapon;
 			weapon = (HandWeapon) itemPrimary;
-			if(oldWeapon != null) {
-				// If the weapon has changed.
-				if(!weapon.getName().equals(oldWeapon.getName())) {
-					// Update the current animations.
-					updateAnimations();
-				}				
-			}
+//			if(oldWeapon != null) {
+//				// If the weapon has changed.
+//				if(!weapon.getName().equals(oldWeapon.getName())) {
+//					// Update the current animations.
+//					updateAnimations();
+//				}				
+//			}
 		} else {
 			weapon = null;
 		}
+	}
+	
+	private void initializePerks() {
+		ArrayList<IsoGameCharacter.PerkInfo> perks = new ArrayList<>();
+		perks.add(createPerkInfo(PerkFactory.Perks.Agility));
+		perks.add(createPerkInfo(PerkFactory.Perks.Cooking));
+		perks.add(createPerkInfo(PerkFactory.Perks.Melee));
+		perks.add(createPerkInfo(PerkFactory.Perks.Crafting));
+		perks.add(createPerkInfo(PerkFactory.Perks.Fitness));
+		perks.add(createPerkInfo(PerkFactory.Perks.Strength));
+		perks.add(createPerkInfo(PerkFactory.Perks.Blunt));
+		perks.add(createPerkInfo(PerkFactory.Perks.Axe));
+		perks.add(createPerkInfo(PerkFactory.Perks.Sprinting));
+		perks.add(createPerkInfo(PerkFactory.Perks.Lightfoot));
+		perks.add(createPerkInfo(PerkFactory.Perks.Nimble));
+		perks.add(createPerkInfo(PerkFactory.Perks.Woodwork));
+		perks.add(createPerkInfo(PerkFactory.Perks.Aiming));
+		perks.add(createPerkInfo(PerkFactory.Perks.Reloading));
+		perks.add(createPerkInfo(PerkFactory.Perks.Farming));
+		perks.add(createPerkInfo(PerkFactory.Perks.Survivalist));
+		perks.add(createPerkInfo(PerkFactory.Perks.Trapping));
+		perks.add(createPerkInfo(PerkFactory.Perks.Passiv));
+		perks.add(createPerkInfo(PerkFactory.Perks.Firearm));
+		perks.add(createPerkInfo(PerkFactory.Perks.PlantScavenging));
+		perks.add(createPerkInfo(PerkFactory.Perks.BluntParent));
+		perks.add(createPerkInfo(PerkFactory.Perks.BladeParent));
+		perks.add(createPerkInfo(PerkFactory.Perks.BluntGuard));
+		perks.add(createPerkInfo(PerkFactory.Perks.BladeGuard));
+		perks.add(createPerkInfo(PerkFactory.Perks.BluntMaintenance));
+		perks.add(createPerkInfo(PerkFactory.Perks.BladeMaintenance));
+		perks.add(createPerkInfo(PerkFactory.Perks.Doctor));
+		perks.add(createPerkInfo(PerkFactory.Perks.Electricity));
+		this.setPerkList(perks);
+	}
+	
+	private IsoGameCharacter.PerkInfo createPerkInfo(PerkFactory.Perks perks) {
+		IsoGameCharacter.PerkInfo info = new IsoGameCharacter.PerkInfo();
+
+		info.perkType = perks;
+		info.perk = PerkFactory.getPerk(perks);
+		info.level = 1;
+
+		return info;
 	}
 	
 	/**
@@ -171,10 +214,6 @@ public class NPC extends IsoPlayer {
 		listBehaviors.remove(behaviorState);
 	}
 	
-	public float getNPCSpeed() {
-		return this.speed;
-	}
-	
 	public Vector3f getDestination() {
 		return this.destination;
 	}
@@ -189,40 +228,35 @@ public class NPC extends IsoPlayer {
 		this.destination.set(o.getX(), o.getY(), o.getZ());
 	}
 
-	public float getSpeed() {
-		return this.speed;
-	}
-	
-	public void setSpeed(float speed) {
-		this.speed = speed;
-	}
 	
 	public void updateAnimations() {
 		
 		String weaponType = "bat";
 		
 		if(weapon != null) {
-			weaponType = weapon.getSwingAnim();
-			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
-				weaponType = "Bat";
-            }
-			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
-            this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
-            this.walkAnim    = "Walk_Aim_"   + weaponType       ;
-            this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
+//			weaponType = weapon.getSwingAnim();
+//			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
+//				weaponType = "Bat";
+//          }
+//			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
+//          this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
+//          this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
             this.runAnim     = weapon.RunAnim                   ; 
-            this.lastWeapon  = weapon                           ;
             this.idleAnim    = weapon.IdleAnim                  ;
+            this.lastWeapon  = weapon                           ;
 		} else {
-			this.strafeRAnim = "Strafe_R";
-            this.strafeAnim  = "Strafe"  ;
-            this.walkAnim    = "Walk"    ;
-            this.walkRAnim   = "Walk_R"  ;
-            this.runAnim     = "Run"     ;
+//			this.strafeRAnim = "Strafe_R";
+//          this.strafeAnim  = "Strafe"  ;
+//          this.walkRAnim   = "Walk_R"  ;
             this.idleAnim    = "Idle"    ;
+            this.runAnim     = "Run"     ;
             this.lastWeapon  = null      ;
 		}
 		
+	}
+	
+	public String getIdleAnimation() {
+		return this.idleAnim;
 	}
 	
 	public String getWalkAnimation() {

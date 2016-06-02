@@ -1021,4 +1021,8 @@ public class SledgeHammer {
 		return this.npcEngine;
 	}
 
+	public List<UdpConnection> getConnections() {
+		return getUdpEngine().getConnections();
+	}
+
 }

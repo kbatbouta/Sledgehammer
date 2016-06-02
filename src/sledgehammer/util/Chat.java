@@ -1,6 +1,5 @@
 package sledgehammer.util;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,9 +15,6 @@ import zombie.network.PacketTypes;
 public class Chat {
 	public static HashMap<String, String> mapColors;
 	
-	private static ByteBuffer bb = ByteBuffer.allocate(65535);
-	private static ByteBufferWriter bbw = new ByteBufferWriter(bb);
-
 	public static final String CHAT_COLOR_WHITE        = " <RGB:1,1,1>"       ;
 	public static final String CHAT_COLOR_LIGHT_GRAY   = " <RGB:0.7,0.7,0.7>" ;
 	public static final String CHAT_COLOR_DARK_GRAY    = " <RGB:0.3,0.3,0.3>" ;	
@@ -268,12 +264,10 @@ public class Chat {
 		if(messageColor == null || messageColor.isEmpty()) messageColor = CHAT_COLOR_LIGHT_RED;
 		String messageOut = "[B]" + messageColor + " " + message;
 		
-		bb.clear();
-		PacketTypes.doPacket(PacketTypes.ReceiveCommand, bbw);
-		bbw.putUTF(messageOut);
-		
 		for (UdpConnection connection : udpEngine.connections) {
-			connection.setPacket(bb);
+			ByteBufferWriter bufferWriter = connection.startPacket();
+			PacketTypes.doPacket((byte) 81, bufferWriter);
+			bufferWriter.putUTF(messageOut);
 			connection.endPacketImmediate();
 		}
 		

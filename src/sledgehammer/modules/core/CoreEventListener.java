@@ -63,7 +63,7 @@ public class CoreEventListener implements EventListener {
 			listGlobalMuters.remove(username);
 		} else
 		if(event.getID() == DeathEvent.ID) {
-			if(!event.shouldAnnounce()) return;
+			if(!event.shouldAnnounce() || ((DeathEvent)event).getPlayer().get() instanceof NPC) return;
 			String username = ((DeathEvent)event).getPlayer().getUsername();
 			if(username != null) {				
 				Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
@@ -152,11 +152,11 @@ public class CoreEventListener implements EventListener {
 	}
 
 	public void update() {
-		long timeNow = System.currentTimeMillis();
-		if(timeNow - timeThen  > 5000) {
+//		long timeNow = System.currentTimeMillis();
+//		if(timeNow - timeThen  > 5000) {
 			mapPlayerTimeStamps.clear();
-			timeThen = timeNow;
-		}
+//			timeThen = timeNow;
+//		}
 	}
 
 }

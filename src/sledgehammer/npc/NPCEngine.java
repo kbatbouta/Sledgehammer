@@ -1,17 +1,19 @@
 package sledgehammer.npc;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
 
 import sledgehammer.SledgeHammer;
+import zombie.ZombiePopulationManager;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
+import zombie.inventory.types.HandWeapon;
 import zombie.iso.Vector2;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
+import zombie.network.ServerLOS;
 
 public class NPCEngine {
 	
@@ -65,17 +67,25 @@ public class NPCEngine {
 	}
 	
 	public void destroyNPC(NPC npc) {
+		
+		npc.DoDeath((HandWeapon) null, npc);
+		
+		npc.removeFromWorld();
+		npc.removeFromSquare();
 		GameServer.PlayerToAddressMap.remove(npc);
-		GameServer.playerToCoordsMap.remove(npc.PlayerIndex);
-		GameServer.IDToPlayerMap.remove(npc.PlayerIndex);
+		GameServer.IDToAddressMap.remove(Integer.valueOf(npc.OnlineID));
+		GameServer.IDToPlayerMap.remove(Integer.valueOf(npc.OnlineID));
 		GameServer.Players.remove(npc);
 		
-		// TODO: Send out disconnection of NPC Player.
-//		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
-//		for (UdpConnection c : udpEngine.connections) {
-//			
-//		}
-		
+		for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
+			ByteBufferWriter b = connection.startPacket();
+			PacketTypes.doPacket(PacketTypes.PlayerTimeout, b);
+			b.putInt(npc.OnlineID);
+			connection.endPacketImmediate();
+		}
+
+		ServerLOS.instance.removePlayer(npc);
+		ZombiePopulationManager.instance.updateLoadedAreas();
 	}
 	
 	public void update() {
@@ -101,9 +111,6 @@ public class NPCEngine {
 		if (System.currentTimeMillis() - timeThen > 200) {
 			for (NPC npc : listNPCs) {
 				
-				ByteBuffer bb = ByteBuffer.allocate(65535);
-				ByteBufferWriter bbw = new ByteBufferWriter(bb);
-				
 				byte flags = 0;
 				
 				boolean animFlag = npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0;
@@ -117,45 +124,47 @@ public class NPCEngine {
 				
 				boolean torchCone = (flags & 16) != 0;
 				boolean onFire    = (flags & 32) != 0;
-				byte animationByte = npc.sprite != null ? (byte) npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim): (byte) 0; 
 
-				bb.clear();
-				
-				PacketTypes.doPacket(PacketTypes.PlayerUpdateInfo, bbw);
-				
-				bbw.putShort((short) npc.OnlineID);
-				bbw.putByte((byte) npc.dir.index());
-				
-				bbw.putFloat(npc.getX()             );
-				bbw.putFloat(npc.getY()             );
-				bbw.putFloat(npc.getZ()             );
-				bbw.putFloat(npc.playerMoveDir.x    );
-				bbw.putFloat(npc.playerMoveDir.y    );
-				bbw.putByte (npc.NetRemoteState     );
-				
-				// Send the current animation state.
-				bbw.putByte(animationByte);
-				
-				bbw.putByte((byte) ((int) npc.def.Frame));
-				
-				// Send the Animation frame delta and lighting data.
-				bbw.putFloat(npc.def.AnimFrameIncrease);
-				bbw.putFloat(npc.mpTorchDist          );
-				bbw.putFloat(npc.mpTorchStrength      );
-				
-				if (npc.def.Finished) flags = (byte) (flags |  1);
-				if (npc.def.Looped  ) flags = (byte) (flags |  2);
-				if (animFlag        ) flags = (byte) (flags |  4);
-				if (npc.bSneaking   ) flags = (byte) (flags |  8);
-				if (torchCone       ) flags = (byte) (flags | 16);
-				if (onFire          ) flags = (byte) (flags | 32);
-				
-				bbw.putByte(flags);
-				
-				UdpEngine udpEngine = sledgeHammer.getUdpEngine();
-				for (UdpConnection cconnection : udpEngine.connections) {
-					cconnection.setPacket(bb);					
-					cconnection.endPacketSuperHighUnreliable();
+				for (UdpConnection c : sledgeHammer.getConnections()) {
+					ByteBufferWriter byteBufferWriter = c.startPacket();
+					PacketTypes.doPacket((byte) 7, byteBufferWriter);
+					byteBufferWriter.putShort((short) npc.OnlineID);
+					byteBufferWriter.putByte((byte) npc.dir.index());
+					
+					byteBufferWriter.putFloat(npc.getX()             );
+					byteBufferWriter.putFloat(npc.getY()             );
+					byteBufferWriter.putFloat(npc.getZ()             );
+					byteBufferWriter.putFloat(npc.playerMoveDir.x    );
+					byteBufferWriter.putFloat(npc.playerMoveDir.y    );
+					
+					byteBufferWriter.putByte(npc.NetRemoteState);
+					
+					// Send the current animation state.
+					if (npc.sprite != null) {
+						byteBufferWriter.putByte((byte) npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim));
+					} else {
+						byteBufferWriter.putByte((byte) 0);
+					}
+					
+					byteBufferWriter.putByte((byte) ((int) npc.def.Frame));
+					
+					// Send the Animation frame delta and lighting data.
+					byteBufferWriter.putFloat(npc.def.AnimFrameIncrease);
+					byteBufferWriter.putFloat(npc.mpTorchDist          );
+					byteBufferWriter.putFloat(npc.mpTorchStrength      );
+					
+					boolean legAnimation = npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0;
+					
+					if (npc.def.Finished) flags = (byte) (flags |  1);
+					if (npc.def.Looped)   flags = (byte) (flags |  2);
+					if (legAnimation)     flags = (byte) (flags |  4);
+					if (npc.bSneaking)    flags = (byte) (flags |  8);
+					if (torchCone)        flags = (byte) (flags | 16);
+					if (onFire)           flags = (byte) (flags | 32);
+					
+					byteBufferWriter.putByte(flags);
+					c.endPacketUnreliable();
+					//c.endPacketSuperHighUnreliable();
 				}
 			
 				
@@ -165,6 +174,12 @@ public class NPCEngine {
 
 	public List<NPC> getNPCS() {
 		return this.listNPCs;
+	}
+
+	public void destroyNPCs() {
+		for(NPC npc : listNPCs) {
+			destroyNPC(npc);
+		}
 	}
 	
 	

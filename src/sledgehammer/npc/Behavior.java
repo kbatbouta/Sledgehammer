@@ -48,10 +48,38 @@ public abstract class Behavior {
 	
 	// TODO: weapon walking & running.
 	private void checkFollowing() {
+		
 		if (followObject) {
 			
 			IsoObject followTarget = this.followTarget;
+			
 			if(followTarget == null) followTarget = followTargetDefault;
+			
+			if(followTarget == null) {
+				followObject = false;
+				return;
+			}
+			
+			if(this.followTarget instanceof IsoPlayer) {
+				if(!GameServer.Players.contains(((IsoPlayer)this.followTarget))) {
+					System.out.println("NPC: Following target disconnected.");
+					this.followTarget = null;
+					if(this.followTargetDefault == null) {
+						followObject = false;
+						return;
+					}
+				}
+			}
+			
+			if(followTargetDefault instanceof IsoPlayer) {
+				if(!GameServer.Players.contains(((IsoPlayer)followTargetDefault))) {
+					System.out.println("NPC: Default following target disconnected.");
+					followObject = false;
+					followTargetDefault = null;
+					return;
+				}
+			}
+			
 			
 			long timeNow = System.currentTimeMillis();
 			long delta = timeNow - timeThenFollow ;
@@ -65,25 +93,28 @@ public abstract class Behavior {
 			
 			float distanceFromTarget = DistTo(followTarget);
 			
+			float speed = getPathSpeed();
 			if (distanceFromTarget > distanceToRun) {
-				setSpeed(getPathSpeed());
 				playAnimation(getRunAnimation());
 				setRunning(true);
 			} else if(distanceFromTarget > distanceToWalk){
-				setSpeed(getPathSpeed());
 				setRunning(false);
 				playAnimation(getWalkAnimation());				
 			} else {
-				setSpeed(0.0F);
+				speed = 0.0F;
 				setRunning(false);
-				playAnimation("Idle");
+				playAnimation(getIdleAnimation());
 				arrived = true;
 			}
 			
-			moveForward(getSpeed());
+			moveForward(speed);
 		}		
 	}
 	
+	private String getIdleAnimation() {
+		return getNPC().getIdleAnimation();
+	}
+
 	private String getWalkAnimation() {
 		return getNPC().getWalkAnimation();
 	}
@@ -270,22 +301,6 @@ public abstract class Behavior {
 	
 	public void setDestination(IsoObject o) {
 		getNPC().setDestination(o);
-	}
-	
-	/**
-	 * Proxy method for 'getNPC().getSpeed()'.
-	 * @return
-	 */
-	public float getSpeed() {
-		return getNPC().getSpeed();
-	}
-	
-	/**
-	 * Proxy method for 'getNPC().setSpeed()'.
-	 * @param speed
-	 */
-	public void setSpeed(float speed) {
-		getNPC().setSpeed(speed);
 	}
 	
 	/**
