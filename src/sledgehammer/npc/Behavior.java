@@ -19,12 +19,14 @@ import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
 import zombie.iso.IsoUtils;
+import zombie.iso.IsoWorld;
 import zombie.iso.LotHeader;
 import zombie.iso.Vector2;
 import zombie.iso.areas.IsoBuilding;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
+import zombie.network.ServerMap;
 
 public abstract class Behavior {
 	
@@ -344,19 +346,41 @@ public abstract class Behavior {
 	}
 	
 	public IsoGridSquare getCurrentSquare() {
-		return getNPC().getCurrentSquare();
+		IsoGridSquare square = getNPC().getCurrentSquare();
+		if(square == null) {
+			square = ServerMap.instance.getGridSquare((int)Math.floor(getX()), (int)Math.floor(getY()), (int)Math.floor(getZ()));
+			getNPC().setSquare(square);
+			getNPC().setCurrent(square);
+		}
+		return square;
 	}
 	
+	private float getZ() {
+		return getNPC().getZ();
+	}
+
 	public IsoChunk getCurrentChunk() {
-		return getCurrentSquare().getChunk();
+		IsoGridSquare square = getCurrentSquare();
+		if(square != null) {
+			return square.getChunk();
+		}
+		return null;
 	}
 	
 	public IsoCell getCurrentCell() {
-		return getCurrentSquare().getCell();
+		IsoGridSquare square = getCurrentSquare();
+		if(square != null) {
+			return square.getCell();
+		}
+		return null;
 	}
 	
 	public LotHeader getCurrentLotHeader() {
-		return getCurrentCell().getCurrentLotHeader();
+		IsoCell cell = getCurrentCell();
+		if(cell != null) {
+			return cell.getCurrentLotHeader();
+		}
+		return null;
 	}
 	
 	/**

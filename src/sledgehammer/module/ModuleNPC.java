@@ -17,7 +17,9 @@ import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.SurvivorFactory;
 import zombie.iso.IsoCell;
+import zombie.iso.IsoGridSquare;
 import zombie.network.DataBaseBuffer;
+import zombie.network.ServerMap;
 
 public class ModuleNPC extends SQLModule {
 
@@ -53,11 +55,30 @@ public class ModuleNPC extends SQLModule {
 					if(module.hasPermission(commanderName, getPermissionContext("addnpc"))) {						
 						if(args.length == 1) {
 							IsoPlayer player = c.getPlayer().get();
+							IsoGridSquare square = null;
 							float x = 0, y = 0, z = 0;
 							if(player != null) {
-								x = player.x + ZUtil.random.nextInt(11) - 5;
-								y = player.y;
-								z = player.z;							
+								
+								int attempts = 0;
+								int maxAttempts = 50;
+								
+								while(square == null) {									
+									x = player.x + ZUtil.random.nextInt(11) - 5;
+									y = player.y + ZUtil.random.nextInt(11) - 5;
+									z = player.z;		
+									square = ServerMap.instance.getGridSquare((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+									if(attempts >= maxAttempts) {
+										x = player.x;
+										y = player.y;
+										z = player.z;			
+										square = ServerMap.instance.getGridSquare((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
+										if(square == null) {											
+											c.setResponse(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
+											return;
+										}
+									}
+									attempts++;
+								}
 							}
 							String name = args[0];
 							NPC fakePlayer = createFakePlayer(name, x, y, z);
