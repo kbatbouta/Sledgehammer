@@ -18,7 +18,7 @@ public class ZUtil {
 	/**
 	 * The location for plug-ins, as a String. 
 	 */
-	public static String pluginLocation = SledgeHammer.instance.getFolder() + File.separator + "plugins" + File.separator;
+	public static String pluginLocation = SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator;
 	
 	/**
 	 * The location for plug-ins, as a File.

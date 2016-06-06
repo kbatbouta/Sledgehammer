@@ -35,7 +35,6 @@ import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
 import sledgehammer.npc.NPCEngine;
 import sledgehammer.util.Chat;
-import sledgehammer.util.INI;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
 import sledgehammer.wrapper.Player;
@@ -47,7 +46,7 @@ import zombie.core.raknet.UdpEngine;
 public class SledgeHammer {
 	
 
-	public static final boolean DEBUG = false;
+	public static boolean DEBUG = false;
 
 	/**
 	 * The concurrent Object for synchronization.
@@ -128,16 +127,14 @@ public class SledgeHammer {
 	private List<PermissionHandler> listPermissionHandlers;
 
 	/**
-	 * INI file for SledgeHammer Settings.
-	 */
-	private INI ini;
-	
-	public String folder = null;
-
-	/**
 	 * Permission Denied message to send to players.
 	 */
 	private String permissionDeniedMessage = "Permission denied.";
+	
+	/**
+	 * Settings instance to handle loading, and reading SledgeHammer's settings.
+	 */
+	private Settings settings = null;
 
 	/**
 	 * Main constructor. Requires UdpEngine instance from GameServer to initialize.
@@ -153,9 +150,6 @@ public class SledgeHammer {
 	 * Initializes the SledgeHammer engine.
 	 */
 	public void init() {
-		
-		// Set the SledgeHammer folder location first.
-		folder = GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "SledgeHammer";
 		
 		// Initialize Maps.
 		mapEventListeners      = new HashMap<>();
@@ -188,51 +182,9 @@ public class SledgeHammer {
 	private void loadSettings() {
 		println("Loading settings..");
 		
-		// Location of the main configuration file for SledgeHammer.
-		String iniFileLocation = folder + File.separator + "SledgeHammer.ini";
+		Settings settings = new Settings(this);
+		settings.readSettings();
 		
-		File iniFile = new File(iniFileLocation);
-		ini = new INI(iniFile);
-		if (iniFile.exists()) {
-			try {
-				
-				// Create default settings before overwriting any from the file.
-				createSettings(ini);
-				
-				// Read the settings file.
-				ini.read();
-				
-				// Grab the list of plugins as a string.
-				String listPluginsRaw = ini.getVariableAsString("GENERAL", "plugins");
-				
-				
-				// If the setting is blank, handle properly.
-				if(listPluginsRaw.isEmpty()) {
-					this.listPluginsRaw = new String[0];
-				} else {					
-					// The plug-in entries are comma-delimited.
-					this.listPluginsRaw = listPluginsRaw.split(",");
-				}
-				
-			} catch (IOException e) {
-				println("Failed to read settings.");
-				e.printStackTrace();
-			}
-		} else {
-			createSettings(ini);
-			try {
-				ini.save();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		this.permissionDeniedMessage  = ini.getVariableAsString("GENERAL", "permissiondeniedmessage");
-	}
-	
-	private void createSettings(INI ini) {
-		ini.createSection("GENERAL");
-			ini.setVariable("GENERAL", "plugins", "");
-			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 	}
 
 	public void loadModules() {
@@ -1011,9 +963,9 @@ public class SledgeHammer {
 		}
 		return listSettings;
 	}
-
-	public String getFolder() {
-		return folder;
+	
+	public static String getCacheFolder() {
+		return GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "SledgeHammer";
 	}
 
 	public NPCEngine getNPCEngine() {
@@ -1033,6 +985,18 @@ public class SledgeHammer {
 			if(handler != null) return true;
 		}
 		return false;
+	}
+	
+	void setPluginList(String[] list) {
+		listPluginsRaw = list;
+	}
+
+	public void setPermissionDeniedMessage(String string) {
+		this.permissionDeniedMessage = string;
+	}
+	
+	public Settings getSettings() {
+		return settings;
 	}
 
 }

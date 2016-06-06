@@ -70,7 +70,7 @@ public abstract class Module {
 
 	public INI getINI() {
 		if (ini == null) {
-			iniFile = new File(SledgeHammer.instance.getFolder() + File.separator + "plugins" + File.separator + getJarName() + ".ini");
+			iniFile = new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator + getJarName() + ".ini");
 			ini = new INI(iniFile);
 		}
 
