@@ -728,7 +728,7 @@ public class SledgeHammer {
 		if(ZUtil.isUserAdmin(username)) return true;
 		
 		// Loop through each handler and if any returns true, return true.
-		for(PermissionHandler handler : this.listPermissionHandlers) {
+		for(PermissionHandler handler : listPermissionHandlers) {
 			try {				
 				if(handler.hasPermission(username, context)) return true;
 			} catch(Exception e) {
@@ -1023,6 +1023,17 @@ public class SledgeHammer {
 
 	public List<UdpConnection> getConnections() {
 		return getUdpEngine().getConnections();
+	}
+
+	/**
+	 * Returns whether or not SledgeHammer has a valid PermissionHandler.
+	 * @return
+	 */
+	public boolean hasPermissionModule() {
+		for(PermissionHandler handler : listPermissionHandlers) {
+			if(handler != null) return true;
+		}
+		return false;
 	}
 
 }
