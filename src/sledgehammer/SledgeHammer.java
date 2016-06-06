@@ -188,7 +188,10 @@ public class SledgeHammer {
 	}
 
 	public void loadModules() {
-		registerModule(new ModuleMonitor());
+		
+		if(DEBUG) {			
+			registerModule(new ModuleMonitor());
+		}
 		
 		registerModule(new ModuleNPC());
 		
