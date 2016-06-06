@@ -376,7 +376,6 @@ public class SledgeHammer {
 	private void unloadModule(Module module, boolean remove) {
 		if (module == null)
 			throw new IllegalArgumentException("Module is null!");
-		println("Unloading module " + module.getModuleName() + "...");
 		try {
 			module.unloadModule();
 			mapModules.remove(module.getModuleID());
