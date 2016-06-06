@@ -280,7 +280,6 @@ public class SledgeHammer {
 			Module module = modules.next();
 			if (module != null) {
 				try {
-					println("Loading module " + module.getModuleName() + "...");
 					module.loadModule();
 				} catch (Exception e) {
 					println("Error loading module " + module.getModuleName() + ": " + e.getMessage());
