@@ -31,15 +31,12 @@ public class BehaviorSurvive extends Behavior {
 			// Set the item to follow.
 			if(hasArrived()) {
 				retrieveItem();
-				
 			}
-			
 		} else {
 			// Wait for one second, then search for items nearby.
 			if ( (timeNow - timeThenItemSearch) > 1000L ) {
-				
 				scanForValuableItems();
-				
+
 				// Reset the timer for delta.
 				timeThenItemSearch = timeNow;
 			}
@@ -128,7 +125,6 @@ public class BehaviorSurvive extends Behavior {
 		
 		for(IsoWorldInventoryObject worldItem : listItemsOnTheGround) {
 			InventoryItem item = worldItem.getItem();
-			
 			ItemContainer inventory = getInventory();
 			
 			// If we have enough of this item.

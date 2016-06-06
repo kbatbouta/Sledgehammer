@@ -67,96 +67,6 @@ public class NPC extends IsoPlayer {
 		PlayAnim("Idle");
 	}
 	
-	public void update() {
-		if(!isDead()) {			
-			super.update();
-			
-			updateHands();
-			updateAnimations();
-			
-			for(Behavior behavior: listBehaviors) {
-				behavior.updateBehavior();
-			}
-			
-			updateSquare();
-		}
-	}
-	
-	/**
-	 * Updates Hand-related data.
-	 */
-	private void updateHands() {
-		InventoryItem itemPrimary = getPrimaryHandItem();
-		if(itemPrimary instanceof HandWeapon) {
-//			HandWeapon oldWeapon = weapon;
-			weapon = (HandWeapon) itemPrimary;
-//			if(oldWeapon != null) {
-//				// If the weapon has changed.
-//				if(!weapon.getName().equals(oldWeapon.getName())) {
-//					// Update the current animations.
-//					updateAnimations();
-//				}				
-//			}
-		} else {
-			weapon = null;
-		}
-	}
-	
-	private void initializePerks() {
-		ArrayList<IsoGameCharacter.PerkInfo> perks = new ArrayList<>();
-		perks.add(createPerkInfo(PerkFactory.Perks.Agility));
-		perks.add(createPerkInfo(PerkFactory.Perks.Cooking));
-		perks.add(createPerkInfo(PerkFactory.Perks.Melee));
-		perks.add(createPerkInfo(PerkFactory.Perks.Crafting));
-		perks.add(createPerkInfo(PerkFactory.Perks.Fitness));
-		perks.add(createPerkInfo(PerkFactory.Perks.Strength));
-		perks.add(createPerkInfo(PerkFactory.Perks.Blunt));
-		perks.add(createPerkInfo(PerkFactory.Perks.Axe));
-		perks.add(createPerkInfo(PerkFactory.Perks.Sprinting));
-		perks.add(createPerkInfo(PerkFactory.Perks.Lightfoot));
-		perks.add(createPerkInfo(PerkFactory.Perks.Nimble));
-		perks.add(createPerkInfo(PerkFactory.Perks.Woodwork));
-		perks.add(createPerkInfo(PerkFactory.Perks.Aiming));
-		perks.add(createPerkInfo(PerkFactory.Perks.Reloading));
-		perks.add(createPerkInfo(PerkFactory.Perks.Farming));
-		perks.add(createPerkInfo(PerkFactory.Perks.Survivalist));
-		perks.add(createPerkInfo(PerkFactory.Perks.Trapping));
-		perks.add(createPerkInfo(PerkFactory.Perks.Passiv));
-		perks.add(createPerkInfo(PerkFactory.Perks.Firearm));
-		perks.add(createPerkInfo(PerkFactory.Perks.PlantScavenging));
-		perks.add(createPerkInfo(PerkFactory.Perks.BluntParent));
-		perks.add(createPerkInfo(PerkFactory.Perks.BladeParent));
-		perks.add(createPerkInfo(PerkFactory.Perks.BluntGuard));
-		perks.add(createPerkInfo(PerkFactory.Perks.BladeGuard));
-		perks.add(createPerkInfo(PerkFactory.Perks.BluntMaintenance));
-		perks.add(createPerkInfo(PerkFactory.Perks.BladeMaintenance));
-		perks.add(createPerkInfo(PerkFactory.Perks.Doctor));
-		perks.add(createPerkInfo(PerkFactory.Perks.Electricity));
-		this.setPerkList(perks);
-	}
-	
-	private IsoGameCharacter.PerkInfo createPerkInfo(PerkFactory.Perks perks) {
-		IsoGameCharacter.PerkInfo info = new IsoGameCharacter.PerkInfo();
-
-		info.perkType = perks;
-		info.perk = PerkFactory.getPerk(perks);
-		info.level = 1;
-
-		return info;
-	}
-	
-	/**
-	 * Updates the square the NPC is on.
-	 */
-	private void updateSquare() {
-		int ix = (int) Math.floor(getX());
-		int iy = (int) Math.floor(getY());
-		int iz = (int) Math.floor(getZ());
-		IsoGridSquare square = ServerMap.instance.getGridSquare(ix, iy, iz);
-		this.setCurrent(square);
-		this.setSquare(square);		
-	}
-
 	@Override
 	public void hitConsequences(HandWeapon weapon, IsoGameCharacter wielder, boolean bIgnoreDamage, float damage,
 			boolean bKnockdown) {
@@ -202,6 +112,85 @@ public class NPC extends IsoPlayer {
 		
 	}
 	
+	private void initializePerks() {
+		ArrayList<IsoGameCharacter.PerkInfo> perks = new ArrayList<>();
+		perks.add(createPerkInfo(PerkFactory.Perks.Agility));
+		perks.add(createPerkInfo(PerkFactory.Perks.Cooking));
+		perks.add(createPerkInfo(PerkFactory.Perks.Melee));
+		perks.add(createPerkInfo(PerkFactory.Perks.Crafting));
+		perks.add(createPerkInfo(PerkFactory.Perks.Fitness));
+		perks.add(createPerkInfo(PerkFactory.Perks.Strength));
+		perks.add(createPerkInfo(PerkFactory.Perks.Blunt));
+		perks.add(createPerkInfo(PerkFactory.Perks.Axe));
+		perks.add(createPerkInfo(PerkFactory.Perks.Sprinting));
+		perks.add(createPerkInfo(PerkFactory.Perks.Lightfoot));
+		perks.add(createPerkInfo(PerkFactory.Perks.Nimble));
+		perks.add(createPerkInfo(PerkFactory.Perks.Woodwork));
+		perks.add(createPerkInfo(PerkFactory.Perks.Aiming));
+		perks.add(createPerkInfo(PerkFactory.Perks.Reloading));
+		perks.add(createPerkInfo(PerkFactory.Perks.Farming));
+		perks.add(createPerkInfo(PerkFactory.Perks.Survivalist));
+		perks.add(createPerkInfo(PerkFactory.Perks.Trapping));
+		perks.add(createPerkInfo(PerkFactory.Perks.Passiv));
+		perks.add(createPerkInfo(PerkFactory.Perks.Firearm));
+		perks.add(createPerkInfo(PerkFactory.Perks.PlantScavenging));
+		perks.add(createPerkInfo(PerkFactory.Perks.BluntParent));
+		perks.add(createPerkInfo(PerkFactory.Perks.BladeParent));
+		perks.add(createPerkInfo(PerkFactory.Perks.BluntGuard));
+		perks.add(createPerkInfo(PerkFactory.Perks.BladeGuard));
+		perks.add(createPerkInfo(PerkFactory.Perks.BluntMaintenance));
+		perks.add(createPerkInfo(PerkFactory.Perks.BladeMaintenance));
+		perks.add(createPerkInfo(PerkFactory.Perks.Doctor));
+		perks.add(createPerkInfo(PerkFactory.Perks.Electricity));
+		this.setPerkList(perks);
+	}
+	
+	public void update() {
+		if(!isDead()) {			
+			super.update();
+			updateHands();
+			updateAnimations();
+			for(Behavior behavior: listBehaviors) {
+				behavior.updateBehavior();
+			}
+			updateSquare();
+		}
+	}
+	
+	private IsoGameCharacter.PerkInfo createPerkInfo(PerkFactory.Perks perks) {
+		IsoGameCharacter.PerkInfo info = new IsoGameCharacter.PerkInfo();
+
+		info.perkType = perks;
+		info.perk = PerkFactory.getPerk(perks);
+		info.level = 1;
+
+		return info;
+	}
+	
+	/**
+	 * Updates the square the NPC is on.
+	 */
+	private void updateSquare() {
+		int ix = (int) Math.floor(getX());
+		int iy = (int) Math.floor(getY());
+		int iz = (int) Math.floor(getZ());
+		IsoGridSquare square = ServerMap.instance.getGridSquare(ix, iy, iz);
+		this.setCurrent(square);
+		this.setSquare(square);		
+	}
+	
+	/**
+	 * Updates Hand-related data.
+	 */
+	private void updateHands() {
+		InventoryItem itemPrimary = getPrimaryHandItem();
+		if(itemPrimary instanceof HandWeapon) {
+			weapon = (HandWeapon) itemPrimary;
+		} else {
+			weapon = null;
+		}
+	}
+	
 	public List<Behavior> getBehaviorStates() {
 		return listBehaviors;
 	}
@@ -233,28 +222,41 @@ public class NPC extends IsoPlayer {
 	
 	public void updateAnimations() {
 		
-		String weaponType = "bat";
+
+		String weaponType = getWeaponType();
 		
 		if(weapon != null) {
-//			weaponType = weapon.getSwingAnim();
-//			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
-//				weaponType = "Bat";
-//          }
-//			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
-//          this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
-//          this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
+			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
+            this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
+            this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
             this.runAnim     = weapon.RunAnim                   ; 
             this.idleAnim    = weapon.IdleAnim                  ;
             this.lastWeapon  = weapon                           ;
 		} else {
-//			this.strafeRAnim = "Strafe_R";
-//          this.strafeAnim  = "Strafe"  ;
-//          this.walkRAnim   = "Walk_R"  ;
+			this.strafeRAnim = "Strafe_R";
+            this.strafeAnim  = "Strafe"  ;
+            this.walkRAnim   = "Walk_R"  ;
             this.idleAnim    = "Idle"    ;
             this.runAnim     = "Run"     ;
             this.lastWeapon  = null      ;
 		}
 		
+	}
+	
+	/**
+	 * Returns the weapon type as a String. This is useful for animations.
+	 * @return
+	 */
+	public String getWeaponType() {
+		String weaponType = weapon.getSwingAnim();
+		
+		if(weaponType != null) {
+			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
+				weaponType = "Bat";
+			}			
+		}
+		
+		return weaponType;
 	}
 	
 	public String getIdleAnimation() {
