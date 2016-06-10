@@ -10,9 +10,9 @@ import zombie.network.GameServer;
 
 public class NPCEventListener implements EventListener {
 
-	NPCEngine engine = null;
+	NPCManager engine = null;
 	
-	public NPCEventListener(NPCEngine engine) {
+	public NPCEventListener(NPCManager engine) {
 		this.engine = engine;
 	}
 	

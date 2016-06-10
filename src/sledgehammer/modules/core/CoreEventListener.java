@@ -22,7 +22,6 @@ public class CoreEventListener implements EventListener {
 
 	private ModuleCore module;
 	private Map<String, Long> mapPlayerTimeStamps;
-	private long timeThen = 0L;
 
 	public CoreEventListener(ModuleCore module) {
 		this.module = module;
@@ -74,7 +73,7 @@ public class CoreEventListener implements EventListener {
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
 				SledgeHammer.instance.getChat().globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
-				SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
+				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
 		if(event.getID() == PVPKillEvent.ID) {
@@ -152,11 +151,13 @@ public class CoreEventListener implements EventListener {
 	}
 
 	public void update() {
-//		long timeNow = System.currentTimeMillis();
-//		if(timeNow - timeThen  > 5000) {
-			mapPlayerTimeStamps.clear();
-//			timeThen = timeNow;
-//		}
+		mapPlayerTimeStamps.clear();
+	
+		// long timeNow = System.currentTimeMillis();
+		// if(timeNow - timeThen > 5000) {
+		// mapPlayerTimeStamps.clear();
+		// timeThen = timeNow;
+		// }
 	}
 
 }

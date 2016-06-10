@@ -23,7 +23,9 @@ import zombie.network.ServerMap;
 
 public class ModuleNPC extends SQLModule {
 
-	public static final String ID = "sledgehammer_npc";
+	public static final String ID      = "sledgehammer_npc";
+	public static final String NAME    = "NPC-Spawner"     ;
+	public static final String VERSION = "1.00"            ;
 	
 	private Map<NPC, IsoGameCharacter> mapSpawners;
 	
@@ -100,7 +102,7 @@ public class ModuleNPC extends SQLModule {
 							return;
 						}
 					} else {
-						c.setResponse(Result.FAILURE, SledgeHammer.instance.getPermissionDeniedMessage());
+						c.setResponse(Result.FAILURE, getPermissionDeniedMessage());
 						return;
 					}
 				} else if(command.equalsIgnoreCase("destroynpcs")) {
@@ -108,7 +110,7 @@ public class ModuleNPC extends SQLModule {
 						SledgeHammer.instance.getNPCEngine().destroyNPCs();
 						c.setResponse(Result.SUCCESS, "NPCs destroyed.");
 					} else {
-						c.setResponse(Result.FAILURE, SledgeHammer.instance.getPermissionDeniedMessage());
+						c.setResponse(Result.FAILURE, getPermissionDeniedMessage());
 						return;
 					}
 				}
@@ -148,11 +150,10 @@ public class ModuleNPC extends SQLModule {
 	public void onUpdate(long delta) {}
 	public void onStop() {}
 	public void onUnload() {}
-	public String getModuleName() { return "NPC Spawner" ; }
-	public String getVersion()    { return        "1.00" ; }
+	
+	public String getID()      { return ID      ; }
+	public String getName()    { return NAME    ; }
+	public String getVersion() { return VERSION ; }
 
-	public String getModuleID() {
-		return ID;
-	}
 
 }

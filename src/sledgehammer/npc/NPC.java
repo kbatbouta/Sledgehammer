@@ -19,7 +19,6 @@ import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
-import zombie.network.GameServer;
 import zombie.network.ServerLOS;
 import zombie.network.ServerMap;
 
@@ -222,10 +221,8 @@ public class NPC extends IsoPlayer {
 	
 	public void updateAnimations() {
 		
-
-		String weaponType = getWeaponType();
-		
 		if(weapon != null) {
+			String weaponType = getWeaponType();
 			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
             this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
             this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
@@ -248,15 +245,19 @@ public class NPC extends IsoPlayer {
 	 * @return
 	 */
 	public String getWeaponType() {
-		String weaponType = weapon.getSwingAnim();
-		
-		if(weaponType != null) {
-			if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
-				weaponType = "Bat";
-			}			
+		if(weapon != null) {			
+			String weaponType = weapon.getSwingAnim();
+			
+			if(weaponType != null) {
+				if(!weaponType.equals("Bat") && !weaponType.equals("Handgun") && !weaponType.equals("Rifle")) {
+					weaponType = "Bat";
+				}			
+			}
+			
+			return weaponType;
 		}
 		
-		return weaponType;
+		return null;
 	}
 	
 	public String getIdleAnimation() {

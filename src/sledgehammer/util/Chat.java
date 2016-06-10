@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import sledgehammer.SledgeHammer;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
@@ -229,10 +228,7 @@ public class Chat {
 	}
 
 	public void globalMessage(String message) {
-		if(udpEngine == null) {
-			SledgeHammer.println("Chat.globalMessage(): UDPEngine is Null.");
-			return;
-		}
+		if(udpEngine == null) return;
 		for (UdpConnection connection : udpEngine.connections) {
 			messagePlayer(connection, null, null, message, null, true, false);
 		}

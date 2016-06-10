@@ -79,6 +79,6 @@ public class Player {
 	}
 	
 	public boolean isAdmin() {
-		return get() == null? username.equalsIgnoreCase("admin") : get().admin;
+		return get() == null ? username.equalsIgnoreCase("admin") : get().admin;
 	}
 }

@@ -15,7 +15,7 @@ import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 import zombie.network.ServerLOS;
 
-public class NPCEngine {
+public class NPCManager {
 	
 	/**
 	 * A SledgeHammer instance to follow proper OOP code methods.
@@ -38,7 +38,7 @@ public class NPCEngine {
 	 * Main constructor.
 	 * @param sledgeHammer
 	 */
-	public NPCEngine(SledgeHammer sledgeHammer) {
+	public NPCManager(SledgeHammer sledgeHammer) {
 		this.sledgeHammer = sledgeHammer;
 		
 		// Initialize Lists.
@@ -46,7 +46,7 @@ public class NPCEngine {
 		
 		// Event Listener for joining.
 		eventListener = new NPCEventListener(this);
-		SledgeHammer.instance.registerEventListener(eventListener);
+		SledgeHammer.instance.register(eventListener);
 	}
 	
 	public NPC addNPC(NPC npc) {

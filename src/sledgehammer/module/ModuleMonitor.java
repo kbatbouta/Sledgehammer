@@ -23,9 +23,13 @@ import zombie.iso.IsoWorld;
 
 public class ModuleMonitor extends Module {
 	
-	public static final String ID = "sledgehammer_monitor";
 	
 	private static final String newLine = System.getProperty("line.separator");
+	
+	public static final String ID      = "sledgehammer_monitor";
+	public static final String NAME    = "MemoryMonitor"       ;
+	public static final String VERSION = "1.00"                ;
+	
 	long timeThen = 0L;
 	
 	private MemoryMeter meter;
@@ -207,7 +211,7 @@ public class ModuleMonitor extends Module {
 					}
 				}
 			}
-		} catch (IllegalArgumentException | IllegalAccessException | ClassNotFoundException | NoSuchFieldException | SecurityException e) {
+		} catch (Exception e) {
 			mapSize.clear();
 			mapSizeInv.clear();
 			mapMaps.clear();
@@ -257,9 +261,7 @@ public class ModuleMonitor extends Module {
 
 	public void onUnload() {}
 	
-	public static Object getPrivate(String path)
-			throws IllegalArgumentException, IllegalAccessException,
-			ClassNotFoundException, NoSuchFieldException, SecurityException {
+	public static Object getPrivate(String path) throws Exception {
 		int lastDot = path.lastIndexOf(".");
 		String className = path.substring(0, lastDot);
 		String fieldName = path.substring(lastDot + 1);
@@ -275,12 +277,13 @@ public class ModuleMonitor extends Module {
 		m.onUpdate(0L);
 	}
 
-	public String getModuleName() { return "Memory Monitor"; }
-	public String getVersion()    { return "1.00";           }
+	public String getID()         { return ID      ; }
+	public String getModuleName() { return NAME    ; }
+	public String getVersion()    { return VERSION ; }
 
 	@Override
-	public String getModuleID() {
-		return ID;
+	public String getName() {
+		return "Monitor";
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import sledgehammer.util.INI;
+import sledgehammer.util.Printable;
 
 /**
  * Class designed to handle SledgeHammer's settings interface.
@@ -11,7 +12,7 @@ import sledgehammer.util.INI;
  * @author Jab
  *
  */
-public class Settings {
+public class Settings extends Printable {
 
 	/**
 	 * INI file for SledgeHammer Settings.
@@ -63,10 +64,10 @@ public class Settings {
 
 				// If the setting is blank, handle properly.
 				if (listPluginsRaw.isEmpty()) {
-					sledgeHammer.setPluginList(new String[0]);
+					sledgeHammer.getModuleManager().setPluginList(new String[0]);
 				} else {
 					// The plug-in entries are comma-delimited.
-					sledgeHammer.setPluginList(listPluginsRaw.split(","));
+					sledgeHammer.getModuleManager().setPluginList(listPluginsRaw.split(","));
 				}
 
 				// Save the INI file, if any default setting is missing.
@@ -77,7 +78,7 @@ public class Settings {
 				}
 
 			} catch (IOException e) {
-				SledgeHammer.println("Failed to read settings.");
+				println("Failed to read settings.");
 				e.printStackTrace();
 			}
 		} else {
@@ -88,7 +89,7 @@ public class Settings {
 				e.printStackTrace();
 			}
 		}
-		sledgeHammer.setPermissionDeniedMessage(ini.getVariableAsString("GENERAL", "permissiondeniedmessage"));
+		sledgeHammer.getPermissionsManager().setPermissionDeniedMessage(ini.getVariableAsString("GENERAL", "permissiondeniedmessage"));
 	}
 
 	/**
@@ -111,4 +112,6 @@ public class Settings {
 	public INI getINI() {
 		return ini;
 	}
+
+	public String getName() { return "Settings"; }
 }

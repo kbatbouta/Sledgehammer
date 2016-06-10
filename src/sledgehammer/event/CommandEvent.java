@@ -56,7 +56,7 @@ public class CommandEvent extends PlayerEvent {
 	
 	public void deny() {
 		this.result = Result.FAILURE;
-		this.response = SledgeHammer.instance.getPermissionDeniedMessage();
+		this.response = SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
 	}
 	
 	public LogEvent.LogType getLoggedID() {

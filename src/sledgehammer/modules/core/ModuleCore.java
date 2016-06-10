@@ -12,7 +12,9 @@ import zombie.network.DataBaseBuffer;
 
 public class ModuleCore extends SQLModule {
 
-	public static final String ID = "sledgehammer_core";
+	public static final String ID      = "sledgehammer_core";
+	public static final String NAME    = "Core"             ;
+	public static final String VERSION = "1.00"             ;
 	
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
@@ -102,35 +104,10 @@ public class ModuleCore extends SQLModule {
 		eventListener = new CoreEventListener(this);
 	}
 
-	@Override
-	public void onStart() {
-		
-	}
-
-	@Override
 	public void onUpdate(long delta) {
 		eventListener.update();
 	}
-
-	@Override
-	public void onStop() {
-		
-	}
-
-	@Override
-	public void onUnload() {
-		
-	}
-
-	@Override
-	public String getModuleName() {
-		return "SledgeHammer-Core";
-	}
-
-	@Override
-	public String getVersion() {
-		return "1.00";
-	}
+	
 	
 	public CoreCommandListener getCommandListener() {
 		return this.commandListener;
@@ -140,9 +117,11 @@ public class ModuleCore extends SQLModule {
 		return this.eventListener;
 	}
 
-	@Override
-	public String getModuleID() {
-		return ID;
-	}
+	public void onStart()  { }
+	public void onStop()   { }
+	public void onUnload() { }
+	public String getID()      { return ID     ; }
+	public String getName()    { return NAME   ; }
+	public String getVersion() { return VERSION; }
 	
 }

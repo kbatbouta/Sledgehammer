@@ -4,11 +4,13 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import sledgehammer.PermissionsManager;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.util.Chat;
+import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
@@ -19,7 +21,7 @@ import zombie.network.PacketTypes;
 import zombie.network.ServerWorldDatabase;
 
 
-public class CoreCommandListener implements CommandListener {
+public class CoreCommandListener extends Printable implements CommandListener {
 
 	private ModuleCore module;
 
@@ -28,6 +30,7 @@ public class CoreCommandListener implements CommandListener {
 	
 	public CoreCommandListener(ModuleCore module) {
 		this.module = module;
+		
 		
 		mapTooltips = new HashMap<>();
 		mapTooltips.put("colors"       , "Displays all supported colors on this server.");
@@ -58,6 +61,12 @@ public class CoreCommandListener implements CommandListener {
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"     );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"    );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast");
+
+		PermissionsManager managerPermissions = module.getPermissionsManager();
+		managerPermissions.addDefaultPlayerPermission(getPermissionContext("pm"           ));
+		managerPermissions.addDefaultPlayerPermission(getPermissionContext("colors"       ));
+		managerPermissions.addDefaultPlayerPermission(getPermissionContext("muteglobal"   ));
+		managerPermissions.addDefaultPlayerPermission(getPermissionContext("commitsuicide"));
 	}
 	
 	@Override
@@ -65,9 +74,14 @@ public class CoreCommandListener implements CommandListener {
 		if(player == null) return null;
 		if(command == null || command.isEmpty()) return null;
 		
-		String username = player.getUsername();
+		command = command.toLowerCase();
 		
-		if(module.hasPermission(username, getPermissionContext(command))) {
+		String username = player.getUsername();
+		String context = getPermissionContext(command);
+		
+		boolean hasPermission = module.hasPermission(username, context);
+		
+		if(hasPermission) {
 			return mapTooltips.get(command);
 		}
 		
@@ -102,6 +116,7 @@ public class CoreCommandListener implements CommandListener {
 		String command = c.getCommand();
 		String[] args = c.getArguments();
 		String response = null;
+		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
 				c.setResponse(Result.SUCCESS, Chat.listColors());
@@ -207,7 +222,7 @@ public class CoreCommandListener implements CommandListener {
         				ban(c, args);
         				return;
         			} catch (SQLException e) {
-        				SledgeHammer.println("SQL Error!");
+        				println("SQL Error on command: Ban");
         				e.printStackTrace();
         			}
         		} else {
@@ -227,7 +242,7 @@ public class CoreCommandListener implements CommandListener {
         				unban(c, args);
         				return;
         			} catch (SQLException e) {
-        				SledgeHammer.println("SQL Error!");
+        				println("SQL Error on command: Unban");
         				e.printStackTrace();
         			}
         		} else {
@@ -531,5 +546,8 @@ public class CoreCommandListener implements CommandListener {
 		c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " unbanned " + username + ".");
 		return;
 	}
+
+	@Override
+	public String getName() { return "Core"; }
 	
 }

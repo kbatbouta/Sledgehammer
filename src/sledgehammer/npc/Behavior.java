@@ -19,7 +19,6 @@ import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
 import zombie.iso.IsoUtils;
-import zombie.iso.IsoWorld;
 import zombie.iso.LotHeader;
 import zombie.iso.Vector2;
 import zombie.iso.areas.IsoBuilding;
