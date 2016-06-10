@@ -79,6 +79,13 @@ public abstract class Printable {
 			println(o);
 		}
 	}
+	
+	public void stackTrace(Throwable throwable) {
+		println( throwable.getMessage());
+		for(StackTraceElement o : throwable.getStackTrace()) {
+			println(o);
+		}
+	}
 
 	/**
 	 * Grabs the name of the instance.
