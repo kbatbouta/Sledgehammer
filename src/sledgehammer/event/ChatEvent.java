@@ -5,6 +5,9 @@ import java.util.List;
 import sledgehammer.ChatManager;
 import sledgehammer.wrapper.Player;
 
+//Imports chat colors for short-hand.
+import static sledgehammer.util.ChatColor.*;
+
 public class ChatEvent extends PlayerEvent {
 
 	public static final String ID = "ChatEvent";
@@ -29,8 +32,8 @@ public class ChatEvent extends PlayerEvent {
 		}
 
 		this.input = input;
-		headerColor = ChatManager.CHAT_COLOR_WHITE;
-		textColor = ChatManager.CHAT_COLOR_WHITE;
+		headerColor = CHAT_COLOR_WHITE;
+		textColor   = CHAT_COLOR_WHITE;
 		
 		setHeader(player.getUsername() + ": ");
 	}

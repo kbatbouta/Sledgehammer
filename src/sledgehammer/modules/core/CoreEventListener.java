@@ -18,6 +18,9 @@ import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 
+//Imports chat colors for short-hand.
+import static sledgehammer.util.ChatColor.*;
+
 public class CoreEventListener implements EventListener {
 
 	private ModuleCore module;
@@ -54,7 +57,7 @@ public class CoreEventListener implements EventListener {
 				if(!listGlobalMuters.contains(username)) {
 					listGlobalMuters.add(username);
 				}
-				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", ChatManager.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".", ChatManager.CHAT_COLOR_LIGHT_GREEN, true, true);
+				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".", CHAT_COLOR_LIGHT_GREEN, true, true);
 			}
 		} else
 		if(event.getID() == DisconnectEvent.ID) {
@@ -72,7 +75,7 @@ public class CoreEventListener implements EventListener {
 					return;
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				SledgeHammer.instance.getChat().globalMessage(null, null, text, ChatManager.CHAT_COLOR_RED);
+				SledgeHammer.instance.getChat().globalMessage(null, null, text, CHAT_COLOR_RED);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
@@ -92,7 +95,7 @@ public class CoreEventListener implements EventListener {
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			SledgeHammer.instance.getChat().globalMessage(null, null, text, ChatManager.CHAT_COLOR_RED);
+			SledgeHammer.instance.getChat().globalMessage(null, null, text, CHAT_COLOR_RED);
 			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		}
 	}
@@ -111,7 +114,7 @@ public class CoreEventListener implements EventListener {
 		text = text.replaceAll(">", "&gt;");						
 		if(event.isGlobal()) {
 			if(listGlobalMuters.contains(player.getUsername().toLowerCase())) {
-				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", ChatManager.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", ChatManager.CHAT_COLOR_LIGHT_GREEN, true, true);
+				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", CHAT_COLOR_LIGHT_GREEN, true, true);
 				return;
 			}
 			

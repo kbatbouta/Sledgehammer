@@ -19,6 +19,9 @@ import sledgehammer.wrapper.Player;
 import zombie.core.logger.LoggerManager;
 import zombie.core.raknet.UdpConnection;
 
+//Imports chat colors for short-hand.
+import static sledgehammer.util.ChatColor.*;
+
 // FIXME: Listeners are duplicated.
 public class EventManager extends Printable {
 
@@ -357,7 +360,7 @@ public class EventManager extends Printable {
 	 */
 	private void help(CommandEvent command) {
 		Player player = command.getPlayer();
-		String response = "Commands: " + ChatManager.CHAT_LINE + " " + ChatManager.CHAT_COLOR_WHITE + " ";
+		String response = "Commands: " + CHAT_LINE + " " + CHAT_COLOR_WHITE + " ";
 
 		for (List<CommandListener> listListeners : mapCommandListeners.values()) {
 			if (listListeners != null) {
@@ -369,10 +372,10 @@ public class EventManager extends Printable {
 								if (com != null) {
 									String tip = listener.onTooltip(player, com.toLowerCase());
 									if (tip != null) {
-										response += ChatManager.CHAT_COLOR_LIGHT_GREEN + " " + com + ": "
-												+ ChatManager.CHAT_COLOR_WHITE + " "
-												+ listener.onTooltip(player, com.toLowerCase()) + ChatManager.CHAT_COLOR_WHITE
-												+ " " + ChatManager.CHAT_LINE + " " + ChatManager.CHAT_LINE + " ";
+										response += CHAT_COLOR_LIGHT_GREEN + " " + com + ": "
+												+ CHAT_COLOR_WHITE + " "
+												+ listener.onTooltip(player, com.toLowerCase()) + CHAT_COLOR_WHITE
+												+ " " + CHAT_LINE + " " + CHAT_LINE + " ";
 									}
 								}
 							}
@@ -391,9 +394,9 @@ public class EventManager extends Printable {
 					if (com != null) {
 						String tip = coreCommandListener.onTooltip(player, com.toLowerCase());
 						if (tip != null) {
-							response += ChatManager.CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + ChatManager.CHAT_COLOR_WHITE + " "
-									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + ChatManager.CHAT_COLOR_WHITE
-									+ " " + ChatManager.CHAT_LINE + " " + ChatManager.CHAT_LINE + " ";
+							response += CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + CHAT_COLOR_WHITE + " "
+									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + CHAT_COLOR_WHITE
+									+ " " + CHAT_LINE + " " + CHAT_LINE + " ";
 						}
 					}
 				}
@@ -408,9 +411,9 @@ public class EventManager extends Printable {
 					if (com != null) {
 						String tip = vanillaListener.onTooltip(player, com.toLowerCase());
 						if (tip != null) {
-							response += ChatManager.CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + ChatManager.CHAT_COLOR_WHITE + " "
-									+ vanillaListener.onTooltip(player, com.toLowerCase()) + ChatManager.CHAT_COLOR_WHITE + " "
-									+ ChatManager.CHAT_LINE + " " + ChatManager.CHAT_LINE + " ";
+							response += CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + CHAT_COLOR_WHITE + " "
+									+ vanillaListener.onTooltip(player, com.toLowerCase()) + CHAT_COLOR_WHITE + " "
+									+ CHAT_LINE + " " + CHAT_LINE + " ";
 						}
 					}
 				}
