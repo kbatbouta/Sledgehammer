@@ -232,20 +232,20 @@ public abstract class Module extends Printable {
 		SledgeHammer.instance.register(command, listener);
 	}
 	
-	public void globalMessage(String message) {
-		SledgeHammer.instance.getChatManager().globalMessage(message);
+	public void messageGlobal(String message) {
+		SledgeHammer.instance.getChatManager().messageGlobal(message);
 	}
 	
-	public void globalMessage(String header, String message) {
-		SledgeHammer.instance.getChatManager().globalMessage(header, message);
+	public void messageGlobal(String header, String message) {
+		SledgeHammer.instance.getChatManager().messageGlobal(header, message);
 	}
 	
-	public void globalMessage(String header, String headerColor, String message, String messageColor) {
-		SledgeHammer.instance.getChatManager().globalMessage(header, headerColor, message, messageColor);
+	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
+		SledgeHammer.instance.getChatManager().messageGlobal(header, headerColor, message, messageColor);
 	}
 	
-	public void globalMessage(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
-		SledgeHammer.instance.getChatManager().globalMessage(header, headerColor, message, messageColor, timeStamp);
+	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
+		SledgeHammer.instance.getChatManager().messageGlobal(header, headerColor, message, messageColor, timeStamp);
 	}
 	
 	public void broadcastMessage(String message, String messageColor) {

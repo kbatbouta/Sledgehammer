@@ -93,28 +93,28 @@ public class ChatManager {
 		return "Message sent.";
 	}
 
-	public void globalMessage(String message) {
+	public void messageGlobal(String message) {
 		if(udpEngine == null) return;
 		for (UdpConnection connection : udpEngine.connections) {
 			messagePlayer(connection, null, null, message, null, true, false);
 		}
 	}
 	
-	public void globalMessage(String header, String message) {
+	public void messageGlobal(String header, String message) {
 		if(udpEngine == null) return;
 		for (UdpConnection connection : udpEngine.connections) {
 			messagePlayer(connection, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
 		}
 	}
 	
-	public void globalMessage(String header, String headerColor, String message, String messageColor) {
+	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
 		if(udpEngine == null) return;
 		for (UdpConnection connection : udpEngine.connections) {
 			messagePlayer(connection, header, headerColor, message, messageColor, true, false);
 		}
 	}
 	
-	public void globalMessage(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
+	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
 		if(udpEngine == null) return;
 		for (UdpConnection connection : udpEngine.connections) {
 			messagePlayer(connection, header, headerColor, message, messageColor, timeStamp, false);

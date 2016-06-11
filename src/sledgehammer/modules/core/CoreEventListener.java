@@ -76,7 +76,7 @@ public class CoreEventListener implements EventListener {
 					return;
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				SledgeHammer.instance.getChatManager().globalMessage(null, null, text, COLOR_RED);
+				SledgeHammer.instance.getChatManager().messageGlobal(null, null, text, COLOR_RED);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
@@ -96,7 +96,7 @@ public class CoreEventListener implements EventListener {
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			SledgeHammer.instance.getChatManager().globalMessage(null, null, text, COLOR_RED);
+			SledgeHammer.instance.getChatManager().messageGlobal(null, null, text, COLOR_RED);
 			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		}
 	}
