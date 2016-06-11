@@ -11,6 +11,7 @@ import sledgehammer.event.Event;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.modules.core.CoreCommandListener;
 import sledgehammer.util.ChatTags;
@@ -42,6 +43,8 @@ public class EventManager extends Printable {
 	 * List for registered LogListener interfaces.
 	 */
 	private List<LogListener> listLogListeners;
+	
+	private List<ExceptionListener> listExceptionListeners;
 
 	public EventManager(SledgeHammer instance) {
 		sledgeHammer = instance;
@@ -51,10 +54,10 @@ public class EventManager extends Printable {
 
 		// Initialize Lists.
 		listLogListeners = new ArrayList<>();
+		listExceptionListeners = new ArrayList<>();
 
 		// Put a wild-card List for the CommandListener interface Map.
 		mapCommandListeners.put("*", new ArrayList<CommandListener>());
-
 	}
 
 	public Event handleEvent(Event event) {
@@ -106,6 +109,14 @@ public class EventManager extends Printable {
 		}
 		return event;
 	}
+	
+	public void handleException(String reason, Throwable throwable) {
+		for (ExceptionListener listener : listExceptionListeners) {
+			if (listener != null) {
+				listener.onError(reason, throwable);
+			}
+		}
+	}
 
 	/**
 	 * Logs a Event, running through each LogListener interface.
@@ -119,8 +130,9 @@ public class EventManager extends Printable {
 
 			// Go through each LogListener interface and fire it.
 			for (LogListener listener : listLogListeners) {
-				if (listener != null)
+				if (listener != null) {					
 					listener.onLogEntry(logEvent);
+				}
 			}
 
 			String log = "SledgeHammer";
@@ -148,7 +160,6 @@ public class EventManager extends Printable {
 				println(o);
 			}
 		}
-
 	}
 
 	/**
@@ -348,9 +359,21 @@ public class EventManager extends Printable {
 	 * @param listener
 	 */
 	public void registerLogListener(LogListener listener) {
-		if (listener == null)
+		if (listener == null) {			
 			throw new IllegalArgumentException("Listener is null!");
-		listLogListeners.add(listener);
+		}
+		if(!listLogListeners.contains(listener)) {			
+			listLogListeners.add(listener);
+		}
+	}
+	
+	public void registerExceptionListener(ExceptionListener listener) {
+		if (listener == null) {
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		if(!listExceptionListeners.contains(listener)) {			
+			listExceptionListeners.add(listener);
+		}
 	}
 
 	// TODO: Permission Integration.
@@ -435,6 +458,10 @@ public class EventManager extends Printable {
 
 	public List<LogListener> getLogListeners() {
 		return this.listLogListeners;
+	}
+	
+	public List<ExceptionListener> getExceptionListeners() {
+		return this.listExceptionListeners;
 	}
 
 	public Map<String, List<CommandListener>> getCommandListeners() {

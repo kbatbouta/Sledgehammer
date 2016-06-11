@@ -12,6 +12,7 @@ import sledgehammer.ModuleManager;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionHandler;
@@ -223,6 +224,10 @@ public abstract class Module extends Printable {
 	}
 
 	public void register(LogListener listener) {
+		SledgeHammer.instance.register(listener);
+	}
+	
+	public void register(ExceptionListener listener) {
 		SledgeHammer.instance.register(listener);
 	}
 

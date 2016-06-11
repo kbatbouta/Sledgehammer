@@ -7,6 +7,7 @@ import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.MapGenerator;
 import sledgehammer.module.ModuleMonitor;
@@ -241,6 +242,10 @@ public class SledgeHammer extends Printable {
 		getEventManager().registerLogListener(listener);
 	}
 	
+	public void register(ExceptionListener listener) {
+		getEventManager().registerExceptionListener(listener);
+	}
+
 	public void register(EventListener listener) {
 		getEventManager().registerEventListener(listener);
 	}
@@ -267,5 +272,6 @@ public class SledgeHammer extends Printable {
 
 	@Override
 	public String getName() { return "SledgeHammer"; }
+
 
 }
