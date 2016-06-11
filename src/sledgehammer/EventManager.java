@@ -20,6 +20,7 @@ import sledgehammer.wrapper.Player;
 import zombie.core.logger.LoggerManager;
 import zombie.core.raknet.UdpConnection;
 
+// FIXME: Listeners are duplicated.
 public class EventManager extends Printable {
 
 	private SledgeHammer sledgeHammer = null;

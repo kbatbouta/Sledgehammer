@@ -1,6 +1,7 @@
 package sledgehammer;
 
 import java.io.File;
+import java.net.ConnectException;
 import java.util.List;
 
 import sledgehammer.event.CommandEvent;
@@ -26,6 +27,8 @@ public class SledgeHammer extends Printable {
 	 * Debug boolean for the SledgeHammer engine. Used for verbose output.
 	 */
 	public static boolean DEBUG = false;
+	
+	public static boolean TESTMODULE = false;
 
 	/**
 	 * Singleton instance of the SledgeHammer engine.
@@ -78,6 +81,11 @@ public class SledgeHammer extends Printable {
 		setUdpEngine(udpEngine);
 	}
 	
+	public SledgeHammer(boolean debug) {
+		DEBUG = debug;
+		TESTMODULE = true;
+	}
+
 	/**
 	 * Initializes the SledgeHammer engine.
 	 */
@@ -100,9 +108,11 @@ public class SledgeHammer extends Printable {
 		loadSettings();
 		
 		// Then, load the core modules, and start the Modules.
-		loadCoreModules();
+		if(!TESTMODULE) {
+			loadCoreModules();
+			managerModule.start();
+		}
 		
-		managerModule.start();
 	}
 
 	private void loadCoreModules() {

@@ -9,7 +9,7 @@ public abstract class Printable {
 	 * 
 	 * @param messages
 	 */
-	public void println(Object... messages) {
+	public synchronized void println(Object... messages) {
 
 
 		if(messages.length == 0) {
@@ -36,7 +36,7 @@ public abstract class Printable {
 	 * Prints a message with a header, without a new-line.
 	 * @param message
 	 */
-	public void printH(Object message) {
+	public synchronized void printH(Object message) {
 		
 		// Grab the name of the instance.
 		String name = getName();
@@ -52,41 +52,32 @@ public abstract class Printable {
 	 * Prints a message, without a new-line.
 	 * @param message
 	 */
-	public void print(Object message) {
+	public synchronized void print(Object message) {
 		// Print the result.
 		System.out.print(message);
 	}
 	
-	public void stackTrace(Exception e) {
-		stackTrace((String)null, e);
+	public synchronized void stackTrace(Throwable throwable) {
+		stackTrace((String)null, throwable);
 	}
 	
-	public void stackTrace(StackTraceElement[] stackTrace) {
+	public synchronized void stackTrace(StackTraceElement[] stackTrace) {
 		for(StackTraceElement element : stackTrace) {
 			System.out.println(element);
 		}
 	}
 	
-	public void stackTrace(String errorText, Exception e) {
+	public synchronized void stackTrace(String errorText, Throwable throwable) {
 		if(errorText == null) {
 			errorText = "";
 		} else if(!errorText.isEmpty()) {
 			errorText = errorText.trim() + ": ";
 		}
 		
-		println("Error: " + errorText + ": " + e.getMessage());
-		for(StackTraceElement o : e.getStackTrace()) {
-			println(o);
-		}
+		println("Error: " + errorText + ": " + throwable.getMessage());
+		stackTrace(throwable.getStackTrace());
 	}
 	
-	public void stackTrace(Throwable throwable) {
-		println( throwable.getMessage());
-		for(StackTraceElement o : throwable.getStackTrace()) {
-			println(o);
-		}
-	}
-
 	/**
 	 * Grabs the name of the instance.
 	 * 
