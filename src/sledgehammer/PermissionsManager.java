@@ -96,7 +96,7 @@ public class PermissionsManager extends Printable {
 		
 		if(context == null) {
 			println("Plug-in is asking permissions for a null context.");
-			stackTrace(Thread.currentThread().getStackTrace());
+			stackTrace();
 		}
 		
 		if(isUserAdmin(username)) return true;

@@ -1,5 +1,7 @@
 package sledgehammer.util;
 
+import sledgehammer.SledgeHammer;
+
 public abstract class Printable {
 
 	static String newLine = System.getProperty("line.separator");
@@ -61,23 +63,27 @@ public abstract class Printable {
 		stackTrace((String)null, throwable);
 	}
 	
-	public synchronized void stackTrace(StackTraceElement[] stackTrace) {
-		for(StackTraceElement element : stackTrace) {
-			System.out.println(element);
-		}
-	}
 	
 	public synchronized void stackTrace(String errorText, Throwable throwable) {
-		if(errorText == null) {
-			errorText = "";
-		} else if(!errorText.isEmpty()) {
+		if(errorText != null && !errorText.isEmpty()) {
 			errorText = errorText.trim() + ": ";
 		}
 		
-		println("Error: " + errorText + ": " + throwable.getMessage());
-		stackTrace(throwable.getStackTrace());
+		println("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());
+		for(StackTraceElement element : throwable.getStackTrace()) {
+			System.out.println(element);
+		}
+		
+		// Send to the EventManager for ExceptionListeners to handle.
+		SledgeHammer.instance.getEventManager().handleException(errorText, throwable);
 	}
 	
+	public synchronized void stackTrace() {
+		for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
+			System.out.println(element);
+		}
+	}
+
 	/**
 	 * Grabs the name of the instance.
 	 * 
