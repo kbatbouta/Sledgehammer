@@ -178,7 +178,7 @@ public class SledgeHammer extends Printable {
 		this.udpEngine = udpEngine;
 	}
 
-	public ChatManager getChat() {
+	public ChatManager getChatManager() {
 		return chat;
 	}
 	

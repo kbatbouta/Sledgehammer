@@ -44,7 +44,7 @@ public class ModuleCore extends SQLModule {
 	public String toggleGlobalMute(String username) {
 		if(username == null) return "Username is null.";
 		try {
-			ChatManager chat = SledgeHammer.instance.getChat();
+			ChatManager chat = SledgeHammer.instance.getChatManager();
 			List<String> listGlobalMuters = chat.getGlobalMuters();
 			String muted = get(TABLE_GLOBAL_MUTE, "name", username, "mute");
 			if(muted != null) {

@@ -233,23 +233,23 @@ public abstract class Module extends Printable {
 	}
 	
 	public void globalMessage(String message) {
-		SledgeHammer.instance.getChat().globalMessage(message);
+		SledgeHammer.instance.getChatManager().globalMessage(message);
 	}
 	
 	public void globalMessage(String header, String message) {
-		SledgeHammer.instance.getChat().globalMessage(header, message);
+		SledgeHammer.instance.getChatManager().globalMessage(header, message);
 	}
 	
 	public void globalMessage(String header, String headerColor, String message, String messageColor) {
-		SledgeHammer.instance.getChat().globalMessage(header, headerColor, message, messageColor);
+		SledgeHammer.instance.getChatManager().globalMessage(header, headerColor, message, messageColor);
 	}
 	
 	public void globalMessage(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
-		SledgeHammer.instance.getChat().globalMessage(header, headerColor, message, messageColor, timeStamp);
+		SledgeHammer.instance.getChatManager().globalMessage(header, headerColor, message, messageColor, timeStamp);
 	}
 	
 	public void broadcastMessage(String message, String messageColor) {
-		SledgeHammer.instance.getChat().broadcastMessage(message, messageColor);
+		SledgeHammer.instance.getChatManager().broadcastMessage(message, messageColor);
 	}
 	
 	public abstract void onLoad();

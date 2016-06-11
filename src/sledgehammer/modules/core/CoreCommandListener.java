@@ -114,7 +114,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	}
 
 	public void onCommand(CommandEvent c) {
-		ChatManager chat = SledgeHammer.instance.getChat();
+		ChatManager chat = SledgeHammer.instance.getChatManager();
 		Player player = c.getPlayer();
 		String username = player.getUsername();
 		String command = c.getCommand();

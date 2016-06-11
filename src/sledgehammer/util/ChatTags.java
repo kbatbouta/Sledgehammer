@@ -3,7 +3,8 @@ package sledgehammer.util;
 import java.util.HashMap;
 
 public class ChatTags {
-public static HashMap<String, String> mapColors;
+
+	public static HashMap<String, String> mapColors;
 	
 	public static final String COLOR_WHITE        = " <RGB:1,1,1>"       ;
 	public static final String COLOR_LIGHT_GRAY   = " <RGB:0.7,0.7,0.7>" ;

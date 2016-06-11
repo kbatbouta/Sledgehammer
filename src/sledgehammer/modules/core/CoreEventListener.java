@@ -42,7 +42,7 @@ public class CoreEventListener implements EventListener {
 
 	@Override
 	public void handleEvent(Event event) {
-		ChatManager chat = SledgeHammer.instance.getChat();
+		ChatManager chat = SledgeHammer.instance.getChatManager();
 		List<String> listGlobalMuters = chat.getGlobalMuters();
 		String text = event.getLogMessage();
 		
@@ -75,7 +75,7 @@ public class CoreEventListener implements EventListener {
 					return;
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				SledgeHammer.instance.getChat().globalMessage(null, null, text, COLOR_RED);
+				SledgeHammer.instance.getChatManager().globalMessage(null, null, text, COLOR_RED);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
@@ -95,14 +95,14 @@ public class CoreEventListener implements EventListener {
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			SledgeHammer.instance.getChat().globalMessage(null, null, text, COLOR_RED);
+			SledgeHammer.instance.getChatManager().globalMessage(null, null, text, COLOR_RED);
 			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		}
 	}
 	
 	private void handleChatEvent(ChatEvent event) {
 		
-		ChatManager chat = SledgeHammer.instance.getChat();
+		ChatManager chat = SledgeHammer.instance.getChatManager();
 		List<String> listGlobalMuters = chat.getGlobalMuters();
 		
 		Player player = event.getPlayer();
