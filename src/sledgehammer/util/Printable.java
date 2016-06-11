@@ -1,5 +1,6 @@
 package sledgehammer.util;
 
+import sledgehammer.EventManager;
 import sledgehammer.SledgeHammer;
 
 public abstract class Printable {
@@ -12,7 +13,6 @@ public abstract class Printable {
 	 * @param messages
 	 */
 	public synchronized void println(Object... messages) {
-
 
 		if(messages.length == 0) {
 			System.out.println();
@@ -71,16 +71,19 @@ public abstract class Printable {
 		
 		println("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());
 		for(StackTraceElement element : throwable.getStackTrace()) {
-			System.out.println(element);
+			println(element);
 		}
 		
 		// Send to the EventManager for ExceptionListeners to handle.
-		SledgeHammer.instance.getEventManager().handleException(errorText, throwable);
+		EventManager managerEvent = SledgeHammer.instance.getEventManager();
+		if(managerEvent != null) {
+			SledgeHammer.instance.getEventManager().handleException(errorText, throwable);			
+		}
 	}
 	
 	public synchronized void stackTrace() {
 		for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
-			System.out.println(element);
+			println(element);
 		}
 	}
 

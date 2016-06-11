@@ -93,64 +93,83 @@ public class SledgeHammer extends Printable {
 	 */
 	public void init() {
 
-		publicServerName = ServerOptions.instance.getOption("PublicName");
-		
-		// Initialize the Chat Engine.
-		chat = new ChatManager(udpEngine);
-		
-		managerEvent = new EventManager(this);
-		
-		managerPermissions = new PermissionsManager(this);
-
-		// Initialize the NPC Engine.
-		managerNPC = new NPCManager(this);
-		
-		// Initialize the ModuleManager.
-		managerModule = new ModuleManager(this);
-		
-		// Load the settings for SledgeHammer.
-		loadSettings();
-		
-		// Then, load the core modules, and start the Modules.
-		if(!TESTMODULE) {
-			loadCoreModules();
-			managerModule.start();
+		try {			
+			publicServerName = ServerOptions.instance.getOption("PublicName");
+			
+			// Initialize the Chat Engine.
+			chat = new ChatManager(udpEngine);
+			
+			managerEvent = new EventManager(this);
+			
+			managerPermissions = new PermissionsManager(this);
+			
+			// Initialize the NPC Engine.
+			managerNPC = new NPCManager(this);
+			
+			// Initialize the ModuleManager.
+			managerModule = new ModuleManager(this);
+			
+			// Load the settings for SledgeHammer.
+			loadSettings();
+			
+			// Then, load the core modules, and start the Modules.
+			if(!TESTMODULE) {
+				loadCoreModules();
+				managerModule.start();
+			}
+		} catch(Exception e) {
+			stackTrace("An Error occured while initializing Sledgehammer.", e);
 		}
 		
 	}
 
 	private void loadCoreModules() {
-		// Core Modules.
-		moduleVanilla = new ModuleVanilla();
-		moduleCore    = new ModuleCore();
-		moduleNPC     = new ModuleNPC();
-
-		if (DEBUG) managerModule.registerModule(new ModuleMonitor());
-
-		managerModule.registerModule(moduleVanilla);
-		managerModule.registerModule(moduleCore   );
-		managerModule.registerModule(moduleNPC    );
+		try {
+			moduleVanilla = new ModuleVanilla();
+			moduleCore    = new ModuleCore();
+			moduleNPC     = new ModuleNPC();
+	
+			if (DEBUG) managerModule.registerModule(new ModuleMonitor());
+	
+			managerModule.registerModule(moduleVanilla);
+			managerModule.registerModule(moduleCore   );
+			managerModule.registerModule(moduleNPC    );
+		} catch(Exception e) {
+			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
+		}
 		
 	}
 
 	private void loadSettings() {
 		println("Loading settings..");
 		
-		Settings settings = new Settings(this);
-		settings.readSettings();
+		try {			
+			Settings settings = new Settings(this);
+			settings.readSettings();
+		} catch(Exception e) {
+			stackTrace("An Error occured while loading Sledgehammer's settings.", e);
+		}
 		
 	}
 
 	public void update() {
-		synchronized (this) {
-			managerModule.update();
-			managerNPC.update();
+		try {			
+			synchronized (this) {
+				managerModule.update();
+				managerNPC.update();
+			}
+		} catch(Exception e) {
+			stackTrace("An Error occured in Sledgehammer's update method.", e);
 		}
 	}
 
 	public void stop() {
-		synchronized (this) {
-			managerModule.shutdown();
+		try {			
+			synchronized (this) {
+				managerModule.shutdown();
+			}
+		} catch(Exception e) {
+			stackTrace("An Error occured while stopping Sledgehammer.", e);
 		}
 	}
 
