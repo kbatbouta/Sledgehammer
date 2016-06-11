@@ -19,7 +19,7 @@ import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 
 //Imports chat colors for short-hand.
-import static sledgehammer.util.ChatColor.*;
+import static sledgehammer.util.ChatTags.*;
 
 public class CoreEventListener implements EventListener {
 

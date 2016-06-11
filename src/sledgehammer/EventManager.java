@@ -20,7 +20,7 @@ import zombie.core.logger.LoggerManager;
 import zombie.core.raknet.UdpConnection;
 
 //Imports chat colors for short-hand.
-import static sledgehammer.util.ChatColor.*;
+import static sledgehammer.util.ChatTags.*;
 
 // FIXME: Listeners are duplicated.
 public class EventManager extends Printable {

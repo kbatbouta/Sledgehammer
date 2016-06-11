@@ -11,7 +11,7 @@ import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 
 // Imports chat colors for short-hand.
-import static sledgehammer.util.ChatColor.*;
+import static sledgehammer.util.ChatTags.*;
 
 public class ChatManager {
 	

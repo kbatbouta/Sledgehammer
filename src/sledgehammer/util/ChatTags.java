@@ -2,7 +2,7 @@ package sledgehammer.util;
 
 import java.util.HashMap;
 
-public class ChatColor {
+public class ChatTags {
 public static HashMap<String, String> mapColors;
 	
 	public static final String COLOR_WHITE        = " <RGB:1,1,1>"       ;

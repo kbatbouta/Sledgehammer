@@ -10,7 +10,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.util.ChatColor;
+import sledgehammer.util.ChatTags;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
@@ -22,7 +22,7 @@ import zombie.network.PacketTypes;
 import zombie.network.ServerWorldDatabase;
 
 //Imports chat colors for short-hand.
-import static sledgehammer.util.ChatColor.*;
+import static sledgehammer.util.ChatTags.*;
 
 
 public class CoreCommandListener extends Printable implements CommandListener {
@@ -123,7 +123,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
-				c.setResponse(Result.SUCCESS, ChatColor.listColors());
+				c.setResponse(Result.SUCCESS, ChatTags.listColors());
 				return;
 			} else {
 				c.deny();
@@ -184,7 +184,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		if(command.startsWith("broadcast")) {
         	if(module.hasPermission(username, getPermissionContext("broadcast"))) {
         		if(args.length > 1) {
-        			String color = ChatColor.getColor(args[0]);
+        			String color = ChatTags.getColor(args[0]);
         			if(color == null) color = COLOR_LIGHT_RED;
         			chat.broadcastMessage(args[1], color);        		
         			

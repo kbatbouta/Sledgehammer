@@ -6,7 +6,7 @@ import sledgehammer.ChatManager;
 import sledgehammer.wrapper.Player;
 
 //Imports chat colors for short-hand.
-import static sledgehammer.util.ChatColor.*;
+import static sledgehammer.util.ChatTags.*;
 
 public class ChatEvent extends PlayerEvent {
 
