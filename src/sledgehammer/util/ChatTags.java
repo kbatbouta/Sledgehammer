@@ -96,4 +96,48 @@ public class ChatTags {
 	public static String getColor(String color) {
 		return mapColors.get(color.toLowerCase());
 	}
+	
+	public static String stripTags(String text, boolean newLine) {
+		if(text == null) return null;
+		String stripped = "";
+		char[] textArray = text.toCharArray();
+		
+		boolean inCode = false;
+		
+		for(int index = 0; index < text.length(); index++) {
+			char c = textArray[index];
+			if(inCode) {
+				if(c == '>') {
+					inCode = false;
+					index++;
+					continue;
+				} else continue;
+			} else {
+				if(c == '<') {
+					if(index + 4 <= text.length() - 1) {
+						char cn1 = (index-1 >= 0) ? textArray[index - 1] : '\u9999';
+						char c1  = textArray[index + 1];
+						char c2  = textArray[index + 2];
+						char c3  = textArray[index + 3];
+						char c4  = textArray[index + 4];
+						if((c1 == 'R' || c1 == 'r') && 
+						   (c2 == 'G' || c2 == 'g') &&
+						   (c3 == 'B' || c3 == 'b') && c4 == ':') {
+							inCode = true;
+							if(cn1 == ' ') stripped = stripped.substring(0, stripped.length() - 1);
+							continue;
+						} else
+						if((c1 == 'L' || c1 == 'l') &&
+						   (c2 == 'I' || c2 == 'i') && 
+						   (c3 == 'N' || c3 == 'n') && 
+						   (c4 == 'E' || c4 == 'e')) {
+							inCode = true;
+							if(cn1 == ' ') stripped = stripped.substring(0, stripped.length() - 1) + (newLine ? "\n":"");
+						}
+					}
+				} else stripped += c;
+			}
+		}
+		return stripped;
+	}
 }

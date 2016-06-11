@@ -2,7 +2,7 @@ package sledgehammer.event;
 
 import java.util.List;
 
-import sledgehammer.ChatManager;
+import sledgehammer.util.ChatTags;
 import sledgehammer.wrapper.Player;
 
 //Imports chat colors for short-hand.
@@ -106,9 +106,9 @@ public class ChatEvent extends PlayerEvent {
 	@Override
 	public String getLogMessage() {
 		if(isGlobal()) {
-			return "(Global) " + ChatManager.stripTags(getHeader() + getText(), false);
+			return "(Global) " + ChatTags.stripTags(getHeader() + getText(), false);
 		} else {
-			return "(Local) " + ChatManager.stripTags(getHeader() + getText(), false);
+			return "(Local) " + ChatTags.stripTags(getHeader() + getText(), false);
 		}
 	}
 

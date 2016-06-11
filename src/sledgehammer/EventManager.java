@@ -13,6 +13,7 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.modules.core.CoreCommandListener;
+import sledgehammer.util.ChatTags;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
@@ -213,7 +214,7 @@ public class EventManager extends Printable {
 
 							CommandEvent event = new CommandEvent(playerEmulated, commandString);
 							handleCommand(event, logEvent);
-							event.setResponse(event.getResult(), ChatManager.stripTags(event.getResponse(), true));
+							event.setResponse(event.getResult(), ChatTags.stripTags(event.getResponse(), true));
 							return event;
 						} else {
 							return c;
@@ -270,7 +271,7 @@ public class EventManager extends Printable {
 				// For console commands, or other methods outside of the game,
 				// this strips the color codes, and replaces '<LINE>' with \n.
 				if (c.getPlayer().getConnection() == null) {
-					c.setResponse(c.getResult(), ChatManager.stripTags(c.getResponse(), true));
+					c.setResponse(c.getResult(), ChatTags.stripTags(c.getResponse(), true));
 				}
 			} catch (Exception e) {
 				println("Error handling command " + c + ": " + e.getMessage());

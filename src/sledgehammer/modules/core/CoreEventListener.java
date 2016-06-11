@@ -14,6 +14,7 @@ import sledgehammer.event.Event;
 import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.npc.NPC;
+import sledgehammer.util.ChatTags;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -109,7 +110,7 @@ public class CoreEventListener implements EventListener {
 		String text = event.getText();
 		UdpConnection connectionCommander = player.getConnection();
 
-		text = ChatManager.stripTags(text, false);
+		text = ChatTags.stripTags(text, false);
 		text = text.replaceAll("<", "&lt;");
 		text = text.replaceAll(">", "&gt;");						
 		if(event.isGlobal()) {
