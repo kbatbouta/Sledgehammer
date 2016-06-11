@@ -360,7 +360,7 @@ public class EventManager extends Printable {
 	 */
 	private void help(CommandEvent command) {
 		Player player = command.getPlayer();
-		String response = "Commands: " + CHAT_LINE + " " + CHAT_COLOR_WHITE + " ";
+		String response = "Commands: " + NEW_LINE + " " + COLOR_WHITE + " ";
 
 		for (List<CommandListener> listListeners : mapCommandListeners.values()) {
 			if (listListeners != null) {
@@ -372,10 +372,10 @@ public class EventManager extends Printable {
 								if (com != null) {
 									String tip = listener.onTooltip(player, com.toLowerCase());
 									if (tip != null) {
-										response += CHAT_COLOR_LIGHT_GREEN + " " + com + ": "
-												+ CHAT_COLOR_WHITE + " "
-												+ listener.onTooltip(player, com.toLowerCase()) + CHAT_COLOR_WHITE
-												+ " " + CHAT_LINE + " " + CHAT_LINE + " ";
+										response += COLOR_LIGHT_GREEN + " " + com + ": "
+												+ COLOR_WHITE + " "
+												+ listener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE
+												+ " " + NEW_LINE + " " + NEW_LINE + " ";
 									}
 								}
 							}
@@ -394,9 +394,9 @@ public class EventManager extends Printable {
 					if (com != null) {
 						String tip = coreCommandListener.onTooltip(player, com.toLowerCase());
 						if (tip != null) {
-							response += CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + CHAT_COLOR_WHITE + " "
-									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + CHAT_COLOR_WHITE
-									+ " " + CHAT_LINE + " " + CHAT_LINE + " ";
+							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
+									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE
+									+ " " + NEW_LINE + " " + NEW_LINE + " ";
 						}
 					}
 				}
@@ -411,9 +411,9 @@ public class EventManager extends Printable {
 					if (com != null) {
 						String tip = vanillaListener.onTooltip(player, com.toLowerCase());
 						if (tip != null) {
-							response += CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + CHAT_COLOR_WHITE + " "
-									+ vanillaListener.onTooltip(player, com.toLowerCase()) + CHAT_COLOR_WHITE + " "
-									+ CHAT_LINE + " " + CHAT_LINE + " ";
+							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
+									+ vanillaListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+									+ NEW_LINE + " " + NEW_LINE + " ";
 						}
 					}
 				}

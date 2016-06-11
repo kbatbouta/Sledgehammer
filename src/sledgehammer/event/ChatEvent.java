@@ -32,8 +32,8 @@ public class ChatEvent extends PlayerEvent {
 		}
 
 		this.input = input;
-		headerColor = CHAT_COLOR_WHITE;
-		textColor   = CHAT_COLOR_WHITE;
+		headerColor = COLOR_WHITE;
+		textColor   = COLOR_WHITE;
 		
 		setHeader(player.getUsername() + ": ");
 	}

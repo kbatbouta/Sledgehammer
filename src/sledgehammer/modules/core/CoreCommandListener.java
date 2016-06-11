@@ -44,16 +44,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapTooltips.put("commitsuicide", "End your character's life.");
 		mapTooltips.put("muteglobal"   , "Toggles global chat.");
 		mapTooltips.put("ban"          , 
-				"Bans a player. Flags:" + CHAT_LINE + 
-				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + CHAT_LINE + 
-				" -S: SteamID flag (ID required!) ex: /ban -S \"11330\"" + CHAT_LINE + 
-				" -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\"" + CHAT_LINE + 
-				" -i: IP flag (No IP required, but must be online!)" + CHAT_LINE + 
+				"Bans a player. Flags:" + NEW_LINE + 
+				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + NEW_LINE + 
+				" -S: SteamID flag (ID required!) ex: /ban -S \"11330\"" + NEW_LINE + 
+				" -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\"" + NEW_LINE + 
+				" -i: IP flag (No IP required, but must be online!)" + NEW_LINE + 
 				" -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)");
 		mapTooltips.put("unban"        , 
-				"Unbans a player. Flags:" + CHAT_LINE + 
-				" -U: Username flag (Required!) ex: /unban -U \"username\"" + CHAT_LINE + 
-				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + CHAT_LINE +
+				"Unbans a player. Flags:" + NEW_LINE + 
+				" -U: Username flag (Required!) ex: /unban -U \"username\"" + NEW_LINE + 
+				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + NEW_LINE +
 				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
 		
 		mapContexts = new HashMap<>();
@@ -185,7 +185,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
         	if(module.hasPermission(username, getPermissionContext("broadcast"))) {
         		if(args.length > 1) {
         			String color = ChatColor.getColor(args[0]);
-        			if(color == null) color = CHAT_COLOR_LIGHT_RED;
+        			if(color == null) color = COLOR_LIGHT_RED;
         			chat.broadcastMessage(args[1], color);        		
         			
         			response = "Broadcast sent.";

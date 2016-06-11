@@ -95,15 +95,15 @@ public class ChatManager {
 	}
 	
 	public String privateMessage(String commander, String username, String text) {
-		return messagePlayer(username, "[PM][" + commander + "]: ", CHAT_COLOR_LIGHT_GREEN, text, CHAT_COLOR_LIGHT_GREEN, true, true);
+		return messagePlayer(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
 	
 	public String warnPlayer(String commander, String username, String text) {
-		return messagePlayer(username, "[WARNING]["+ commander + "]: ", CHAT_COLOR_LIGHT_RED, text, CHAT_COLOR_LIGHT_RED, true, true);
+		return messagePlayer(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
 	}
 	
 	public String privateMessage(String commander, UdpConnection connection, String text) {
-		return messagePlayer(connection, "[PM][" + commander + "]: ", CHAT_COLOR_LIGHT_GREEN, text, CHAT_COLOR_LIGHT_GREEN, true, true);
+		return messagePlayer(connection, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
 	
 	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
@@ -127,7 +127,7 @@ public class ChatManager {
 		
 		if(textColor != null && !textColor.isEmpty()) message += textColor + " ";
 		
-		message += text + CHAT_COLOR_WHITE + " ";
+		message += text + COLOR_WHITE + " ";
 		
 		ByteBufferWriter b2 = connection.startPacket();
 		PacketTypes.doPacket((byte) 81, b2);
@@ -148,7 +148,7 @@ public class ChatManager {
 	public void globalMessage(String header, String message) {
 		if(udpEngine == null) return;
 		for (UdpConnection connection : udpEngine.connections) {
-			messagePlayer(connection, header, CHAT_COLOR_WHITE, message, CHAT_COLOR_WHITE, true, false);
+			messagePlayer(connection, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
 		}
 	}
 	
@@ -167,7 +167,7 @@ public class ChatManager {
 	}
 	
 	public void broadcastMessage(String message, String messageColor) {
-		if(messageColor == null || messageColor.isEmpty()) messageColor = CHAT_COLOR_LIGHT_RED;
+		if(messageColor == null || messageColor.isEmpty()) messageColor = COLOR_LIGHT_RED;
 		String messageOut = "[B]" + messageColor + " " + message;
 		
 		for (UdpConnection connection : udpEngine.connections) {
