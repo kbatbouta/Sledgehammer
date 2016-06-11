@@ -1,4 +1,4 @@
-package sledgehammer.util;
+package sledgehammer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import zombie.core.raknet.UdpEngine;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 
-public class Chat {
+public class ChatManager {
 	public static HashMap<String, String> mapColors;
 	
 	public static final String CHAT_COLOR_WHITE        = " <RGB:1,1,1>"       ;
@@ -152,7 +152,7 @@ public class Chat {
 	private List<String> listGlobalMuters;
 	private UdpEngine udpEngine;
 	
-	public Chat(UdpEngine udpEngine) {
+	public ChatManager(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
 		this.listGlobalMuters = new ArrayList<>();
 	}
@@ -256,7 +256,7 @@ public class Chat {
 		}
 	}
 	
-	public void broadcastChat(String message, String messageColor) {
+	public void broadcastMessage(String message, String messageColor) {
 		if(messageColor == null || messageColor.isEmpty()) messageColor = CHAT_COLOR_LIGHT_RED;
 		String messageOut = "[B]" + messageColor + " " + message;
 		

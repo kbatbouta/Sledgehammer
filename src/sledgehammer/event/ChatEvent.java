@@ -2,7 +2,7 @@ package sledgehammer.event;
 
 import java.util.List;
 
-import sledgehammer.util.Chat;
+import sledgehammer.ChatManager;
 import sledgehammer.wrapper.Player;
 
 public class ChatEvent extends PlayerEvent {
@@ -29,8 +29,8 @@ public class ChatEvent extends PlayerEvent {
 		}
 
 		this.input = input;
-		headerColor = Chat.CHAT_COLOR_WHITE;
-		textColor = Chat.CHAT_COLOR_WHITE;
+		headerColor = ChatManager.CHAT_COLOR_WHITE;
+		textColor = ChatManager.CHAT_COLOR_WHITE;
 		
 		setHeader(player.getUsername() + ": ");
 	}
@@ -103,9 +103,9 @@ public class ChatEvent extends PlayerEvent {
 	@Override
 	public String getLogMessage() {
 		if(isGlobal()) {
-			return "(Global) " + Chat.getStripped(getHeader() + getText(), false);
+			return "(Global) " + ChatManager.getStripped(getHeader() + getText(), false);
 		} else {
-			return "(Local) " + Chat.getStripped(getHeader() + getText(), false);
+			return "(Local) " + ChatManager.getStripped(getHeader() + getText(), false);
 		}
 	}
 

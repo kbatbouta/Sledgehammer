@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.ChatManager;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ChatEvent;
 import sledgehammer.event.ConnectEvent;
@@ -13,7 +14,6 @@ import sledgehammer.event.Event;
 import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.npc.NPC;
-import sledgehammer.util.Chat;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -39,7 +39,7 @@ public class CoreEventListener implements EventListener {
 
 	@Override
 	public void handleEvent(Event event) {
-		Chat chat = SledgeHammer.instance.getChat();
+		ChatManager chat = SledgeHammer.instance.getChat();
 		List<String> listGlobalMuters = chat.getGlobalMuters();
 		String text = event.getLogMessage();
 		
@@ -54,7 +54,7 @@ public class CoreEventListener implements EventListener {
 				if(!listGlobalMuters.contains(username)) {
 					listGlobalMuters.add(username);
 				}
-				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", Chat.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".", Chat.CHAT_COLOR_LIGHT_GREEN, true, true);
+				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", ChatManager.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".", ChatManager.CHAT_COLOR_LIGHT_GREEN, true, true);
 			}
 		} else
 		if(event.getID() == DisconnectEvent.ID) {
@@ -72,7 +72,7 @@ public class CoreEventListener implements EventListener {
 					return;
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				SledgeHammer.instance.getChat().globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
+				SledgeHammer.instance.getChat().globalMessage(null, null, text, ChatManager.CHAT_COLOR_RED);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
@@ -92,26 +92,26 @@ public class CoreEventListener implements EventListener {
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			SledgeHammer.instance.getChat().globalMessage(null, null, text, Chat.CHAT_COLOR_RED);
+			SledgeHammer.instance.getChat().globalMessage(null, null, text, ChatManager.CHAT_COLOR_RED);
 			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		}
 	}
 	
 	private void handleChatEvent(ChatEvent event) {
 		
-		Chat chat = SledgeHammer.instance.getChat();
+		ChatManager chat = SledgeHammer.instance.getChat();
 		List<String> listGlobalMuters = chat.getGlobalMuters();
 		
 		Player player = event.getPlayer();
 		String text = event.getText();
 		UdpConnection connectionCommander = player.getConnection();
 
-		text = Chat.getStripped(text, false);
+		text = ChatManager.getStripped(text, false);
 		text = text.replaceAll("<", "&lt;");
 		text = text.replaceAll(">", "&gt;");						
 		if(event.isGlobal()) {
 			if(listGlobalMuters.contains(player.getUsername().toLowerCase())) {
-				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", Chat.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", Chat.CHAT_COLOR_LIGHT_GREEN, true, true);
+				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", ChatManager.CHAT_COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", ChatManager.CHAT_COLOR_LIGHT_GREEN, true, true);
 				return;
 			}
 			

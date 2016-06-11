@@ -5,9 +5,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+import sledgehammer.ChatManager;
 import sledgehammer.SledgeHammer;
 import sledgehammer.module.SQLModule;
-import sledgehammer.util.Chat;
 import zombie.network.DataBaseBuffer;
 
 public class ModuleCore extends SQLModule {
@@ -44,7 +44,7 @@ public class ModuleCore extends SQLModule {
 	public String toggleGlobalMute(String username) {
 		if(username == null) return "Username is null.";
 		try {
-			Chat chat = SledgeHammer.instance.getChat();
+			ChatManager chat = SledgeHammer.instance.getChat();
 			List<String> listGlobalMuters = chat.getGlobalMuters();
 			String muted = get(TABLE_GLOBAL_MUTE, "name", username, "mute");
 			if(muted != null) {

@@ -13,7 +13,6 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.modules.core.CoreCommandListener;
-import sledgehammer.util.Chat;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
@@ -211,7 +210,7 @@ public class EventManager extends Printable {
 
 							CommandEvent event = new CommandEvent(playerEmulated, commandString);
 							handleCommand(event, logEvent);
-							event.setResponse(event.getResult(), Chat.getStripped(event.getResponse(), true));
+							event.setResponse(event.getResult(), ChatManager.getStripped(event.getResponse(), true));
 							return event;
 						} else {
 							return c;
@@ -268,7 +267,7 @@ public class EventManager extends Printable {
 				// For console commands, or other methods outside of the game,
 				// this strips the color codes, and replaces '<LINE>' with \n.
 				if (c.getPlayer().getConnection() == null) {
-					c.setResponse(c.getResult(), Chat.getStripped(c.getResponse(), true));
+					c.setResponse(c.getResult(), ChatManager.getStripped(c.getResponse(), true));
 				}
 			} catch (Exception e) {
 				println("Error handling command " + c + ": " + e.getMessage());
@@ -358,7 +357,7 @@ public class EventManager extends Printable {
 	 */
 	private void help(CommandEvent command) {
 		Player player = command.getPlayer();
-		String response = "Commands: " + Chat.CHAT_LINE + " " + Chat.CHAT_COLOR_WHITE + " ";
+		String response = "Commands: " + ChatManager.CHAT_LINE + " " + ChatManager.CHAT_COLOR_WHITE + " ";
 
 		for (List<CommandListener> listListeners : mapCommandListeners.values()) {
 			if (listListeners != null) {
@@ -370,10 +369,10 @@ public class EventManager extends Printable {
 								if (com != null) {
 									String tip = listener.onTooltip(player, com.toLowerCase());
 									if (tip != null) {
-										response += Chat.CHAT_COLOR_LIGHT_GREEN + " " + com + ": "
-												+ Chat.CHAT_COLOR_WHITE + " "
-												+ listener.onTooltip(player, com.toLowerCase()) + Chat.CHAT_COLOR_WHITE
-												+ " " + Chat.CHAT_LINE + " " + Chat.CHAT_LINE + " ";
+										response += ChatManager.CHAT_COLOR_LIGHT_GREEN + " " + com + ": "
+												+ ChatManager.CHAT_COLOR_WHITE + " "
+												+ listener.onTooltip(player, com.toLowerCase()) + ChatManager.CHAT_COLOR_WHITE
+												+ " " + ChatManager.CHAT_LINE + " " + ChatManager.CHAT_LINE + " ";
 									}
 								}
 							}
@@ -392,9 +391,9 @@ public class EventManager extends Printable {
 					if (com != null) {
 						String tip = coreCommandListener.onTooltip(player, com.toLowerCase());
 						if (tip != null) {
-							response += Chat.CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + Chat.CHAT_COLOR_WHITE + " "
-									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + Chat.CHAT_COLOR_WHITE
-									+ " " + Chat.CHAT_LINE + " " + Chat.CHAT_LINE + " ";
+							response += ChatManager.CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + ChatManager.CHAT_COLOR_WHITE + " "
+									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + ChatManager.CHAT_COLOR_WHITE
+									+ " " + ChatManager.CHAT_LINE + " " + ChatManager.CHAT_LINE + " ";
 						}
 					}
 				}
@@ -409,9 +408,9 @@ public class EventManager extends Printable {
 					if (com != null) {
 						String tip = vanillaListener.onTooltip(player, com.toLowerCase());
 						if (tip != null) {
-							response += Chat.CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + Chat.CHAT_COLOR_WHITE + " "
-									+ vanillaListener.onTooltip(player, com.toLowerCase()) + Chat.CHAT_COLOR_WHITE + " "
-									+ Chat.CHAT_LINE + " " + Chat.CHAT_LINE + " ";
+							response += ChatManager.CHAT_COLOR_LIGHT_GREEN + " " + com + ": " + ChatManager.CHAT_COLOR_WHITE + " "
+									+ vanillaListener.onTooltip(player, com.toLowerCase()) + ChatManager.CHAT_COLOR_WHITE + " "
+									+ ChatManager.CHAT_LINE + " " + ChatManager.CHAT_LINE + " ";
 						}
 					}
 				}

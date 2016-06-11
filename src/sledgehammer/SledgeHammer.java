@@ -15,7 +15,6 @@ import sledgehammer.module.ModuleNPC;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
 import sledgehammer.npc.NPCManager;
-import sledgehammer.util.Chat;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
 import zombie.core.raknet.UdpConnection;
@@ -47,7 +46,7 @@ public class SledgeHammer extends Printable {
 	/**
 	 * Chat instance for working with chat packets and chat filtering.
 	 */
-	private Chat chat;
+	private ChatManager chat;
 	
 	/**
 	 * ModuleVanilla instance to communicate with vanilla commands, and handlers from the original game code.
@@ -97,7 +96,7 @@ public class SledgeHammer extends Printable {
 		publicServerName = ServerOptions.instance.getOption("PublicName");
 		
 		// Initialize the Chat Engine.
-		chat = new Chat(udpEngine);
+		chat = new ChatManager(udpEngine);
 		
 		managerEvent = new EventManager(this);
 		
@@ -179,7 +178,7 @@ public class SledgeHammer extends Printable {
 		this.udpEngine = udpEngine;
 	}
 
-	public Chat getChat() {
+	public ChatManager getChat() {
 		return chat;
 	}
 	

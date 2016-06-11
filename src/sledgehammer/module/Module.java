@@ -249,7 +249,7 @@ public abstract class Module extends Printable {
 	}
 	
 	public void broadcastMessage(String message, String messageColor) {
-		SledgeHammer.instance.getChat().broadcastChat(message, messageColor);
+		SledgeHammer.instance.getChat().broadcastMessage(message, messageColor);
 	}
 	
 	public abstract void onLoad();

@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import sledgehammer.ChatManager;
 import sledgehammer.PermissionsManager;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.util.Chat;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
@@ -40,16 +40,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapTooltips.put("commitsuicide", "End your character's life.");
 		mapTooltips.put("muteglobal"   , "Toggles global chat.");
 		mapTooltips.put("ban"          , 
-				"Bans a player. Flags:" + Chat.CHAT_LINE + 
-				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + Chat.CHAT_LINE + 
-				" -S: SteamID flag (ID required!) ex: /ban -S \"11330\"" + Chat.CHAT_LINE + 
-				" -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\"" + Chat.CHAT_LINE + 
-				" -i: IP flag (No IP required, but must be online!)" + Chat.CHAT_LINE + 
+				"Bans a player. Flags:" + ChatManager.CHAT_LINE + 
+				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + ChatManager.CHAT_LINE + 
+				" -S: SteamID flag (ID required!) ex: /ban -S \"11330\"" + ChatManager.CHAT_LINE + 
+				" -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\"" + ChatManager.CHAT_LINE + 
+				" -i: IP flag (No IP required, but must be online!)" + ChatManager.CHAT_LINE + 
 				" -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)");
 		mapTooltips.put("unban"        , 
-				"Unbans a player. Flags:" + Chat.CHAT_LINE + 
-				" -U: Username flag (Required!) ex: /unban -U \"username\"" + Chat.CHAT_LINE + 
-				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + Chat.CHAT_LINE +
+				"Unbans a player. Flags:" + ChatManager.CHAT_LINE + 
+				" -U: Username flag (Required!) ex: /unban -U \"username\"" + ChatManager.CHAT_LINE + 
+				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + ChatManager.CHAT_LINE +
 				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
 		
 		mapContexts = new HashMap<>();
@@ -110,7 +110,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	}
 
 	public void onCommand(CommandEvent c) {
-		Chat chat = SledgeHammer.instance.getChat();
+		ChatManager chat = SledgeHammer.instance.getChat();
 		Player player = c.getPlayer();
 		String username = player.getUsername();
 		String command = c.getCommand();
@@ -119,7 +119,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
-				c.setResponse(Result.SUCCESS, Chat.listColors());
+				c.setResponse(Result.SUCCESS, ChatManager.listColors());
 				return;
 			} else {
 				c.deny();
@@ -180,9 +180,9 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		if(command.startsWith("broadcast")) {
         	if(module.hasPermission(username, getPermissionContext("broadcast"))) {
         		if(args.length > 1) {
-        			String color = Chat.getColor(args[0]);
-        			if(color == null) color = Chat.CHAT_COLOR_LIGHT_RED;
-        			chat.broadcastChat(args[1], color);        		
+        			String color = ChatManager.getColor(args[0]);
+        			if(color == null) color = ChatManager.CHAT_COLOR_LIGHT_RED;
+        			chat.broadcastMessage(args[1], color);        		
         			
         			response = "Broadcast sent.";
         			c.setResponse(Result.SUCCESS, response);
