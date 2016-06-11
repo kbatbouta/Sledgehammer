@@ -20,6 +20,7 @@ import sledgehammer.util.Printable;
 import zombie.GameWindow;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
+import zombie.network.ServerOptions;
 
 public class SledgeHammer extends Printable {
 	
@@ -72,6 +73,8 @@ public class SledgeHammer extends Printable {
 	private MapGenerator mapGenerator = null;
 
 	private ModuleNPC moduleNPC;
+
+	private String publicServerName;
 	
 	/**
 	 * Main constructor. Requires UdpEngine instance from GameServer to initialize.
@@ -91,6 +94,8 @@ public class SledgeHammer extends Printable {
 	 */
 	public void init() {
 
+		publicServerName = ServerOptions.instance.getOption("PublicName");
+		
 		// Initialize the Chat Engine.
 		chat = new Chat(udpEngine);
 		
@@ -188,6 +193,10 @@ public class SledgeHammer extends Printable {
 	
 	public static String getCacheFolder() {
 		return GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "SledgeHammer";
+	}
+	
+	public String getPublicServerName() {
+		return publicServerName;
 	}
 
 	public NPCManager getNPCEngine() {

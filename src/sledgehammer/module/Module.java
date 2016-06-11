@@ -15,6 +15,9 @@ import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionHandler;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
+import zombie.core.network.ByteBufferWriter;
+import zombie.core.raknet.UdpConnection;
+import zombie.network.PacketTypes;
 import sledgehammer.PermissionsManager;
 
 public abstract class Module extends Printable {
@@ -213,6 +216,10 @@ public abstract class Module extends Printable {
 		return this.loadedSettings;
 	}
 	
+	public String getPublicServerName() {
+		return SledgeHammer.instance.getPublicServerName();
+	}
+	
 	public void register(LogListener listener) {
 		SledgeHammer.instance.register(listener);
 	}
@@ -223,6 +230,26 @@ public abstract class Module extends Printable {
 	
 	public void register(String command, CommandListener listener) {
 		SledgeHammer.instance.register(command, listener);
+	}
+	
+	public void globalMessage(String message) {
+		SledgeHammer.instance.getChat().globalMessage(message);
+	}
+	
+	public void globalMessage(String header, String message) {
+		SledgeHammer.instance.getChat().globalMessage(header, message);
+	}
+	
+	public void globalMessage(String header, String headerColor, String message, String messageColor) {
+		SledgeHammer.instance.getChat().globalMessage(header, headerColor, message, messageColor);
+	}
+	
+	public void globalMessage(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
+		SledgeHammer.instance.getChat().globalMessage(header, headerColor, message, messageColor, timeStamp);
+	}
+	
+	public void broadcastMessage(String message, String messageColor) {
+		SledgeHammer.instance.getChat().broadcastChat(message, messageColor);
 	}
 	
 	public abstract void onLoad();
