@@ -23,7 +23,7 @@ public class ChatManager {
 		this.listGlobalMuters = new ArrayList<>();
 	}
 	
-	public List<String> getGlobalMuters() {
+	public List<String> getGloballyMutedUsernames() {
 		return this.listGlobalMuters;
 	}
 	

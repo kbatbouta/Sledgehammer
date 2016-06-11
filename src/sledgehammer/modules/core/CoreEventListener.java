@@ -44,7 +44,7 @@ public class CoreEventListener implements EventListener {
 	@Override
 	public void handleEvent(Event event) {
 		ChatManager chat = SledgeHammer.instance.getChatManager();
-		List<String> listGlobalMuters = chat.getGlobalMuters();
+		List<String> listGlobalMuters = chat.getGloballyMutedUsernames();
 		String text = event.getLogMessage();
 		
 		if(event.getID() == ChatEvent.ID) {
@@ -76,7 +76,7 @@ public class CoreEventListener implements EventListener {
 					return;
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				SledgeHammer.instance.getChatManager().messageGlobal(null, null, text, COLOR_RED);
+				module.messageGlobal(null, null, text, COLOR_RED);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
@@ -96,15 +96,14 @@ public class CoreEventListener implements EventListener {
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			SledgeHammer.instance.getChatManager().messageGlobal(null, null, text, COLOR_RED);
+			module.messageGlobal(null, null, text, COLOR_RED);
 			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		}
 	}
 	
 	private void handleChatEvent(ChatEvent event) {
 		
-		ChatManager chat = SledgeHammer.instance.getChatManager();
-		List<String> listGlobalMuters = chat.getGlobalMuters();
+		List<String> listGlobalMuters = module.getGloballyMutedUsernames();
 		
 		Player player = event.getPlayer();
 		String text = event.getText();
@@ -115,12 +114,12 @@ public class CoreEventListener implements EventListener {
 		text = text.replaceAll(">", "&gt;");						
 		if(event.isGlobal()) {
 			if(listGlobalMuters.contains(player.getUsername().toLowerCase())) {
-				chat.messagePlayer(player.getConnection(), "[NOTICE]: ", COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", COLOR_LIGHT_GREEN, true, true);
+				module.messagePlayer(player.getConnection(), "[NOTICE]: ", COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", COLOR_LIGHT_GREEN, true, true);
 				return;
 			}
 			
 			for (UdpConnection connection : SledgeHammer.instance.getUdpEngine().connections) {
-				chat.messagePlayer(connection, event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, false);
+				module.messagePlayer(connection, event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, false);
 			}			
 		} else {
 			IsoPlayer isoPlayer = player.get();
@@ -145,7 +144,7 @@ public class CoreEventListener implements EventListener {
 								&& connection.getConnectedGUID() != connectionCommander.getConnectedGUID()
 								&& player != null
 								&& connection.ReleventTo(isoPlayer.x, isoPlayer.y)) {
-						chat.localMessage(connection, playerID, text, chatType, sayIt);
+						module.localMessage(connection, playerID, text, chatType, sayIt);
 					}
 				} catch(NullPointerException e) {
 					// This is when a player is checked, but disconnects asynchronously.

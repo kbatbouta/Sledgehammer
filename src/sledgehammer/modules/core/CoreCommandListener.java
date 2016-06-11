@@ -4,9 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import sledgehammer.ChatManager;
 import sledgehammer.PermissionsManager;
-import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
@@ -114,7 +112,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	}
 
 	public void onCommand(CommandEvent c) {
-		ChatManager chat = SledgeHammer.instance.getChatManager();
 		Player player = c.getPlayer();
 		String username = player.getUsername();
 		String command = c.getCommand();
@@ -139,7 +136,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     					msg += args[x] + " ";
     				}
     				msg = msg.substring(0, msg.length() - 1);
-    				response = chat.privateMessage(username, playerName, msg);
+    				response = module.privateMessage(username, playerName, msg);
     				c.setResponse(Result.SUCCESS, response);
     				c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
     				return;
@@ -161,7 +158,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 							msg += args[x] + " ";
 						}
 						msg = msg.substring(0, msg.length() - 1);
-						response = chat.warnPlayer(username, playerName, msg);
+						response = module.warnPlayer(username, playerName, msg);
 						c.setResponse(Result.SUCCESS, response);
 						c.setLoggedMessage(LogEvent.LogType.STAFF,
 								"WARNED " + playerName + " with message: \"" + msg + "\".");
@@ -186,7 +183,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
         		if(args.length > 1) {
         			String color = ChatTags.getColor(args[0]);
         			if(color == null) color = COLOR_LIGHT_RED;
-        			chat.broadcastMessage(args[1], color);        		
+        			module.broadcastMessage(args[1], color);        		
         			
         			response = "Broadcast sent.";
         			c.setResponse(Result.SUCCESS, response);
@@ -263,7 +260,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     		if(module.hasPermission(username, getPermissionContext("muteglobal"))) {    			
     			response = module.toggleGlobalMute(username);
     			String toggle = "on";
-    			if(chat.getGlobalMuters().contains(username.toLowerCase())) toggle = "off";
+    			if(module.getGloballyMutedUsernames().contains(username.toLowerCase())) toggle = "off";
     			c.setResponse(Result.SUCCESS, response);
     			c.setLoggedMessage(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
     			return;

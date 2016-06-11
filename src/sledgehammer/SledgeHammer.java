@@ -1,7 +1,6 @@
 package sledgehammer;
 
 import java.io.File;
-import java.net.ConnectException;
 import java.util.List;
 
 import sledgehammer.event.CommandEvent;

@@ -3,9 +3,11 @@ package sledgehammer.module;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.ChatManager;
 import sledgehammer.ModuleManager;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
@@ -15,27 +17,26 @@ import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionHandler;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
-import zombie.core.network.ByteBufferWriter;
+import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
-import zombie.network.PacketTypes;
 import sledgehammer.PermissionsManager;
 
 public abstract class Module extends Printable {
-	
+
 	private INI ini;
-	
+
 	private File iniFile;
-	
+
 	public boolean loadedSettings = false;
-	
+
 	private boolean loaded = false;
-	
+
 	private boolean started = false;
-	
+
 	private String jarName = null;
-	
+
 	private Map<String, String> pluginSettings = new HashMap<>();
-	
+
 	public void loadSettings(ModuleSettingsHandler handler) {
 
 		if (handler == null)
@@ -69,29 +70,28 @@ public abstract class Module extends Printable {
 			}
 		}
 	}
-	
+
 	public void register(CommandListener listener) {
 		String[] commands = listener.getCommands();
-		if(commands == null) {
+		if (commands == null) {
 			throw new IllegalArgumentException("CommandListener commands array is null!");
-		} else
-		if(commands.length == 0) {
+		} else if (commands.length == 0) {
 			throw new IllegalArgumentException("CommandListener commands array is empty!");
 		}
-		for(String command : commands) {
-			SledgeHammer.instance.register(command, listener);			
+		for (String command : commands) {
+			SledgeHammer.instance.register(command, listener);
 		}
 	}
-	
+
 	public boolean stopModule() {
-		if(loaded) {
+		if (loaded) {
 			try {
-				if(started) {					
+				if (started) {
 					this.onStop();
 				} else {
 					println("Module is already stopped.");
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				println("Failed to safely stop module.");
 				e.printStackTrace();
 			}
@@ -99,164 +99,210 @@ public abstract class Module extends Printable {
 		loaded = false;
 		return true;
 	}
-	
+
 	public boolean loadModule() {
-		try {	
+		try {
 			onLoad();
 			loaded = true;
 			return true;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			println("Failed to load module.");
 			loaded = false;
 			e.printStackTrace();
-			
+
 		}
 		return false;
 	}
-	
+
 	public boolean unloadModule() {
 		try {
-			if(loaded) {				
+			if (loaded) {
 				this.onUnload();
 			} else {
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			println("Failed to safely unload module.");
 			e.printStackTrace();
 		}
 		return true;
 	}
-	
+
 	public void register(EventListener listener) {
 		String[] types = listener.getTypes();
-		if(types == null) {
+		if (types == null) {
 			throw new IllegalArgumentException("EventListener getTypes() array is null!");
 		}
-		for(String type : types) {			
+		for (String type : types) {
 			SledgeHammer.instance.register(type, listener);
 		}
 	}
 
 	public void startModule() {
-		if(!started) {			
+		if (!started) {
 			started = true;
 			onStart();
 		} else {
 			println("Module is already started.");
 		}
 	}
-	
+
 	public INI getINI() {
 		if (ini == null) {
-			iniFile = new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator + getJarName() + ".ini");
+			iniFile = new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator
+					+ getJarName() + ".ini");
 			ini = new INI(iniFile);
 		}
 
 		return this.ini;
 	}
-	
+
 	public void unload() {
 		started = false;
 		getModuleManager().unloadModule(this);
 	}
-	
+
 	public ModuleManager getModuleManager() {
 		return SledgeHammer.instance.getModuleManager();
 	}
-	
+
 	public String getPermissionDeniedMessage() {
 		return SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
 	}
-	
+
 	public Map<String, String> getPluginSettings() {
 		return this.pluginSettings;
 	}
-	
+
 	public void setPluginSettings(Map<String, String> map) {
 		this.pluginSettings = map;
 	}
-	
+
 	public String getJarName() {
 		return this.jarName;
 	}
-	
+
 	public void setJarName(String jarName) {
 		this.jarName = jarName;
 	}
-	
+
 	public void handleEvent(Event event, boolean shouldLog) {
 		SledgeHammer.instance.handle(event, shouldLog);
 	}
-	
+
 	public void handleEvent(Event event) {
 		SledgeHammer.instance.handle(event);
 	}
-	
+
 	public Module getModuleByID(String ID) {
 		return getModuleManager().getModuleByID(ID);
 	}
-	
+
 	public boolean hasPermission(String username, String context) {
 		return getPermissionsManager().hasPermission(username, context);
 	}
-	
+
 	public PermissionsManager getPermissionsManager() {
 		return SledgeHammer.instance.getPermissionsManager();
 	}
-	
+
 	public void register(PermissionHandler handler) {
 		getPermissionsManager().registerPermissionHandler(handler);
 	}
-	
+
 	public void updateModule(long delta) {
-		if(started) onUpdate(delta);
+		if (started)
+			onUpdate(delta);
 	}
-	
+
 	public boolean loadedSettings() {
 		return this.loadedSettings;
 	}
-	
+
 	public String getPublicServerName() {
 		return SledgeHammer.instance.getPublicServerName();
 	}
-	
+
 	public void register(LogListener listener) {
 		SledgeHammer.instance.register(listener);
 	}
-	
+
 	public void register(String type, EventListener listener) {
 		SledgeHammer.instance.register(type, listener);
 	}
-	
+
 	public void register(String command, CommandListener listener) {
 		SledgeHammer.instance.register(command, listener);
 	}
-	
+
+	public ChatManager getChatManager() {
+		return SledgeHammer.instance.getChatManager();
+	}
+
+	public String warnPlayer(String commander, String username, String text) {
+		return getChatManager().warnPlayer(commander, username, text);
+	}
+
+	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		return getChatManager().messagePlayer(username, header, headerColor, text, textColor, addTimeStamp, bypassMute);
+	}
+
+	public String messagePlayer(IsoPlayer player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		return getChatManager().messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);
+	}
+
+	public String messagePlayer(UdpConnection connection, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		return getChatManager().messagePlayer(connection, header, headerColor, text, textColor, addTimeStamp, bypassMute);
+	}
+
+	public String privateMessage(String commander, String username, String text) {
+		return getChatManager().privateMessage(commander, username, text);
+	}
+
+	public String privateMessage(String commander, UdpConnection connection, String text) {
+		return getChatManager().privateMessage(commander, connection, text);
+	}
+
+
+	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
+		getChatManager().localMessage(connection, playerID, text, chatType, sayIt);
+	}
+
 	public void messageGlobal(String message) {
-		SledgeHammer.instance.getChatManager().messageGlobal(message);
+		getChatManager().messageGlobal(message);
 	}
-	
+
 	public void messageGlobal(String header, String message) {
-		SledgeHammer.instance.getChatManager().messageGlobal(header, message);
+		getChatManager().messageGlobal(header, message);
 	}
-	
+
 	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
-		SledgeHammer.instance.getChatManager().messageGlobal(header, headerColor, message, messageColor);
+		getChatManager().messageGlobal(header, headerColor, message, messageColor);
 	}
-	
-	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
-		SledgeHammer.instance.getChatManager().messageGlobal(header, headerColor, message, messageColor, timeStamp);
+
+	public void messageGlobal(String header, String headerColor, String message, String messageColor,
+			boolean timeStamp) {
+		getChatManager().messageGlobal(header, headerColor, message, messageColor, timeStamp);
 	}
-	
+
 	public void broadcastMessage(String message, String messageColor) {
-		SledgeHammer.instance.getChatManager().broadcastMessage(message, messageColor);
+		getChatManager().broadcastMessage(message, messageColor);
 	}
-	
+
+	public List<String> getGloballyMutedUsernames() {
+		return getChatManager().getGloballyMutedUsernames();
+	}
+
 	public abstract void onLoad();
+
 	public abstract void onStart();
+
 	public abstract void onUpdate(long delta);
+
 	public abstract void onStop();
+
 	public abstract void onUnload();
+
 	public abstract String getID();
+
 	public abstract String getVersion();
 }
