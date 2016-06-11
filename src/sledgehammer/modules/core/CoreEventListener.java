@@ -109,7 +109,7 @@ public class CoreEventListener implements EventListener {
 		String text = event.getText();
 		UdpConnection connectionCommander = player.getConnection();
 
-		text = ChatManager.getStripped(text, false);
+		text = ChatManager.stripTags(text, false);
 		text = text.replaceAll("<", "&lt;");
 		text = text.replaceAll(">", "&gt;");						
 		if(event.isGlobal()) {

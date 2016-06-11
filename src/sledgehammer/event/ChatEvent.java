@@ -106,9 +106,9 @@ public class ChatEvent extends PlayerEvent {
 	@Override
 	public String getLogMessage() {
 		if(isGlobal()) {
-			return "(Global) " + ChatManager.getStripped(getHeader() + getText(), false);
+			return "(Global) " + ChatManager.stripTags(getHeader() + getText(), false);
 		} else {
-			return "(Local) " + ChatManager.getStripped(getHeader() + getText(), false);
+			return "(Local) " + ChatManager.stripTags(getHeader() + getText(), false);
 		}
 	}
 

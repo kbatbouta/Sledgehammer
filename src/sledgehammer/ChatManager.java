@@ -15,7 +15,7 @@ import static sledgehammer.util.ChatTags.*;
 
 public class ChatManager {
 	
-	public static String getStripped(String text, boolean newLine) {
+	public static String stripTags(String text, boolean newLine) {
 		if(text == null) return null;
 		String stripped = "";
 		char[] textArray = text.toCharArray();
