@@ -14,7 +14,6 @@ import sledgehammer.module.ModuleMonitor;
 import sledgehammer.module.ModuleNPC;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
-import sledgehammer.npc.NPCManager;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
 import zombie.core.raknet.UdpConnection;

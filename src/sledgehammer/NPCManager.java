@@ -1,10 +1,10 @@
-package sledgehammer.npc;
+package sledgehammer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-import sledgehammer.SledgeHammer;
+import sledgehammer.npc.NPC;
+import sledgehammer.npc.NPCEventListener;
 import zombie.ZombiePopulationManager;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;

@@ -1,5 +1,6 @@
 package sledgehammer.npc;
 
+import sledgehammer.NPCManager;
 import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
