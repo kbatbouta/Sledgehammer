@@ -1,5 +1,6 @@
 package sledgehammer.npc;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import fmod.fmod.DummySoundEmitter;
 import fmod.fmod.DummySoundListener;
+import sledgehammer.SledgeHammer;
 import sledgehammer.util.ZUtil;
 import zombie.ai.states.StaggerBackState;
 import zombie.characters.DummyCharacterSoundEmitter;
@@ -14,11 +16,24 @@ import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.skills.PerkFactory;
+import zombie.core.network.ByteBufferWriter;
+import zombie.core.raknet.UdpConnection;
 import zombie.inventory.InventoryItem;
+import zombie.inventory.ItemContainer;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoCell;
+import zombie.iso.IsoChunk;
+import zombie.iso.IsoDirections;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
+import zombie.iso.IsoUtils;
+import zombie.iso.LotHeader;
+import zombie.iso.Vector2;
+import zombie.iso.areas.IsoBuilding;
+import zombie.iso.objects.IsoWorldInventoryObject;
+import zombie.network.GameServer;
+import zombie.network.PacketTypes;
 import zombie.network.ServerLOS;
 import zombie.network.ServerMap;
 
@@ -31,6 +46,14 @@ public class NPC extends IsoPlayer {
 	private String walkAnim = "Walk";
 	private String runAnim  = "Run";
 	private String idleAnim = "Idle";
+	private IsoObject followTarget = null;
+	private boolean followObject = false;
+	private IsoMovingObject followTargetDefault = null;
+	
+	/**
+	 * An item to be set for the NPC to go to, and pick up.
+	 */
+	private IsoWorldInventoryObject worldItemTarget = null;
 	
 	private HandWeapon weapon = null;
 	
@@ -105,10 +128,35 @@ public class NPC extends IsoPlayer {
 
 				this.stateMachine.changeState(StaggerBackState.instance());
 			}
+			
+			SledgeHammer.instance.getNPCEngine().updateNPCToPlayers(this);
+		
 		} else {
 			this.DoDeath(weapon, wielder);
 		}
 		
+	}
+	
+	public boolean addItemToInventory(IsoWorldInventoryObject worldItem) {
+		ItemContainer inventory = getInventory();
+		InventoryItem item = worldItem.getItem();
+		
+		// Weight Variables.
+		float itemWeight         = item.getWeight();
+		float inventoryWeight    = getInventoryWeight();
+		float inventoryMaxWeight = inventory.getMaxWeight();
+		
+		if(itemWeight + inventoryWeight <= inventoryMaxWeight) {			
+			inventory.addItem(worldItem.getItem());
+			inventory.addItemOnServer(worldItem.getItem());
+			
+			// Network remove the item from the ground.
+			GameServer.RemoveItemFromMap(worldItem);
+			
+			return true;
+		}
+		
+		return false;
 	}
 	
 	private void initializePerks() {
@@ -166,6 +214,78 @@ public class NPC extends IsoPlayer {
 		return info;
 	}
 	
+	public InventoryItem getPrimaryWeapon() {
+		return getPrimaryHandItem();
+	}
+	
+	public void setPrimaryWeapon(InventoryItem item) {
+		setPrimaryHandItem(item);
+		
+		byte hand = 0;
+		byte has = 1;
+		
+		for(UdpConnection c : SledgeHammer.instance.getUdpEngine().getConnections()) {
+           IsoPlayer p2 = GameServer.getAnyPlayerFromConnection(c);
+           if(p2 != null) {
+              ByteBufferWriter byteBufferWriter = c.startPacket();
+              PacketTypes.doPacket(PacketTypes.Equip, byteBufferWriter);
+              byteBufferWriter.putByte(hand);
+              byteBufferWriter.putByte(has);
+              byteBufferWriter.putInt(OnlineID);
+
+              // Write the item to the buffer.
+              if(has == 1) {            	  
+            	  try {
+            		  item.save(byteBufferWriter.bb, false);
+            	  } catch (IOException var12) {
+            		  var12.printStackTrace();
+            	  }
+              }
+              
+              c.endPacketImmediate();
+           }
+		}
+		
+	}
+	
+	/**
+	 * Returns all Objects on the ground within a radius.
+	 * @param radius
+	 * @return
+	 */
+	public List<IsoWorldInventoryObject> getNearbyItemsOnGround(int radius) {
+		List<IsoWorldInventoryObject> listObjects = new ArrayList<>();
+		
+		IsoCell cell = getCurrentCell();
+		IsoGridSquare square = getCurrentSquare();
+		int sx = square.getX();
+		int sy = square.getY();
+		int sz = square.getZ();
+
+		// Go through each square
+		for (int y = sy - radius; y < sy + radius; y++) {
+			for (int x = sx - radius; x < sx + radius; x++) {
+
+				// Ignore Z checks for now. Possible TODO
+				IsoGridSquare lSquare = cell.getGridSquare(x, y, sz);
+
+				if (lSquare != null) {
+
+					ArrayList<IsoWorldInventoryObject> objects = lSquare.getWorldObjects();
+					if (objects != null) {
+						for (IsoWorldInventoryObject worldItem : objects) {
+							if(worldItem != null) {
+								listObjects.add(worldItem);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return listObjects;
+	}
+	
 	/**
 	 * Updates the square the NPC is on.
 	 */
@@ -190,35 +310,48 @@ public class NPC extends IsoPlayer {
 		}
 	}
 	
-	public List<Behavior> getBehaviorStates() {
-		return listBehaviors;
+	public IsoBuilding getCurrentBuilding() {
+		return getCurrentBuilding();
 	}
 	
-	public void addBehavior(Behavior behaviorState) {
-		if(!listBehaviors.contains(behaviorState)) {
-			listBehaviors.add(behaviorState);
+	public IsoGridSquare getCurrentSquare() {
+		IsoGridSquare square = getCurrentSquare();
+		if(square == null) {
+			square = ServerMap.instance.getGridSquare((int)Math.floor(getX()), (int)Math.floor(getY()), (int)Math.floor(getZ()));
+			setSquare(square);
+			setCurrent(square);
 		}
+		return square;
 	}
 	
-	public void removeBehavior(Behavior behaviorState) {
-		listBehaviors.remove(behaviorState);
+	public IsoChunk getCurrentChunk() {
+		IsoGridSquare square = getCurrentSquare();
+		if(square != null) {
+			return square.getChunk();
+		}
+		return null;
+	}
+	
+	public IsoCell getCurrentCell() {
+		IsoGridSquare square = getCurrentSquare();
+		if(square != null) {
+			return square.getCell();
+		}
+		return null;
+	}
+	
+	public LotHeader getCurrentLotHeader() {
+		IsoCell cell = getCurrentCell();
+		if(cell != null) {
+			return cell.getCurrentLotHeader();
+		}
+		return null;
 	}
 	
 	public Vector3f getDestination() {
 		return this.destination;
 	}
 
-	public void setDestination(float x, float y, float z) {
-		this.destination.x = x;
-		this.destination.y = y;
-		this.destination.z = z;
-	}
-	
-	public void setDestination(IsoObject o) {
-		this.destination.set(o.getX(), o.getY(), o.getZ());
-	}
-
-	
 	public void updateAnimations() {
 		
 		if(weapon != null) {
@@ -260,6 +393,84 @@ public class NPC extends IsoPlayer {
 		return null;
 	}
 	
+	public void faceDirection(IsoObject other) {
+		Vector2 vector = new Vector2();
+		vector.x  = other.getX();
+		vector.y  = other.getY();
+		vector.x -=       getX();
+		vector.y -=       getY();
+		vector.normalize();
+		setDirection(vector);
+	}
+	
+	public void setDestination(float x, float y, float z) {
+		this.destination.x = x;
+		this.destination.y = y;
+		this.destination.z = z;
+	}
+	
+	public void setDestination(IsoObject o) {
+		this.destination.set(o.getX(), o.getY(), o.getZ());
+	}
+	
+	public void setTarget(IsoObject target) {
+		followTarget = target;
+		followObject = followTarget == null && followTargetDefault == null ? false : true;
+	}
+	
+	public void setDefaultTarget(IsoMovingObject target) {
+		followTargetDefault = target;
+		if(target != null) followObject = true;
+	}
+	
+	public List<Behavior> getBehaviorStates() {
+		return listBehaviors;
+	}
+	
+	public void addBehavior(Behavior behaviorState) {
+		if(!listBehaviors.contains(behaviorState)) {
+			listBehaviors.add(behaviorState);
+		}
+	}
+	
+	public void removeBehavior(Behavior behaviorState) {
+		listBehaviors.remove(behaviorState);
+	}
+	
+	
+	public void setDirection(Vector2 vector) {
+		DirectionFromVector(vector);
+	}
+	
+	public IsoDirections getDirection(Vector2 vector) {
+		return IsoDirections.fromAngle(vector);
+	}
+
+	/**
+	 * Calculates the Manhatten distance from the NPC to the object given.
+	 * @param other
+	 * @return
+	 */
+	public float getDistance(IsoObject other) {
+		return IsoUtils.DistanceManhatten(getX(), getY(), other.getX(), other.getY());	
+	}
+	
+	/**
+	 * Returns the item on the ground that the NPC will pick up.
+	 * @return
+	 */
+	public IsoWorldInventoryObject getWorldItemTarget() {
+		return worldItemTarget;
+	}
+	
+	/**
+	 * Sets the item on the ground that the NPC will pick up.
+	 * @param worldItemTarget
+	 */
+	public void setWorldItemTarget(IsoWorldInventoryObject worldItemTarget) {
+		this.worldItemTarget = worldItemTarget;
+	}
+	
 	public String getIdleAnimation() {
 		return this.idleAnim;
 	}
@@ -270,6 +481,22 @@ public class NPC extends IsoPlayer {
 	
 	public String getRunAnimation() {
 		return this.runAnim;
+	}
+
+	public boolean isFollowingObject() {
+		return this.followObject;
+	}
+	
+	public IsoObject getTarget() {
+		return followTarget;
+	}
+	
+	public IsoMovingObject getDefaultTarget() {
+		return followTargetDefault;
+	}
+	
+	public void setFollow(boolean flag) {
+		this.followObject = flag;
 	}
 
 }

@@ -206,4 +206,13 @@ public class NPCManager {
 	}
 	
 	
+	public void updateNPCToPlayers(NPC npc) {
+
+		for(UdpConnection connection : sledgeHammer.getConnections()) {
+			GameServer.sendPlayerConnect(npc, connection);
+		}
+		
+	}
+	
+	
 }

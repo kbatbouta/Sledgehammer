@@ -1,20 +1,15 @@
 package sledgehammer.npc;
 
 import java.util.List;
-import java.util.Map;
 
 import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
-import zombie.inventory.types.HandWeapon;
 import zombie.iso.objects.IsoWorldInventoryObject;
 
 public class BehaviorSurvive extends Behavior {
 
 	private boolean seesItemWorth = false;
-	private IsoWorldInventoryObject worldItemWorth = null;
 	private long timeThenItemSearch = 0L;
-	
-	private Map<String, Action> listActions;
 	
 	/**
 	 * Hold a maximum of 2 of a certain item.
@@ -54,73 +49,14 @@ public class BehaviorSurvive extends Behavior {
 	 * The weapon most preferred is an Axe.
 	 */
 	public void retrieveItem() {
-		
-		// Try to add the item in the inventory.
-		boolean added = addItemToInventory(worldItemWorth);
-		
-		// If the item was successfully added.
-		if(added) {
-			InventoryItem itemRetrieved = worldItemWorth.getItem();
-			
-			if(itemRetrieved.IsWeapon()) {
-				// Grab weapon currently used.
-				HandWeapon primaryWeapon   = (HandWeapon) getPrimaryWeapon();
-
-				// Cast the weapon to HandWeapon.
-				HandWeapon weaponRetrieved = (HandWeapon) itemRetrieved;
-				
-				
-				// If the weapon is null, set the retrieved weapon as primary.
-				if(primaryWeapon == null || primaryWeapon.getType().equals("BareHands")) {
-					
-					// Set the picked-up weapon as primary.					
-					setPrimaryWeapon(weaponRetrieved);
-				
-				} else {						
-					
-					// If the item is the same as currently weilding.
-					if(primaryWeapon.getName().equals(weaponRetrieved.getName())) {
-						
-						// If the item picked up has less damage than the one currently wielded.
-						if(weaponRetrieved.getConditionPercent() < primaryWeapon.getConditionPercent()) {
-							
-							// Set the picked-up weapon as primary.
-							setPrimaryWeapon(weaponRetrieved);							
-						}
-						
-					// If the weapon is different.
-					} else {
-						
-						// Avoid sledge-hammer.
-						if(!weaponRetrieved.isCantAttackWithLowestEndurance()) {							
-							
-							// If the weapon is more damaging.
-							if(weaponRetrieved.getDamagePercent() > primaryWeapon.getDamagePercent()) {
-								
-								// TODO: Check weapon speed.
-
-								// Set the picked-up weapon as primary.
-								setPrimaryWeapon(weaponRetrieved);
-							}
-						}
-					}
-				}
-			}
-			
-		// If the item wasn't added to the inventory (Full).
-		} else {
-			
-			// TODO: Evaluate the need of this item.
-			
-		}
 
 		// Reset Item checks.
 		seesItemWorth = false;
-		worldItemWorth = null;
+		setWorldItemTarget(null);
 		
 		// Set primary follow target to null.
 		// If the defaultFollow is set, the NPC will follow that.
-		follow(null);
+		setTarget(null);
 	}
 
 	public void scanForValuableItems() {
@@ -137,8 +73,8 @@ public class BehaviorSurvive extends Behavior {
 			
 			if(item.IsWeapon()) {
 				seesItemWorth = true;
-				worldItemWorth = worldItem;
-				follow(worldItemWorth);
+				setWorldItemTarget(worldItem);
+				setTarget(worldItem);
 				break;
 			}
 		}

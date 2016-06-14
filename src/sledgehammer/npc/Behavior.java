@@ -1,39 +1,21 @@
 package sledgehammer.npc;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import sledgehammer.SledgeHammer;
 import zombie.characters.IsoPlayer;
-import zombie.core.network.ByteBufferWriter;
-import zombie.core.raknet.UdpConnection;
-import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
-import zombie.iso.IsoCell;
-import zombie.iso.IsoChunk;
-import zombie.iso.IsoDirections;
-import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
 import zombie.iso.IsoUtils;
-import zombie.iso.LotHeader;
-import zombie.iso.Vector2;
-import zombie.iso.areas.IsoBuilding;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.network.GameServer;
-import zombie.network.PacketTypes;
-import zombie.network.ServerMap;
 
 public abstract class Behavior {
 	
 	NPC npc = null;
-	
-	private IsoObject followTarget = null;
-	private boolean followObject = false;
-	private IsoMovingObject followTargetDefault = null;
+
 	long timeThenFollow = 0L;
 	
 	private float distanceToRun = 5;
@@ -42,6 +24,7 @@ public abstract class Behavior {
 	
 	private boolean active = false;
 
+	private Action actionCurrent = null;
 	
 	public Behavior(NPC npc) {
 		this.npc = npc;
@@ -50,49 +33,50 @@ public abstract class Behavior {
 	// TODO: weapon walking & running.
 	private void checkFollowing() {
 		
-		if (followObject) {
+		if (npc.isFollowingObject()) {
 			
-			IsoObject followTarget = this.followTarget;
+			IsoObject primaryFollowTarget = getTarget();
+			IsoObject secondaryFollowTarget = getDefaultTarget();
 			
-			if(followTarget == null) followTarget = followTargetDefault;
-			
-			if(followTarget == null) {
-				followObject = false;
-				return;
-			}
-			
-			if(this.followTarget instanceof IsoPlayer) {
-				if(!GameServer.Players.contains(((IsoPlayer)this.followTarget))) {
+			if(primaryFollowTarget instanceof IsoPlayer) {
+				if(!GameServer.Players.contains(((IsoPlayer)primaryFollowTarget))) {
 					System.out.println("NPC: Following target disconnected.");
-					this.followTarget = null;
-					if(this.followTargetDefault == null) {
-						followObject = false;
+					setTarget(null);
+					if(secondaryFollowTarget == null) {
+						setFollow(false);
 						return;
 					}
 				}
 			}
 			
-			if(followTargetDefault instanceof IsoPlayer) {
-				if(!GameServer.Players.contains(((IsoPlayer)followTargetDefault))) {
+			if(secondaryFollowTarget instanceof IsoPlayer) {
+				if(!GameServer.Players.contains(((IsoPlayer)secondaryFollowTarget))) {
 					System.out.println("NPC: Default following target disconnected.");
-					followObject = false;
-					followTargetDefault = null;
+					setFollow(false);
+					setDefaultTarget(null);
 					return;
 				}
 			}
 			
+			IsoObject focusTarget = primaryFollowTarget;
+			
+			if(focusTarget == null) focusTarget = secondaryFollowTarget;			
+			if(focusTarget == null) {
+				setFollow(false);
+				return;
+			}
 			
 			long timeNow = System.currentTimeMillis();
 			long delta = timeNow - timeThenFollow ;
 			
 			if(delta >= 500L) {
-				faceDirection(followTarget);
+				faceDirection(focusTarget);
 				timeThenFollow = timeNow;
 			}
 			
-			setDestination(followTarget);
+			setDestination(focusTarget);
 			
-			float distanceFromTarget = DistTo(followTarget);
+			float distanceFromTarget = DistTo(focusTarget);
 			
 			float speed = getPathSpeed();
 			if (distanceFromTarget > distanceToRun) {
@@ -112,111 +96,48 @@ public abstract class Behavior {
 		}		
 	}
 	
-	private String getIdleAnimation() {
+	public List<IsoWorldInventoryObject> getNearbyItemsOnGround(int radius) {
+		return getNPC().getNearbyItemsOnGround(radius);
+	}
+
+	public void setFollow(boolean flag) {
+		getNPC().setFollow(flag);
+	}
+	
+	public IsoObject getTarget() {
+		return getNPC().getTarget();
+	}
+	
+	public void setTarget(IsoObject target) {
+		getNPC().setTarget(target);
+	}
+	
+	public IsoObject getDefaultTarget() {
+		return getNPC().getDefaultTarget();
+	}
+	
+	public void setDefaultTarget(IsoMovingObject target) {
+		getNPC().setDefaultTarget(target);
+	}
+
+	public boolean isFollowingObject() {
+		return getNPC().isFollowingObject();
+	}
+	
+	public void faceDirection(IsoObject target) {
+		getNPC().faceDirection(target);
+	}
+
+	public String getIdleAnimation() {
 		return getNPC().getIdleAnimation();
 	}
 
-	private String getWalkAnimation() {
+	public String getWalkAnimation() {
 		return getNPC().getWalkAnimation();
 	}
 
-	private String getRunAnimation() {
+	public String getRunAnimation() {
 		return getNPC().getRunAnimation();
-	}
-
-	/**
-	 * Returns all Objects on the ground within a radius.
-	 * @param radius
-	 * @return
-	 */
-	public List<IsoWorldInventoryObject> getNearbyItemsOnGround(int radius) {
-		List<IsoWorldInventoryObject> listObjects = new ArrayList<>();
-		
-		IsoCell cell = getCurrentCell();
-		IsoGridSquare square = getCurrentSquare();
-		int sx = square.getX();
-		int sy = square.getY();
-		int sz = square.getZ();
-
-		// Go through each square
-		for (int y = sy - radius; y < sy + radius; y++) {
-			for (int x = sx - radius; x < sx + radius; x++) {
-
-				// Ignore Z checks for now. Possible TODO
-				IsoGridSquare lSquare = cell.getGridSquare(x, y, sz);
-
-				if (lSquare != null) {
-
-					ArrayList<IsoWorldInventoryObject> objects = lSquare.getWorldObjects();
-					if (objects != null) {
-						for (IsoWorldInventoryObject worldItem : objects) {
-							if(worldItem != null) {
-								listObjects.add(worldItem);
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		return listObjects;
-	}
-	
-	public boolean addItemToInventory(IsoWorldInventoryObject worldItem) {
-		ItemContainer inventory = getInventory();
-		InventoryItem item = worldItem.getItem();
-		
-		// Weight Variables.
-		float itemWeight         = item.getWeight();
-		float inventoryWeight    = getInventoryWeight();
-		float inventoryMaxWeight = inventory.getMaxWeight();
-		
-		if(itemWeight + inventoryWeight <= inventoryMaxWeight) {			
-			inventory.addItem(worldItem.getItem());
-			inventory.addItemOnServer(worldItem.getItem());
-			
-			// Network remove the item from the ground.
-			GameServer.RemoveItemFromMap(worldItem);
-			
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public InventoryItem getPrimaryWeapon() {
-		return getNPC().getPrimaryHandItem();
-	}
-	
-	public void setPrimaryWeapon(InventoryItem item) {
-		getNPC().setPrimaryHandItem(item);
-		
-		byte hand = 0;
-		byte has = 1;
-		int onlineID = getNPC().OnlineID;
-		
-		for(UdpConnection c : SledgeHammer.instance.getUdpEngine().getConnections()) {
-           IsoPlayer p2 = GameServer.getAnyPlayerFromConnection(c);
-           if(p2 != null) {
-              ByteBufferWriter byteBufferWriter = c.startPacket();
-              PacketTypes.doPacket(PacketTypes.Equip, byteBufferWriter);
-              byteBufferWriter.putByte(hand);
-              byteBufferWriter.putByte(has);
-              byteBufferWriter.putInt(onlineID);
-
-              // Write the item to the buffer.
-              if(has == 1) {            	  
-            	  try {
-            		  item.save(byteBufferWriter.bb, false);
-            	  } catch (IOException var12) {
-            		  var12.printStackTrace();
-            	  }
-              }
-              
-              c.endPacketImmediate();
-           }
-		}
-		
 	}
 	
 	public ItemContainer getInventory() {
@@ -225,16 +146,6 @@ public abstract class Behavior {
 	
 	public float getInventoryWeight() {
 		return getNPC().getInventoryWeight();
-	}
-
-	public void faceDirection(IsoObject other) {
-		Vector2 vector = new Vector2();
-		vector.x  = other.getX();
-		vector.y  = other.getY();
-		vector.x -=       getX();
-		vector.y -=       getY();
-		vector.normalize();
-		setDirection(vector);
 	}
 	
 	public float DistTo(IsoObject other) {
@@ -263,23 +174,6 @@ public abstract class Behavior {
 	
 	public void setY(float y) {
 		getNPC().setY(y);
-	}
-	
-	public void setDirection(Vector2 vector) {
-		getNPC().DirectionFromVector(vector);
-	}
-	
-	public IsoDirections getDirection(Vector2 vector) {
-		return IsoDirections.fromAngle(vector);
-	}
-	
-	/**
-	 * Calculates the Manhatten distance from the NPC to the object given.
-	 * @param other
-	 * @return
-	 */
-	public float getDistance(IsoObject other) {
-		return IsoUtils.DistanceManhatten(getX(), getY(), other.getX(), other.getY());	
 	}
 	
 	/**
@@ -340,46 +234,16 @@ public abstract class Behavior {
 		return getNPC().getPathSpeed();
 	}
 	
-	public IsoBuilding getCurrentBuilding() {
-		return getNPC().getCurrentBuilding();
+	public void setWorldItemTarget(IsoWorldInventoryObject worldItemTarget) {
+		getNPC().setWorldItemTarget(worldItemTarget);
 	}
 	
-	public IsoGridSquare getCurrentSquare() {
-		IsoGridSquare square = getNPC().getCurrentSquare();
-		if(square == null) {
-			square = ServerMap.instance.getGridSquare((int)Math.floor(getX()), (int)Math.floor(getY()), (int)Math.floor(getZ()));
-			getNPC().setSquare(square);
-			getNPC().setCurrent(square);
-		}
-		return square;
+	public IsoWorldInventoryObject getWorldItemTarget() {
+		return getNPC().getWorldItemTarget();
 	}
 	
-	private float getZ() {
+	public float getZ() {
 		return getNPC().getZ();
-	}
-
-	public IsoChunk getCurrentChunk() {
-		IsoGridSquare square = getCurrentSquare();
-		if(square != null) {
-			return square.getChunk();
-		}
-		return null;
-	}
-	
-	public IsoCell getCurrentCell() {
-		IsoGridSquare square = getCurrentSquare();
-		if(square != null) {
-			return square.getCell();
-		}
-		return null;
-	}
-	
-	public LotHeader getCurrentLotHeader() {
-		IsoCell cell = getCurrentCell();
-		if(cell != null) {
-			return cell.getCurrentLotHeader();
-		}
-		return null;
 	}
 	
 	/**
@@ -418,19 +282,17 @@ public abstract class Behavior {
 	public void setDistanceToWalk(float distance) {
 		this.distanceToWalk = distance;
 	}
-	
-	public void follow(IsoObject target) {
-		followTarget = target;
-		followObject = followTarget == null && followTargetDefault == null ? false : true;
-	}
-	
-	public void followDefault(IsoMovingObject target) {
-		followTargetDefault = target;
-		if(target != null) followObject = true;
-	}
 
 	public int getPlayerIndex() {
 		return getNPC().PlayerIndex;
+	}
+	
+	public Action getCurrentAction() {
+		return actionCurrent;
+	}
+	
+	public void setCurrentAction(Action action) {
+		actionCurrent = action;
 	}
 	
 	public abstract void update();
