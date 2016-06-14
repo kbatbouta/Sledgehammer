@@ -87,7 +87,7 @@ public class ModuleNPC extends SQLModule {
 							println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z + "). PlayerIndex: " + fakePlayer.PlayerIndex + " OnlineID: " + fakePlayer.OnlineID);
 							
 							BehaviorSurvive behavior = new BehaviorSurvive(fakePlayer);
-							behavior.followDefault(player);
+							behavior.setDefaultTarget(player);
 							behavior.setActive(true);
 							fakePlayer.addBehavior(behavior);
 							
