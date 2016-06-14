@@ -1,6 +1,7 @@
 package sledgehammer.npc;
 
 import java.util.List;
+import java.util.Map;
 
 import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
@@ -12,6 +13,8 @@ public class BehaviorSurvive extends Behavior {
 	private boolean seesItemWorth = false;
 	private IsoWorldInventoryObject worldItemWorth = null;
 	private long timeThenItemSearch = 0L;
+	
+	private Map<String, Action> listActions;
 	
 	/**
 	 * Hold a maximum of 2 of a certain item.

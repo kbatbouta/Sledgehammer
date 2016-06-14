@@ -1,8 +1,12 @@
 package sledgehammer;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import sledgehammer.npc.Action;
+import sledgehammer.npc.ActionGrabItemOnGround;
 import sledgehammer.npc.NPC;
 import sledgehammer.npc.NPCEventListener;
 import zombie.ZombiePopulationManager;
@@ -21,6 +25,11 @@ public class NPCManager {
 	 * A SledgeHammer instance to follow proper OOP code methods.
 	 */
 	private SledgeHammer sledgeHammer;
+	
+	/**
+	 * Map containing all actions to influence NPCs.
+	 */
+	private Map<String, Action> mapActions;
 	
 	/**
 	 * Long variable to measure update-tick deltas.
@@ -44,9 +53,15 @@ public class NPCManager {
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
 		
+		mapActions = new HashMap<>();
+		
 		// Event Listener for joining.
 		eventListener = new NPCEventListener(this);
 		SledgeHammer.instance.register(eventListener);
+	}
+	
+	public void initializeActions() {
+		addAction(ActionGrabItemOnGround.NAME, new ActionGrabItemOnGround());
 	}
 	
 	public NPC addNPC(NPC npc) {
@@ -170,6 +185,14 @@ public class NPCManager {
 				
 			}
 		}
+	}
+	
+	public void addAction(String name, Action action) {
+		mapActions.put(name, action);
+	}
+	
+	public void getAction(String name) {
+		mapActions.get(name.toLowerCase().trim());
 	}
 
 	public List<NPC> getNPCS() {
