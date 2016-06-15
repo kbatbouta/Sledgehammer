@@ -96,6 +96,8 @@ public final class ModuleManager extends Printable {
 	void loadModules() {
 
 		initPluginFolder();
+		
+		println("Loading modules.");
 
 		for (String plugin : listPluginsRaw) {
 			if (plugin != null && !plugin.isEmpty()) {
@@ -137,7 +139,7 @@ public final class ModuleManager extends Printable {
 			Module module = modules.next();
 			if (module != null) {
 				try {
-					println("Starting module " + module.getName() + "...");
+					println("Starting module " + module.getName() + " Version: " + module.getVersion() + ".");
 					module.startModule();
 				} catch (Exception e) {
 					println("Error starting module " + module.getName() + ": " + e.getMessage());
