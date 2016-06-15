@@ -1,4 +1,4 @@
-package sledgehammer.module;
+package sledgehammer.modules;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,6 +6,7 @@ import java.util.Map;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.interfaces.CommandListener;
+import sledgehammer.module.SQLModule;
 import sledgehammer.npc.BehaviorSurvive;
 import sledgehammer.npc.NPC;
 import sledgehammer.util.Result;

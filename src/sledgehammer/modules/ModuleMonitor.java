@@ -1,4 +1,4 @@
-package sledgehammer.module;
+package sledgehammer.modules;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +16,7 @@ import org.github.jamm.MemoryMeter;
 
 import sledgehammer.event.CommandEvent;
 import sledgehammer.interfaces.CommandListener;
+import sledgehammer.module.Module;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
 import sledgehammer.wrapper.Player;
