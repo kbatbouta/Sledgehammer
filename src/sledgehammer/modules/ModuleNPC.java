@@ -32,6 +32,8 @@ public class ModuleNPC extends SQLModule {
 	
 	private ModuleNPC module = null;
 	
+	private CommandListener commandListener = null;
+	
 	public ModuleNPC() {
 		super(DataBaseBuffer.getDatabaseConnection());
 		module = this;
@@ -40,10 +42,8 @@ public class ModuleNPC extends SQLModule {
 	public void onLoad() {
 		mapSpawners = new HashMap<>();
 		LuaManager.exposer.exposeClass(NPC.class);
-	}
-
-	public void onStart() {
-		register(new CommandListener() {
+		
+		commandListener = new CommandListener() {
 
 			public String[] getCommands() {
 				return new String[] { "addnpc", "destroynpcs"};
@@ -138,7 +138,16 @@ public class ModuleNPC extends SQLModule {
 				}
 				return null;
 			}
-		});
+		};
+	
+		register(commandListener);
+	}
+
+	public void onStart() {}
+	public void onStop() {}
+
+	public void onUnload() {
+		unregister(commandListener);
 	}
 	
 	public NPC createFakePlayer(String name, float x, float y, float z) {
@@ -149,8 +158,6 @@ public class ModuleNPC extends SQLModule {
 	}
 
 	public void onUpdate(long delta) {}
-	public void onStop() {}
-	public void onUnload() {}
 	
 	public String getID()      { return ID      ; }
 	public String getName()    { return NAME    ; }
