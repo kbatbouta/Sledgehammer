@@ -102,7 +102,7 @@ public class ModuleCore extends SQLModule {
 	}
 
 	public void onUpdate(long delta) {
-		eventListener.update();
+		eventListener.getPlayerTimeStamps().clear();
 	}
 	
 	

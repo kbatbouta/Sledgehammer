@@ -155,12 +155,6 @@ public class CoreEventListener implements EventListener {
 
 	public void update() {
 		mapPlayerTimeStamps.clear();
-	
-		// long timeNow = System.currentTimeMillis();
-		// if(timeNow - timeThen > 5000) {
-		// mapPlayerTimeStamps.clear();
-		// timeThen = timeNow;
-		// }
 	}
 
 }

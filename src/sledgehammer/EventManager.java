@@ -301,8 +301,9 @@ public class EventManager extends Printable {
 	 * @param listener
 	 */
 	public void registerEventListener(String event, EventListener listener) {
-		if (listener == null)
+		if (listener == null) {			
 			throw new IllegalArgumentException("Listener is null!");
+		}
 		List<EventListener> listListeners = mapEventListeners.get(event);
 		if (listListeners == null) {
 			listListeners = new ArrayList<>();
@@ -320,8 +321,9 @@ public class EventManager extends Printable {
 	 * @param listener
 	 */
 	public void registerEventListener(EventListener listener) {
-		if (listener == null)
+		if (listener == null) {			
 			throw new IllegalArgumentException("Listener is null!");
+		}
 		String[] types = listener.getTypes();
 		if (types == null)
 			throw new IllegalArgumentException("listener.getTypes() array is null!");
@@ -338,8 +340,9 @@ public class EventManager extends Printable {
 	 * @param listener
 	 */
 	public void registerCommandListener(String command, CommandListener listener) {
-		if (listener == null)
+		if (listener == null) {			
 			throw new IllegalArgumentException("Listener is null!");
+		}
 
 		command = command.toLowerCase();
 
@@ -350,6 +353,12 @@ public class EventManager extends Printable {
 			listListeners.add(listener);
 		} else {
 			listListeners.add(listener);
+		}
+	}
+	
+	public void unregisterCommandListener(String command, CommandListener listener) {
+		if (listener == null) {			
+			throw new IllegalArgumentException("Listener is null!");
 		}
 	}
 
@@ -374,6 +383,38 @@ public class EventManager extends Printable {
 		if(!listExceptionListeners.contains(listener)) {			
 			listExceptionListeners.add(listener);
 		}
+	}
+	
+	public void unregister(EventListener listener) {
+		if (listener == null) {			
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		for(String type : listener.getTypes()) {			
+			mapEventListeners.get(type).remove(listener);
+		}
+	}
+
+	public void unregister(CommandListener listener) {
+		if (listener == null) {			
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		for(String command : listener.getCommands()) {
+			mapCommandListeners.get(command).remove(listener);
+		}
+	}
+
+	public void unregister(LogListener listener) {
+		if (listener == null) {			
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		listLogListeners.remove(listener);
+	}
+
+	public void unregister(ExceptionListener listener) {
+		if (listener == null) {			
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		listExceptionListeners.remove(listener);
 	}
 
 	// TODO: Permission Integration.

@@ -8,6 +8,7 @@ import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.ChatManager;
+import sledgehammer.EventManager;
 import sledgehammer.ModuleManager;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
@@ -137,6 +138,22 @@ public abstract class Module extends Printable {
 			SledgeHammer.instance.register(type, listener);
 		}
 	}
+	
+	public void unregister(EventListener listener) {
+		getEventManager().unregister(listener);
+	}
+	
+	public void unregister(CommandListener listener) {
+		getEventManager().unregister(listener);
+	}
+	
+	public void unregister(LogListener listener) {
+		getEventManager().unregister(listener);
+	}
+	
+	public void unregister(ExceptionListener listener) {
+		getEventManager().unregister(listener);
+	}
 
 	public void startModule() {
 		if (!started) {
@@ -162,6 +179,10 @@ public abstract class Module extends Printable {
 		getModuleManager().unloadModule(this);
 	}
 
+	public EventManager getEventManager() {
+		return SledgeHammer.instance.getEventManager();
+	}
+	
 	public ModuleManager getModuleManager() {
 		return SledgeHammer.instance.getModuleManager();
 	}

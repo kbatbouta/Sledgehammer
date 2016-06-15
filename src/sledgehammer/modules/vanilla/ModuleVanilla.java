@@ -62,7 +62,12 @@ public class ModuleVanilla extends Module {
 	public void onLoad() {
 		commandListener = new VanillaCommandListener(this);
 		logListener = new VanillaLogListener();
+		
 		register(logListener);
+	}
+	
+	public void onUnload() {
+		unregister(logListener);
 	}
 	
 	public CommandListener getCommandListener() {
@@ -72,18 +77,14 @@ public class ModuleVanilla extends Module {
 	public void setCommandListener(CommandListener listener) {
 		this.commandListener = listener;
 	}
-	
-
-	public void onStart() {}
-	public void onUpdate(long delta) {}
-	public void onStop() {}
-	public void onUnload() {}
-
-	
+		
 	public Map<String, String> getContexts() {
 		return this.mapContexts;
 	}
 
+	public void onStart() {}
+	public void onUpdate(long delta) {}
+	public void onStop() {}
 	public String getID()      { return ID      ; }
 	public String getName()    { return NAME    ; }
 	public String getVersion() { return VERSION ; }
