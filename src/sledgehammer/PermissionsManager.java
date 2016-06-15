@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.interfaces.PermissionHandler;
+import sledgehammer.interfaces.PermissionsHandler;
 import sledgehammer.util.Printable;
 import zombie.core.Core;
 import zombie.network.DataBaseBuffer;
@@ -28,7 +28,7 @@ public class PermissionsManager extends Printable {
 	/**
 	 * List of registered PermissionHandler interfaces.
 	 */
-	private List<PermissionHandler> listPermissionHandlers;
+	private List<PermissionsHandler> listPermissionHandlers;
 	
 	
 	private Map<String, Boolean> mapDefaultPlayerPermissions;
@@ -105,7 +105,7 @@ public class PermissionsManager extends Printable {
 		
 		if(hasPermissionsHandler) {			
 			// Loop through each handler and if any returns true, return true.
-			for(PermissionHandler handler : listPermissionHandlers) {
+			for(PermissionsHandler handler : listPermissionHandlers) {
 				try {				
 					if(handler.hasPermission(username, context)) return true;
 				} catch(Exception e) {
@@ -127,9 +127,19 @@ public class PermissionsManager extends Printable {
 	 * Registers a PermissionHandler interface.
 	 * @param handler
 	 */
-	public void registerPermissionHandler(PermissionHandler handler) {
+	public void registerPermissionsHandler(PermissionsHandler handler) {
 		if(handler != null) {			
 			if(!listPermissionHandlers.contains(handler)) listPermissionHandlers.add(handler);
+		}
+	}
+	
+	/**
+	 * Unregisters a PermissionsHandler interface.
+	 * @param handler
+	 */
+	public void unregister(PermissionsHandler handler) {
+		if(handler != null) {
+			listPermissionHandlers.remove(handler);
 		}
 	}
 	
@@ -138,7 +148,7 @@ public class PermissionsManager extends Printable {
 	 * @return
 	 */
 	public boolean hasPermissionModule() {
-		for(PermissionHandler handler : listPermissionHandlers) {
+		for(PermissionsHandler handler : listPermissionHandlers) {
 			if(handler != null) return true;
 		}
 		return false;

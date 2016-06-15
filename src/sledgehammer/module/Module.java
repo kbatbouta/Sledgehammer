@@ -16,7 +16,7 @@ import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
-import sledgehammer.interfaces.PermissionHandler;
+import sledgehammer.interfaces.PermissionsHandler;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
 import zombie.characters.IsoPlayer;
@@ -154,6 +154,14 @@ public abstract class Module extends Printable {
 	public void unregister(ExceptionListener listener) {
 		getEventManager().unregister(listener);
 	}
+	
+	public void register(PermissionsHandler handler) {
+		getPermissionsManager().registerPermissionsHandler(handler);
+	}
+	
+	public void unregister(PermissionsHandler handler) {
+		getPermissionsManager().unregister(handler);
+	}
 
 	public void startModule() {
 		if (!started) {
@@ -225,10 +233,6 @@ public abstract class Module extends Printable {
 
 	public PermissionsManager getPermissionsManager() {
 		return SledgeHammer.instance.getPermissionsManager();
-	}
-
-	public void register(PermissionHandler handler) {
-		getPermissionsManager().registerPermissionHandler(handler);
 	}
 
 	public void updateModule(long delta) {

@@ -1,6 +1,6 @@
 package sledgehammer.interfaces;
 
-public interface PermissionHandler {
+public interface PermissionsHandler {
 	public boolean hasPermission(String username, String context);
 
 }
