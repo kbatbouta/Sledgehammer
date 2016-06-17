@@ -30,7 +30,6 @@ import zombie.iso.IsoObject;
 import zombie.iso.IsoUtils;
 import zombie.iso.LotHeader;
 import zombie.iso.Vector2;
-import zombie.iso.areas.IsoBuilding;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
@@ -310,12 +309,9 @@ public class NPC extends IsoPlayer {
 		}
 	}
 	
-	public IsoBuilding getCurrentBuilding() {
-		return getCurrentBuilding();
-	}
-	
+	@Override
 	public IsoGridSquare getCurrentSquare() {
-		IsoGridSquare square = getCurrentSquare();
+		IsoGridSquare square = super.getCurrentSquare();
 		if(square == null) {
 			square = ServerMap.instance.getGridSquare((int)Math.floor(getX()), (int)Math.floor(getY()), (int)Math.floor(getZ()));
 			setSquare(square);
