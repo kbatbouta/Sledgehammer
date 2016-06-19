@@ -67,7 +67,7 @@ public class BehaviorSurvive extends Behavior {
 			ItemContainer inventory = getInventory();
 			
 			// If we have enough of this item.
-			if(inventory.getItemCount(item.getType()) < this.maximumIdenticalItemsToCarry) {
+			if(inventory.getItemCount(item.getType()) < maximumIdenticalItemsToCarry) {
 				
 			}
 			
@@ -75,9 +75,9 @@ public class BehaviorSurvive extends Behavior {
 				seesItemWorth = true;
 				setWorldItemTarget(worldItem);
 				setTarget(worldItem);
+				act(ActionGrabItemOnGround.NAME);
 				break;
 			}
 		}
 	}
-
 }

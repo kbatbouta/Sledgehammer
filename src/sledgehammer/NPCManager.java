@@ -191,8 +191,8 @@ public class NPCManager {
 		mapActions.put(name, action);
 	}
 	
-	public void getAction(String name) {
-		mapActions.get(name.toLowerCase().trim());
+	public Action getAction(String name) {
+		return mapActions.get(name.toLowerCase().trim());
 	}
 
 	public List<NPC> getNPCS() {

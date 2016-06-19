@@ -6,12 +6,12 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import fmod.fmod.DummySoundEmitter;
 import fmod.fmod.DummySoundListener;
+import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
 import sledgehammer.util.ZUtil;
 import zombie.ai.states.StaggerBackState;
-import zombie.characters.DummyCharacterSoundEmitter;
+import zombie.characters.CharacterSoundEmitter;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
@@ -31,6 +31,7 @@ import zombie.iso.IsoUtils;
 import zombie.iso.LotHeader;
 import zombie.iso.Vector2;
 import zombie.iso.objects.IsoWorldInventoryObject;
+import zombie.network.BodyDamageSync;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 import zombie.network.ServerLOS;
@@ -47,7 +48,13 @@ public class NPC extends IsoPlayer {
 	private String idleAnim = "Idle";
 	private IsoObject followTarget = null;
 	private boolean followObject = false;
+	
+	private BodyDamageSync.Updater damageUpdater = null;
+	
+	private List<Action> listSecondaryActions = null;
 	private IsoMovingObject followTargetDefault = null;
+	
+	private boolean actionLooped = false;
 	
 	/**
 	 * An item to be set for the NPC to go to, and pick up.
@@ -55,69 +62,74 @@ public class NPC extends IsoPlayer {
 	private IsoWorldInventoryObject worldItemTarget = null;
 	
 	private HandWeapon weapon = null;
+	private Action nextAction;
 	
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
 		
-		ServerLOS.instance.addPlayer(this);
+		// Initialize the Lists.
+		listSecondaryActions = new ArrayList<>();
+		listBehaviors = new ArrayList<>();
 		
 		initializePerks();
 
+		setBodyDamage(new NPCBodyDamage(this));
+		
+		damageUpdater = new NPCBodyDamageSyncUpdater(this);
+		
 		updateHands();
 		
 		// Update position in world.
 		updateSquare();
 
-		
-		listBehaviors = new ArrayList<>();
-		
-		// Generates an index.
-		int playerIndex = 1;
-
-		this.PlayerIndex          =                          playerIndex;
+		this.PlayerIndex          =                                    1;
 		this.username             =                             username;
-		this.OnlineChunkGridWidth =                                    3;
-		this.OnlineID             =  (short) ZUtil.random.nextInt(28000);
+		this.OnlineChunkGridWidth =                                    1;
+		this.OnlineID             =  (short) ZUtil.random.nextInt(30000);
 		this.bRemote              =                                 true;
 		this.invisible            =                                false;
-		this.emitter              = new DummyCharacterSoundEmitter(this);
+		this.emitter              =      new CharacterSoundEmitter(this);
 		this.soundListener        =  new DummySoundListener(PlayerIndex);
-		this.testemitter          =              new DummySoundEmitter();
+		this.testemitter          =                   new SoundEmitter();
 		
+		// Sets the health to 100%.
 		setHealth(1.0F);
-		PlayAnim("Idle");
+		
+		// Plays the Idle animation initially.
+		playAnimation("Idle");
+
+		// Adds the NPC to the server's 'Line-Of-Sight' engine, so Zombies can see it.
+		ServerLOS.instance.addPlayer(this);
 	}
 	
 	@Override
-	public void hitConsequences(HandWeapon weapon, IsoGameCharacter wielder, boolean bIgnoreDamage, float damage,
-			boolean bKnockdown) {
+	public void hitConsequences(HandWeapon weapon, IsoGameCharacter wielder, boolean bIgnoreDamage, float damage, boolean bKnockdown) {
 		if (bIgnoreDamage) {
-			this.sendObjectChange("Shove", new Object[] { "hitDirX", Float.valueOf(this.getHitDir().getX()), "hitDirY",
-					Float.valueOf(this.getHitDir().getY()), "force", Float.valueOf(this.getHitForce()) });
+			this.sendObjectChange("Shove", new Object[] { "hitDirX", Float.valueOf(this.getHitDir().getX()), "hitDirY", Float.valueOf(this.getHitDir().getY()), "force", Float.valueOf(this.getHitForce()) });
 			return;
 		}
 
-		this.BodyDamage.DamageFromWeapon(weapon);
+		BodyDamage.DamageFromWeapon(weapon);
 
 		if (wielder instanceof IsoPlayer) {
 			if (!bIgnoreDamage) {
 				if (weapon.isAimedFirearm()) {
-					this.Health -= damage * 0.7F;
+					Health -= damage * 0.7F;
 				} else {
-					this.Health -= damage * 0.15F;
+					Health -= damage * 0.15F;
 				}
 			}
 		} else if (!bIgnoreDamage) {
 			if (weapon.isAimedFirearm()) {
-				this.Health -= damage * 0.7F;
+				Health -= damage * 0.7F;
 			} else {
-				this.Health -= damage * 0.15F;
+				Health -= damage * 0.15F;
 			}
 		}
 
-		if (this.Health > 0.0F && this.BodyDamage.getHealth() > 0.0F && (!weapon.isAlwaysKnockdown() && !bKnockdown)) {
+		if (Health > 0.0F && BodyDamage.getHealth() > 0.0F && (!weapon.isAlwaysKnockdown() && !bKnockdown)) {
 			if (weapon.isSplatBloodOnNoDeath()) {
-				this.splatBlood(3, 0.3F);
+				splatBlood(3, 0.3F);
 			}
 
 			if (weapon.isKnockBackOnNoDeath()) {
@@ -125,13 +137,11 @@ public class NPC extends IsoPlayer {
 					wielder.xp.AddXP(PerkFactory.Perks.Strength, 2.0F);
 				}
 
-				this.stateMachine.changeState(StaggerBackState.instance());
+				stateMachine.changeState(StaggerBackState.instance());
 			}
 			
-			SledgeHammer.instance.getNPCEngine().updateNPCToPlayers(this);
-		
 		} else {
-			this.DoDeath(weapon, wielder);
+			DoDeath(weapon, wielder);
 		}
 		
 	}
@@ -192,14 +202,75 @@ public class NPC extends IsoPlayer {
 	}
 	
 	public void update() {
-		if(!isDead()) {			
+		if(!isDead()) {
+			
+			// If there is a defined action to act on,
+			if(nextAction != null) {
+				
+				// Execute this action.
+				nextAction.act(this);
+			}
+			
+			// If the current action is to be ran only once,
+			if(!isCurrentActionLooped()) {
+				nextAction = null;
+			}
+			
 			super.update();
+			
 			updateHands();
 			updateAnimations();
+			
 			for(Behavior behavior: listBehaviors) {
 				behavior.updateBehavior();
 			}
+			
 			updateSquare();
+			
+			BodyDamage.Update();
+			
+			// Update the body damage synchronizer.
+			damageUpdater.update();
+		}
+	}
+	
+	/**
+	 * Updates the square the NPC is on.
+	 */
+	private void updateSquare() {
+		
+		// Grab the 'X', 'Y', and 'Z' coordinates, floor them, and cast to an Integer.
+		int ix = (int) Math.floor(getX());
+		int iy = (int) Math.floor(getY());
+		int iz = (int) Math.floor(getZ());
+		
+		// Use the integer values to locate the IsoGridSquare the NPC is current on.
+		IsoGridSquare square = ServerMap.instance.getGridSquare(ix, iy, iz);
+		
+		// Set the current square for the IsoMovingObject API.
+		setCurrent(square);
+
+		// Set the current square for the IsoObject API.
+		setSquare(square);		
+	}
+	
+	/**
+	 * Updates the local HandWeapon field for NPC's.
+	 */
+	private void updateHands() {
+		
+		// Grab the Primary InventoryItem from the primary hand (first weapon on the top of the screen).
+		InventoryItem itemPrimary = getPrimaryHandItem();
+		
+		// If the item is in-fact a weapon,
+		if(itemPrimary instanceof HandWeapon) {
+			
+			// Set it as the casted object to HandWeapon.
+			weapon = (HandWeapon) itemPrimary;
+		} else {
+			
+			// Set the weapon to null. This helps the code know quicker that the item in primary is not a weapon.
+			weapon = null;
 		}
 	}
 	
@@ -223,10 +294,10 @@ public class NPC extends IsoPlayer {
 		byte hand = 0;
 		byte has = 1;
 		
-		for(UdpConnection c : SledgeHammer.instance.getUdpEngine().getConnections()) {
-           IsoPlayer p2 = GameServer.getAnyPlayerFromConnection(c);
+		for(UdpConnection connection : SledgeHammer.instance.getUdpEngine().getConnections()) {
+           IsoPlayer p2 = GameServer.getAnyPlayerFromConnection(connection);
            if(p2 != null) {
-              ByteBufferWriter byteBufferWriter = c.startPacket();
+              ByteBufferWriter byteBufferWriter = connection.startPacket();
               PacketTypes.doPacket(PacketTypes.Equip, byteBufferWriter);
               byteBufferWriter.putByte(hand);
               byteBufferWriter.putByte(has);
@@ -241,7 +312,7 @@ public class NPC extends IsoPlayer {
             	  }
               }
               
-              c.endPacketImmediate();
+              connection.endPacketImmediate();
            }
 		}
 		
@@ -285,30 +356,6 @@ public class NPC extends IsoPlayer {
 		return listObjects;
 	}
 	
-	/**
-	 * Updates the square the NPC is on.
-	 */
-	private void updateSquare() {
-		int ix = (int) Math.floor(getX());
-		int iy = (int) Math.floor(getY());
-		int iz = (int) Math.floor(getZ());
-		IsoGridSquare square = ServerMap.instance.getGridSquare(ix, iy, iz);
-		this.setCurrent(square);
-		this.setSquare(square);		
-	}
-	
-	/**
-	 * Updates Hand-related data.
-	 */
-	private void updateHands() {
-		InventoryItem itemPrimary = getPrimaryHandItem();
-		if(itemPrimary instanceof HandWeapon) {
-			weapon = (HandWeapon) itemPrimary;
-		} else {
-			weapon = null;
-		}
-	}
-	
 	@Override
 	public IsoGridSquare getCurrentSquare() {
 		IsoGridSquare square = super.getCurrentSquare();
@@ -322,25 +369,19 @@ public class NPC extends IsoPlayer {
 	
 	public IsoChunk getCurrentChunk() {
 		IsoGridSquare square = getCurrentSquare();
-		if(square != null) {
-			return square.getChunk();
-		}
+		if(square != null) return square.getChunk();
 		return null;
 	}
 	
 	public IsoCell getCurrentCell() {
 		IsoGridSquare square = getCurrentSquare();
-		if(square != null) {
-			return square.getCell();
-		}
+		if(square != null) return square.getCell();
 		return null;
 	}
 	
 	public LotHeader getCurrentLotHeader() {
 		IsoCell cell = getCurrentCell();
-		if(cell != null) {
-			return cell.getCurrentLotHeader();
-		}
+		if(cell != null) return cell.getCurrentLotHeader();
 		return null;
 	}
 	
@@ -494,5 +535,53 @@ public class NPC extends IsoPlayer {
 	public void setFollow(boolean flag) {
 		this.followObject = flag;
 	}
+	
+	public Action getAction(String name) {
+		return SledgeHammer.instance.getNPCEngine().getAction(name);
+	}
+	
+	public void act(String name) {
+		this.nextAction = getAction(name);
+		this.actionLooped = false;
+	}
+	
+	public void actIndefinitely(String name) {
+		this.nextAction = getAction(name);
+		this.actionLooped = true;
+	}
+	
+	public void stopAction() {
+		this.actionLooped = false;
+	}
+	
+	public boolean isCurrentActionLooped() {
+		return this.actionLooped;
+	}
 
+	/**
+	 * Proxy method for 'IsoGameCharacter.PlayAnim(String animation)'.
+	 * 
+	 * Plays a looped animation.
+	 * 
+	 * E.X: playAnimation("Idle");
+	 * 
+	 * @param string
+	 */
+	public void playAnimation(String animation) {
+		PlayAnim(animation);
+	}
+	
+	/**
+	 * Proxy method for 'IsoGameCharacter.PlayAnimUnlooped(String animation)'.
+	 * 
+	 * Plays a animation once.
+	 * 
+	 * E.X: playAnimation("SitDown");
+	 * 
+	 * @param animation
+	 */
+	public void playAnimationUnlooped(String animation) {
+		PlayAnimUnlooped(animation);
+	}
+	
 }

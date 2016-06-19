@@ -114,4 +114,12 @@ public class Settings extends Printable {
 	}
 
 	public String getName() { return "Settings"; }
+
+	public void save() {
+		try {
+			ini.save();
+		} catch (Exception e) {
+			stackTrace("Failed to save default Sledgehammer settings.", e);
+		}
+	}
 }

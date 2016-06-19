@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import sledgehammer.SledgeHammer;
 import zombie.characters.IsoPlayer;
 import zombie.inventory.ItemContainer;
 import zombie.iso.IsoMovingObject;
@@ -293,6 +294,26 @@ public abstract class Behavior {
 	
 	public void setCurrentAction(Action action) {
 		actionCurrent = action;
+	}
+	
+	public Action getAction(String name) {
+		return getNPC().getAction(name);
+	}
+	
+	public void act(String name) {
+		getNPC().act(name);
+	}
+	
+	public void actIndefinitely(String name) {
+		getNPC().actIndefinitely(name);
+	}
+	
+	public void stopAction() {
+		getNPC().stopAction();
+	}
+	
+	public boolean isCurrentActionLooped() {
+		return getNPC().isCurrentActionLooped();
 	}
 	
 	public abstract void update();

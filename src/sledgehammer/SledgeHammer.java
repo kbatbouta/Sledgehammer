@@ -1,6 +1,8 @@
 package sledgehammer;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import sledgehammer.event.CommandEvent;
@@ -15,9 +17,11 @@ import sledgehammer.modules.ModuleNPC;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
 import sledgehammer.util.Printable;
+import sledgehammer.util.ZUtil;
 import zombie.GameWindow;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
+import zombie.network.GameServer;
 import zombie.network.ServerOptions;
 
 public class SledgeHammer extends Printable {
@@ -93,6 +97,9 @@ public class SledgeHammer extends Printable {
 	public void init() {
 
 		try {			
+
+			new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();
+			
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			
 			// Initialize the Chat Engine.
@@ -291,5 +298,17 @@ public class SledgeHammer extends Printable {
 	@Override
 	public String getName() { return "SledgeHammer"; }
 
+	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		
+		 System.setProperty("java.library.path", System.getProperty("user.dir") + File.separator + "natives" );
+		 Field fieldSysPath = ClassLoader.class.getDeclaredField( "sys_paths" );
+		 fieldSysPath.setAccessible( true );
+		 fieldSysPath.set( null, null );
+		
+//		ZUtil.addDir(System.getProperty("user.dir"));
+//		ZUtil.addDir(System.getProperty("user.dir") + File.separator + "natives");
+		GameServer.main(args);
+	}
+	
 
 }
