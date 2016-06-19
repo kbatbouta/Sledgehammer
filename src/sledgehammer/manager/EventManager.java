@@ -639,5 +639,5 @@ public class EventManager extends Printable {
 
 	@Override
 	public String getName() { return "Sledgehammer"; }
-
+	
 }
