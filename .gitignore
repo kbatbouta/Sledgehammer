@@ -128,3 +128,5 @@ src/zombie
 src/sledgehammer/modules/vanilla/VanillaCommandListener.java
 
 bin/sledgehammer
+
+src/sledgehammer/terminus
