@@ -35,6 +35,8 @@ import zombie.network.ServerOptions;
  */
 public class SledgeHammer extends Printable {
 	
+	public static final String VERSION = "2.04_01";
+	
 	/**
 	 * Debug boolean for the SledgeHammer engine. Used for verbose output.
 	 */
@@ -119,6 +121,9 @@ public class SledgeHammer extends Printable {
 	 */
 	public void init() {
 
+		// Displays version.
+		println(VERSION);
+		
 		try {			
 
 			new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();

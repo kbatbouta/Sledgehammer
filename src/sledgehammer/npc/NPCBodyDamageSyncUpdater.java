@@ -35,8 +35,6 @@ public class NPCBodyDamageSyncUpdater extends BodyDamageSync.Updater {
 		if (currentTime - getSendTime() >= 500L) {
 			setSendTime(currentTime);
 
-			println("Update");
-			
 			// Grab the content buffer.
 			ByteBuffer bb = getByteBuffer();
 
