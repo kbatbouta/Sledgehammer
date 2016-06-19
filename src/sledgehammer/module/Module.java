@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.ChatManager;
-import sledgehammer.EventManager;
-import sledgehammer.ModuleManager;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
@@ -17,11 +14,14 @@ import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionsHandler;
+import sledgehammer.manager.ChatManager;
+import sledgehammer.manager.EventManager;
+import sledgehammer.manager.ModuleManager;
+import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
-import sledgehammer.PermissionsManager;
 
 public abstract class Module extends Printable {
 
@@ -184,7 +184,7 @@ public abstract class Module extends Printable {
 
 	public void unload() {
 		started = false;
-		getModuleManager().unloadModule(this);
+		getModuleManager().unloadModule(this, true);
 	}
 
 	public EventManager getEventManager() {
@@ -292,7 +292,6 @@ public abstract class Module extends Printable {
 		return getChatManager().privateMessage(commander, connection, text);
 	}
 
-
 	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
 		getChatManager().localMessage(connection, playerID, text, chatType, sayIt);
 	}
@@ -320,6 +319,10 @@ public abstract class Module extends Printable {
 
 	public List<String> getGloballyMutedUsernames() {
 		return getChatManager().getGloballyMutedUsernames();
+	}
+	
+	public boolean isLoaded() {
+		return loaded;
 	}
 
 	public abstract void onLoad();

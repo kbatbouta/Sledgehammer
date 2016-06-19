@@ -1,7 +1,7 @@
 package sledgehammer.util;
 
-import sledgehammer.EventManager;
 import sledgehammer.SledgeHammer;
+import sledgehammer.manager.EventManager;
 
 public abstract class Printable {
 

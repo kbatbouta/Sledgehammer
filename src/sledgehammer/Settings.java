@@ -20,7 +20,8 @@ public class Settings extends Printable {
 	private INI ini;
 
 	/**
-	 * SledgeHammer instance using the Settings instance.
+	 * Instance of SledgeHammer. While this is statically accessible through the
+	 * singleton, maintaining an OOP hierarchy is a good practice.
 	 */
 	private SledgeHammer sledgeHammer;
 
@@ -91,6 +92,17 @@ public class Settings extends Printable {
 		}
 		sledgeHammer.getPermissionsManager().setPermissionDeniedMessage(ini.getVariableAsString("GENERAL", "permissiondeniedmessage"));
 	}
+	
+	/**
+	 * Saves the SledgeHammer settings.
+	 */
+	public void save() {
+		try {
+			ini.save();
+		} catch (Exception e) {
+			stackTrace("Failed to save default Sledgehammer settings.", e);
+		}
+	}
 
 	/**
 	 * Creates the INI file from scratch with default values.
@@ -98,10 +110,11 @@ public class Settings extends Printable {
 	 * @param ini
 	 */
 	private void createSettings(INI ini) {
-		ini.createSection("GENERAL");
-		ini.setVariable("GENERAL", "debug", "false");
-		ini.setVariable("GENERAL", "plugins", "");
-		ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
+		ini.createSection("GENERAL"); {			
+			ini.setVariable("GENERAL", "debug", "false");
+			ini.setVariable("GENERAL", "plugins", "");
+			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
+		}
 	}
 
 	/**
@@ -113,13 +126,6 @@ public class Settings extends Printable {
 		return ini;
 	}
 
+	@Override
 	public String getName() { return "Settings"; }
-
-	public void save() {
-		try {
-			ini.save();
-		} catch (Exception e) {
-			stackTrace("Failed to save default Sledgehammer settings.", e);
-		}
-	}
 }

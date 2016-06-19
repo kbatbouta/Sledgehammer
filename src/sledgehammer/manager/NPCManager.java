@@ -1,14 +1,20 @@
-package sledgehammer;
+package sledgehammer.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.SledgeHammer;
+import sledgehammer.event.ConnectEvent;
+import sledgehammer.event.DisconnectEvent;
+import sledgehammer.event.Event;
+import sledgehammer.interfaces.EventListener;
+import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.Action;
 import sledgehammer.npc.ActionGrabItemOnGround;
 import sledgehammer.npc.NPC;
-import sledgehammer.npc.NPCEventListener;
+import sledgehammer.wrapper.Player;
 import zombie.ZombiePopulationManager;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
@@ -19,10 +25,16 @@ import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 import zombie.network.ServerLOS;
 
+/**
+ * Manager class designed to handle NPC components, as well as update them.
+ * 
+ * @author Jab
+ */
 public class NPCManager {
 	
 	/**
-	 * A SledgeHammer instance to follow proper OOP code methods.
+	 * Instance of SledgeHammer. While this is statically accessible through the
+	 * singleton, maintaining an OOP hierarchy is a good practice.
 	 */
 	private SledgeHammer sledgeHammer;
 	
@@ -41,10 +53,16 @@ public class NPCManager {
 	 */
 	private List<NPC> listNPCs;
 	
-	NPCEventListener eventListener = null;
+	private ModuleNPC moduleNPC;
+	
+	/**
+	 * EventListener to handle sending NPC data to connecting players.
+	 */
+	ConnectionListener connectionListener = null;
 	
 	/**
 	 * Main constructor.
+	 * 
 	 * @param sledgeHammer
 	 */
 	public NPCManager(SledgeHammer sledgeHammer) {
@@ -53,17 +71,37 @@ public class NPCManager {
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
 		
-		mapActions = new HashMap<>();
+		// Initializes the NPC Core Actions.
+		initializeActions();
 		
 		// Event Listener for joining.
-		eventListener = new NPCEventListener(this);
-		SledgeHammer.instance.register(eventListener);
+		connectionListener = new ConnectionListener(this);
+		sledgeHammer.register(connectionListener);
+		
+		moduleNPC = new ModuleNPC();
+		sledgeHammer.getModuleManager().registerModule(moduleNPC);
 	}
 	
-	public void initializeActions() {
+	/**
+	 * Initializes all default Actions for Behavior classes to use for NPCs.
+	 */
+	private void initializeActions() {
+		
+		// Initialize the Map.
+		mapActions = new HashMap<>();
+		
+		// Register all Actions by the static 'NAME' field.
 		addAction(ActionGrabItemOnGround.NAME, new ActionGrabItemOnGround());
+
 	}
 	
+	/**
+	 * Registers a NPC instance to the NPCManager.
+	 * 
+	 * @param npc
+	 * 
+	 * @return
+	 */
 	public NPC addNPC(NPC npc) {
 		
 		//long guid = random.nextLong();
@@ -73,6 +111,7 @@ public class NPCManager {
 		GameServer.Players.add(npc);
 
 		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
+		
 		for (UdpConnection c : udpEngine.connections) {
 			GameServer.sendPlayerConnect(npc, c);
 		}
@@ -81,6 +120,11 @@ public class NPCManager {
 		return npc;
 	}
 	
+	/**
+	 * Destroys a NPC, unregistering it, and killing it in-game.
+	 * 
+	 * @param npc
+	 */
 	public void destroyNPC(NPC npc) {
 		
 		npc.DoDeath((HandWeapon) null, npc);
@@ -103,6 +147,9 @@ public class NPCManager {
 		ZombiePopulationManager.instance.updateLoadedAreas();
 	}
 	
+	/**
+	 * Updates all NPCs registered.
+	 */
 	public void update() {
 		
 		List<NPC> listDead = new ArrayList<>();
@@ -123,7 +170,15 @@ public class NPCManager {
 			listNPCs.remove(npc);
 		}
 		
-		if (System.currentTimeMillis() - timeThen > 200) {
+		long timeNow = System.currentTimeMillis();
+		
+		// Update the NPCs every 200ms.
+		if (timeNow - timeThen > 200) {
+			
+			// Set the last time updated to now.
+			timeThen = timeNow;
+			
+			// Go through each NPC in the list, and send the players the information.
 			for (NPC npc : listNPCs) {
 				
 				byte flags = 0;
@@ -179,40 +234,89 @@ public class NPCManager {
 					
 					byteBufferWriter.putByte(flags);
 					c.endPacketUnreliable();
-					//c.endPacketSuperHighUnreliable();
 				}
-			
 				
 			}
 		}
 	}
 	
+	/**
+	 * Adds an Action instance to the list of Actions that a NPC can call to Act on.
+	 * 
+	 * @param name
+	 * 
+	 * @param action
+	 */
 	public void addAction(String name, Action action) {
 		mapActions.put(name, action);
 	}
 	
+	/**
+	 * Returns an Action instance, based on the name given.
+	 * 
+	 * @param name
+	 * 
+	 * @return
+	 */
 	public Action getAction(String name) {
 		return mapActions.get(name.toLowerCase().trim());
 	}
 
+	/**
+	 * Returns the List of all the NPCs registered.
+	 * 
+	 * @return
+	 */
 	public List<NPC> getNPCS() {
 		return this.listNPCs;
 	}
 
+	/**
+	 * Destroys all active NPCs registered.
+	 */
 	public void destroyNPCs() {
+		
 		for(NPC npc : listNPCs) {
 			destroyNPC(npc);
-		}
-	}
-	
-	
-	public void updateNPCToPlayers(NPC npc) {
-
-		for(UdpConnection connection : sledgeHammer.getConnections()) {
-			GameServer.sendPlayerConnect(npc, connection);
 		}
 		
 	}
 	
+	public ModuleNPC getModule() {
+		return moduleNPC;
+	}
 	
+	/**
+	 * Implemented EventListener to assist the NPCManager to send NPC player info to connecting Players, since NPCs do not have a UDPConnection instance.
+	 * 
+	 * @author Jab
+	 */
+	private class ConnectionListener implements EventListener {
+
+		NPCManager npcManager = null;
+		
+		public ConnectionListener(NPCManager engine) {
+			this.npcManager = engine;
+		}
+		
+		@Override
+		public String[] getTypes() {
+			return new String[] {ConnectEvent.ID , DisconnectEvent.ID};
+		}
+
+		@Override
+		public void handleEvent(Event event) {
+			if(event.getID() == ConnectEvent.ID) {
+				
+				ConnectEvent connectEvent = (ConnectEvent) event;
+				
+				Player player = connectEvent.getPlayer();
+				UdpConnection connection = player.getConnection();
+				
+				for(NPC npc : npcManager.getNPCS()) {
+					GameServer.sendPlayerConnect(npc, connection);
+				}
+			}
+		}
+	}	
 }

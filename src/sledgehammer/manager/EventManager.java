@@ -1,10 +1,11 @@
-package sledgehammer;
+package sledgehammer.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.event.ChatEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
@@ -24,9 +25,17 @@ import zombie.core.raknet.UdpConnection;
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
 
-// FIXME: Listeners are duplicated.
+/**
+ * Manager class designed to organize EventListeners and execution of Events. 
+ * 
+ * @author Jab
+ */
 public class EventManager extends Printable {
 
+	/**
+	 * Instance of SledgeHammer. While this is statically accessible through the
+	 * singleton, maintaining an OOP hierarchy is a good practice.
+	 */
 	private SledgeHammer sledgeHammer = null;
 
 	/**
@@ -44,10 +53,21 @@ public class EventManager extends Printable {
 	 */
 	private List<LogListener> listLogListeners;
 	
+	/**
+	 * List for registered ExceptionListneer interfaces.
+	 */
 	private List<ExceptionListener> listExceptionListeners;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param instance
+	 */
 	public EventManager(SledgeHammer instance) {
+		
+		// Set the SledgeHammer instance given.
 		sledgeHammer = instance;
+		
 		// Initialize Maps.
 		mapEventListeners = new HashMap<>();
 		mapCommandListeners = new HashMap<>();
@@ -59,11 +79,105 @@ public class EventManager extends Printable {
 		// Put a wild-card List for the CommandListener interface Map.
 		mapCommandListeners.put("*", new ArrayList<CommandListener>());
 	}
+	
+	// TODO: Permission Integration.
+	// TODO: Clean up.
+	/**
+	 * Method executing the '/help' command.
+	 * 
+	 * @param command
+	 */
+	private void help(CommandEvent command) {
 
+		Player player = command.getPlayer();
+
+		String response = "Commands: " + NEW_LINE + " " + COLOR_WHITE + " ";
+
+		for (List<CommandListener> listListeners : mapCommandListeners.values()) {
+			if (listListeners != null) {
+				for (CommandListener listener : listListeners) {
+					if (listener != null) {
+						String[] commands = listener.getCommands();
+						if (commands != null) {
+							for (String com : listener.getCommands()) {
+								if (com != null) {
+									String tip = listener.onTooltip(player, com.toLowerCase());
+									if (tip != null) {
+										response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
+												+ listener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+												+ NEW_LINE + " " + NEW_LINE + " ";
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
+
+		if (coreCommandListener != null) {
+			String[] commands = coreCommandListener.getCommands();
+			if (commands != null) {
+				for (String com : coreCommandListener.getCommands()) {
+					if (com != null) {
+						String tip = coreCommandListener.onTooltip(player, com.toLowerCase());
+						if (tip != null) {
+							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
+									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+									+ NEW_LINE + " " + NEW_LINE + " ";
+						}
+					}
+				}
+			}
+		}
+
+		CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
+		if (vanillaListener != null) {
+			String[] commands = vanillaListener.getCommands();
+			if (commands != null) {
+				for (String com : vanillaListener.getCommands()) {
+					if (com != null) {
+						String tip = vanillaListener.onTooltip(player, com.toLowerCase());
+						if (tip != null) {
+							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
+									+ vanillaListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+									+ NEW_LINE + " " + NEW_LINE + " ";
+						}
+					}
+				}
+			}
+		}
+
+		command.setResponse(Result.SUCCESS, response);
+	}
+
+	/**
+	 * Executes EventListeners from a given Event instance. 
+	 * 
+	 * This method is a simplified version of:
+	 * <code> handleEvent(event, true); </code>, 
+	 * 
+	 * The Event is logged.
+	 * 
+	 * @param event
+	 * 
+	 * @return
+	 */
 	public Event handleEvent(Event event) {
 		return handleEvent(event, true);
 	}
 
+	/**
+	 * Executes EventListeners from a given Event instance. Logging is optional.
+	 * 
+	 * @param event
+	 * 
+	 * @param logEvent
+	 * 
+	 * @return
+	 */
 	public Event handleEvent(Event event, boolean logEvent) {
 		try {
 			if (event == null)
@@ -90,7 +204,7 @@ public class EventManager extends Printable {
 
 			// Force Core Event-handling to be last, for modification potential.
 			if (!event.handled()) {
-				sledgeHammer.getCoreModule().getEventListener().handleEvent(event);
+				sledgeHammer.getModuleManager().getCoreModule().getEventListener().handleEvent(event);
 			}
 
 			// If the Event is set to canceled, return before logging it.
@@ -110,6 +224,13 @@ public class EventManager extends Printable {
 		return event;
 	}
 	
+	/**
+	 * Handles an Exception, passing it to all registered ExceptionListener's, with a reason String given.
+	 * 
+	 * @param reason
+	 * 
+	 * @param throwable
+	 */
 	public void handleException(String reason, Throwable throwable) {
 		for (ExceptionListener listener : listExceptionListeners) {
 			if (listener != null) {
@@ -258,11 +379,11 @@ public class EventManager extends Printable {
 
 				// Force Vanilla CommandListener to last for modification
 				// potential.
-				CommandListener vanillaListener = sledgeHammer.getVanillaModule().getCommandListener();
+				CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
 				if (!c.handled() && vanillaListener != null)
 					vanillaListener.onCommand(c);
 
-				CoreCommandListener coreCommandListener = sledgeHammer.getCoreModule().getCommandListener();
+				CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
 
 				if (!c.handled() && coreCommandListener != null) {
 					coreCommandListener.onCommand(c);
@@ -297,17 +418,19 @@ public class EventManager extends Printable {
 	/**
 	 * Registers an EventListener interface, with a Event ID, given as a String.
 	 * 
-	 * @param event
+	 * @param type
+	 * 
 	 * @param listener
 	 */
-	public void registerEventListener(String event, EventListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
-		List<EventListener> listListeners = mapEventListeners.get(event);
+	public void registerEventListener(String type, EventListener listener) {
+
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
+		List<EventListener> listListeners = mapEventListeners.get(type);
 		if (listListeners == null) {
 			listListeners = new ArrayList<>();
-			mapEventListeners.put(event, listListeners);
+			mapEventListeners.put(type, listListeners);
 			listListeners.add(listener);
 		} else {
 			listListeners.add(listener);
@@ -321,9 +444,10 @@ public class EventManager extends Printable {
 	 * @param listener
 	 */
 	public void registerEventListener(EventListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
+
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
 		String[] types = listener.getTypes();
 		if (types == null)
 			throw new IllegalArgumentException("listener.getTypes() array is null!");
@@ -337,12 +461,13 @@ public class EventManager extends Printable {
 	 * Registers a CommandListener interface, with a command, given as a String.
 	 * 
 	 * @param command
+	 * 
 	 * @param listener
 	 */
 	public void registerCommandListener(String command, CommandListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
+
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
 
 		command = command.toLowerCase();
 
@@ -356,10 +481,24 @@ public class EventManager extends Printable {
 		}
 	}
 	
+	/**
+	 * Unregisters a given CommandListener.
+	 * 
+	 * @param command
+	 * 
+	 * @param listener
+	 */
 	public void unregisterCommandListener(String command, CommandListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
+		// Grab the list associated with the command.
+		List<CommandListener> list = mapCommandListeners.get(command);
+		
+		// If the list exists, tell the list to remove the CommandListener.
+		if(list != null) list.remove(listener);
+
 	}
 
 	/**
@@ -368,124 +507,98 @@ public class EventManager extends Printable {
 	 * @param listener
 	 */
 	public void registerLogListener(LogListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
+		// Make sure that the listener isn't registered twice.
 		if(!listLogListeners.contains(listener)) {			
 			listLogListeners.add(listener);
 		}
 	}
 	
+	/**
+	 * Registers a ExceptionListener interface.
+	 * 
+	 * @param listener
+	 */
 	public void registerExceptionListener(ExceptionListener listener) {
-		if (listener == null) {
-			throw new IllegalArgumentException("Listener is null!");
-		}
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
+		// Make sure that the listener isn't registered twice.
 		if(!listExceptionListeners.contains(listener)) {			
 			listExceptionListeners.add(listener);
 		}
 	}
 	
+	/**
+	 * Unregisters a given EventListener.
+	 * 
+	 * @param listener
+	 */
 	public void unregister(EventListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
-		for(String type : listener.getTypes()) {			
-			mapEventListeners.get(type).remove(listener);
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
+		String[] types = listener.getTypes();
+		
+		// Make sure the Listener 
+		if(types == null || types.length == 0) throw new IllegalArgumentException("Listener does not have defined types!");
+		
+		// Go through each type registered with the listener.
+		for (String type : listener.getTypes()) {			
+			
+			// Grab the list holding the listener.
+			List<EventListener> list = mapEventListeners.get(type);
+			
+			// If the list is valid, remove the listener from the List.
+			if(list != null) {				
+				list.remove(listener);
+			}
+			
 		}
 	}
 
+	/**
+	 * Unregisters a given CommandListener.
+	 * 
+	 * @param listener
+	 */
 	public void unregister(CommandListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
 		for(String command : listener.getCommands()) {
 			mapCommandListeners.get(command).remove(listener);
 		}
 	}
 
+	/**
+	 * 
+	 * @param listener
+	 */
 	public void unregister(LogListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
 		listLogListeners.remove(listener);
 	}
 
-	public void unregister(ExceptionListener listener) {
-		if (listener == null) {			
-			throw new IllegalArgumentException("Listener is null!");
-		}
-		listExceptionListeners.remove(listener);
-	}
-
-	// TODO: Permission Integration.
 	/**
-	 * Method executing the '/help' command.
 	 * 
-	 * @param command
+	 * @param listener
 	 */
-	private void help(CommandEvent command) {
-		Player player = command.getPlayer();
-		String response = "Commands: " + NEW_LINE + " " + COLOR_WHITE + " ";
-
-		for (List<CommandListener> listListeners : mapCommandListeners.values()) {
-			if (listListeners != null) {
-				for (CommandListener listener : listListeners) {
-					if (listener != null) {
-						String[] commands = listener.getCommands();
-						if (commands != null) {
-							for (String com : listener.getCommands()) {
-								if (com != null) {
-									String tip = listener.onTooltip(player, com.toLowerCase());
-									if (tip != null) {
-										response += COLOR_LIGHT_GREEN + " " + com + ": "
-												+ COLOR_WHITE + " "
-												+ listener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE
-												+ " " + NEW_LINE + " " + NEW_LINE + " ";
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-
-		CoreCommandListener coreCommandListener = sledgeHammer.getCoreModule().getCommandListener();
-
-		if (coreCommandListener != null) {
-			String[] commands = coreCommandListener.getCommands();
-			if (commands != null) {
-				for (String com : coreCommandListener.getCommands()) {
-					if (com != null) {
-						String tip = coreCommandListener.onTooltip(player, com.toLowerCase());
-						if (tip != null) {
-							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
-									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE
-									+ " " + NEW_LINE + " " + NEW_LINE + " ";
-						}
-					}
-				}
-			}
-		}
-
-		CommandListener vanillaListener = sledgeHammer.getVanillaModule().getCommandListener();
-		if (vanillaListener != null) {
-			String[] commands = vanillaListener.getCommands();
-			if (commands != null) {
-				for (String com : vanillaListener.getCommands()) {
-					if (com != null) {
-						String tip = vanillaListener.onTooltip(player, com.toLowerCase());
-						if (tip != null) {
-							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
-									+ vanillaListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
-									+ NEW_LINE + " " + NEW_LINE + " ";
-						}
-					}
-				}
-			}
-		}
-
-		command.setResponse(Result.SUCCESS, response);
+	public void unregister(ExceptionListener listener) {
+		
+		// Make sure the listener instance given is valid.
+		if (listener == null) throw new IllegalArgumentException("Listener is null!");
+		
+		listExceptionListeners.remove(listener);
 	}
 
 	/**
@@ -497,21 +610,34 @@ public class EventManager extends Printable {
 		return this.mapEventListeners;
 	}
 
+	/**
+	 * Returns the List of registered LogListeners.
+	 * 
+	 * @return
+	 */
 	public List<LogListener> getLogListeners() {
 		return this.listLogListeners;
 	}
 	
+	/**
+	 * Returns the List of registered ExceptionListeners.
+	 * 
+	 * @return
+	 */
 	public List<ExceptionListener> getExceptionListeners() {
 		return this.listExceptionListeners;
 	}
 
+	/**
+	 * Returns the Map of registered CommandListeners, organized as Lists with the given command as a key, in lowercase.
+	 * 
+	 * @return
+	 */
 	public Map<String, List<CommandListener>> getCommandListeners() {
 		return this.mapCommandListeners;
 	}
 
 	@Override
-	public String getName() {
-		return "Sledgehammer";
-	}
+	public String getName() { return "Sledgehammer"; }
 
 }

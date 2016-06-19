@@ -108,7 +108,7 @@ public class ModuleNPC extends SQLModule {
 					}
 				} else if(command.equalsIgnoreCase("destroynpcs")) {
 					if(module.hasPermission(commanderName, getPermissionContext("destroynpcs"))) {						
-						SledgeHammer.instance.getNPCEngine().destroyNPCs();
+						SledgeHammer.instance.getNPCManager().destroyNPCs();
 						c.setResponse(Result.SUCCESS, "NPCs destroyed.");
 					} else {
 						c.setResponse(Result.FAILURE, getPermissionDeniedMessage());
@@ -154,7 +154,7 @@ public class ModuleNPC extends SQLModule {
 		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
 		System.out.println("SurvivorDesc ID: " + desc.getID());
 		NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
-		return SledgeHammer.instance.getNPCEngine().addNPC(npc);
+		return SledgeHammer.instance.getNPCManager().addNPC(npc);
 	}
 
 	public void onUpdate(long delta) {}

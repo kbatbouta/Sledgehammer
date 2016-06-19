@@ -537,7 +537,7 @@ public class NPC extends IsoPlayer {
 	}
 	
 	public Action getAction(String name) {
-		return SledgeHammer.instance.getNPCEngine().getAction(name);
+		return SledgeHammer.instance.getNPCManager().getAction(name);
 	}
 	
 	public void act(String name) {

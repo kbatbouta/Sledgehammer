@@ -4,10 +4,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import sledgehammer.PermissionsManager;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
+import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Result;

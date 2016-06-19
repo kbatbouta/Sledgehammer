@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.ChatManager;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ChatEvent;
 import sledgehammer.event.ConnectEvent;
@@ -13,6 +12,7 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.manager.ChatManager;
 import sledgehammer.npc.NPC;
 import sledgehammer.util.ChatTags;
 import sledgehammer.wrapper.Player;
