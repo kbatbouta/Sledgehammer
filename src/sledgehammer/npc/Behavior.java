@@ -5,6 +5,8 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector3f;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.modules.ModuleNPC;
+import sledgehammer.util.Printable;
 import zombie.characters.IsoPlayer;
 import zombie.inventory.ItemContainer;
 import zombie.iso.IsoMovingObject;
@@ -13,90 +15,16 @@ import zombie.iso.IsoUtils;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.network.GameServer;
 
-public abstract class Behavior {
+public abstract class Behavior extends Printable {
 	
 	NPC npc = null;
 
-	long timeThenFollow = 0L;
-	
-	private float distanceToRun = 5;
-	private float distanceToWalk = 1;
-	private boolean arrived = false;
-	
 	private boolean active = false;
 
-	private Action actionCurrent = null;
-	
 	public Behavior(NPC npc) {
 		this.npc = npc;
 	}
-	
-	// TODO: weapon walking & running.
-	private void checkFollowing() {
 		
-		if (npc.isFollowingObject()) {
-			
-			IsoObject primaryFollowTarget = getTarget();
-			IsoObject secondaryFollowTarget = getDefaultTarget();
-			
-			if(primaryFollowTarget instanceof IsoPlayer) {
-				if(!GameServer.Players.contains(((IsoPlayer)primaryFollowTarget))) {
-					System.out.println("NPC: Following target disconnected.");
-					setTarget(null);
-					if(secondaryFollowTarget == null) {
-						setFollow(false);
-						return;
-					}
-				}
-			}
-			
-			if(secondaryFollowTarget instanceof IsoPlayer) {
-				if(!GameServer.Players.contains(((IsoPlayer)secondaryFollowTarget))) {
-					System.out.println("NPC: Default following target disconnected.");
-					setFollow(false);
-					setDefaultTarget(null);
-					return;
-				}
-			}
-			
-			IsoObject focusTarget = primaryFollowTarget;
-			
-			if(focusTarget == null) focusTarget = secondaryFollowTarget;			
-			if(focusTarget == null) {
-				setFollow(false);
-				return;
-			}
-			
-			long timeNow = System.currentTimeMillis();
-			long delta = timeNow - timeThenFollow ;
-			
-			if(delta >= 500L) {
-				faceDirection(focusTarget);
-				timeThenFollow = timeNow;
-			}
-			
-			setDestination(focusTarget);
-			
-			float distanceFromTarget = DistTo(focusTarget);
-			
-			float speed = getPathSpeed();
-			if (distanceFromTarget > distanceToRun) {
-				playAnimation(getRunAnimation());
-				setRunning(true);
-			} else if(distanceFromTarget > distanceToWalk){
-				setRunning(false);
-				playAnimation(getWalkAnimation());				
-			} else {
-				speed = 0.0F;
-				setRunning(false);
-				playAnimation(getIdleAnimation());
-				arrived = true;
-			}
-			
-			moveForward(speed);
-		}		
-	}
-	
 	public List<IsoWorldInventoryObject> getNearbyItemsOnGround(int radius) {
 		return getNPC().getNearbyItemsOnGround(radius);
 	}
@@ -149,10 +77,6 @@ public abstract class Behavior {
 		return getNPC().getInventoryWeight();
 	}
 	
-	public float DistTo(IsoObject other) {
-		return IsoUtils.DistanceManhatten(getX(), getY(), other.getX(), other.getY());
-	}
-	
 	/**
 	 * Returns the NPC using this BehaviorState instance.
 	 * @return
@@ -200,14 +124,6 @@ public abstract class Behavior {
 	}
 	
 	/**
-	 * Proxy method for 'getNPC().MoveForward()'.
-	 * @param distance
-	 */
-	public void moveForward(float distance) {
-		getNPC().MoveForward(distance);
-	}
-	
-	/**
 	 * Returns whether or not this BehaviorState is active.
 	 * @return
 	 */
@@ -220,7 +136,7 @@ public abstract class Behavior {
 	}
 	
 	public void setRunning(boolean flag) {
-		getNPC().bRunning = true;
+		getNPC().setRunning(true);
 	}
 	
 	public void playAnimation(String animation) {
@@ -260,28 +176,12 @@ public abstract class Behavior {
 	}
 	
 	public void updateBehavior() {
+		// if(ModuleNPC.DEBUG) println("Behavior: Update");
 		if(isActive()) update();
-		checkFollowing();
 	}
 	
 	public boolean hasArrived() {
-		return arrived;
-	}
-	
-	/**
-	 * Sets the following distance threshold to run.
-	 * @param distance
-	 */
-	public void setDistanceToRun(float distance) {
-		this.distanceToRun = distance;
-	}
-	
-	/**
-	 * Sets the following distance threshold to walk.
-	 * @param distance
-	 */
-	public void setDistanceToWalk(float distance) {
-		this.distanceToWalk = distance;
+		return getNPC().hasArrived();
 	}
 
 	public int getPlayerIndex() {
@@ -289,19 +189,19 @@ public abstract class Behavior {
 	}
 	
 	public Action getCurrentAction() {
-		return actionCurrent;
+		return getNPC().getCurrentAction();
 	}
 	
-	public void setCurrentAction(Action action) {
-		actionCurrent = action;
+	public Action getNextAction() {
+		return getNPC().getNextAction();
 	}
 	
-	public Action getAction(String name) {
-		return getNPC().getAction(name);
+	public void actNext(String name) {
+		getNPC().actNext(name);
 	}
 	
-	public void act(String name) {
-		getNPC().act(name);
+	public void actImmediately(String name) {
+		getNPC().actImmediately(name);
 	}
 	
 	public void actIndefinitely(String name) {

@@ -13,6 +13,7 @@ import sledgehammer.interfaces.EventListener;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.Action;
 import sledgehammer.npc.ActionGrabItemOnGround;
+import sledgehammer.npc.ActionMoveToLocation;
 import sledgehammer.npc.NPC;
 import sledgehammer.wrapper.Player;
 import zombie.ZombiePopulationManager;
@@ -91,6 +92,7 @@ public class NPCManager {
 		mapActions = new HashMap<>();
 		
 		// Register all Actions by the static 'NAME' field.
+		addAction(ActionMoveToLocation.NAME  , new ActionMoveToLocation()  );
 		addAction(ActionGrabItemOnGround.NAME, new ActionGrabItemOnGround());
 
 	}
@@ -259,7 +261,7 @@ public class NPCManager {
 	 * @return
 	 */
 	public Action getAction(String name) {
-		return mapActions.get(name.toLowerCase().trim());
+		return mapActions.get(name);
 	}
 
 	/**

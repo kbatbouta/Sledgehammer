@@ -9,7 +9,7 @@ public class ActionGrabItemOnGround extends Action {
 	public static final String NAME = "Action->GrabItemOnGround";
 	
 	@Override
-	public void act(NPC npc) {
+	public boolean act(NPC npc) {
 		
 		IsoWorldInventoryObject worldItemWorth = npc.getWorldItemTarget();
 		
@@ -18,6 +18,7 @@ public class ActionGrabItemOnGround extends Action {
 		
 		// If the item was successfully added.
 		if(added) {
+			
 			InventoryItem itemRetrieved = worldItemWorth.getItem();
 			
 			if(itemRetrieved.IsWeapon()) {
@@ -65,13 +66,28 @@ public class ActionGrabItemOnGround extends Action {
 				}
 			}
 			
+			// Reset Item checks.
+			npc.setWorldItemTarget(null);
+			
+			// Set primary follow target to null.
+			// If the defaultFollow is set, the NPC will follow that.
+			npc.setTarget(null);
+			
 		// If the item wasn't added to the inventory (Full).
 		} else {
 			
-			// TODO: Evaluate the need of this item.
+			// TODO: Evaluate the need of this item. 
+			
+			// Reset Item checks.
+			npc.setWorldItemTarget(null);
+			
+			// Set primary follow target to null.
+			// If the defaultFollow is set, the NPC will follow that.
+			npc.setTarget(null);
 			
 		}
 
+		return true;
 	}
 
 	@Override

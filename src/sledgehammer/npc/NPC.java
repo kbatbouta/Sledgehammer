@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 import fmod.fmod.DummySoundListener;
 import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
+import sledgehammer.modules.ModuleNPC;
 import sledgehammer.util.ZUtil;
 import zombie.ai.states.StaggerBackState;
 import zombie.characters.CharacterSoundEmitter;
@@ -52,9 +53,10 @@ public class NPC extends IsoPlayer {
 	private BodyDamageSync.Updater damageUpdater = null;
 	
 	private List<Action> listSecondaryActions = null;
+	
 	private IsoMovingObject followTargetDefault = null;
 	
-	private boolean actionLooped = false;
+	private long timeActionLast = 0L;
 	
 	/**
 	 * An item to be set for the NPC to go to, and pick up.
@@ -62,7 +64,19 @@ public class NPC extends IsoPlayer {
 	private IsoWorldInventoryObject worldItemTarget = null;
 	
 	private HandWeapon weapon = null;
+	
 	private Action nextAction;
+	
+	private float distanceToRun = 5;
+	
+	private float distanceToWalk = 1;
+	
+	private float arrivalRadius = 1;
+
+	private boolean actionLooped = false;
+	
+	private boolean arrived = false;
+	private Action currentAction;
 	
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
@@ -202,18 +216,33 @@ public class NPC extends IsoPlayer {
 	}
 	
 	public void update() {
+		
 		if(!isDead()) {
 			
-			// If there is a defined action to act on,
-			if(nextAction != null) {
-				
-				// Execute this action.
-				nextAction.act(this);
+			// Boolean to store whether or not the action is completed.
+			boolean finishedActionLoop = false;
+			
+			if(nextAction != null) {				
+				currentAction = nextAction;
+				nextAction = null;
 			}
 			
-			// If the current action is to be ran only once,
-			if(!isCurrentActionLooped()) {
-				nextAction = null;
+			if (currentAction != null) {
+				if(ModuleNPC.DEBUG) {					
+					System.out.println("Npc->Action: ACT: " + currentAction.getName() + (isCurrentActionLooped() ? " (Looped)" : ""));
+				}
+				
+				// Execute this action. Store the state of the action.
+				finishedActionLoop = currentAction.act(this);
+				
+				if(ModuleNPC.DEBUG && finishedActionLoop) {
+					System.out.println("Npc->Action: ACTION FINISHED: " + currentAction.getName() + (isCurrentActionLooped() ? " (Looped)" : ""));
+				}
+			}
+			
+			// If the current action is to be ran only once, or the looping animation has finished,
+			if(!isCurrentActionLooped() || finishedActionLoop) {
+				currentAction = null;
 			}
 			
 			super.update();
@@ -540,9 +569,18 @@ public class NPC extends IsoPlayer {
 		return SledgeHammer.instance.getNPCManager().getAction(name);
 	}
 	
-	public void act(String name) {
+	public void actNext(String name) {
 		this.nextAction = getAction(name);
 		this.actionLooped = false;
+	}
+	
+	public void actImmediately(String name) {
+		Action action = getAction(name);
+		if(action != null) {			
+			action.act(this);
+		} else if(ModuleNPC.DEBUG) {
+			System.out.println("NPC: action is null: " + name);
+		}
 	}
 	
 	public void actIndefinitely(String name) {
@@ -556,6 +594,18 @@ public class NPC extends IsoPlayer {
 	
 	public boolean isCurrentActionLooped() {
 		return this.actionLooped;
+	}
+	
+	public long getLastActionTime() {
+		return timeActionLast;
+	}
+	
+	public void setActionTime(long time) {
+		timeActionLast = time;
+	}
+	
+	public float DistTo(IsoObject other) {
+		return IsoUtils.DistanceManhatten(getX(), getY(), other.getX(), other.getY());
 	}
 
 	/**
@@ -582,6 +632,66 @@ public class NPC extends IsoPlayer {
 	 */
 	public void playAnimationUnlooped(String animation) {
 		PlayAnimUnlooped(animation);
+	}
+	
+	/**
+	 * Sets the following distance threshold to run.
+	 * @param distance
+	 */
+	public void setDistanceToRun(float distance) {
+		this.distanceToRun = distance;
+	}
+	
+	/**
+	 * Proxy method for 'getNPC().MoveForward()'.
+	 * @param distance
+	 */
+	public void moveForward(float distance) {
+		MoveForward(distance);
+	}
+	
+	/**
+	 * Sets the following distance threshold to walk.
+	 * @param distance
+	 */
+	public void setDistanceToWalk(float distance) {
+		this.distanceToWalk = distance;
+	}
+	
+	public float getArrivalRadius() {
+		return arrivalRadius;
+	}
+	
+	public void setArrivalRadius(float radius) {
+		arrivalRadius = radius;
+	}
+
+	public float getDistanceToWalk() {
+		return distanceToWalk;
+	}
+
+	public float getDistanceToRun() {
+		return distanceToRun;
+	}
+
+	public void setRunning(boolean b) {
+		bRunning = true;
+	}
+
+	public void setArrived(boolean flag) {
+		arrived = true;
+	}
+	
+	public boolean hasArrived() {
+		return arrived;
+	}
+
+	public Action getCurrentAction() {
+		return currentAction;
+	}
+	
+	public Action getNextAction() {
+		return nextAction;
 	}
 	
 }

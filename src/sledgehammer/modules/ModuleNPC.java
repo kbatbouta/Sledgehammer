@@ -27,6 +27,7 @@ public class ModuleNPC extends SQLModule {
 	public static final String ID      = "sledgehammer_npc";
 	public static final String NAME    = "NPC-Spawner"     ;
 	public static final String VERSION = "1.00"            ;
+	public static final boolean DEBUG  = true              ;
 	
 	private Map<NPC, IsoGameCharacter> mapSpawners;
 	
