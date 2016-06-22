@@ -142,6 +142,15 @@ public abstract class SQLModule extends Module {
 		return false;
 	}
 	
+	public void addTableColumnIfNotExists(String tableName, String fieldName, String type) throws SQLException {
+		String[][] tableDefinition = getTableDefinitions(tableName);
+		if(!doesFieldExistWithType(tableDefinition, fieldName, type)) {			
+			Statement statement = createStatement();
+			statement.executeUpdate("ALTER TABLE " + tableName + " ADD COLUMN " + fieldName + " " + type);
+			statement.close();
+		}
+	}
+	
 	public void addTableColumn(String tableName, String fieldName, String type) throws SQLException {
 		Statement statement = createStatement();
 		statement.executeUpdate("ALTER TABLE " + tableName + " ADD COLUMN " + fieldName + " " + type);

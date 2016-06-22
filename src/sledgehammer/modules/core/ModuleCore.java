@@ -26,15 +26,19 @@ public class ModuleCore extends SQLModule {
 	private void validateTables() {
 		Statement statement = null;
 		try {
+			
 			statement = createStatement();
 			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MUTE + " (name TEXT, mute INTEGER NOT NULL CHECK (mute IN (0,1)));");
 			statement.close();
+			
+			addTableColumnIfNotExists("bannedid", "username", SQL_STORAGE_CLASS_TEXT);
+			
 		} catch(SQLException e) {
-			e.printStackTrace();
+			stackTrace(e);
 			try {				
 				statement.close();
 			} catch(Exception e2) {
-				e2.printStackTrace();
+				stackTrace(e2);
 			}
 		}
 	}
