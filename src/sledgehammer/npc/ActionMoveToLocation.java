@@ -78,20 +78,28 @@ public class ActionMoveToLocation extends Action {
 		float distanceFromTarget = npc.DistTo(focusTarget);
 		
 		float speed = npc.getPathSpeed();
+
 		
-		if (distanceFromTarget > npc.getDistanceToRun()) {
+		boolean foundSpeed = false;
+		
+		if (!foundSpeed && npc.canRun() && distanceFromTarget > npc.getDistanceToRun()) {
+			
+			foundSpeed = true;
 			
 			npc.playAnimation(npc.getRunAnimation());
 			
 			npc.setRunning(true);
 		
-		} else if(distanceFromTarget > npc.getDistanceToWalk()){
+		} else if(!foundSpeed && npc.canWalk() && distanceFromTarget > npc.getDistanceToWalk()){
+			
+			foundSpeed = true;
 			
 			npc.setRunning(false);
 			
 			npc.playAnimation(npc.getWalkAnimation());				
 		
 		} else if(distanceFromTarget <= npc.getArrivalRadius()){
+			
 			speed = 0.0F;
 			
 			npc.setRunning(false);

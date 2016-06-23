@@ -12,6 +12,7 @@ import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.Action;
+import sledgehammer.npc.ActionAttackTarget;
 import sledgehammer.npc.ActionGrabItemOnGround;
 import sledgehammer.npc.ActionMoveToLocation;
 import sledgehammer.npc.NPC;
@@ -92,6 +93,7 @@ public class NPCManager {
 		mapActions = new HashMap<>();
 		
 		// Register all Actions by the static 'NAME' field.
+		addAction(ActionAttackTarget.NAME    , new ActionAttackTarget()    );
 		addAction(ActionMoveToLocation.NAME  , new ActionMoveToLocation()  );
 		addAction(ActionGrabItemOnGround.NAME, new ActionGrabItemOnGround());
 

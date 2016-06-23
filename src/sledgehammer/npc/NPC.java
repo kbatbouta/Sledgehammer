@@ -11,10 +11,12 @@ import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.util.ZUtil;
+import zombie.ai.astar.AStarPathFinder;
 import zombie.ai.states.StaggerBackState;
 import zombie.characters.CharacterSoundEmitter;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
+import zombie.characters.IsoZombie;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.skills.PerkFactory;
 import zombie.core.network.ByteBufferWriter;
@@ -50,13 +52,19 @@ public class NPC extends IsoPlayer {
 	private IsoObject followTarget = null;
 	private boolean followObject = false;
 	
-	private BodyDamageSync.Updater damageUpdater = null;
+	private IsoGameCharacter attackTarget = null;
 	
-	private List<Action> listSecondaryActions = null;
+	private BodyDamageSync.Updater damageUpdater = null;
 	
 	private IsoMovingObject followTargetDefault = null;
 	
+	private AStarPathFinder pathFinder = null;
+	
 	private long timeActionLast = 0L;
+	
+	private boolean canRun = false;
+	
+	private boolean canWalk = false;
 	
 	/**
 	 * An item to be set for the NPC to go to, and pick up.
@@ -77,12 +85,14 @@ public class NPC extends IsoPlayer {
 	
 	private boolean arrived = false;
 	private Action currentAction;
+	private String walkAimAnim;
+	private String attackFloorAnim;
+	private String attackAnim;
 	
 	public NPC(IsoCell cell, SurvivorDesc desc, String username, int x, int y, int z) {
 		super(cell, desc, x, y, z);
 		
 		// Initialize the Lists.
-		listSecondaryActions = new ArrayList<>();
 		listBehaviors = new ArrayList<>();
 		
 		initializePerks();
@@ -313,8 +323,12 @@ public class NPC extends IsoPlayer {
 		return info;
 	}
 	
-	public InventoryItem getPrimaryWeapon() {
-		return getPrimaryHandItem();
+	public HandWeapon getPrimaryWeapon() {
+		InventoryItem primaryHandItem = getPrimaryHandItem();
+		if(primaryHandItem instanceof HandWeapon) {
+			return (HandWeapon) primaryHandItem;
+		}
+		return null;
 	}
 	
 	public void setPrimaryWeapon(InventoryItem item) {
@@ -370,7 +384,9 @@ public class NPC extends IsoPlayer {
 
 				if (lSquare != null) {
 
+					@SuppressWarnings("unchecked")
 					ArrayList<IsoWorldInventoryObject> objects = lSquare.getWorldObjects();
+					
 					if (objects != null) {
 						for (IsoWorldInventoryObject worldItem : objects) {
 							if(worldItem != null) {
@@ -422,18 +438,23 @@ public class NPC extends IsoPlayer {
 		
 		if(weapon != null) {
 			String weaponType = getWeaponType();
-			this.strafeRAnim = "Strafe_Aim_" + weaponType + "_R";
-            this.strafeAnim  = "Strafe_Aim_" + weaponType       ;
-            this.walkRAnim   = "Walk_Aim_"   + weaponType + "_R";
-            this.runAnim     = weapon.RunAnim                   ; 
-            this.idleAnim    = weapon.IdleAnim                  ;
-            this.lastWeapon  = weapon                           ;
+			
+			this.strafeRAnim     = "Strafe_Aim_" + weaponType + "_R";
+            this.strafeAnim      = "Strafe_Aim_" + weaponType       ;
+            this.walkRAnim       = "Walk_Aim_"   + weaponType + "_R";
+            this.runAnim         = weapon.RunAnim                   ; 
+            this.idleAnim        = weapon.IdleAnim                  ;
+            this.walkAimAnim     = "Walk_Aim_" + weaponType         ;
+            this.attackAnim      = "Attack_" + weaponType           ;
+            this.attackFloorAnim = "Attack_Floor_" + weaponType     ;
+            this.lastWeapon      = weapon                           ;
 		} else {
 			this.strafeRAnim = "Strafe_R";
             this.strafeAnim  = "Strafe"  ;
             this.walkRAnim   = "Walk_R"  ;
             this.idleAnim    = "Idle"    ;
             this.runAnim     = "Run"     ;
+            this.walkAimAnim = "Walk"    ;
             this.lastWeapon  = null      ;
 		}
 		
@@ -459,6 +480,81 @@ public class NPC extends IsoPlayer {
 		return null;
 	}
 	
+	public List<IsoZombie> getNearestZombies(int radius) {
+		List<IsoZombie> listZombies = new ArrayList<>();
+		
+		IsoGridSquare currentSquare = getSquare();
+		IsoCell cell = getCurrentCell();
+		
+		int sx = currentSquare.getX();
+		int sy = currentSquare.getY();
+		int sz = currentSquare.getZ();
+
+		// Go through each square
+		for (int y = sy - radius; y < sy + radius; y++) {
+			for (int x = sx - radius; x < sx + radius; x++) {
+
+				// Ignore Z checks for now. Possible TODO
+				IsoGridSquare lSquare = cell.getGridSquare(x, y, sz);
+
+				if (lSquare != null) {
+					for(Object o : lSquare.getMovingObjects()) {
+						if(o != null && o instanceof IsoZombie) {
+							IsoZombie zombie = (IsoZombie) o;
+							listZombies.add(zombie);
+						}
+					}
+				}
+			}
+		}
+		
+		if(ModuleNPC.DEBUG) {
+			System.out.println("Npc->getNearestZombies(" + radius + "): Returned " + listZombies.size() + " zombies.");
+		}
+		
+		return listZombies;
+	}
+	
+	/**
+	 * Returns the nearest zombie in a list.
+	 * @param listZombies
+	 * @return
+	 */
+	public IsoZombie getNearestZombie(List<IsoZombie> listZombies) {
+		
+		// The initial zombie will be null.
+		IsoZombie nearestZombie = null;
+		
+		// Set the initial minimums to maximum value, so any zombie will initially be closer.
+		float distanceMinimum = Float.MAX_VALUE;
+		float nextDistance = Float.MAX_VALUE;
+		
+		// Go through each zombie in the list.
+		for(IsoZombie nextZombie : listZombies) {
+			
+			// Make sure the zombie in the list is valid.
+			if(nextZombie != null) {
+
+				// Grab the distance from the zombie to the NPC.
+				nextDistance = this.getDistance(nextZombie);
+				
+				// If this distance is less than the current minimum distance,
+				if(nextDistance < distanceMinimum) {
+					// Set the next zombie as the closest.
+					nearestZombie = nextZombie;
+					
+					// Make sure to note the next minimum distance.
+					distanceMinimum = nextDistance;
+				}
+				
+			}
+			
+		}
+		
+		// Finally return the nearest zombie. If there's none, then return null.
+		return nearestZombie;
+	}
+	
 	public void faceDirection(IsoObject other) {
 		Vector2 vector = new Vector2();
 		vector.x  = other.getX();
@@ -467,6 +563,14 @@ public class NPC extends IsoPlayer {
 		vector.y -=       getY();
 		vector.normalize();
 		setDirection(vector);
+	}
+	
+	public IsoGameCharacter getAttackTarget() {
+		return attackTarget;
+	}
+	
+	public void setAttackTarget(IsoGameCharacter target) {
+		attackTarget = target;
 	}
 	
 	public void setDestination(float x, float y, float z) {
@@ -692,6 +796,34 @@ public class NPC extends IsoPlayer {
 	
 	public Action getNextAction() {
 		return nextAction;
+	}
+	
+	public boolean canWalk() {
+		return canWalk;
+	}
+	
+	public boolean canRun() {
+		return canRun;
+	}
+	
+	public void setCanWalk(boolean flag) {
+		canWalk = flag;
+	}
+
+	public void setCanRun(boolean flag) {
+		canRun = flag;
+	}
+	
+	public String getWalkAndAimAnimation() {
+		return walkAimAnim;
+	}
+	
+	public String getAttackOnFloorAnimation() {
+		return attackFloorAnim;
+	}
+	
+	public String getAttackAnimation() {
+		return attackAnim;
 	}
 	
 }

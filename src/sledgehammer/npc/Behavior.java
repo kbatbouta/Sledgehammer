@@ -7,7 +7,9 @@ import org.lwjgl.util.vector.Vector3f;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.util.Printable;
+import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
+import zombie.characters.IsoZombie;
 import zombie.inventory.ItemContainer;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
@@ -212,8 +214,60 @@ public abstract class Behavior extends Printable {
 		getNPC().stopAction();
 	}
 	
+	public List<IsoZombie> getNearestZombies(int radius) {
+		return getNPC().getNearestZombies(radius);
+	}
+	
+	public IsoZombie getNearestZombie(List<IsoZombie> listZombies) {
+		return getNPC().getNearestZombie(listZombies);
+	}
+	
 	public boolean isCurrentActionLooped() {
 		return getNPC().isCurrentActionLooped();
+	}
+	
+	public boolean canWalk() {
+		return getNPC().canWalk();
+	}
+
+	public void setCanWalk(boolean flag) {
+		getNPC().setCanWalk(flag);
+	}
+
+	public boolean canRun() {
+		return getNPC().canRun();
+	}
+	
+	public void setCanRun(boolean flag) {
+		getNPC().setCanRun(flag);
+	}
+	
+	public IsoGameCharacter getAttackTarget() {
+		return getNPC().getAttackTarget();
+	}
+	
+	public void setAttackTarget(IsoGameCharacter target) {
+		getNPC().setAttackTarget(target);
+	}
+	
+	public String getWalkAndAimAnimation() {
+		return getNPC().getWalkAndAimAnimation();
+	}
+	
+	public String getAttackOnFloorAnimation() {
+		return getNPC().getAttackOnFloorAnimation();
+	}
+	
+	public String getAttackAnimation() {
+		return getNPC().getAttackAnimation();
+	}
+	
+	public void setArrived(boolean flag) {
+		getNPC().setArrived(flag);
+	}
+	
+	public float getDistance(IsoObject object) {
+		return getNPC().getDistance(object);
 	}
 	
 	public abstract void update();
