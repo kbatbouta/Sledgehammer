@@ -1,12 +1,12 @@
 package sledgehammer.event;
 
-public class LoginUsernameDefinedEvent extends Event {
+public class PreConnectEvent extends Event {
 
 	public static final String ID = "LoginUsernameDefinedEvent";
 	
 	private String username;
 	
-	public LoginUsernameDefinedEvent(String username) {
+	public PreConnectEvent(String username) {
 		this.username = username;
 	}
 	
