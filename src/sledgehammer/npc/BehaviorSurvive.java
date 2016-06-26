@@ -84,7 +84,7 @@ public class BehaviorSurvive extends Behavior {
 				setTarget(target);
 				playAnimation(getWalkAndAimAnimation());
 				setArrived(false);
-				actImmediately(ActionMoveToLocation.NAME);
+				actImmediately(ActionMoveToLocationAStar.NAME);
 			}
 			
 		} else {
@@ -128,7 +128,7 @@ public class BehaviorSurvive extends Behavior {
 			} else {
 				foundJob = true;
 				setArrived(false);
-				actImmediately(ActionMoveToLocation.NAME);
+				actImmediately(ActionMoveToLocationAStar.NAME);
 			}
 		} else {
 			
@@ -139,7 +139,7 @@ public class BehaviorSurvive extends Behavior {
 				if(seesItemWorth) {
 					foundJob = true;
 					setArrived(false);
-					actImmediately(ActionMoveToLocation.NAME);
+					actImmediately(ActionMoveToLocationAStar.NAME);
 				}
 
 				// Reset the timer for delta.
@@ -149,7 +149,7 @@ public class BehaviorSurvive extends Behavior {
 		}
 		
 		if(!foundJob) {
-			actImmediately(ActionMoveToLocation.NAME);
+			actImmediately(ActionMoveToLocationAStar.NAME);
 		}
 	}
 

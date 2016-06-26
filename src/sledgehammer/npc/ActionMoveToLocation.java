@@ -62,8 +62,6 @@ public class ActionMoveToLocation extends Action {
 			return true;
 		}
 		
-
-		
 		long timeNow = System.currentTimeMillis();
 
 		long delta = timeNow - npc.getLastActionTime();

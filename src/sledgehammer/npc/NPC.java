@@ -11,7 +11,11 @@ import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.util.ZUtil;
+import zombie.PathfindManager;
 import zombie.ai.astar.AStarPathFinder;
+import zombie.ai.astar.IPathfinder;
+import zombie.ai.astar.Mover;
+import zombie.ai.astar.Path;
 import zombie.ai.states.StaggerBackState;
 import zombie.characters.CharacterSoundEmitter;
 import zombie.characters.IsoGameCharacter;
@@ -41,7 +45,7 @@ import zombie.network.ServerLOS;
 import zombie.network.ServerMap;
 
 // TODO: Work on transferring items to the deadBody onDeath.
-public class NPC extends IsoPlayer {
+public class NPC extends IsoPlayer implements IPathfinder {
 
 	private static final long serialVersionUID = 8799144318873059045L;
 	private List<Behavior> listBehaviors;
@@ -51,6 +55,8 @@ public class NPC extends IsoPlayer {
 	private String idleAnim = "Idle";
 	private IsoObject followTarget = null;
 	private boolean followObject = false;
+	
+	private Vector2 pathVector = new Vector2(0.0F, 0.0F);
 	
 	private IsoGameCharacter attackTarget = null;
 	
@@ -555,6 +561,25 @@ public class NPC extends IsoPlayer {
 		return nearestZombie;
 	}
 	
+	public void addPath(int x, int y, int z) {
+		
+		setPath((Path)null);
+		
+		// Grab the NPC's rounded coordinates.
+		int nx = (int)getX();
+		int ny = (int)getY();
+		int nz = (int)getZ();
+		
+		// Add the job to the manager.
+		PathfindManager.instance.AddJob(this, this, nx, ny, nz, x, y, z);
+		
+		// Set the initial state of the finder.
+		getFinder().progress = AStarPathFinder.PathFindProgress.notyetfound;
+	    
+		// Reset the index position.
+		setPathIndex(0);
+	}
+	
 	public void faceDirection(IsoObject other) {
 		Vector2 vector = new Vector2();
 		vector.x  = other.getX();
@@ -825,5 +850,44 @@ public class NPC extends IsoPlayer {
 	public String getAttackAnimation() {
 		return attackAnim;
 	}
+	
+	public Vector2 getPathVector() {
+		return pathVector;
+	}
+
+	@Override
+	public void Succeeded(Path path, Mover mover) {
+
+		setPathIndex(0);
+
+		Path p = getPath();
+		if (p != null) {
+			for (int n = 0; n < p.getLength(); ++n) {
+				Path.stepstore.push(p.getStep(n));
+			}
+		}
+
+		setPath(path);
+		getFinder().progress = AStarPathFinder.PathFindProgress.found;
+
+		if (currentAction instanceof PathAction) {
+			((PathAction) currentAction).onPathSuccess(this, mover, path);
+		} else {
+			// TODO: Manual path handling.
+		}
+	}
+
+	@Override
+	public void Failed(Mover mover) {
+		
+		getFinder().progress = AStarPathFinder.PathFindProgress.failed;
+		
+		if(currentAction instanceof PathAction) {
+			((PathAction)currentAction).onPathFailure(this, mover);
+		} else {
+			//TODO: Manual path handle failure.
+		}
+	}
+
 	
 }
