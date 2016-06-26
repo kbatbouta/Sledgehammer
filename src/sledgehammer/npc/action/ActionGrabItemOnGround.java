@@ -1,5 +1,6 @@
-package sledgehammer.npc;
+package sledgehammer.npc.action;
 
+import sledgehammer.npc.NPC;
 import zombie.inventory.InventoryItem;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.objects.IsoWorldInventoryObject;

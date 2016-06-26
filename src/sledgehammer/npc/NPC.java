@@ -10,6 +10,7 @@ import fmod.fmod.DummySoundListener;
 import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.ModuleNPC;
+import sledgehammer.npc.action.Action;
 import sledgehammer.util.ZUtil;
 import zombie.PathfindManager;
 import zombie.ai.astar.AStarPathFinder;

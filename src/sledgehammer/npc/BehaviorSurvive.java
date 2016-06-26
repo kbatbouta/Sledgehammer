@@ -2,6 +2,9 @@ package sledgehammer.npc;
 
 import java.util.List;
 
+import sledgehammer.npc.action.ActionAttackCharacter;
+import sledgehammer.npc.action.ActionFollowTargetPath;
+import sledgehammer.npc.action.ActionGrabItemOnGround;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoZombie;
 import zombie.inventory.InventoryItem;

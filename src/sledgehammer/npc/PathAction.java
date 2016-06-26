@@ -1,5 +1,6 @@
 package sledgehammer.npc;
 
+import sledgehammer.npc.action.Action;
 import zombie.ai.astar.Mover;
 import zombie.ai.astar.Path;
 

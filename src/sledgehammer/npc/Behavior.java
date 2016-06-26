@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import sledgehammer.npc.action.Action;
 import sledgehammer.util.Printable;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoZombie;
