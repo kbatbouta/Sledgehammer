@@ -70,7 +70,7 @@ public class ChatManager {
 	
 	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
 		ByteBufferWriter bufferWriter = connection.startPacket();
-		PacketTypes.doPacket((byte) 38, bufferWriter);
+		PacketTypes.doPacket(PacketTypes.Chat, bufferWriter);
 		bufferWriter.putInt(playerID);
 		bufferWriter.putByte(chatType);
 		bufferWriter.putUTF(text);
@@ -92,7 +92,7 @@ public class ChatManager {
 		message += text + COLOR_WHITE + " ";
 		
 		ByteBufferWriter b2 = connection.startPacket();
-		PacketTypes.doPacket((byte) 81, b2);
+		PacketTypes.doPacket(PacketTypes.ReceiveCommand, b2);
 		b2.putUTF(message);
 		connection.endPacketImmediate();
 		

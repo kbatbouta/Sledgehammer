@@ -18,6 +18,7 @@ import sledgehammer.util.ChatTags;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
+import zombie.network.ServerOptions;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
@@ -137,19 +138,27 @@ public class CoreEventListener implements EventListener {
 				}
 			}
 			
-			for (UdpConnection connection : SledgeHammer.instance.getUdpEngine().connections) {
+			for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
 				try {
 					if (connectionCommander == null 
-							|| connectionCommander != null
-								&& connection.getConnectedGUID() != connectionCommander.getConnectedGUID()
-								&& player != null
-								&& connection.ReleventTo(isoPlayer.x, isoPlayer.y)) {
-						module.localMessage(connection, playerID, text, chatType, sayIt);
+					|| (connectionCommander != null && connection.ReleventTo(isoPlayer.x, isoPlayer.y))
+						) {
+						
+						if(connection.getConnectedGUID() != connectionCommander.getConnectedGUID()) {
+							module.localMessage(connection, playerID, text, chatType, sayIt);							
+						}
+						
+						if(ServerOptions.instance.getBoolean("LogLocalChat")) {							
+							module.messagePlayer(connection, "[Local] " + event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, true);
+						}
+						
 					}
 				} catch(NullPointerException e) {
+					module.stackTrace(e);
 					// This is when a player is checked, but disconnects asynchronously.
 				}
 			}
+			event.setHandled(true);
 		}
 	}
 

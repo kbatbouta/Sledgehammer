@@ -91,7 +91,8 @@ public class ZUtil {
 		return Calendar.getInstance().get(11) + ":" + minutes + ":" + seconds;
 	}
 	
-	public static void compactList(@SuppressWarnings("rawtypes") List list) {
+	@SuppressWarnings("rawtypes")
+	public static void compactList(List list) {
 		List<Integer> listIndexesToRemove = new ArrayList<>();
 		Map<Object, Boolean> cacheMap = new HashMap<>();
 		
@@ -107,7 +108,11 @@ public class ZUtil {
 		}
 		
 		synchronized(list) {
-			for(int index : listIndexesToRemove) list.remove(index);
+			try{
+				for(int index : listIndexesToRemove) list.remove(index);
+			} catch(IndexOutOfBoundsException e) {
+				// Catches any asynchronous concurrent modifications.
+			}
 		}
 	}
 	
