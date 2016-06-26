@@ -10,7 +10,6 @@ import zombie.network.GameServer;
 
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.NPC;
-import sledgehammer.npc.PathAction;
 
 public class ActionFollowTargetPath extends PathAction {
 

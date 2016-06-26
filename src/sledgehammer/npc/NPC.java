@@ -11,6 +11,7 @@ import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.action.Action;
+import sledgehammer.npc.action.PathAction;
 import sledgehammer.npc.behavior.Behavior;
 import sledgehammer.util.ZUtil;
 import zombie.PathfindManager;
