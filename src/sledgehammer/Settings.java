@@ -113,6 +113,7 @@ public class Settings extends Printable {
 		ini.createSection("GENERAL"); {			
 			ini.setVariable("GENERAL", "debug", "false");
 			ini.setVariable("GENERAL", "plugins", "");
+			ini.setVariable("GENERAL", "helicopter", "true", "Whether or not to enable or disable the helicopter ambient event.");
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 		}
 	}
