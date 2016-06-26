@@ -5,9 +5,9 @@ import zombie.characters.IsoPlayer;
 import zombie.iso.IsoObject;
 import zombie.network.GameServer;
 
-public class ActionMoveToLocation extends Action {
+public class ActionFollowTargetDirect extends Action {
 
-	public static final String NAME = "Action->MoveToLocation";
+	public static final String NAME = "Action->FollowTargetDirect";
 	
 	@Override
 	public boolean act(NPC npc) {

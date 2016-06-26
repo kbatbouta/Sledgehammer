@@ -7,6 +7,7 @@ import zombie.characters.IsoZombie;
 import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
 import zombie.inventory.types.HandWeapon;
+import zombie.iso.IsoObject;
 import zombie.iso.objects.IsoWorldInventoryObject;
 
 public class BehaviorSurvive extends Behavior {
@@ -28,15 +29,30 @@ public class BehaviorSurvive extends Behavior {
 	
 	public BehaviorSurvive(NPC npc) {
 		super(npc);
-		
 	}
 
 	@Override
 	public void update() {
-
+		
 		boolean foundJob = false;
 		
 		long timeNow = System.currentTimeMillis();
+		
+		if(isAttackingZombie) {
+			IsoGameCharacter target = getAttackTarget();
+			if(target == null) {
+				setTarget(null);
+				setCanRun(true);
+				isAttackingZombie = false;
+			} else {
+				if(target.isDead()) {
+					setAttackTarget(null);
+					setTarget(null);
+					isAttackingZombie = false;
+					setCanRun(true);
+				}				
+			}
+		}
 		
 		if(timeNow - timeThenNearbyZombieLookup >= deltaNearbyZombieLookup) {
 			
@@ -55,6 +71,7 @@ public class BehaviorSurvive extends Behavior {
 			
 			if(target == null) {
 				isAttackingZombie = false;
+				setCanRun(true);
 				return;
 			}
 			
@@ -69,14 +86,16 @@ public class BehaviorSurvive extends Behavior {
 				if(target == null || target.isDead()) {
 					setAttackTarget(null);
 					setTarget(null);
+					setCanRun(true);
 					isAttackingZombie = false;
 					playAnimation(getIdleAnimation());
 				} else {
 					
 					foundJob = true;
 					setTarget(target);
+					setCanRun(true);
 					playAnimation(getAttackAnimation());
-					actImmediately(ActionAttackTarget.NAME);
+					actImmediately(ActionAttackCharacter.NAME);
 				}
 				
 			} else {
@@ -84,7 +103,7 @@ public class BehaviorSurvive extends Behavior {
 				setTarget(target);
 				playAnimation(getWalkAndAimAnimation());
 				setArrived(false);
-				actImmediately(ActionMoveToLocationAStar.NAME);
+				actIndefinitely(ActionFollowTargetPath.NAME);
 			}
 			
 		} else {
@@ -128,18 +147,18 @@ public class BehaviorSurvive extends Behavior {
 			} else {
 				foundJob = true;
 				setArrived(false);
-				actImmediately(ActionMoveToLocationAStar.NAME);
+				actIndefinitely(ActionFollowTargetPath.NAME);
 			}
 		} else {
 			
 			// Wait for one second, then search for items nearby.
-			if ( (timeNow - timeThenItemSearch) > 1000L ) {
+			if ( (timeNow - timeThenItemSearch) > deltaItemSearch ) {
 				scanForValuableItems();
 				
 				if(seesItemWorth) {
 					foundJob = true;
 					setArrived(false);
-					actImmediately(ActionMoveToLocationAStar.NAME);
+					actIndefinitely(ActionFollowTargetPath.NAME);
 				}
 
 				// Reset the timer for delta.
@@ -149,7 +168,14 @@ public class BehaviorSurvive extends Behavior {
 		}
 		
 		if(!foundJob) {
-			actImmediately(ActionMoveToLocationAStar.NAME);
+			
+			IsoObject target = npc.getPrimaryTarget();
+			if(target != null) {				
+				setFollow(true);
+				setArrived(false);
+				npc.actIndefinitely(ActionFollowTargetPath.NAME);
+			}
+			
 		}
 	}
 

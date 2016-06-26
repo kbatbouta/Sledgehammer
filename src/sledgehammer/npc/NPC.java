@@ -16,6 +16,7 @@ import zombie.ai.astar.AStarPathFinder;
 import zombie.ai.astar.IPathfinder;
 import zombie.ai.astar.Mover;
 import zombie.ai.astar.Path;
+import zombie.ai.astar.AStarPathFinder.PathFindProgress;
 import zombie.ai.states.StaggerBackState;
 import zombie.characters.CharacterSoundEmitter;
 import zombie.characters.IsoGameCharacter;
@@ -55,6 +56,14 @@ public class NPC extends IsoPlayer implements IPathfinder {
 	private String idleAnim = "Idle";
 	private IsoObject followTarget = null;
 	private boolean followObject = false;
+	private int[] pathPosition = new int[] {0,0,0};
+	private int[] pathDestination = new int[] {0,0,0};
+	private int[] previousPathDestination = null;
+	String actionNameLast = "";
+	private int destinationRadius = 2;
+	private String currentAnimation = "";
+	private String currentAnimationUnlooped = "";
+	private int pIndex;
 	
 	private Vector2 pathVector = new Vector2(0.0F, 0.0F);
 	
@@ -64,13 +73,11 @@ public class NPC extends IsoPlayer implements IPathfinder {
 	
 	private IsoMovingObject followTargetDefault = null;
 	
-	private AStarPathFinder pathFinder = null;
-	
 	private long timeActionLast = 0L;
 	
-	private boolean canRun = false;
+	private boolean canRun = true;
 	
-	private boolean canWalk = false;
+	private boolean canWalk = true;
 	
 	/**
 	 * An item to be set for the NPC to go to, and pick up.
@@ -125,9 +132,6 @@ public class NPC extends IsoPlayer implements IPathfinder {
 		// Sets the health to 100%.
 		setHealth(1.0F);
 		
-		// Plays the Idle animation initially.
-		playAnimation("Idle");
-
 		// Adds the NPC to the server's 'Line-Of-Sight' engine, so Zombies can see it.
 		ServerLOS.instance.addPlayer(this);
 	}
@@ -244,20 +248,15 @@ public class NPC extends IsoPlayer implements IPathfinder {
 			}
 			
 			if (currentAction != null) {
-				if(ModuleNPC.DEBUG) {					
-					System.out.println("Npc->Action: ACT: " + currentAction.getName() + (isCurrentActionLooped() ? " (Looped)" : ""));
-				}
-				
+
 				// Execute this action. Store the state of the action.
 				finishedActionLoop = currentAction.act(this);
-				
-				if(ModuleNPC.DEBUG && finishedActionLoop) {
-					System.out.println("Npc->Action: ACTION FINISHED: " + currentAction.getName() + (isCurrentActionLooped() ? " (Looped)" : ""));
-				}
+
 			}
-			
-			// If the current action is to be ran only once, or the looping animation has finished,
-			if(!isCurrentActionLooped() || finishedActionLoop) {
+
+			// If the current action is to be ran only once, or the looping
+			// animation has finished,
+			if (!isCurrentActionLooped() || finishedActionLoop) {
 				currentAction = null;
 			}
 			
@@ -514,9 +513,9 @@ public class NPC extends IsoPlayer implements IPathfinder {
 			}
 		}
 		
-		if(ModuleNPC.DEBUG) {
-			System.out.println("Npc->getNearestZombies(" + radius + "): Returned " + listZombies.size() + " zombies.");
-		}
+//		if(ModuleNPC.DEBUG) {
+//			System.out.println("Npc->getNearestZombies(" + radius + "): Returned " + listZombies.size() + " zombies.");
+//		}
 		
 		return listZombies;
 	}
@@ -563,24 +562,38 @@ public class NPC extends IsoPlayer implements IPathfinder {
 	
 	public void addPath(int x, int y, int z) {
 		
-		setPath((Path)null);
-		
 		// Grab the NPC's rounded coordinates.
 		int nx = (int)getX();
 		int ny = (int)getY();
 		int nz = (int)getZ();
+
+		if(nx == x && ny == y && nz == z || isAdjacentTo(x, y, z)) {
+			return;
+		}
+		
+		setPath((Path)null);
 		
 		// Add the job to the manager.
 		PathfindManager.instance.AddJob(this, this, nx, ny, nz, x, y, z);
 		
 		// Set the initial state of the finder.
 		getFinder().progress = AStarPathFinder.PathFindProgress.notyetfound;
-	    
-		// Reset the index position.
-		setPathIndex(0);
+	}
+	
+	public int[] getPathPosition() {
+		return pathPosition;
+	}
+	
+	public int[] getPreviousPathDestination() {
+		return previousPathDestination;
+	}
+	
+	public int[] getPathDestination() {
+		return pathDestination;
 	}
 	
 	public void faceDirection(IsoObject other) {
+		if(other == null) return;
 		Vector2 vector = new Vector2();
 		vector.x  = other.getX();
 		vector.y  = other.getY();
@@ -713,8 +726,21 @@ public class NPC extends IsoPlayer implements IPathfinder {
 	}
 	
 	public void actIndefinitely(String name) {
+		
+		if(currentAction != null && actionNameLast.equals(name)) {
+			return;
+		}
+		
+		actionNameLast = name;
+		
 		this.nextAction = getAction(name);
 		this.actionLooped = true;
+		
+		if(nextAction != null && nextAction instanceof PathAction) {
+			
+			setPathTarget();
+			setArrived(false);
+		}
 	}
 	
 	public void stopAction() {
@@ -735,32 +761,6 @@ public class NPC extends IsoPlayer implements IPathfinder {
 	
 	public float DistTo(IsoObject other) {
 		return IsoUtils.DistanceManhatten(getX(), getY(), other.getX(), other.getY());
-	}
-
-	/**
-	 * Proxy method for 'IsoGameCharacter.PlayAnim(String animation)'.
-	 * 
-	 * Plays a looped animation.
-	 * 
-	 * E.X: playAnimation("Idle");
-	 * 
-	 * @param string
-	 */
-	public void playAnimation(String animation) {
-		PlayAnim(animation);
-	}
-	
-	/**
-	 * Proxy method for 'IsoGameCharacter.PlayAnimUnlooped(String animation)'.
-	 * 
-	 * Plays a animation once.
-	 * 
-	 * E.X: playAnimation("SitDown");
-	 * 
-	 * @param animation
-	 */
-	public void playAnimationUnlooped(String animation) {
-		PlayAnimUnlooped(animation);
 	}
 	
 	/**
@@ -887,6 +887,157 @@ public class NPC extends IsoPlayer implements IPathfinder {
 		} else {
 			//TODO: Manual path handle failure.
 		}
+	}
+	
+	public void setPathTarget() {
+		IsoObject target = getPrimaryTarget();
+		
+		if(target != null) {			
+			int x = (int) target.getX();
+			int y = (int) target.getY();
+			int z = (int) target.getZ();
+
+			int[] previousDestination = getPreviousPathDestination();
+			
+			int[] destination = getPathDestination();
+			
+			if(getFinder().progress == PathFindProgress.notrunning) {
+				pathPosition            = new int[] {(int)getX(), (int)getY(), (int)getZ()};
+				pathDestination         = new int[] {x, y, z};
+				previousPathDestination = new int[] {x, y, z};
+				
+				setPathIndex(0);
+				addPath(x, y, z);
+				
+			} else {
+				
+				// If the target is within the destination radius, don't try to path to the target.
+				if( (  Math.abs(previousDestination[0] - x) < destinationRadius 
+						&& Math.abs(previousDestination[1] - y) < destinationRadius 
+						&& previousDestination[1] == z)) {
+					
+					// Attack targets need to be accurately distanced.
+					if(target != getAttackTarget()) {						
+						return;
+					}
+				}
+
+				// Going nowhere.
+				if(isAdjacentTo(target)) {
+					return;
+				}
+				
+				previousDestination = getPathDestination();
+				
+				destination[0] = x;
+				destination[1] = y;
+				destination[2] = z;
+				
+				// Set the original position to be the NPC's position.
+				pathPosition[0] = (int) getX();
+				pathPosition[1] = (int) getY();
+				pathPosition[2] = (int) getZ();
+				
+				setPathTargetX(x);
+				setPathTargetY(y);
+				setPathTargetZ(z);
+				
+				setPathIndex(0);
+				addPath(x, y, z);
+			}
+			
+			
+
+		} else {
+			System.out.println("NPC: Target is null");
+		}
+	}
+	
+	public IsoObject getPrimaryTarget() {
+		
+		IsoObject primaryFollowTarget = getTarget();
+		IsoObject secondaryFollowTarget = getDefaultTarget();
+		
+		IsoObject focusTarget = primaryFollowTarget;
+		
+		if(focusTarget == null) {
+			focusTarget = secondaryFollowTarget;	
+		}
+		
+		return focusTarget;
+	}
+	
+	/**
+	 * Proxy method for 'IsoGameCharacter.PlayAnim(String animation)'.
+	 * 
+	 * Plays a looped animation.
+	 * 
+	 * E.X: playAnimation("Idle");
+	 * 
+	 * @param string
+	 */
+	public void playAnimation(String animation) {
+		if(animation.equals(currentAnimation)) {
+			return;
+		}
+		currentAnimation = animation;
+		PlayAnim(animation);
+	}
+	
+	/**
+	 * Proxy method for 'IsoGameCharacter.PlayAnimUnlooped(String animation)'.
+	 * 
+	 * Plays a animation once.
+	 * 
+	 * E.X: playAnimation("SitDown");
+	 * 
+	 * @param animation
+	 */
+	public void playAnimationUnlooped(String animation) {
+		if(animation.equals(currentAnimationUnlooped)) {
+			return;
+		}
+		currentAnimationUnlooped = animation;
+		PlayAnimUnlooped(animation);
+	}
+	
+	public int getPathIndex() {
+		return pIndex;
+	}
+
+	public void setPathIndex(int pathIndex) {
+		pIndex = pathIndex;
+	}
+
+	public void faceTarget() {
+		faceDirection(getPrimaryTarget());
+	}
+	
+	public boolean isAdjacentTo(IsoObject other) {
+		int ox = (int)other.getX();
+		int oy = (int)other.getY();
+		int oz = (int)other.getZ();
+		
+		return isAdjacentTo(ox, oy, oz);
+		
+	}
+	
+	public boolean isAdjacentTo(int ox, int oy, int oz) {
+		
+		int nx = (int)getX();
+		int ny = (int)getY();
+		int nz = (int)getZ();
+		
+		int ax = Math.abs(ox - nx);
+		int ay = Math.abs(oy - ny);
+		int az = Math.abs(oz - nz);
+		
+		boolean x = ax < 2;
+		boolean y = ay < 2;
+		boolean z = az < 2;
+		
+		return (x && y && z) && !(ax == 0 && ay == 0 && az == 0);
+		
 	}
 
 	

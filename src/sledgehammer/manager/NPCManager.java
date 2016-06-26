@@ -12,10 +12,10 @@ import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.Action;
-import sledgehammer.npc.ActionAttackTarget;
+import sledgehammer.npc.ActionAttackCharacter;
 import sledgehammer.npc.ActionGrabItemOnGround;
-import sledgehammer.npc.ActionMoveToLocation;
-import sledgehammer.npc.ActionMoveToLocationAStar;
+import sledgehammer.npc.ActionFollowTargetDirect;
+import sledgehammer.npc.ActionFollowTargetPath;
 import sledgehammer.npc.NPC;
 import sledgehammer.wrapper.Player;
 import zombie.ZombiePopulationManager;
@@ -94,10 +94,10 @@ public class NPCManager {
 		mapActions = new HashMap<>();
 		
 		// Register all Actions by the static 'NAME' field.
-		addAction(ActionAttackTarget.NAME       , new ActionAttackTarget()       );
-		addAction(ActionMoveToLocation.NAME     , new ActionMoveToLocation()     );
-		addAction(ActionGrabItemOnGround.NAME   , new ActionGrabItemOnGround()   );
-		addAction(ActionMoveToLocationAStar.NAME, new ActionMoveToLocationAStar());
+		addAction(ActionAttackCharacter.NAME   , new ActionAttackCharacter()   );
+		addAction(ActionGrabItemOnGround.NAME  , new ActionGrabItemOnGround()  );
+		addAction(ActionFollowTargetPath.NAME  , new ActionFollowTargetPath()  );
+		addAction(ActionFollowTargetDirect.NAME, new ActionFollowTargetDirect());
 
 	}
 	
@@ -239,7 +239,7 @@ public class NPCManager {
 					if (onFire)           flags = (byte) (flags | 32);
 					
 					byteBufferWriter.putByte(flags);
-					c.endPacketUnreliable();
+					c.endPacketSuperHighUnreliable();
 				}
 				
 			}

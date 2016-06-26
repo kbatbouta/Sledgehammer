@@ -12,7 +12,7 @@ import zombie.iso.Vector2;
 import zombie.network.PacketTypes;
 import zombie.network.ServerOptions;
 
-public class ActionAttackTarget extends Action {
+public class ActionAttackCharacter extends Action {
 
 	public static final String NAME = "Action->AttackCharacter";
 
