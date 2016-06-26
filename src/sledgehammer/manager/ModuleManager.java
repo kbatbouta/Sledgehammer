@@ -497,6 +497,9 @@ public final class ModuleManager extends Printable {
 				}
 				
 			}
+			
+			reader.close();
+			is.close();
 		} catch (Exception e) {
 			SledgeHammer.instance.stackTrace(e);
 		}
