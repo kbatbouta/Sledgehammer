@@ -1,9 +1,10 @@
-package sledgehammer.npc;
+package sledgehammer.npc.behavior;
 
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import sledgehammer.npc.NPC;
 import sledgehammer.npc.action.Action;
 import sledgehammer.util.Printable;
 import zombie.characters.IsoGameCharacter;

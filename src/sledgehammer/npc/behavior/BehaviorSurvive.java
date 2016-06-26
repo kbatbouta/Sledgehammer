@@ -1,7 +1,8 @@
-package sledgehammer.npc;
+package sledgehammer.npc.behavior;
 
 import java.util.List;
 
+import sledgehammer.npc.NPC;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetPath;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
