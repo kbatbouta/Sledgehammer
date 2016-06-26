@@ -4,18 +4,13 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import sledgehammer.SledgeHammer;
-import sledgehammer.modules.ModuleNPC;
 import sledgehammer.util.Printable;
 import zombie.characters.IsoGameCharacter;
-import zombie.characters.IsoPlayer;
 import zombie.characters.IsoZombie;
 import zombie.inventory.ItemContainer;
 import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
-import zombie.iso.IsoUtils;
 import zombie.iso.objects.IsoWorldInventoryObject;
-import zombie.network.GameServer;
 
 public abstract class Behavior extends Printable {
 	

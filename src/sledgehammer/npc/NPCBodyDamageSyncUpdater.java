@@ -2,7 +2,6 @@ package sledgehammer.npc;
 
 import java.nio.ByteBuffer;
 
-import zombie.characters.IsoGameCharacter;
 import zombie.characters.BodyDamage.BodyDamage;
 import zombie.characters.Moodles.MoodleType;
 import zombie.core.network.ByteBufferWriter;
