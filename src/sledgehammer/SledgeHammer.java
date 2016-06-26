@@ -164,7 +164,7 @@ public class SledgeHammer extends Printable {
 		println("Loading settings..");
 		
 		try {			
-			Settings settings = new Settings(this);
+			settings = new Settings(this);
 			settings.readSettings();
 		} catch(Exception e) {
 			stackTrace("An Error occured while loading Sledgehammer's settings.", e);

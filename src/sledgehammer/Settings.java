@@ -117,6 +117,11 @@ public class Settings extends Printable {
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 		}
 	}
+	
+	public boolean allowHelicopters() {
+		String setting = ini.getVariableAsString("GENERAL", "helicopter");
+		return setting.equalsIgnoreCase("true") || setting.equalsIgnoreCase("yes") || setting.equalsIgnoreCase("1");
+	}
 
 	/**
 	 * Returns the INI instance of the 'SledgeHammer.ini' file.
