@@ -25,19 +25,50 @@ public class Player {
 		init();
 	}
 	
+	public Player(UdpConnection connection, IsoPlayer iso) {
+		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
+		if(iso        == null) throw new IllegalArgumentException("IsoPlayer instance given is null!"    );
+
+		this.connection = connection;
+		this.iso = iso;
+		init();
+	}
+	
+	/**
+	 * Constructor for 'Console' connections. This includes 3rd-Party console access.
+	 */
 	public Player() {
 		username = "admin";
 	}
 	
+	/**
+	 * Constructor for arbitrarily defining with only a player name. The
+	 * constructor attempts to locate the UdpConnection instance, and the
+	 * IsoPlayer instance, using the username given.
+	 * 
+	 * @param username
+	 */
 	public Player(String username) {
+		
+		// Set the username of the Player instance to the parameter given.
+		this.username = username;
+
+		// Tries to get a Player instance. Returns null if invalid.
 		this.iso = ZUtil.getPlayer(username);
+		
+		// Go through each connection.
 		for(UdpConnection conn : SledgeHammer.instance.getUdpEngine().connections) {
+			
+			// If the username on the UdpConnection instance matches,
 			if(conn.username.equalsIgnoreCase(username)) {
+				
+				// Set this connection as the instance of the Player.
 				this.connection = conn;
+				
+				// Break out of the loop to save computation time.
 				break;
 			}
 		}
-		this.username = username;
 	}
 
 	private void init() {
