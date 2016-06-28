@@ -6,6 +6,7 @@ import java.util.Map;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.module.Module;
+import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
 public class ModuleVanilla extends Module {
 
