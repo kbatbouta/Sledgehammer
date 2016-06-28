@@ -1,7 +1,6 @@
 package sledgehammer.npc.action;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.npc.NPC;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.IsoZombie;
@@ -12,6 +11,7 @@ import zombie.inventory.types.HandWeapon;
 import zombie.iso.Vector2;
 import zombie.network.PacketTypes;
 import zombie.network.ServerOptions;
+import zombie.sledgehammer.npc.NPC;
 
 public class ActionAttackCharacter extends Action {
 

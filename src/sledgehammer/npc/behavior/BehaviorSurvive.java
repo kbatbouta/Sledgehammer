@@ -2,7 +2,6 @@ package sledgehammer.npc.behavior;
 
 import java.util.List;
 
-import sledgehammer.npc.NPC;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetPath;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
@@ -13,6 +12,7 @@ import zombie.inventory.ItemContainer;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.IsoObject;
 import zombie.iso.objects.IsoWorldInventoryObject;
+import zombie.sledgehammer.npc.NPC;
 
 public class BehaviorSurvive extends Behavior {
 

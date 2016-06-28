@@ -11,7 +11,6 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.modules.ModuleNPC;
-import sledgehammer.npc.NPC;
 import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
@@ -27,6 +26,7 @@ import zombie.iso.Vector2;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 import zombie.network.ServerLOS;
+import zombie.sledgehammer.npc.NPC;
 
 /**
  * Manager class designed to handle NPC components, as well as update them.

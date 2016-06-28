@@ -6,10 +6,8 @@ import zombie.characters.IsoPlayer;
 import zombie.iso.IsoObject;
 import zombie.iso.Vector2;
 import zombie.network.GameServer;
-
-
+import zombie.sledgehammer.npc.NPC;
 import sledgehammer.modules.ModuleNPC;
-import sledgehammer.npc.NPC;
 
 public class ActionFollowTargetPath extends PathAction {
 

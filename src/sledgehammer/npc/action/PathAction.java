@@ -1,8 +1,8 @@
 package sledgehammer.npc.action;
 
-import sledgehammer.npc.NPC;
 import zombie.ai.astar.Mover;
 import zombie.ai.astar.Path;
+import zombie.sledgehammer.npc.NPC;
 
 public abstract class PathAction extends Action {
 

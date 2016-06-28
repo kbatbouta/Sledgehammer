@@ -1,9 +1,9 @@
 package sledgehammer.npc.action;
 
-import sledgehammer.npc.NPC;
 import zombie.inventory.InventoryItem;
 import zombie.inventory.types.HandWeapon;
 import zombie.iso.objects.IsoWorldInventoryObject;
+import zombie.sledgehammer.npc.NPC;
 
 public class ActionGrabItemOnGround extends Action {
 

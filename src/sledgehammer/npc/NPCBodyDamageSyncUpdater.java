@@ -9,6 +9,7 @@ import zombie.core.raknet.UdpConnection;
 import zombie.network.BodyDamageSync;
 import zombie.network.GameServer;
 import zombie.network.PacketTypes;
+import zombie.sledgehammer.npc.NPC;
 
 public class NPCBodyDamageSyncUpdater extends BodyDamageSync.Updater {
 

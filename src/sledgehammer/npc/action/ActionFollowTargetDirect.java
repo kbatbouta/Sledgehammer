@@ -1,10 +1,10 @@
 package sledgehammer.npc.action;
 
 import sledgehammer.modules.ModuleNPC;
-import sledgehammer.npc.NPC;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoObject;
 import zombie.network.GameServer;
+import zombie.sledgehammer.npc.NPC;
 
 public class ActionFollowTargetDirect extends Action {
 

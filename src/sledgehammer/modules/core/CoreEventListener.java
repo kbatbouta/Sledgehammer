@@ -13,12 +13,13 @@ import sledgehammer.event.Event;
 import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.manager.ChatManager;
-import sledgehammer.npc.NPC;
 import sledgehammer.util.ChatTags;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
+import zombie.network.GameServer;
 import zombie.network.ServerOptions;
+import zombie.sledgehammer.npc.NPC;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
@@ -123,7 +124,15 @@ public class CoreEventListener implements EventListener {
 				module.messagePlayer(connection, event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, false);
 			}			
 		} else {
-			IsoPlayer isoPlayer = player.get();
+			
+			
+			// FIXME isoPlayer sometimes returns null. 
+			// IsoPlayer isoPlayer = player.get();
+			//
+			// Using old method.
+			IsoPlayer isoPlayer = GameServer.getAnyPlayerFromConnection(connectionCommander);
+			
+			
 			int playerID = isoPlayer != null ? isoPlayer.OnlineID : -1;
 			byte sayIt = (byte) (event.sayIt() ? 1 : 0);
 			byte chatType = event.getChatType();
@@ -140,8 +149,10 @@ public class CoreEventListener implements EventListener {
 			
 			for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
 				try {
+					
+					
 					if (connectionCommander == null 
-					|| (connectionCommander != null && connection.ReleventTo(isoPlayer.x, isoPlayer.y))
+					|| (connectionCommander != null && isoPlayer != null && connection.ReleventTo(isoPlayer.x, isoPlayer.y))
 						) {
 						
 						if(connection.getConnectedGUID() != connectionCommander.getConnectedGUID()) {

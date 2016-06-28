@@ -1,4 +1,4 @@
-package sledgehammer.npc;
+package zombie.sledgehammer.npc;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ import fmod.fmod.DummySoundListener;
 import fmod.fmod.SoundEmitter;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.ModuleNPC;
+import sledgehammer.npc.NPCBodyDamage;
+import sledgehammer.npc.NPCBodyDamageSyncUpdater;
 import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.PathAction;
 import sledgehammer.npc.behavior.Behavior;

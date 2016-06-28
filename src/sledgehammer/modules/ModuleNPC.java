@@ -7,7 +7,6 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.module.SQLModule;
-import sledgehammer.npc.NPC;
 import sledgehammer.npc.behavior.BehaviorSurvive;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
@@ -21,6 +20,7 @@ import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.network.DataBaseBuffer;
 import zombie.network.ServerMap;
+import zombie.sledgehammer.npc.NPC;
 
 public class ModuleNPC extends SQLModule {
 
