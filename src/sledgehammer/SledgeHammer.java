@@ -17,7 +17,9 @@ import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.Printable;
+import sledgehammer.util.ZUtil;
 import zombie.GameWindow;
+import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.network.GameServer;
@@ -437,6 +439,32 @@ public class SledgeHammer extends Printable {
 		this.udpEngine = udpEngine;
 	}
 
+	
+	public IsoPlayer getPlayer(String name) {
+		return ZUtil.getPlayer(name);
+	}
+	
+	public IsoPlayer getPlayerDirty(String name) {
+		return ZUtil.getPlayerDirty(name);
+	}
+	
+	public IsoPlayer getPlayerByUsername(String username) {
+		return ZUtil.getPlayerByUsername(username);
+	}
+	
+	public IsoPlayer getPlayerByUsernameDirty(String username) {
+		return ZUtil.getPlayerByUsernameDirty(username);
+	}
+	
+	public IsoPlayer getPlayerByNickname(String nickname) {
+		return ZUtil.getPlayerByNickname(nickname);
+	}
+	
+	public IsoPlayer getPlayerByNicknameDirty(String nickname) {
+		return ZUtil.getPlayerByNicknameDirty(nickname);
+	}
+	
+	
 	@Override
 	public String getName() { return "SledgeHammer"; }
 	

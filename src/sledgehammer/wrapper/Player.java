@@ -54,7 +54,7 @@ public class Player {
 		this.username = username;
 
 		// Tries to get a Player instance. Returns null if invalid.
-		this.iso = ZUtil.getPlayer(username);
+		this.iso = SledgeHammer.instance.getPlayerDirty(username);
 		
 		// Go through each connection.
 		for(UdpConnection conn : SledgeHammer.instance.getUdpEngine().connections) {
@@ -101,12 +101,46 @@ public class Player {
 		return username;
 	}
 	
+	public String getPublicUsername() {
+		
+		IsoPlayer player = get();
+		if(player != null) {
+			return player.getPublicUsername();
+		}
+
+		return null;
+	}
+	
 	public boolean isOnline() {
 		if(connection == null) {
 			return false;
 		} else {
 			return connection.connected;
 		}
+	}
+	
+	public boolean isUsername(String username) {
+		return getUsername().equalsIgnoreCase(username);
+	}
+	
+	public boolean isUsernameDirty(String username) {
+		return getUsername().contains(username);
+	}
+	
+	public boolean isNickname(String nickname) {
+		return getPublicUsername().equalsIgnoreCase(nickname);
+	}
+	
+	public boolean isNicknameDirty(String nickname) {
+		return getPublicUsername().equalsIgnoreCase(nickname);
+	}
+	
+	public boolean isName(String name) {
+		return isUsername(name) || isNickname(name);
+	}
+	
+	public boolean isNameDirty(String name) {
+		return isUsername(name) || isNickname(name) || isUsernameDirty(name) || isNicknameDirty(name);
 	}
 	
 	public boolean isAdmin() {
