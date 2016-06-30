@@ -51,12 +51,13 @@ public class ChatManager {
 	public String messagePlayer(IsoPlayer player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		UdpConnection connection = GameServer.getConnectionFromPlayer(player);
 		if(connection != null) {
-			return messagePlayer(GameServer.getConnectionFromPlayer(player), header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+			return messagePlayer(connection, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 		} else {
 			return "Connection does not exist.";
 		}
 	}
 	
+	//TODO needs more options than the name.
 	public String privateMessage(String commander, String username, String text) {
 		return messagePlayer(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
@@ -144,7 +145,7 @@ public class ChatManager {
 		try {
 			IsoPlayer player = SledgeHammer.instance.getPlayerDirty(username);
 			if(player != null) {
-				return messagePlayer(GameServer.getPlayerByUserName(username), header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 			} else {
 				return "Player not found: " + username + ".";
 			}

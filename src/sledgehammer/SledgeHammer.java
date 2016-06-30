@@ -464,6 +464,15 @@ public class SledgeHammer extends Printable {
 		return ZUtil.getPlayerByNicknameDirty(nickname);
 	}
 	
+	/**
+	 * Updates the scoreboard for every player that is online.
+	 */
+	public void updateScoreboard() {
+		for(UdpConnection connection : getConnections()) {
+			GameServer.scoreboard(connection);
+		}
+	}
+	
 	
 	@Override
 	public String getName() { return "SledgeHammer"; }

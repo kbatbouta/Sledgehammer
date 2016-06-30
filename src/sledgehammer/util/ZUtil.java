@@ -139,7 +139,11 @@ public class ZUtil {
 			for (int playerIndex = 0; playerIndex < 4; ++playerIndex) {
 				IsoPlayer player = connection.players[playerIndex];
 				if (player != null) {
-					String usernameNext = player.getPublicUsername().toLowerCase();
+					
+					String usernameNext = player.getPublicUsername();
+					if(usernameNext == null) continue;
+					usernameNext = usernameNext.toLowerCase();
+					
 					if (wildcard) {
 						if (usernameNext.contains(nickname)) return player;
 					} else {

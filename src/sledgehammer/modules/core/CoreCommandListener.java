@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
@@ -25,6 +26,8 @@ import static sledgehammer.util.ChatTags.*;
 
 public class CoreCommandListener extends Printable implements CommandListener {
 
+	private static final boolean DEBUG = true;
+	
 	private ModuleCore module;
 
 	private Map<String, String> mapContexts;
@@ -118,6 +121,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		String[] args = c.getArguments();
 		String response = null;
 		
+		if(DEBUG) println("Command fired by " + username + ": " + c.getRaw());
+		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
 				c.setResponse(Result.SUCCESS, ChatTags.listColors());
@@ -131,14 +136,35 @@ public class CoreCommandListener extends Printable implements CommandListener {
     		if(module.hasPermission(username, getPermissionContext("pm"))) {    			
     			if(args.length >= 2) {
     				String playerName = args[0];
-    				String msg = "";
-    				for(int x = 1; x < args.length; x++) {
-    					msg += args[x] + " ";
+    				
+    				IsoPlayer playerPM = SledgeHammer.instance.getPlayerDirty(playerName);
+    				
+    				String commanderName = player.getPublicUsername();
+    				if(commanderName == null) {
+    					commanderName = player.getUsername();
     				}
-    				msg = msg.substring(0, msg.length() - 1);
-    				response = module.privateMessageDirty(username, playerName, msg);
+    				
+    				if(playerPM == null) {
+    					c.setResponse(Result.FAILURE, "Could not find player: " + playerName);
+    					return;
+    				}
+    		
+    				playerName = playerPM.getPublicUsername();
+    				if(playerName == null) {
+    					playerName = playerPM.getUsername();
+    				}
+    				
+    				String msg = c.getRaw().split(args[0])[1].trim();
+    				
+//    				String msg = "";
+//    				for(int x = 1; x < args.length; x++) {
+//    					msg += args[x] + " ";
+//    				}
+//    				msg = msg.substring(0, msg.length() - 1);
+    				
+    				response = module.privateMessageDirty(commanderName, playerName, msg);
     				c.setResponse(Result.SUCCESS, response);
-    				c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
+    				c.setLoggedMessage(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
     				return;
     			} else {
     				response = "/pm [player] [message...]";
@@ -276,13 +302,13 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		String commander = c.getPlayer().getUsername();
 		
 		if(args.length > 1) {
-			String username = null;
+			String username   = null ;
+			String IP         = null ;
+			String SteamID    = null ;
+			String reason     = null ;
 			boolean bUsername = false;
-			String IP = null;
-			boolean bIP = false;
-			String SteamID = null;
-			boolean bSteamID = false;
-			String reason = null;
+			boolean bIP       = false;
+			boolean bSteamID  = false;
 			
 			for(int x = 0; x < args.length; x++) {
 				String arg = args[x];
