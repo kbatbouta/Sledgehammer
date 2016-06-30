@@ -99,25 +99,23 @@ public class ZUtil {
 	 * @return
 	 */
 	private static IsoPlayer getPlayerByUsername(String username, boolean wildcard) {
+
+		if (wildcard) username = username.toLowerCase().trim();
 		
-		if(wildcard) {			
-			username = username.toLowerCase().trim();
+		for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
+			for (int playerIndex = 0; playerIndex < 4; ++playerIndex) {
+				IsoPlayer player = connection.players[playerIndex];
+				if (player != null) {
+					String usernameNext = player.getUsername().toLowerCase();
+					if (wildcard) {
+						if (usernameNext.contains(username)) return player;
+					} else {
+						if (usernameNext.equals(username)) return player;
+					}
+				}
+			}
 		}
-		
-		for(UdpConnection connection : SledgeHammer.instance.getConnections()) {
-	         for(int playerIndex = 0; playerIndex < 4; ++playerIndex) {
-	            IsoPlayer player = connection.players[playerIndex];
-	            if(wildcard) {
-	            	if(player != null && player.username.toLowerCase().contains(username)) {
-	            		return player;
-	            	}
-	            } else {	            	
-	            	if(player != null && player.username.equals(username)) {
-	            		return player;
-	            	}
-	            }
-	         }
-	      }
+
 		return null;
 	}
 	
@@ -135,20 +133,17 @@ public class ZUtil {
 	 */
 	private static IsoPlayer getPlayerByNickname(String nickname, boolean wildcard) {
 
-		if (wildcard) {
-			nickname = nickname.toLowerCase().trim();
-		}
-
+		if (wildcard) nickname = nickname.toLowerCase().trim();
+		
 		for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
 			for (int playerIndex = 0; playerIndex < 4; ++playerIndex) {
 				IsoPlayer player = connection.players[playerIndex];
-				if (wildcard) {
-					if (player != null && player.username.toLowerCase().contains(nickname)) {
-						return player;
-					}
-				} else {
-					if (player != null && player.username.equals(nickname)) {
-						return player;
+				if (player != null) {
+					String usernameNext = player.getPublicUsername().toLowerCase();
+					if (wildcard) {
+						if (usernameNext.contains(nickname)) return player;
+					} else {
+						if (usernameNext.equals(nickname)) return player;
 					}
 				}
 			}
@@ -195,6 +190,7 @@ public class ZUtil {
 		if(player == null) {
 			player = getPlayerByNickname(name, false);
 		}
+		
 		return player;
 	}
 	
@@ -244,7 +240,7 @@ public class ZUtil {
 	 * @return
 	 */
 	public static IsoPlayer getPlayerDirty(String username) {
-		return getPlayerDirty(username, false);
+		return getPlayerDirty(username, true);
 	}
 	
 	public static boolean isClass(String className) {

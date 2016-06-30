@@ -3,6 +3,7 @@ package sledgehammer.manager;
 import java.util.ArrayList;
 import java.util.List;
 
+import sledgehammer.SledgeHammer;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
@@ -35,7 +36,7 @@ public class ChatManager {
 	
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		try {
-			IsoPlayer player = GameServer.getPlayerByUserName(username);
+			IsoPlayer player = SledgeHammer.instance.getPlayer(username);
 			if(player != null) {
 				return messagePlayer(GameServer.getPlayerByUserName(username), header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 			} else {
@@ -138,4 +139,27 @@ public class ChatManager {
 			connection.endPacketImmediate();
 		}
 	}
+	
+	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		try {
+			IsoPlayer player = SledgeHammer.instance.getPlayerDirty(username);
+			if(player != null) {
+				return messagePlayer(GameServer.getPlayerByUserName(username), header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+			} else {
+				return "Player not found: " + username + ".";
+			}
+		} catch(Exception e) {
+			
+		}
+		return null;
+	}
+	
+	public String privateMessageDirty(String commander, String username, String text) {
+		return messagePlayerDirty(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
+	}
+	
+	public String warnPlayerDirty(String commander, String username, String text) {
+		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
+	}
+
 }

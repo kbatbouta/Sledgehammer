@@ -291,6 +291,18 @@ public abstract class Module extends Printable {
 	public String privateMessage(String commander, UdpConnection connection, String text) {
 		return getChatManager().privateMessage(commander, connection, text);
 	}
+	
+	public String warnPlayerDirty(String commander, String username, String text) {
+		return getChatManager().warnPlayerDirty(commander, username, text);
+	}
+
+	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		return getChatManager().messagePlayerDirty(username, header, headerColor, text, textColor, addTimeStamp, bypassMute);
+	}
+
+	public String privateMessageDirty(String commander, String username, String text) {
+		return getChatManager().privateMessageDirty(commander, username, text);
+	}
 
 	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
 		getChatManager().localMessage(connection, playerID, text, chatType, sayIt);

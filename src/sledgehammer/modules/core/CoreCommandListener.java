@@ -136,7 +136,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     					msg += args[x] + " ";
     				}
     				msg = msg.substring(0, msg.length() - 1);
-    				response = module.privateMessage(username, playerName, msg);
+    				response = module.privateMessageDirty(username, playerName, msg);
     				c.setResponse(Result.SUCCESS, response);
     				c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
     				return;
@@ -158,7 +158,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 							msg += args[x] + " ";
 						}
 						msg = msg.substring(0, msg.length() - 1);
-						response = module.warnPlayer(username, playerName, msg);
+						response = module.warnPlayerDirty(username, playerName, msg);
 						c.setResponse(Result.SUCCESS, response);
 						c.setLoggedMessage(LogEvent.LogType.STAFF,
 								"WARNED " + playerName + " with message: \"" + msg + "\".");
