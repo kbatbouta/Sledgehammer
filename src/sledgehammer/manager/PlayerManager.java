@@ -1,7 +1,11 @@
 package sledgehammer.manager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import sledgehammer.SledgeHammer;
 import sledgehammer.util.Printable;
+import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.GameServer;
@@ -9,6 +13,11 @@ import zombie.network.GameServer;
 public class PlayerManager extends Printable {
 
 	public static final String NAME = "PlayerManager";
+	
+	/**
+	 * List of SledgeHammer's Player instances.
+	 */
+	private List<Player> listPlayers;
 	
 	/**
 	 * Instance of SledgeHammer. While this is statically accessible through the
@@ -23,6 +32,13 @@ public class PlayerManager extends Printable {
 	 */
 	public PlayerManager(SledgeHammer sledgeHammer) {
 		this.sledgeHammer = sledgeHammer;
+		
+		// Initialize Player list.
+		listPlayers = new ArrayList<>();
+	}
+	
+	public void addPlayer(Player player) {
+		
 	}
 	
 	/**
