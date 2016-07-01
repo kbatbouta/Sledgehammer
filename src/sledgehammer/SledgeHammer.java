@@ -16,8 +16,8 @@ import sledgehammer.manager.EventManager;
 import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
+import sledgehammer.manager.PlayerManager;
 import sledgehammer.util.Printable;
-import sledgehammer.util.ZUtil;
 import zombie.GameWindow;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -79,6 +79,8 @@ public class SledgeHammer extends Printable {
 	 * Chat instance for working with chat packets and chat filtering.
 	 */
 	private ChatManager chat;
+	
+	private PlayerManager managerPlayer;
 	
 	/**
 	 * UdpEngine pointer for the Project Zomboid GameServer UdpEngine instance, to communicate with connections.
@@ -142,6 +144,8 @@ public class SledgeHammer extends Printable {
 			// Initialize the ModuleManager.
 			managerModule = new ModuleManager(this);
 
+			managerPlayer = new PlayerManager(this);
+			
 			// Initialize the NPC Engine.
 			managerNPC = new NPCManager(this);
 			
@@ -260,6 +264,15 @@ public class SledgeHammer extends Printable {
 	 */
 	public EventManager getEventManager() {
 		return managerEvent;
+	}
+	
+	/**
+	 * Returns the PlayerManager instance.
+	 * 
+	 * @return
+	 */
+	public PlayerManager getPlayerManager() {
+		return managerPlayer;
 	}
 	
 	/**
@@ -441,27 +454,27 @@ public class SledgeHammer extends Printable {
 
 	
 	public IsoPlayer getPlayer(String name) {
-		return ZUtil.getPlayer(name);
+		return PlayerManager.getPlayer(name);
 	}
 	
 	public IsoPlayer getPlayerDirty(String name) {
-		return ZUtil.getPlayerDirty(name);
+		return PlayerManager.getPlayerDirty(name);
 	}
 	
 	public IsoPlayer getPlayerByUsername(String username) {
-		return ZUtil.getPlayerByUsername(username);
+		return PlayerManager.getPlayerByUsername(username);
 	}
 	
 	public IsoPlayer getPlayerByUsernameDirty(String username) {
-		return ZUtil.getPlayerByUsernameDirty(username);
+		return PlayerManager.getPlayerByUsernameDirty(username);
 	}
 	
 	public IsoPlayer getPlayerByNickname(String nickname) {
-		return ZUtil.getPlayerByNickname(nickname);
+		return PlayerManager.getPlayerByNickname(nickname);
 	}
 	
 	public IsoPlayer getPlayerByNicknameDirty(String nickname) {
-		return ZUtil.getPlayerByNicknameDirty(nickname);
+		return PlayerManager.getPlayerByNicknameDirty(nickname);
 	}
 	
 	/**

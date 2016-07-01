@@ -1,7 +1,7 @@
 package sledgehammer.wrapper;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.util.ZUtil;
+import sledgehammer.manager.PlayerManager;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 
@@ -14,14 +14,14 @@ public class Player {
 	public Player(IsoPlayer iso) {
 		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
 		this.iso = iso;
-		connection = ZUtil.getConnection(iso);
+		connection = PlayerManager.getConnection(iso);
 		init();
 	}
 	
 	public Player(UdpConnection connection) {
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
-		this.iso = ZUtil.getPlayer(connection);
+		this.iso = PlayerManager.getPlayer(connection);
 		init();
 	}
 	
