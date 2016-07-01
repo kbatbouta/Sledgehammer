@@ -22,6 +22,8 @@ import zombie.network.DataBaseBuffer;
  */
 public class PermissionsManager extends Printable {
 	
+	public static final String NAME = "PermissionsManager";
+	
 	/**
 	 * Debug boolean, used for verbose output.
 	 */
@@ -235,6 +237,6 @@ public class PermissionsManager extends Printable {
 	}
 
 	@Override
-	public String getName() { return "Permissions"; }
+	public String getName() { return NAME; }
 	
 }

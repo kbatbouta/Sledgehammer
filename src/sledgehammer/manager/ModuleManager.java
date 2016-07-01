@@ -31,6 +31,8 @@ import sledgehammer.util.ZUtil;
  */
 public final class ModuleManager extends Printable {
 
+	public static final String NAME = "ModuleManager";
+	
 	/**
 	 * Debug boolean, used for verbose output.
 	 */
@@ -575,7 +577,7 @@ public final class ModuleManager extends Printable {
 	}
 	
 	@Override
-	public String getName() { return "ModuleManager"; }
+	public String getName() { return NAME; }
 
 	
 	

@@ -16,6 +16,7 @@ import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
 import sledgehammer.npc.action.ActionFollowTargetPath;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
+import sledgehammer.util.Printable;
 import sledgehammer.wrapper.Player;
 import zombie.ZombiePopulationManager;
 import zombie.core.network.ByteBufferWriter;
@@ -33,7 +34,9 @@ import zombie.sledgehammer.npc.NPC;
  * 
  * @author Jab
  */
-public class NPCManager {
+public class NPCManager extends Printable {
+	
+	public static final String NAME = "NPCManager";
 	
 	/**
 	 * Instance of SledgeHammer. While this is statically accessible through the
@@ -324,5 +327,8 @@ public class NPCManager {
 				}
 			}
 		}
-	}	
+	}
+
+	@Override
+	public String getName() { return NAME; }
 }

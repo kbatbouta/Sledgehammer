@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.util.Printable;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
@@ -20,8 +21,10 @@ import static sledgehammer.util.ChatTags.*;
  * @author Jab
  *
  */
-public class ChatManager {
+public class ChatManager extends Printable {
 
+	public static final String NAME = "ChatManager";
+	
 	private List<String> listGlobalMuters;
 	private UdpEngine udpEngine;
 	
@@ -161,5 +164,8 @@ public class ChatManager {
 	public String warnPlayerDirty(String commander, String username, String text) {
 		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
 	}
+
+	@Override
+	public String getName() { return NAME; }
 
 }

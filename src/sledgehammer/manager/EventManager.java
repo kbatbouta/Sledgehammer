@@ -32,6 +32,8 @@ import static sledgehammer.util.ChatTags.*;
  */
 public class EventManager extends Printable {
 
+	public static final String NAME = "EventManager";
+	
 	/**
 	 * Instance of SledgeHammer. While this is statically accessible through the
 	 * singleton, maintaining an OOP hierarchy is a good practice.
@@ -636,6 +638,6 @@ public class EventManager extends Printable {
 	}
 
 	@Override
-	public String getName() { return "Sledgehammer"; }
+	public String getName() { return NAME; }
 	
 }
