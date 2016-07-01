@@ -80,8 +80,6 @@ public class EventManager extends Printable {
 		mapCommandListeners.put("*", new ArrayList<CommandListener>());
 	}
 	
-	// TODO: Permission Integration.
-	// TODO: Clean up.
 	/**
 	 * Method executing the '/help' command.
 	 * 

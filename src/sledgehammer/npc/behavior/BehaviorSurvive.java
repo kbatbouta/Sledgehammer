@@ -197,9 +197,9 @@ public class BehaviorSurvive extends Behavior {
 			InventoryItem item = worldItem.getItem();
 			ItemContainer inventory = getInventory();
 			
-			// If we have enough of this item.
+			// TODO: If we have enough of this item.
 			if(inventory.getItemCount(item.getType()) < maximumIdenticalItemsToCarry) {
-				//TODO
+				
 			}
 			
 			if(item.IsWeapon()) {

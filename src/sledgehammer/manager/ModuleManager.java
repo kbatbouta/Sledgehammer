@@ -387,11 +387,8 @@ public final class ModuleManager extends Printable {
 	/**
 	 * Loads a Jar plug-in for Sledgehammer.
 	 * 
-	 * FIXME: Reloading a modified plug-in during runtime results in errors with plugin.txt.
-	 * TODO: Optimize ClassLoader.
-	 * TODO: Separate ClassLoader code into a utility class.
-	 * 
 	 * @param name
+	 * 
 	 * @return
 	 * 
 	 * @throws Exception

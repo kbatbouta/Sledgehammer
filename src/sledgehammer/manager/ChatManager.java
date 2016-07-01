@@ -57,7 +57,6 @@ public class ChatManager {
 		}
 	}
 	
-	//TODO needs more options than the name.
 	public String privateMessage(String commander, String username, String text) {
 		return messagePlayer(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}

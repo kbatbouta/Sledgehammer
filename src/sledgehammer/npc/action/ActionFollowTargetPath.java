@@ -76,7 +76,6 @@ public class ActionFollowTargetPath extends PathAction {
 			}
 		}
 
-		// TODO
 		PathFindProgress pathFlag = npc.getFinder().progress;
 
 		// If the path failed, try again.

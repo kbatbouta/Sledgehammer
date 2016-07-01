@@ -125,11 +125,6 @@ public class CoreEventListener implements EventListener {
 			}			
 		} else {
 			
-			
-			// FIXME isoPlayer sometimes returns null. 
-			// IsoPlayer isoPlayer = player.get();
-			//
-			// Using old method.
 			IsoPlayer isoPlayer = GameServer.getAnyPlayerFromConnection(connectionCommander);
 			
 			

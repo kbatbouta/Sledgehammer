@@ -389,7 +389,7 @@ public class NPC extends IsoPlayer implements IPathfinder {
 		for (int y = sy - radius; y < sy + radius; y++) {
 			for (int x = sx - radius; x < sx + radius; x++) {
 
-				// Ignore Z checks for now. Possible TODO
+				// TODO Ignore Z checks for now. Possible to-do
 				IsoGridSquare lSquare = cell.getGridSquare(x, y, sz);
 
 				if (lSquare != null) {
@@ -504,7 +504,7 @@ public class NPC extends IsoPlayer implements IPathfinder {
 		for (int y = sy - radius; y < sy + radius; y++) {
 			for (int x = sx - radius; x < sx + radius; x++) {
 
-				// Ignore Z checks for now. Possible TODO
+				// TODO Ignore Z checks for now. Possible to-do.
 				IsoGridSquare lSquare = cell.getGridSquare(x, y, sz);
 
 				if (lSquare != null) {
