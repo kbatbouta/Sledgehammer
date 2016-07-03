@@ -3,6 +3,9 @@ package sledgehammer.util;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -82,29 +85,59 @@ public class ZUtil {
 		}
 	}
 	
+	/**
+	 * DirectByteBuffers are garbage collected by using a phantom reference and
+	 * a reference queue. Every once a while, the JVM checks the reference queue
+	 * and cleans the DirectByteBuffers. However, as this doesn't happen
+	 * immediately after discarding all references to a DirectByteBuffer, it's
+	 * easy to OutOfMemoryError yourself using DirectByteBuffers. This function
+	 * explicitly calls the Cleaner method of a DirectByteBuffer.
+	 * 
+	 * @param toBeDestroyed
+	 *            The DirectByteBuffer that will be "cleaned". Utilizes
+	 *            reflection.
+	 * 
+	 */
+	public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) throws IllegalArgumentException,
+			IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
+
+		// Not sure if needed. JDK8
+		// Preconditions.checkArgument(toBeDestroyed.isDirect(), "toBeDestroyed
+		// isn't direct!");
+
+		Method cleanerMethod = toBeDestroyed.getClass().getMethod("cleaner");
+		cleanerMethod.setAccessible(true);
+		Object cleaner = cleanerMethod.invoke(toBeDestroyed);
+		Method cleanMethod = cleaner.getClass().getMethod("clean");
+		cleanMethod.setAccessible(true);
+		cleanMethod.invoke(cleaner);
+
+	}
+	
 	public static void addDir(String s) throws IOException {
-	    try {
-	        // This enables the java.library.path to be modified at runtime
-	        // From a Sun engineer at http://forums.sun.com/thread.jspa?threadID=707176
-	        //
-	        Field field = ClassLoader.class.getDeclaredField("usr_paths");
-	        field.setAccessible(true);
-	        String[] paths = (String[])field.get(null);
-	        for (int i = 0; i < paths.length; i++) {
-	            if (s.equals(paths[i])) {
-	                return;
-	            }
-	        }
-	        String[] tmp = new String[paths.length+1];
-	        System.arraycopy(paths,0,tmp,0,paths.length);
-	        tmp[paths.length] = s;
-	        field.set(null,tmp);
-	        System.setProperty("java.library.path", System.getProperty("java.library.path") + File.pathSeparator + s);
-	    } catch (IllegalAccessException e) {
-	        throw new IOException("Failed to get permissions to set library path");
-	    } catch (NoSuchFieldException e) {
-	        throw new IOException("Failed to get field handle to set library path");
-	    }
+		try {
+			// This enables the java.library.path to be modified at runtime
+			// From a Sun engineer at
+			// http://forums.sun.com/thread.jspa?threadID=707176
+			//
+			Field field = ClassLoader.class.getDeclaredField("usr_paths");
+			field.setAccessible(true);
+			String[] paths = (String[]) field.get(null);
+			for (int i = 0; i < paths.length; i++) {
+				if (s.equals(paths[i])) {
+					return;
+				}
+			}
+			String[] tmp = new String[paths.length + 1];
+			System.arraycopy(paths, 0, tmp, 0, paths.length);
+			tmp[paths.length] = s;
+			field.set(null, tmp);
+			System.setProperty("java.library.path", System.getProperty("java.library.path") + File.pathSeparator + s);
+		} catch (IllegalAccessException e) {
+			throw new IOException("Failed to get permissions to set library path");
+		} catch (NoSuchFieldException e) {
+			throw new IOException("Failed to get field handle to set library path");
+		}
 	}
 
 }
