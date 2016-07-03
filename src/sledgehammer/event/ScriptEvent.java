@@ -1,6 +1,4 @@
-package sledgehammer.event.lua;
-
-import sledgehammer.event.Event;
+package sledgehammer.event;
 
 public class ScriptEvent extends Event {
 
