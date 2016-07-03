@@ -21,7 +21,7 @@ public class Player {
 	public Player(UdpConnection connection) {
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
-		this.iso = PlayerManager.getPlayer(connection);
+		this.iso = PlayerManager.getIsoPlayer(connection);
 		init();
 	}
 	
@@ -109,6 +109,15 @@ public class Player {
 		}
 
 		return null;
+	}
+	
+	public String getName() {
+		String name = getPublicUsername();
+		if(name == null) {
+			name = getUsername();
+		}
+		
+		return name;
 	}
 	
 	public boolean isOnline() {
