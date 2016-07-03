@@ -24,6 +24,10 @@ public class Settings extends Printable {
 	 * singleton, maintaining an OOP hierarchy is a good practice.
 	 */
 	private SledgeHammer sledgeHammer;
+	
+	private String[] pluginList;
+
+	private String permissionDeniedMessage = "Permission Denied.";
 
 	/**
 	 * Main constructor.
@@ -65,10 +69,10 @@ public class Settings extends Printable {
 
 				// If the setting is blank, handle properly.
 				if (listPluginsRaw.isEmpty()) {
-					sledgeHammer.getModuleManager().setPluginList(new String[0]);
+					pluginList = new String[0];
 				} else {
 					// The plug-in entries are comma-delimited.
-					sledgeHammer.getModuleManager().setPluginList(listPluginsRaw.split(","));
+					pluginList = listPluginsRaw.split(",");
 				}
 
 				// Save the INI file, if any default setting is missing.
@@ -90,7 +94,7 @@ public class Settings extends Printable {
 				e.printStackTrace();
 			}
 		}
-		sledgeHammer.getPermissionsManager().setPermissionDeniedMessage(ini.getVariableAsString("GENERAL", "permissiondeniedmessage"));
+		permissionDeniedMessage = ini.getVariableAsString("GENERAL", "permissiondeniedmessage");
 	}
 	
 	/**
@@ -115,7 +119,20 @@ public class Settings extends Printable {
 			ini.setVariable("GENERAL", "plugins", "");
 			ini.setVariable("GENERAL", "helicopter", "true", "Whether or not to enable or disable the helicopter ambient event.");
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
+			ini.setVariable("GENERAL", "allowRCON", "false", "Whether or not to run the vanilla Remote-Console system.");
 		}
+	}
+	
+	public String[] getPluginList() {
+		return pluginList;
+	}
+	
+	public String getPermissionDeniedMessage() {
+		return permissionDeniedMessage ;
+	}
+	
+	public void setPermissionDeniedMessage(String string) {
+		permissionDeniedMessage = string;
 	}
 	
 	public boolean allowHelicopters() {
@@ -131,7 +148,17 @@ public class Settings extends Printable {
 	public INI getINI() {
 		return ini;
 	}
+	
+	SledgeHammer getSledgeHammer() {
+		return sledgeHammer;
+	}
 
 	@Override
 	public String getName() { return "Settings"; }
+
+	public boolean allowRCON() {
+		String setting = ini.getVariableAsString("GENERAL", "allowRCON");
+		return setting.equalsIgnoreCase("true") || setting.equalsIgnoreCase("yes") || setting.equalsIgnoreCase("1");
+	}
+	
 }

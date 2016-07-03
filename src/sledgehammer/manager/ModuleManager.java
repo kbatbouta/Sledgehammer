@@ -222,8 +222,11 @@ public final class ModuleManager extends Printable {
 		// Ensures a plug-in folder exists.
 		if (!ZUtil.pluginFolder.exists()) ZUtil.pluginFolder.mkdirs();
 		
+		listPluginsRaw = sledgeHammer.getSettings().getPluginList();
+
 		println("Loading modules.");
 
+		
 		for (String plugin : listPluginsRaw) {
 			if (plugin != null && !plugin.isEmpty()) {
 				try {

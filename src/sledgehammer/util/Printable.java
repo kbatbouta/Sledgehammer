@@ -75,9 +75,11 @@ public abstract class Printable {
 		}
 		
 		// Send to the EventManager for ExceptionListeners to handle.
-		EventManager managerEvent = SledgeHammer.instance.getEventManager();
-		if(managerEvent != null) {
-			SledgeHammer.instance.getEventManager().handleException(errorText, throwable);			
+		if(SledgeHammer.instance != null) {			
+			EventManager managerEvent = SledgeHammer.instance.getEventManager();
+			if(managerEvent != null) {
+				SledgeHammer.instance.getEventManager().handleException(errorText, throwable);			
+			}
 		}
 	}
 	

@@ -98,15 +98,6 @@ public class SledgeHammer extends Printable {
 	private String publicServerName;
 	
 	/**
-	 * Main constructor. Requires UdpEngine instance from GameServer to initialize.
-	 * 
-	 * @param udpEngine
-	 */
-	public SledgeHammer(UdpEngine udpEngine) {
-		setUdpEngine(udpEngine);
-	}
-	
-	/**
 	 * Test-Case constructor. Use this constructor for testing a Module.
 	 * 
 	 * @param debug
@@ -119,6 +110,12 @@ public class SledgeHammer extends Printable {
 		// Sets TESTMODULE to true, in order to properly load SledgeHammer without ProjectZomboid.
 		TESTMODULE = true;
 	}
+	
+	public SledgeHammer() {
+		new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();
+		// Load the settings for SledgeHammer.
+		loadSettings();
+	}
 
 	/**
 	 * Initializes the SledgeHammer engine.
@@ -128,9 +125,7 @@ public class SledgeHammer extends Printable {
 		// Displays version.
 		println(VERSION);
 		
-		try {			
-
-			new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();
+		try {
 			
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			
@@ -148,9 +143,6 @@ public class SledgeHammer extends Printable {
 			
 			// Initialize the NPC Engine.
 			managerNPC = new NPCManager(this);
-			
-			// Load the settings for SledgeHammer.
-			loadSettings();
 			
 			// Then, load the core modules, and start the Modules.
 			if(!TESTMODULE) {
@@ -492,6 +484,9 @@ public class SledgeHammer extends Printable {
 	
 	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException,
 			IllegalArgumentException, IllegalAccessException {
+		instance = new SledgeHammer();
+		
+		
 		System.setProperty("java.library.path", System.getProperty("user.dir") + File.separator + "natives");
 		Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
 		fieldSysPath.setAccessible(true);

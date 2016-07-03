@@ -46,11 +46,6 @@ public class PermissionsManager extends Printable {
 	private Map<String, Boolean> mapDefaultPlayerPermissions;
 	
 	/**
-	 * Permission Denied message to send to players.
-	 */
-	private String permissionDeniedMessage = "Permission denied.";
-
-	/**
 	 * Main constructor.
 	 * 
 	 * @param instance
@@ -59,6 +54,7 @@ public class PermissionsManager extends Printable {
 		sledgeHammer = instance;
 		listPermissionHandlers = new ArrayList<>();
 		mapDefaultPlayerPermissions = new HashMap<>();
+		
 	}
 
 	/**
@@ -193,7 +189,7 @@ public class PermissionsManager extends Printable {
 	 * @return
 	 */
 	public String getPermissionDeniedMessage() {
-		return this.permissionDeniedMessage;
+		return sledgeHammer.getSettings().getPermissionDeniedMessage();
 	}
 	
 	/**
@@ -203,7 +199,7 @@ public class PermissionsManager extends Printable {
 	 * @param string
 	 */
 	public void setPermissionDeniedMessage(String string) {
-		this.permissionDeniedMessage = string;
+		sledgeHammer.getSettings().setPermissionDeniedMessage(string);
 	}
 
 	/**
