@@ -41,6 +41,10 @@ public class PlayerManager extends Printable {
 		
 	}
 	
+	public List<Player> getPlayers() {
+		return listPlayers;
+	}
+	
 	/**
 	 * Returns a Player, based on a user-name.
 	 * 
@@ -53,7 +57,7 @@ public class PlayerManager extends Printable {
 	 *
 	 * @return
 	 */
-	private static IsoPlayer getPlayerByUsername(String username, boolean wildcard) {
+	private static IsoPlayer getIsoPlayerByUsername(String username, boolean wildcard) {
 
 		if (wildcard) username = username.toLowerCase().trim();
 		
@@ -86,7 +90,7 @@ public class PlayerManager extends Printable {
 	 *
 	 * @return
 	 */
-	private static IsoPlayer getPlayerByNickname(String nickname, boolean wildcard) {
+	private static IsoPlayer getIsoPlayerByNickname(String nickname, boolean wildcard) {
 
 		if (wildcard) nickname = nickname.toLowerCase().trim();
 		
@@ -119,13 +123,13 @@ public class PlayerManager extends Printable {
 	 * @param username
 	 * @return
 	 */
-	public static IsoPlayer getPlayer(String name) {
+	public static IsoPlayer getIsoPlayer(String name) {
 		IsoPlayer player = null;
 		
-		player = getPlayerByUsername(name, false);
+		player = getIsoPlayerByUsername(name, false);
 		
 		if(player == null) {
-			player = getPlayerByNickname(name, false);
+			player = getIsoPlayerByNickname(name, false);
 		}
 		
 		return player;
@@ -146,23 +150,23 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayerDirty(String name, boolean wildcard) {
+	public static IsoPlayer getIsoPlayerDirty(String name, boolean wildcard) {
 		IsoPlayer player = null;
 		
-		player = getPlayerByUsername(name, false);
+		player = getIsoPlayerByUsername(name, false);
 		
 		if(player == null) {
-			player = getPlayerByNickname(name, false);
+			player = getIsoPlayerByNickname(name, false);
 		}
 		
 		if(player == null && wildcard) {
 			
 			name = name.toLowerCase().trim();
 			
-			player = getPlayerByUsername(name, true);
+			player = getIsoPlayerByUsername(name, true);
 			
 			if(player == null) {
-				player = getPlayerByNickname(name, true);
+				player = getIsoPlayerByNickname(name, true);
 			}
 		}
 		
@@ -176,7 +180,7 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayer(UdpConnection connection) {
+	public static IsoPlayer getIsoPlayer(UdpConnection connection) {
 		long guid = connection.getConnectedGUID();
 		
 		for(IsoPlayer player : GameServer.PlayerToAddressMap.keySet()) {
@@ -213,8 +217,8 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayerByUsername(String username) {
-		return getPlayerByUsername(username, false);
+	public static IsoPlayer getIsoPlayerByUsername(String username) {
+		return getIsoPlayerByUsername(username, false);
 	}
 
 	/**
@@ -223,8 +227,8 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayerByNickname(String nickname) {
-		return getPlayerByNickname(nickname, false);
+	public static IsoPlayer getIsoPlayerByNickname(String nickname) {
+		return getIsoPlayerByNickname(nickname, false);
 	}
 	
 	/**
@@ -233,8 +237,8 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayerByNicknameDirty(String nickname) {
-		return getPlayerByNickname(nickname, true);
+	public static IsoPlayer getIsoPlayerByNicknameDirty(String nickname) {
+		return getIsoPlayerByNickname(nickname, true);
 	}
 
 	/**
@@ -243,8 +247,8 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayerByUsernameDirty(String username) {
-		return getPlayerByUsername(username, true);
+	public static IsoPlayer getIsoPlayerByUsernameDirty(String username) {
+		return getIsoPlayerByUsername(username, true);
 	}
 	
 	/**
@@ -254,8 +258,8 @@ public class PlayerManager extends Printable {
 	 * 
 	 * @return
 	 */
-	public static IsoPlayer getPlayerDirty(String username) {
-		return getPlayerDirty(username, true);
+	public static IsoPlayer getIsoPlayerDirty(String username) {
+		return getIsoPlayerDirty(username, true);
 	}
 	
 	public SledgeHammer getSledgeHammer() {
