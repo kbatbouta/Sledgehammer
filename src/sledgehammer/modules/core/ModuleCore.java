@@ -14,6 +14,8 @@ public class ModuleCore extends SQLModule {
 	public static final String NAME    = "Core"             ;
 	public static final String VERSION = "1.00"             ;
 	
+	public CoreLuaEventListener luaEventListener = null;
+	
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	
@@ -103,6 +105,7 @@ public class ModuleCore extends SQLModule {
 		validateTables();
 		commandListener = new CoreCommandListener(this);
 		eventListener = new CoreEventListener(this);
+		luaEventListener = new CoreLuaEventListener(this);
 	}
 
 	public void onUpdate(long delta) {
@@ -118,8 +121,12 @@ public class ModuleCore extends SQLModule {
 		return this.eventListener;
 	}
 
-	public void onStart()  { }
-	public void onStop()   { }
+	public void onStart()  {
+		register(luaEventListener);
+	}
+	public void onStop()   {
+		unregister(luaEventListener);
+	}
 	public void onUnload() { }
 	public String getID()      { return ID     ; }
 	public String getName()    { return NAME   ; }

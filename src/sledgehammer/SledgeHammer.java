@@ -154,7 +154,7 @@ public class SledgeHammer extends Printable {
 			
 			// Then, load the core modules, and start the Modules.
 			if(!TESTMODULE) {
-				managerModule.start();
+				managerModule.load();
 			}
 			
 		} catch(Exception e) {
@@ -497,5 +497,10 @@ public class SledgeHammer extends Printable {
 		fieldSysPath.setAccessible(true);
 		fieldSysPath.set(null, null);
 		GameServer.main(args);
+	}
+
+	public void start() {
+		managerModule.start();
+		
 	}
 }

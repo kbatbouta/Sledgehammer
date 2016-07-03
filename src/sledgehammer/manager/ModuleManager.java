@@ -118,15 +118,17 @@ public final class ModuleManager extends Printable {
 		
 	}
 	
-	/**
-	 * Starts all plug-in modules loaded through SledgeHammer.
-	 */
-	public void start() {
-		
+	public void load() {
 		loadDefaultModules();
 		
 		// Load the modules first.
 		loadModules();
+	}
+	
+	/**
+	 * Starts all plug-in modules loaded through SledgeHammer.
+	 */
+	public void start() {
 		
 		Iterator<Module> modules = listModules.iterator();
 		while (modules.hasNext()) {
