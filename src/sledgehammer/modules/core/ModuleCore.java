@@ -122,11 +122,13 @@ public class ModuleCore extends SQLModule {
 	}
 
 	public void onStart()  {
-		register(luaEventListener);
+		//register(luaEventListener);
 	}
+	
 	public void onStop()   {
-		unregister(luaEventListener);
+		//unregister(luaEventListener);
 	}
+	
 	public void onUnload() { }
 	public String getID()      { return ID     ; }
 	public String getName()    { return NAME   ; }
