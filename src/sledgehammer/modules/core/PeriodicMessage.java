@@ -19,12 +19,12 @@ public class PeriodicMessage {
 	/**
 	 * The message content.
 	 */
-	private String message;
+	private String content;
 
 	/**
 	 * The color of the message broadcasted.
 	 */
-	private String messageColor = ChatTags.COLOR_WHITE;
+	private String color = ChatTags.COLOR_WHITE;
 
 	/**
 	 * Whether or not to broadcast the message.
@@ -55,11 +55,11 @@ public class PeriodicMessage {
 	 * Main constructor.
 	 * 
 	 * @param name
-	 * @param message
+	 * @param content
 	 */
-	public PeriodicMessage(String name, String message) {
+	public PeriodicMessage(String name, String content) {
 		this.name = name;
-		this.message = message;
+		this.content = content;
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class PeriodicMessage {
 	 * the time between executions.
 	 */
 	public void update() {
-
+		
 		// If the PeriodicMessage is currently active.
 		if (isEnabled()) {
 
@@ -78,13 +78,17 @@ public class PeriodicMessage {
 			// minute)
 			if (timeNow - timeThen >= (time * 60000)) {
 
+				String actualColor = ChatTags.getColor(getColor());
+				if(actualColor == null) color = ChatTags.COLOR_WHITE;
+				
+				System.out.println("Periodic Message Displayed: " + content);
+				
 				if (isBroadcasted()) {
 					// Broadcast it as a /broadcast message.
-					SledgeHammer.instance.getChatManager().broadcastMessage(message, messageColor);
+					SledgeHammer.instance.getChatManager().broadcastMessage(content, actualColor);
 				} else {
 					// Send it in-chat.
-					SledgeHammer.instance.getChatManager().messageGlobal(null, ChatTags.COLOR_LIGHT_GREEN, message,
-							messageColor, false);
+					SledgeHammer.instance.getChatManager().messageGlobal("", ChatTags.COLOR_WHITE, getContent(), actualColor, false);
 				}
 
 				// Mark the current time as last, to reset the delta.
@@ -136,8 +140,8 @@ public class PeriodicMessage {
 	 * 
 	 * @return
 	 */
-	public String getMessage() {
-		return message;
+	public String getContent() {
+		return content;
 	}
 
 	/**
@@ -183,6 +187,14 @@ public class PeriodicMessage {
 	 */
 	public void setBroadcasted(boolean flag) {
 		broadcast = flag;
+	}
+
+	public String getColor() {
+		return color;
+	}
+	
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 }

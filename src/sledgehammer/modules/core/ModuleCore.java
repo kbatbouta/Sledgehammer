@@ -3,7 +3,10 @@ package sledgehammer.modules.core;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sledgehammer.module.SQLModule;
 import zombie.network.DataBaseBuffer;
@@ -19,7 +22,13 @@ public class ModuleCore extends SQLModule {
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	
-	private static String TABLE_GLOBAL_MUTE = "sledgehammer_global_mute";
+	private static String TABLE_GLOBAL_MUTE     = "sledgehammer_global_mute"    ;
+	private static String TABLE_GLOBAL_MESSAGES = "sledgehammer_global_messages";
+	
+	private List<PeriodicMessage> listPeriodicMessages;
+	private Map<String, PeriodicMessage> mapPeriodicMessages;
+	
+	private long timeThen = 0L;
 	
 	public ModuleCore() {
 		super(DataBaseBuffer.getDatabaseConnection());
@@ -31,6 +40,7 @@ public class ModuleCore extends SQLModule {
 			
 			statement = createStatement();
 			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MUTE + " (name TEXT, mute INTEGER NOT NULL CHECK (mute IN (0,1)));");
+			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MESSAGES + " (name TEXT, content TEXT, color TEXT, enabled BOOL, time INTEGER, broadcast BOOL);");
 			statement.close();
 			
 			addTableColumnIfNotExists("bannedid", "username", SQL_STORAGE_CLASS_TEXT);
@@ -103,15 +113,165 @@ public class ModuleCore extends SQLModule {
 	@Override
 	public void onLoad() {
 		validateTables();
-		commandListener = new CoreCommandListener(this);
-		eventListener = new CoreEventListener(this);
+		
+		// Initialize the listeners.
+		commandListener  = new CoreCommandListener(this);
+		eventListener    = new CoreEventListener(this);
 		luaEventListener = new CoreLuaEventListener(this);
+		
+		// Initialize the Lists & Maps.
+		listPeriodicMessages = new ArrayList<>();
+		mapPeriodicMessages  = new HashMap<>();
+		
+		try {
+			loadPeriodicMessages();
+		} catch (SQLException e) {
+			stackTrace("Failed to load Periodic Messages.", e);
+		}
+		
+	}
+
+	private void loadPeriodicMessages() throws SQLException {
+		Map<String, List<String>> table = getAll(TABLE_GLOBAL_MESSAGES, new String[] { "name", "content", "color", "enabled", "time", "broadcast" });
+		List<String> messageNames      = table.get("name");
+		List<String> messageContents   = table.get("content");
+		List<String> messageColors     = table.get("color");
+		List<String> messageEnableds   = table.get("enabled");
+		List<String> messageTimes      = table.get("time");
+		List<String> messageBroadcasts = table.get("broadcast");
+		
+		// Grab the total amount of PeriodicMessages.
+		int size = messageNames.size();
+		
+		// Go through each message.
+		for(int index = 0; index < size; index++) {
+			
+			// Grab the values associated with the message.
+			String name       = messageNames.get(index);
+			String content    = messageContents.get(index);
+			String color      = messageColors.get(index);
+			boolean enabled   = Boolean.parseBoolean(messageEnableds.get(index));
+			int time          = Integer.parseInt(messageTimes.get(index));
+			boolean broadcast = Boolean.parseBoolean(messageBroadcasts.get(index));
+			
+			// Create the PeriodicMessage instance.
+			PeriodicMessage periodicMessage = new PeriodicMessage(name, content);
+			// Set additional flags.
+			periodicMessage.setEnabled(enabled);
+			periodicMessage.setTime(time);
+			periodicMessage.setColor(color);
+			periodicMessage.setBroadcasted(broadcast);
+			
+			// We will flag this to save, so as to allow third-party plug-ins to
+			// add temporary messages.
+			periodicMessage.setShouldSave(true);
+			
+			// Add the PeriodicMessage to the collection.
+			addPeriodicMessage(periodicMessage);
+			
+			println("Periodic Message added: name: " + name + " content: " + content + " color: " + color + " enabled: " + enabled + " time: " + time + " broadcast: " + broadcast);
+		}
+	}
+
+	/**
+	 * Adds a PeriodicMessage to the core, which will be displayed peridically
+	 * to all players who have global-chat enabled.
+	 * 
+	 * @param periodicMessage
+	 */
+	private void addPeriodicMessage(PeriodicMessage periodicMessage) {
+		
+		String name = periodicMessage.getName();
+		
+		PeriodicMessage mapCheck = mapPeriodicMessages.get(name);
+		if(mapCheck != null) {
+			throw new IllegalArgumentException("PeriodicMessage already exists: " + name + ".");
+		}
+		
+		mapPeriodicMessages.put(name, periodicMessage);
+		
+		if(!listPeriodicMessages.contains(periodicMessage)) {
+			listPeriodicMessages.add(periodicMessage);
+		}
+		
+	}
+	
+	private void savePeriodicMessage(PeriodicMessage message) {
+		try {
+
+			// Grab all variables as strings.
+			String name      =      message.getName();
+			String content   =      message.getContent();
+			String color     =      message.getColor();
+			String enabled   = "" + message.isEnabled();
+			String time      = "" + message.getTime();
+			String broadcast = "" + message.isBroadcasted();
+
+			PreparedStatement statement;
+			
+			// If the message already exists.
+			if(has(TABLE_GLOBAL_MESSAGES, "name", message.getName())) {
+				
+				// Update content.
+				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET content = \"" + content + "\" WHERE name = \"" + name + "\"");
+				statement.executeUpdate();
+				statement.close();
+				
+				// Update color.
+				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET color = \"" + color + "\" WHERE name = \"" + name + "\"");
+				statement.executeUpdate();
+				statement.close();
+				
+				// Update enabled.
+				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET enabled = \"" + enabled + "\" WHERE name = \"" + name + "\"");
+				statement.executeUpdate();
+				statement.close();
+				
+				// Update time.
+				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET time = \"" + time + "\" WHERE name = \"" + name + "\"");
+				statement.executeUpdate();
+				statement.close();
+				
+				// Update broadcast.
+				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET broadcast = \"" + broadcast + "\" WHERE name = \"" + name + "\"");
+				statement.executeUpdate();
+				statement.close();
+				
+			// This is brand new. Save as new.
+			} else {
+				statement = prepareStatement("INSERT INTO " + TABLE_GLOBAL_MESSAGES + " (name, content, color, enabled, time, broadcast) VALUES "
+						+ "(\"" + name + "\", \"" + content + "\", \"" + color + "\", \"" + enabled + "\", \"" + time + "\", \"" + broadcast + "\")");
+				statement.executeUpdate();
+				statement.close();
+			}
+		} catch(SQLException e) {
+			stackTrace("Failed to save PeriodicMessage: " + message.getName() + ".", e);
+		}
 	}
 
 	public void onUpdate(long delta) {
+		
 		eventListener.getPlayerTimeStamps().clear();
+		
+		// Grab the current time.
+		long timeNow = System.currentTimeMillis();
+		
+		// If it has been a minute since the last check.
+		if(timeNow - timeThen > 60000) {
+			
+			// Go through each PeriodicMessage instance.
+			for(PeriodicMessage message : listPeriodicMessages) {
+				
+				// Update the list.
+				message.update();
+			}
+			
+			// Set the time to reset the delta.
+			timeThen = timeNow;
+		}
+		
+		
 	}
-	
 	
 	public CoreCommandListener getCommandListener() {
 		return this.commandListener;
@@ -126,9 +286,16 @@ public class ModuleCore extends SQLModule {
 	}
 	
 	public void onStop()   {
+		
+		for(PeriodicMessage message : listPeriodicMessages) {
+			if(message.shouldSave()) {
+				savePeriodicMessage(message);
+			}
+		}
+		
 		//unregister(luaEventListener);
 	}
-	
+
 	public void onUnload() { }
 	public String getID()      { return ID     ; }
 	public String getName()    { return NAME   ; }
