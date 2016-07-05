@@ -7,25 +7,20 @@ import zombie.core.logger.LoggerManager;
 
 public class VanillaLogListener extends Printable implements LogListener {
 
-		@Override
-		public void onLogEntry(LogEvent logEntry) {
-			String message = logEntry.getLogMessage();
-			println(message);
-			
-			if(message == null) {
-				stackTrace();
-			}
-			
-			boolean important = logEntry.isImportant();
-			if(important) {
-				LoggerManager.getLogger("admin").write(message, "IMPORTANT");			
-			} else {			
-				LoggerManager.getLogger("admin").write(message);
-			}
-		}
+	public static final String NAME = "VanillaLogListener";
 
-		@Override
-		public String getName() {
-			return "VanillaLogListener";
+	@Override
+	public void onLogEntry(LogEvent logEntry) {
+		String message = logEntry.getLogMessage();
+
+		boolean important = logEntry.isImportant();
+		if (important) {
+			LoggerManager.getLogger("admin").write(message, "IMPORTANT");
+		} else {
+			LoggerManager.getLogger("admin").write(message);
 		}
 	}
+
+	@Override
+	public String getName() { return NAME; }
+}
