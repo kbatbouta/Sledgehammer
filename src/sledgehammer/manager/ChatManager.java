@@ -28,8 +28,7 @@ public class ChatManager extends Printable {
 	private List<String> listGlobalMuters;
 	private UdpEngine udpEngine;
 	
-	public ChatManager(UdpEngine udpEngine) {
-		this.udpEngine = udpEngine;
+	public ChatManager() {
 		this.listGlobalMuters = new ArrayList<>();
 	}
 	
@@ -118,7 +117,10 @@ public class ChatManager extends Printable {
 	}
 	
 	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
-		if(udpEngine == null) return;
+		if(udpEngine == null) {
+			println("UdpEngine is null in messageGlobal");
+			return;
+		}
 		for (UdpConnection connection : udpEngine.connections) {
 			messagePlayer(connection, header, headerColor, message, messageColor, true, false);
 		}
@@ -167,5 +169,9 @@ public class ChatManager extends Printable {
 
 	@Override
 	public String getName() { return NAME; }
+
+	public void setUdpEngine(UdpEngine udpEngine) {
+		this.udpEngine = udpEngine;
+	}
 
 }

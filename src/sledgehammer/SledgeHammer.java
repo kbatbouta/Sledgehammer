@@ -130,7 +130,7 @@ public class SledgeHammer extends Printable {
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			
 			// Initialize the Chat Engine.
-			chat = new ChatManager(udpEngine);
+			chat = new ChatManager();
 			
 			managerEvent = new EventManager(this);
 			
@@ -442,6 +442,7 @@ public class SledgeHammer extends Printable {
 	 */
 	public void setUdpEngine(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
+		getChatManager().setUdpEngine(udpEngine);
 	}
 
 	
