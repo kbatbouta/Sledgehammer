@@ -37,7 +37,7 @@ import zombie.network.ServerOptions;
  */
 public class SledgeHammer extends Printable {
 	
-	public static final String VERSION = "2.05_03";
+	public static final String VERSION = "2.05_04";
 	
 	/**
 	 * Debug boolean for the SledgeHammer engine. Used for verbose output.
