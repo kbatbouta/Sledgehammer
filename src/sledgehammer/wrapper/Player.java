@@ -72,10 +72,9 @@ public class Player {
 				break;
 			}
 		}
-		
-		id = ServerWorldDatabase.instance.resolvePlayerID(username);
+		id = ServerWorldDatabase.instance.resolvePlayerID(username);	
 	}
-
+	
 	private void init() {
 		IsoPlayer player = get();
 		if(player != null) username = get().getUsername();

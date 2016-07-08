@@ -1,7 +1,9 @@
 package sledgehammer.manager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.util.Printable;
@@ -9,6 +11,7 @@ import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.GameServer;
+import zombie.network.ServerWorldDatabase;
 
 public class PlayerManager extends Printable {
 
@@ -18,6 +21,10 @@ public class PlayerManager extends Printable {
 	 * List of SledgeHammer's Player instances.
 	 */
 	private List<Player> listPlayers;
+	
+	private Map<String, Player> mapPlayersByUserName;
+	
+	private Map<Integer, Player> mapPlayersByDatabaseID;
 	
 	/**
 	 * Instance of SledgeHammer. While this is statically accessible through the
@@ -35,10 +42,34 @@ public class PlayerManager extends Printable {
 		
 		// Initialize Player list.
 		listPlayers = new ArrayList<>();
+		
+		// Initialize the maps.
+		mapPlayersByUserName   = new HashMap<>();
+		mapPlayersByDatabaseID = new HashMap<>();
 	}
 	
 	public void addPlayer(Player player) {
+	
+		// Check to make sure the player passed is valid.
+		if(player == null) throw new IllegalArgumentException("Player given is null!");
+	
+		int id = player.getID();
+		String username = player.getUsername();
 		
+		
+		if(!mapPlayersByUserName.containsKey(username)) {			
+			mapPlayersByUserName.put(username, player);
+		}
+		
+		if(!listPlayers.contains(player)) {			
+			listPlayers.add(player);
+		}
+		
+		if(!mapPlayersByDatabaseID.containsKey(id)) {
+			mapPlayersByDatabaseID.put(id, player);
+		}
+		
+
 	}
 	
 	public List<Player> getPlayers() {
@@ -264,6 +295,75 @@ public class PlayerManager extends Printable {
 	
 	public SledgeHammer getSledgeHammer() {
 		return sledgeHammer;
+	}
+	
+	/**
+	 * Resolves a Player instance of the database ID.
+	 * 
+	 * Returns null if ID does not exist.
+	 * 
+	 * @param id
+	 * 
+	 * @return
+	 */
+	public Player resolve(int id) {
+		
+		// The player to return.
+		Player player;
+		
+		// Check and see if the Player already exists in the cache.
+		player = this.mapPlayersByDatabaseID.get(id);
+		if(player != null) return player;
+		
+		// If not, Grab the player's username.
+		String username = ServerWorldDatabase.instance.resolvePlayerName(id);
+		
+		// There no user that exists. Return null.
+		if(username == null) return null;
+		
+		// Find if the player is already online.
+		player = getPlayerByUsername(username);
+		
+		// If the player has not online, create an offline version.
+		if(player == null) player = createOfflinePlayer(username);
+		
+		// Return the result.
+		return player;
+	}
+	
+	/**
+	 * Creates an Offline version of a player.
+	 * 
+	 * @param username
+	 * 
+	 * @return
+	 */
+	private Player createOfflinePlayer(String username) {
+		
+		// Check if username given is valid.
+		if(username == null) throw new IllegalArgumentException("Username given is null!");
+		
+		// Create an offline player.
+		Player player = new Player(username);
+		
+		// Add this player to the cache.
+		addPlayer(player);
+		
+		// Return the result.
+		return player;
+	}
+	
+	public Player getPlayerByUsername(String username) {
+		return mapPlayersByUserName.get(username);
+	}
+	
+	public Player getPlayerByID(int id) {
+		return mapPlayersByDatabaseID.get(id);
+	}
+	
+	public Player getPlayerDirty(String name) {
+		// TODO
+		return null;
 	}
 	
 	@Override
