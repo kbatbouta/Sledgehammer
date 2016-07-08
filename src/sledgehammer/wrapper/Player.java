@@ -4,12 +4,15 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.manager.PlayerManager;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
+import zombie.network.ServerWorldDatabase;
 
 public class Player {
 	
 	private IsoPlayer iso;
 	private UdpConnection connection;
 	private String username;
+	
+	private int id = -1;
 	
 	public Player(IsoPlayer iso) {
 		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
@@ -69,16 +72,16 @@ public class Player {
 				break;
 			}
 		}
+		
+		id = ServerWorldDatabase.instance.resolvePlayerID(username);
 	}
 
 	private void init() {
 		IsoPlayer player = get();
-		if(player != null) {
-			username = get().getUsername();			
-		}
-		if(username == null) {
-			username = connection.username;
-		}
+		if(player != null) username = get().getUsername();
+		if(username == null) username = connection.username;
+		
+		id = ServerWorldDatabase.instance.resolvePlayerID(username);
 	}
 	
 	public IsoPlayer get() {
@@ -154,5 +157,9 @@ public class Player {
 	
 	public boolean isAdmin() {
 		return get() == null ? username.equalsIgnoreCase("admin") : get().admin;
+	}
+
+	public int getID() {
+		return id;
 	}
 }
