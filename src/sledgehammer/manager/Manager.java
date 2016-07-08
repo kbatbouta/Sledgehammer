@@ -4,8 +4,8 @@ import sledgehammer.util.Printable;
 
 public abstract class Manager extends Printable {
 
-	abstract void onStart();
+	public abstract void onStart();
 	
-	abstract void onShutDown();
+	public abstract void onShutDown();
 	
 }
