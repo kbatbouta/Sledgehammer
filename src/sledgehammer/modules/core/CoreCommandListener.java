@@ -137,7 +137,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     			if(args.length >= 2) {
     				String playerName = args[0];
     				
-    				IsoPlayer playerPM = SledgeHammer.instance.getPlayerDirty(playerName);
+    				IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
     				
     				String commanderName = player.getPublicUsername();
     				if(commanderName == null) {

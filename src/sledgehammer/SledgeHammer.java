@@ -446,27 +446,27 @@ public class SledgeHammer extends Printable {
 	}
 
 	
-	public IsoPlayer getPlayer(String name) {
+	public IsoPlayer getIsoPlayer(String name) {
 		return PlayerManager.getIsoPlayer(name);
 	}
 	
-	public IsoPlayer getPlayerDirty(String name) {
+	public IsoPlayer getIsoPlayerDirty(String name) {
 		return PlayerManager.getIsoPlayerDirty(name);
 	}
 	
-	public IsoPlayer getPlayerByUsername(String username) {
+	public IsoPlayer getIsoPlayerByUsername(String username) {
 		return PlayerManager.getIsoPlayerByUsername(username);
 	}
 	
-	public IsoPlayer getPlayerByUsernameDirty(String username) {
+	public IsoPlayer getIsoPlayerByUsernameDirty(String username) {
 		return PlayerManager.getIsoPlayerByUsernameDirty(username);
 	}
 	
-	public IsoPlayer getPlayerByNickname(String nickname) {
+	public IsoPlayer getIsoPlayerByNickname(String nickname) {
 		return PlayerManager.getIsoPlayerByNickname(nickname);
 	}
 	
-	public IsoPlayer getPlayerByNicknameDirty(String nickname) {
+	public IsoPlayer getIsoPlayerByNicknameDirty(String nickname) {
 		return PlayerManager.getIsoPlayerByNicknameDirty(nickname);
 	}
 	

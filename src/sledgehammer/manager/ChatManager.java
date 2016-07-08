@@ -38,7 +38,7 @@ public class ChatManager extends Printable {
 	
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		try {
-			IsoPlayer player = SledgeHammer.instance.getPlayer(username);
+			IsoPlayer player = SledgeHammer.instance.getIsoPlayer(username);
 			if(player != null) {
 				return messagePlayer(GameServer.getPlayerByUserName(username), header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 			} else {
@@ -147,7 +147,7 @@ public class ChatManager extends Printable {
 	
 	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		try {
-			IsoPlayer player = SledgeHammer.instance.getPlayerDirty(username);
+			IsoPlayer player = SledgeHammer.instance.getIsoPlayerDirty(username);
 			if(player != null) {
 				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 			} else {

@@ -57,7 +57,7 @@ public class Player {
 		this.username = username;
 
 		// Tries to get a Player instance. Returns null if invalid.
-		this.iso = SledgeHammer.instance.getPlayerDirty(username);
+		this.iso = SledgeHammer.instance.getIsoPlayerDirty(username);
 		
 		// Go through each connection.
 		for(UdpConnection conn : SledgeHammer.instance.getUdpEngine().connections) {
