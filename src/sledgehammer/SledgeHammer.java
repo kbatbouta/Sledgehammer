@@ -510,4 +510,8 @@ public class SledgeHammer extends Printable {
 		managerModule.start();
 		
 	}
+
+	public void unregister(EventListener listener) {
+		getEventManager().unregister(listener);
+	}
 }
