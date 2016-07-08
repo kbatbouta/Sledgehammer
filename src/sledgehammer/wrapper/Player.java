@@ -161,4 +161,8 @@ public class Player {
 	public int getID() {
 		return id;
 	}
+
+	public void setConnection(UdpConnection connection) {
+		this.connection = connection;
+	}
 }
