@@ -18,6 +18,7 @@ import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
 import sledgehammer.util.Printable;
+import sledgehammer.wrapper.Player;
 import zombie.GameWindow;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -469,6 +470,16 @@ public class SledgeHammer extends Printable {
 	public IsoPlayer getIsoPlayerByNicknameDirty(String nickname) {
 		return PlayerManager.getIsoPlayerByNicknameDirty(nickname);
 	}
+	
+	public Player getPlayer(int id) {
+		return getPlayerManager().resolve(id);
+	}
+	
+	public Player getPlayer(String username) {
+		return getPlayerManager().getPlayerByUsername(username);
+	}
+	
+	
 	
 	/**
 	 * Updates the scoreboard for every player that is online.
