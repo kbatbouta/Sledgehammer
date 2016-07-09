@@ -173,4 +173,12 @@ public class Player {
 	public void setConnection(UdpConnection connection) {
 		this.connection = connection;
 	}
+
+	public void setProperty(String property, String content) {
+		mapProperties.put(property, content);
+	}
+	
+	public String getProperty(String property) {
+		return mapProperties.get(property.toLowerCase());
+	}
 }
