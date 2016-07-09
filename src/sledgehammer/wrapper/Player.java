@@ -77,7 +77,7 @@ public class Player {
 			}
 		}
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
-		mapProperties = SledgeHammer.instance.getPlayerManager().getProperties(id);
+		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
 	}
 	
 	private void init() {
@@ -87,7 +87,7 @@ public class Player {
 		
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
 		
-		mapProperties = SledgeHammer.instance.getPlayerManager().getProperties(id);
+		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
 		
 	}
 	
@@ -173,9 +173,27 @@ public class Player {
 	public void setConnection(UdpConnection connection) {
 		this.connection = connection;
 	}
+	
+	public Map<String, String> getProperties() {
+		return mapProperties;
+	}
+	
+	public void setProperties(Map<String, String> mapProperties) {
+		this.mapProperties = mapProperties;
+	}
 
 	public void setProperty(String property, String content) {
+		setProperty(property, content, true);
+	}
+	
+	public void setProperty(String property, String content, boolean save) {
 		mapProperties.put(property, content);
+
+		if(save) saveProperties();			
+	}
+	
+	public void saveProperties() {
+		SledgeHammer.instance.getPlayerManager().saveProperties(id, mapProperties);
 	}
 	
 	public String getProperty(String property) {

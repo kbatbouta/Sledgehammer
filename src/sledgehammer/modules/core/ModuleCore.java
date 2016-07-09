@@ -8,7 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
 import sledgehammer.module.SQLModule;
+import sledgehammer.util.ZUtil;
 import zombie.network.DataBaseBuffer;
 
 public class ModuleCore extends SQLModule {
@@ -275,14 +280,36 @@ public class ModuleCore extends SQLModule {
 	}
 	
 	public Map<String, String> getProperties(int id) {
-		Map<String, String> mapProperties = null;
 		
+		String json = null;
 		
+		try {
+			json = get(TABLE_PLAYER_PROPERTIES, "id", "" + id, "json");
+		} catch (SQLException e) {
+			stackTrace("Failed to fetch properties json map from the database!", e);
+			return new HashMap<>();
+		}
 		
+		if(json == null) return new HashMap<>();
 		
-		return mapProperties;
+		Gson gson = ZUtil.getGson();
+		
+		return gson.fromJson(json, new TypeToken<HashMap<String, String>>(){}.getType());
 	}
 	
+	public void saveProperties(int id, Map<String, String> mapProperties) {
+		Gson gson = ZUtil.getGson();
+		String json = gson.toJson(mapProperties);
+		
+		try {
+			set(TABLE_PLAYER_PROPERTIES, "id", "" + id, "json", json);
+		} catch (SQLException e) {
+			stackTrace("Failed to save player properties for id: " + id + ".", e);
+			print("json: " + json);
+		}
+		
+	}
+
 	public CoreCommandListener getCommandListener() {
 		return this.commandListener;
 	}

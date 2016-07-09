@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.util.Response;
+import sledgehammer.util.Result;
 import zombie.GameWindow;
 
 public abstract class SQLModule extends Module {
@@ -405,6 +407,38 @@ public abstract class SQLModule extends Module {
 		result.close();
 		statement.close();
 		return false;
+	}
+	
+	public void set(String table, String matchName, String matchValue, String targetName, String targetValue) throws SQLException {
+		if(has(table, matchName, matchValue)) {
+			update(table, matchName, matchValue, targetName, targetValue);
+		} else {
+			insert(table, new String[] {matchName, targetName}, new String[] {matchValue, targetValue});
+		}
+	}
+	
+	public void update(String table, String matchName, String matchValue, String targetName, String targetValue) throws SQLException {
+		PreparedStatement statement = prepareStatement("UPDATE " + table + " SET " + targetName + " = \"" + targetValue + "\" WHERE " + matchName + " = \"" + matchValue + "\"");
+		statement.executeUpdate();
+		statement.close();
+	}
+	
+	public void insert(String table, String[] names, String[] values) throws SQLException {
+		String nameBuild = "(";
+		for(String name : names) {
+			nameBuild += name + ",";
+		}
+		nameBuild = nameBuild.substring(0, nameBuild.length() - 1) + ")";
+		
+		String valueBuild = "(";
+		for(String value : values) {
+			valueBuild += "\"" + value + "\",";
+		}
+		valueBuild = valueBuild.substring(0, valueBuild.length() - 1) + ")";
+		
+		PreparedStatement statement = prepareStatement("INSERT INTO " + table + nameBuild + " VALUES " + valueBuild);
+		statement.executeUpdate();
+		statement.close();
 	}
 	
 	public String encrypt(String previousPwd) {

@@ -433,16 +433,16 @@ public class PlayerManager extends Manager {
 	/**
 	 * Returns player properties based on a given player ID.
 	 * 
-	 * TODO: Implement.
-	 * 
 	 * @param id
 	 * 
 	 * @return
 	 */
 	public Map<String, String> getProperties(int id) {
-		Map<String, String> mapProperties = new HashMap<>();
+		return sledgeHammer.getModuleManager().getCoreModule().getProperties(id);
+	}
 	
-		return mapProperties;
+	public void saveProperties(int id, Map<String, String> mapProperties) {
+		sledgeHammer.getModuleManager().getCoreModule().saveProperties(id, mapProperties);
 	}
 	
 }
