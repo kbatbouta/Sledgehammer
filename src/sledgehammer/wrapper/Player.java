@@ -1,5 +1,7 @@
 package sledgehammer.wrapper;
 
+import java.util.Map;
+
 import sledgehammer.SledgeHammer;
 import sledgehammer.manager.PlayerManager;
 import zombie.characters.IsoPlayer;
@@ -11,6 +13,8 @@ public class Player {
 	private IsoPlayer iso;
 	private UdpConnection connection;
 	private String username;
+	
+	private Map<String, String> mapProperties;
 	
 	private int id = -1;
 	
@@ -72,7 +76,8 @@ public class Player {
 				break;
 			}
 		}
-		id = ServerWorldDatabase.instance.resolvePlayerID(username);	
+		id = ServerWorldDatabase.instance.resolvePlayerID(username);
+		mapProperties = SledgeHammer.instance.getPlayerManager().getProperties(id);
 	}
 	
 	private void init() {
@@ -81,6 +86,9 @@ public class Player {
 		if(username == null) username = connection.username;
 		
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
+		
+		mapProperties = SledgeHammer.instance.getPlayerManager().getProperties(id);
+		
 	}
 	
 	public IsoPlayer get() {

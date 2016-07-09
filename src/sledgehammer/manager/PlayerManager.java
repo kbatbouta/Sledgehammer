@@ -429,5 +429,20 @@ public class PlayerManager extends Manager {
 		// TODO Auto-generated method stub
 		
 	}
+
+	/**
+	 * Returns player properties based on a given player ID.
+	 * 
+	 * TODO: Implement.
+	 * 
+	 * @param id
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getProperties(int id) {
+		Map<String, String> mapProperties = new HashMap<>();
+	
+		return mapProperties;
+	}
 	
 }
