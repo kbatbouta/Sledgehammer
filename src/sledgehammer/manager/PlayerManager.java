@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.DisconnectEvent;
+import sledgehammer.event.Event;
+import sledgehammer.interfaces.EventListener;
 import sledgehammer.util.Printable;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
@@ -13,7 +16,7 @@ import zombie.core.raknet.UdpConnection;
 import zombie.network.GameServer;
 import zombie.network.ServerWorldDatabase;
 
-public class PlayerManager extends Printable {
+public class PlayerManager extends Manager {
 
 	public static final String NAME = "PlayerManager";
 	
@@ -32,6 +35,8 @@ public class PlayerManager extends Printable {
 	 */
 	private SledgeHammer sledgeHammer;
 	
+	private DisconnectionHandler disconnectionHandler;
+	
 	/**
 	 * Main constructor.
 	 * 
@@ -46,6 +51,8 @@ public class PlayerManager extends Printable {
 		// Initialize the maps.
 		mapPlayersByUserName   = new HashMap<>();
 		mapPlayersByDatabaseID = new HashMap<>();
+		
+		disconnectionHandler = new DisconnectionHandler(this);
 	}
 	
 	public void addPlayer(Player player) {
@@ -365,8 +372,62 @@ public class PlayerManager extends Printable {
 		// TODO
 		return null;
 	}
+
+	/**
+	 * Handles disconnection of players with the cache.
+	 * @param player
+	 */
+	protected void onDisconnect(Player player) {
+		int id = player.getID();
+		String username = player.getUsername();
+		
+		listPlayers.remove(player);
+		mapPlayersByDatabaseID.remove(id);
+		mapPlayersByUserName.remove(username);
+	}
 	
 	@Override
 	public String getName() { return NAME; }
 
+	private class DisconnectionHandler implements EventListener {
+
+		private PlayerManager manager;
+		
+		DisconnectionHandler(PlayerManager manager) {
+			this.manager = manager;
+		}
+		
+		@Override
+		public String[] getTypes() { return new String[] {DisconnectEvent.ID}; }
+
+		@Override
+		public void handleEvent(Event event) {
+			if(event.getID() == DisconnectEvent.ID) {				
+				manager.onDisconnect(((DisconnectEvent)event).getPlayer());
+			}
+		}	
+	}
+
+	@Override
+	public void onStart() {
+		sledgeHammer.register(disconnectionHandler);
+	}
+
+	@Override
+	public void onShutDown() {
+		sledgeHammer.unregister(disconnectionHandler);
+	}
+
+	@Override
+	public void onLoad() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 }

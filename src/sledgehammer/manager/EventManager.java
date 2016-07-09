@@ -30,7 +30,7 @@ import static sledgehammer.util.ChatTags.*;
  * 
  * @author Jab
  */
-public class EventManager extends Printable {
+public class EventManager extends Manager {
 
 	public static final String NAME = "EventManager";
 	
@@ -639,5 +639,17 @@ public class EventManager extends Printable {
 
 	@Override
 	public String getName() { return NAME; }
+
+	@Override
+	public void onLoad() {}
+
+	@Override
+	public void onStart() {}
+
+	@Override
+	public void onUpdate() {}
+
+	@Override
+	public void onShutDown() {}
 	
 }

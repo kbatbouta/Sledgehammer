@@ -29,7 +29,7 @@ import sledgehammer.util.ZUtil;
  * @author Jab
  *
  */
-public final class ModuleManager extends Printable {
+public final class ModuleManager extends Manager {
 
 	public static final String NAME = "ModuleManager";
 	
@@ -116,102 +116,6 @@ public final class ModuleManager extends Printable {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
 		
-	}
-	
-	public void load() {
-		loadDefaultModules();
-		
-		// Load the modules first.
-		loadModules();
-	}
-	
-	/**
-	 * Starts all plug-in modules loaded through SledgeHammer.
-	 */
-	public void start() {
-		
-		Iterator<Module> modules = listModules.iterator();
-		while (modules.hasNext()) {
-			Module module = modules.next();
-			if (module != null) {
-				try {
-					println("Starting module " + module.getName() + " Version: " + module.getVersion() + ".");
-					module.startModule();
-				} catch (Exception e) {
-					println("Error starting module " + module.getName() + ": " + e.getMessage());
-					for (StackTraceElement o : e.getStackTrace()) {
-						println(o);
-					}
-					stopModule(module);
-					unloadModule(module, false);
-					modules.remove();
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Updates all active Module instances registered.
-	 */
-	public void update() {
-		
-		// Grab the current time.
-		long timeNow = System.currentTimeMillis();
-		
-		// Compare it with the last time the method has been called, calculating the delta.
-		long delta = timeNow - timeThen;
-		
-		// Grab the List of modules as a Iterator to prevent ConcurrentModificationExceptions.
-		Iterator<Module> modules = listModules.iterator();
-		
-		// Loop until all registered Modules have been accessed.
-		while (modules.hasNext()) {
-		
-			// Grab the next Module.
-			Module module = modules.next();
-			
-			// Make sure the Module instance is valid.
-			if (module != null) {
-			
-				// If the list of Module instances to unload and remove contains
-				// this Module instance, unload it, remove it, and continue to
-				// the next Module instance in the list.
-				if(listUnloadNext.contains(module)) {
-				
-					// Attempt to unload the module.
-					unloadModule(module, false);
-					modules.remove();
-					continue;
-				
-				}
-				
-				// If the module is valid, and not to be removed, update it.
-				updateModule(module, delta);
-			}
-		
-		}
-
-		// Go through the list of modules to be unloaded.
-		modules = listUnloadNext.iterator();
-		while (modules.hasNext()) {
-			
-			// Grab the next Module instance.
-			Module module = modules.next();
-
-			// If the Module instance is valid.
-			if(module != null) {
-				
-				// If the Module instance is loaded, unload it.
-				if(module.isLoaded()) {
-					unloadModule(module, false);
-				}
-				
-			}
-
-			// Remove the Module instance from the list.
-			modules.remove();
-		}
-
 	}
 
 	/**
@@ -511,13 +415,7 @@ public final class ModuleManager extends Printable {
 		return listSettings;
 	}
 
-	/**
-	 * Stops, and unloads all active, and registered Module instances.
-	 */
-	public void shutdown() {
-		stopModules();
-		unloadModules();
-	}
+
 	
 	/**
 	 * Returns the Core SledgeHammer Module instance.
@@ -580,10 +478,116 @@ public final class ModuleManager extends Printable {
 	SledgeHammer getSledgeHammer() {
 		return sledgeHammer;
 	}
+
+	@Override
+	public void onLoad() {
+		loadDefaultModules();
+		
+		// Load the modules first.
+		loadModules();
+	}
+	
+	/**
+	 * Starts all plug-in modules loaded through SledgeHammer.
+	 */
+	@Override
+	public void onStart() {
+		Iterator<Module> modules = listModules.iterator();
+		while (modules.hasNext()) {
+			Module module = modules.next();
+			if (module != null) {
+				try {
+					println("Starting module " + module.getName() + " Version: " + module.getVersion() + ".");
+					module.startModule();
+				} catch (Exception e) {
+					println("Error starting module " + module.getName() + ": " + e.getMessage());
+					for (StackTraceElement o : e.getStackTrace()) {
+						println(o);
+					}
+					stopModule(module);
+					unloadModule(module, false);
+					modules.remove();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Updates all active Module instances registered.
+	 */
+	@Override
+	public void onUpdate() {
+		
+		// Grab the current time.
+		long timeNow = System.currentTimeMillis();
+
+		// Compare it with the last time the method has been called, calculating
+		// the delta.
+		long delta = timeNow - timeThen;
+
+		// Grab the List of modules as a Iterator to prevent
+		// ConcurrentModificationExceptions.
+		Iterator<Module> modules = listModules.iterator();
+
+		// Loop until all registered Modules have been accessed.
+		while (modules.hasNext()) {
+
+			// Grab the next Module.
+			Module module = modules.next();
+
+			// Make sure the Module instance is valid.
+			if (module != null) {
+
+				// If the list of Module instances to unload and remove contains
+				// this Module instance, unload it, remove it, and continue to
+				// the next Module instance in the list.
+				if (listUnloadNext.contains(module)) {
+
+					// Attempt to unload the module.
+					unloadModule(module, false);
+					modules.remove();
+					continue;
+
+				}
+
+				// If the module is valid, and not to be removed, update it.
+				updateModule(module, delta);
+			}
+
+		}
+
+		// Go through the list of modules to be unloaded.
+		modules = listUnloadNext.iterator();
+		while (modules.hasNext()) {
+
+			// Grab the next Module instance.
+			Module module = modules.next();
+
+			// If the Module instance is valid.
+			if (module != null) {
+
+				// If the Module instance is loaded, unload it.
+				if (module.isLoaded()) {
+					unloadModule(module, false);
+				}
+
+			}
+
+			// Remove the Module instance from the list.
+			modules.remove();
+		}
+	}
+
+	/**
+	 * Stops, and unloads all active, and registered Module instances.
+	 */
+	@Override
+	public void onShutDown() {
+		stopModules();
+		unloadModules();
+	}
 	
 	@Override
 	public String getName() { return NAME; }
-
-	
 	
 }

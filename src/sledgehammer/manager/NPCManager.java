@@ -16,7 +16,6 @@ import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
 import sledgehammer.npc.action.ActionFollowTargetPath;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
-import sledgehammer.util.Printable;
 import sledgehammer.wrapper.Player;
 import zombie.ZombiePopulationManager;
 import zombie.core.network.ByteBufferWriter;
@@ -34,7 +33,7 @@ import zombie.sledgehammer.npc.NPC;
  * 
  * @author Jab
  */
-public class NPCManager extends Printable {
+public class NPCManager extends Manager {
 	
 	public static final String NAME = "NPCManager";
 	
@@ -157,9 +156,99 @@ public class NPCManager extends Printable {
 	}
 	
 	/**
+	 * Adds an Action instance to the list of Actions that a NPC can call to Act on.
+	 * 
+	 * @param name
+	 * 
+	 * @param action
+	 */
+	public void addAction(String name, Action action) {
+		mapActions.put(name, action);
+	}
+	
+	/**
+	 * Returns an Action instance, based on the name given.
+	 * 
+	 * @param name
+	 * 
+	 * @return
+	 */
+	public Action getAction(String name) {
+		return mapActions.get(name);
+	}
+
+	/**
+	 * Returns the List of all the NPCs registered.
+	 * 
+	 * @return
+	 */
+	public List<NPC> getNPCS() {
+		return this.listNPCs;
+	}
+
+	/**
+	 * Destroys all active NPCs registered.
+	 */
+	public void destroyNPCs() {
+		
+		for(NPC npc : listNPCs) {
+			destroyNPC(npc);
+		}
+		
+	}
+	
+	public ModuleNPC getModule() {
+		return moduleNPC;
+	}
+	
+	/**
+	 * Implemented EventListener to assist the NPCManager to send NPC player info to connecting Players, since NPCs do not have a UDPConnection instance.
+	 * 
+	 * @author Jab
+	 */
+	private class ConnectionListener implements EventListener {
+
+		NPCManager npcManager = null;
+		
+		public ConnectionListener(NPCManager engine) {
+			this.npcManager = engine;
+		}
+		
+		@Override
+		public String[] getTypes() {
+			return new String[] {ConnectEvent.ID , DisconnectEvent.ID};
+		}
+
+		@Override
+		public void handleEvent(Event event) {
+			if(event.getID() == ConnectEvent.ID) {
+				
+				ConnectEvent connectEvent = (ConnectEvent) event;
+				
+				Player player = connectEvent.getPlayer();
+				UdpConnection connection = player.getConnection();
+				
+				for(NPC npc : npcManager.getNPCS()) {
+					GameServer.sendPlayerConnect(npc, connection);
+				}
+			}
+		}
+	}
+
+	@Override
+	public String getName() { return NAME; }
+
+	@Override
+	public void onLoad() {}
+
+	@Override
+	public void onStart() {}
+
+	/**
 	 * Updates all NPCs registered.
 	 */
-	public void update() {
+	@Override
+	public void onUpdate() {
 		
 		List<NPC> listDead = new ArrayList<>();
 		
@@ -244,91 +333,10 @@ public class NPCManager extends Printable {
 					byteBufferWriter.putByte(flags);
 					c.endPacketSuperHighUnreliable();
 				}
-				
-			}
-		}
-	}
-	
-	/**
-	 * Adds an Action instance to the list of Actions that a NPC can call to Act on.
-	 * 
-	 * @param name
-	 * 
-	 * @param action
-	 */
-	public void addAction(String name, Action action) {
-		mapActions.put(name, action);
-	}
-	
-	/**
-	 * Returns an Action instance, based on the name given.
-	 * 
-	 * @param name
-	 * 
-	 * @return
-	 */
-	public Action getAction(String name) {
-		return mapActions.get(name);
-	}
-
-	/**
-	 * Returns the List of all the NPCs registered.
-	 * 
-	 * @return
-	 */
-	public List<NPC> getNPCS() {
-		return this.listNPCs;
-	}
-
-	/**
-	 * Destroys all active NPCs registered.
-	 */
-	public void destroyNPCs() {
-		
-		for(NPC npc : listNPCs) {
-			destroyNPC(npc);
-		}
-		
-	}
-	
-	public ModuleNPC getModule() {
-		return moduleNPC;
-	}
-	
-	/**
-	 * Implemented EventListener to assist the NPCManager to send NPC player info to connecting Players, since NPCs do not have a UDPConnection instance.
-	 * 
-	 * @author Jab
-	 */
-	private class ConnectionListener implements EventListener {
-
-		NPCManager npcManager = null;
-		
-		public ConnectionListener(NPCManager engine) {
-			this.npcManager = engine;
-		}
-		
-		@Override
-		public String[] getTypes() {
-			return new String[] {ConnectEvent.ID , DisconnectEvent.ID};
-		}
-
-		@Override
-		public void handleEvent(Event event) {
-			if(event.getID() == ConnectEvent.ID) {
-				
-				ConnectEvent connectEvent = (ConnectEvent) event;
-				
-				Player player = connectEvent.getPlayer();
-				UdpConnection connection = player.getConnection();
-				
-				for(NPC npc : npcManager.getNPCS()) {
-					GameServer.sendPlayerConnect(npc, connection);
-				}
 			}
 		}
 	}
 
 	@Override
-	public String getName() { return NAME; }
+	public void onShutDown() {}
 }

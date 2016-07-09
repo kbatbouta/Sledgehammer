@@ -20,7 +20,7 @@ import zombie.network.DataBaseBuffer;
  * @author Jab
  *
  */
-public class PermissionsManager extends Printable {
+public class PermissionsManager extends Manager {
 	
 	public static final String NAME = "PermissionsManager";
 	
@@ -234,5 +234,17 @@ public class PermissionsManager extends Printable {
 
 	@Override
 	public String getName() { return NAME; }
+
+	@Override
+	public void onLoad() {}
+
+	@Override
+	public void onStart() {}
+
+	@Override
+	public void onUpdate() {}
+
+	@Override
+	public void onShutDown() {}
 	
 }

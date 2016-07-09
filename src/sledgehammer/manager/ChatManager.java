@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.util.Printable;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
@@ -21,7 +20,7 @@ import static sledgehammer.util.ChatTags.*;
  * @author Jab
  *
  */
-public class ChatManager extends Printable {
+public class ChatManager extends Manager {
 
 	public static final String NAME = "ChatManager";
 	
@@ -173,5 +172,17 @@ public class ChatManager extends Printable {
 	public void setUdpEngine(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
 	}
+
+	@Override
+	public void onLoad() {}
+
+	@Override
+	public void onStart() {}
+
+	@Override
+	public void onUpdate() {}
+
+	@Override
+	public void onShutDown() {}
 
 }

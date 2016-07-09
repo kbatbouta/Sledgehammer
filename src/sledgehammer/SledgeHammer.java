@@ -147,13 +147,18 @@ public class SledgeHammer extends Printable {
 			
 			// Then, load the core modules, and start the Modules.
 			if(!TESTMODULE) {
-				managerModule.load();
+				managerModule.onLoad();
 			}
 			
 		} catch(Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer.", e);
 		}
 		
+	}
+	
+	public void start() {
+		getModuleManager().onStart();
+		getPlayerManager().onStart();
 	}
 
 	/**
@@ -176,15 +181,11 @@ public class SledgeHammer extends Printable {
 	 */
 	public void update() {
 		try {
-			
 			synchronized (this) {
-			
-				managerModule.update();
-				managerNPC.update();
+				managerModule.onUpdate();
+				managerNPC.onUpdate();
 			}
-			
 		} catch(Exception e) {
-			
 			stackTrace("An Error occured in Sledgehammer's update method.", e);
 		}
 	}
@@ -196,8 +197,8 @@ public class SledgeHammer extends Printable {
 		try {			
 			
 			synchronized (this) {
-			
-				managerModule.shutdown();
+				managerModule.onShutDown();
+				managerPlayer.onShutDown();
 			}
 			
 		} catch(Exception e) {
@@ -504,11 +505,6 @@ public class SledgeHammer extends Printable {
 		fieldSysPath.setAccessible(true);
 		fieldSysPath.set(null, null);
 		GameServer.main(args);
-	}
-
-	public void start() {
-		managerModule.start();
-		
 	}
 
 	public void unregister(EventListener listener) {
