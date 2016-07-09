@@ -31,7 +31,7 @@ public class ZUtil {
 
 	private static Gson gson = new Gson();
 	
-	public static Random random = new Random();
+	public static Random random = new RandomXS128();
 	
 	public static boolean isClass(String className) {
 	    try  {
