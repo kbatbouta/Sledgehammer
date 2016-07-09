@@ -22,8 +22,9 @@ public class ModuleCore extends SQLModule {
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	
-	private static String TABLE_GLOBAL_MUTE     = "sledgehammer_global_mute"    ;
-	private static String TABLE_GLOBAL_MESSAGES = "sledgehammer_global_messages";
+	private static String TABLE_GLOBAL_MUTE       = "sledgehammer_global_mute"      ;
+	private static String TABLE_GLOBAL_MESSAGES   = "sledgehammer_global_messages"  ;
+	private static String TABLE_PLAYER_PROPERTIES = "sledgehammer_player_properties";
 	
 	private List<PeriodicMessage> listPeriodicMessages;
 	private Map<String, PeriodicMessage> mapPeriodicMessages;
@@ -39,8 +40,9 @@ public class ModuleCore extends SQLModule {
 		try {
 			
 			statement = createStatement();
-			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MUTE + " (name TEXT, mute INTEGER NOT NULL CHECK (mute IN (0,1)));");
-			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MESSAGES + " (name TEXT, content TEXT, color TEXT, enabled BOOL, time INTEGER, broadcast BOOL);");
+			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MUTE       + " (name TEXT, mute INTEGER NOT NULL CHECK (mute IN (0,1)));");
+			statement.executeUpdate("create table if not exists " + TABLE_GLOBAL_MESSAGES   + " (name TEXT, content TEXT, color TEXT, enabled BOOL, time INTEGER, broadcast BOOL);");
+			statement.executeUpdate("create table if not exists " + TABLE_PLAYER_PROPERTIES + " (id INTEGER, json TEXT);");
 			statement.close();
 			
 			addTableColumnIfNotExists("bannedid", "username", SQL_STORAGE_CLASS_TEXT);
@@ -270,7 +272,15 @@ public class ModuleCore extends SQLModule {
 			timeThen = timeNow;
 		}
 		
+	}
+	
+	public Map<String, String> getProperties(int id) {
+		Map<String, String> mapProperties = null;
 		
+		
+		
+		
+		return mapProperties;
 	}
 	
 	public CoreCommandListener getCommandListener() {

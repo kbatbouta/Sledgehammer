@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.google.gson.Gson;
+
 import sledgehammer.SledgeHammer;
 
 public class ZUtil {
@@ -27,6 +29,8 @@ public class ZUtil {
 	 */
 	public static File pluginFolder = new File(ZUtil.pluginLocation);
 
+	private static Gson gson = new Gson();
+	
 	public static Random random = new Random();
 	
 	public static boolean isClass(String className) {
@@ -36,6 +40,10 @@ public class ZUtil {
 	    }  catch (final ClassNotFoundException e) {
 	        return false;
 	    }
+	}
+	
+	public static Gson getGson() {
+		return gson;
 	}
 	
 	/**
