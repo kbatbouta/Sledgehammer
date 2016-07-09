@@ -11,6 +11,7 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
+import sledgehammer.interfaces.StringModifier;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.ModuleManager;
@@ -97,6 +98,8 @@ public class SledgeHammer extends Printable {
 	 * The name of the server running SledgeHammer.
 	 */
 	private String publicServerName;
+	
+	private StringModifier stringModifier;
 	
 	/**
 	 * Test-Case constructor. Use this constructor for testing a Module.
@@ -509,5 +512,13 @@ public class SledgeHammer extends Printable {
 
 	public void unregister(EventListener listener) {
 		getEventManager().unregister(listener);
+	}
+	
+	public StringModifier getStringModifier() {
+		return stringModifier;
+	}
+	
+	public void setStringModifier(StringModifier stringModifier) {
+		this.stringModifier = stringModifier;
 	}
 }
