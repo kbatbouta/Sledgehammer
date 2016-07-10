@@ -93,7 +93,14 @@ public class INI {
 				if (!lastLineComment) {
 					comment = new ArrayList<String>();
 				}
-				String nextComment = newLine.split(";")[1].trim();
+				String nextComment = null;
+				String[] split = newLine.split(";");
+				if(split.length == 2) {					
+					nextComment = split[1].trim();
+				} else if(split.length == 1) {
+					nextComment = split[0];
+				}
+					
 				comment.add(nextComment);
 				if (mapSectionName != null) {
 					mapSectionVariableComments.put(mapSectionName,
