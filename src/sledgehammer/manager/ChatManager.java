@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
@@ -24,22 +25,19 @@ public class ChatManager extends Manager {
 
 	public static final String NAME = "ChatManager";
 	
-	private List<String> listGlobalMuters;
 	private UdpEngine udpEngine;
+
+	private SledgeHammer sledgeHammer;
 	
-	public ChatManager() {
-		this.listGlobalMuters = new ArrayList<>();
-	}
-	
-	public List<String> getGloballyMutedUsernames() {
-		return this.listGlobalMuters;
+	public ChatManager(SledgeHammer sledgeHammer) {
+		this.sledgeHammer = sledgeHammer;
 	}
 	
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		try {
-			IsoPlayer player = SledgeHammer.instance.getIsoPlayer(username);
+			Player player = SledgeHammer.instance.getPlayer(username);
 			if(player != null) {
-				return messagePlayer(GameServer.getPlayerByUserName(username), header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 			} else {
 				return "Player not found: " + username + ".";
 			}
@@ -49,25 +47,28 @@ public class ChatManager extends Manager {
 		return null;
 	}
 	
-	public String messagePlayer(IsoPlayer player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-		UdpConnection connection = GameServer.getConnectionFromPlayer(player);
-		if(connection != null) {
-			return messagePlayer(connection, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
-		} else {
-			return "Connection does not exist.";
-		}
-	}
+//	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+//		
+//		if(player != null) {
+//			return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+//		} else {
+//			return "Connection does not exist.";
+//		}
+//	}
 	
 	public String privateMessage(String commander, String username, String text) {
-		return messagePlayer(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
+		Player player = sledgeHammer.getPlayer(username);
+		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
 	
 	public String warnPlayer(String commander, String username, String text) {
-		return messagePlayer(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
+		Player player = sledgeHammer.getPlayer(username);
+		return messagePlayer(player, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
 	}
 	
 	public String privateMessage(String commander, UdpConnection connection, String text) {
-		return messagePlayer(connection, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
+		Player player = sledgeHammer.getPlayer(connection.username);
+		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
 	
 	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
@@ -80,9 +81,13 @@ public class ChatManager extends Manager {
 		connection.endPacketImmediate();
 	}
 
-	public String messagePlayer(UdpConnection connection, String header, String headerColor, String text, String textColor,  boolean addTimeStamp, boolean bypassMute) {
+	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor,  boolean addTimeStamp, boolean bypassMute) {
 		
-		if(!bypassMute && listGlobalMuters.contains(connection.username.toLowerCase())) return "User muted their global chat.";
+		System.out.println("Messaging player: " + player);
+		
+		UdpConnection connection = player.getConnection();
+		
+		if(!bypassMute && player.getProperty("muteglobal").equals("1")) return "User muted their global chat.";
 		
 		String message = "";
 		if(addTimeStamp) message += "[T]";
@@ -103,15 +108,15 @@ public class ChatManager extends Manager {
 
 	public void messageGlobal(String message) {
 		if(udpEngine == null) return;
-		for (UdpConnection connection : udpEngine.connections) {
-			messagePlayer(connection, null, null, message, null, true, false);
+		for (Player player : sledgeHammer.getPlayers()) {
+			messagePlayer(player, null, null, message, null, true, false);
 		}
 	}
 	
 	public void messageGlobal(String header, String message) {
 		if(udpEngine == null) return;
-		for (UdpConnection connection : udpEngine.connections) {
-			messagePlayer(connection, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
+		for (Player player : sledgeHammer.getPlayers()) {
+			messagePlayer(player, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
 		}
 	}
 	
@@ -120,15 +125,16 @@ public class ChatManager extends Manager {
 			println("UdpEngine is null in messageGlobal");
 			return;
 		}
-		for (UdpConnection connection : udpEngine.connections) {
-			messagePlayer(connection, header, headerColor, message, messageColor, true, false);
+		for (Player player : sledgeHammer.getPlayers()) {
+			messagePlayer(player, header, headerColor, message, messageColor, true, false);
 		}
 	}
 	
 	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
 		if(udpEngine == null) return;
-		for (UdpConnection connection : udpEngine.connections) {
-			messagePlayer(connection, header, headerColor, message, messageColor, timeStamp, false);
+		
+		for (Player player : sledgeHammer.getPlayers()) {
+			messagePlayer(player, header, headerColor, message, messageColor, timeStamp, false);
 		}
 	}
 	
@@ -146,7 +152,7 @@ public class ChatManager extends Manager {
 	
 	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		try {
-			IsoPlayer player = SledgeHammer.instance.getIsoPlayerDirty(username);
+			Player player = SledgeHammer.instance.getPlayerDirty(username);
 			if(player != null) {
 				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
 			} else {

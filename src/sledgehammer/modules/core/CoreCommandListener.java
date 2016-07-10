@@ -142,7 +142,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     				
     				IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
     				
-    				String commanderName = player.getPublicUsername();
+    				String commanderName = player.getNickname();
     				if(commanderName == null) {
     					commanderName = player.getUsername();
     				}
@@ -325,9 +325,22 @@ public class CoreCommandListener extends Printable implements CommandListener {
         } else
     	if(command.equalsIgnoreCase("muteglobal")) {
     		if(module.hasPermission(username, getPermissionContext("muteglobal"))) {    			
-    			response = module.toggleGlobalMute(username);
+    			
+    			String muted = player.getProperty("muteglobal");
+    			
+    			if(muted.equals("1")) {
+    				muted = "0";
+    				response = "Global mute disabled.";
+    			} else {
+    				muted = "1";
+    				response = "Global mute enabled. To disable it, type \"/globalmute\"";
+    			}
+    			
+    			player.setProperty("muteglobal", muted);
+    			
     			String toggle = "on";
-    			if(module.getGloballyMutedUsernames().contains(username.toLowerCase())) toggle = "off";
+    			if(muted.equals("0")) toggle = "off";
+    			
     			c.setResponse(Result.SUCCESS, response);
     			c.setLoggedMessage(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
     			return;

@@ -20,7 +20,7 @@ import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
-import zombie.characters.IsoPlayer;
+import sledgehammer.wrapper.Player;
 import zombie.core.raknet.UdpConnection;
 
 public abstract class Module extends Printable {
@@ -276,12 +276,8 @@ public abstract class Module extends Printable {
 		return getChatManager().messagePlayer(username, header, headerColor, text, textColor, addTimeStamp, bypassMute);
 	}
 
-	public String messagePlayer(IsoPlayer player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		return getChatManager().messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);
-	}
-
-	public String messagePlayer(UdpConnection connection, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-		return getChatManager().messagePlayer(connection, header, headerColor, text, textColor, addTimeStamp, bypassMute);
 	}
 
 	public String privateMessage(String commander, String username, String text) {
@@ -328,11 +324,11 @@ public abstract class Module extends Printable {
 	public void broadcastMessage(String message, String messageColor) {
 		getChatManager().broadcastMessage(message, messageColor);
 	}
-
-	public List<String> getGloballyMutedUsernames() {
-		return getChatManager().getGloballyMutedUsernames();
-	}
 	
+	public List<Player> getPlayers() {
+		return SledgeHammer.instance.getPlayers();
+	}
+
 	public boolean isLoaded() {
 		return loaded;
 	}

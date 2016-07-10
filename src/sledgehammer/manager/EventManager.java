@@ -16,7 +16,6 @@ import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.modules.core.CoreCommandListener;
 import sledgehammer.util.ChatTags;
-import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
 import zombie.core.logger.LoggerManager;
@@ -192,13 +191,26 @@ public class EventManager extends Manager {
 			List<EventListener> listEventListeners = mapEventListeners.get(event.getID());
 			if (listEventListeners != null) {
 				for (EventListener listener : listEventListeners) {
-					if(listener != coreEventListener) {						
-						listener.handleEvent(event);
+					if(!listener.runSecondary()) {						
+						if(listener != coreEventListener) {						
+							listener.handleEvent(event);
+						}
+						if (event.canceled())
+							return event;
+						if (event.handled())
+							break;
 					}
-					if (event.canceled())
-						return event;
-					if (event.handled())
-						break;
+				}
+				for(EventListener listener : listEventListeners) {
+					if(listener.runSecondary()) {						
+						if(listener != coreEventListener) {						
+							listener.handleEvent(event);
+						}
+						if (event.canceled())
+							return event;
+						if (event.handled())
+							break;
+					}
 				}
 			}
 
@@ -207,7 +219,7 @@ public class EventManager extends Manager {
 				return event;
 
 			// Force Core Event-handling to be last, for modification potential.
-			if (!event.handled()) {
+			if (!event.handled() && !event.ignoreCore()) {
 				coreEventListener.handleEvent(event);
 			}
 
@@ -220,10 +232,7 @@ public class EventManager extends Manager {
 				logEvent(event);
 
 		} catch (Exception e) {
-			println("Error handling event " + event + ": " + e.getMessage());
-			for (StackTraceElement o : e.getStackTrace()) {
-				println(o);
-			}
+			stackTrace("Error handling event " + event + ": " + e.getMessage(), e);
 		}
 		return event;
 	}

@@ -78,6 +78,7 @@ public class Player {
 		}
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
 		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
+		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
 	}
 	
 	private void init() {
@@ -88,6 +89,7 @@ public class Player {
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
 		
 		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
+		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
 		
 	}
 	
@@ -111,18 +113,8 @@ public class Player {
 		return username;
 	}
 	
-	public String getPublicUsername() {
-		
-		IsoPlayer player = get();
-		if(player != null) {
-			return player.getPublicUsername();
-		}
-
-		return null;
-	}
-	
 	public String getName() {
-		String name = getPublicUsername();
+		String name = getNickname();
 		if(name == null) {
 			name = getUsername();
 		}
@@ -147,11 +139,11 @@ public class Player {
 	}
 	
 	public boolean isNickname(String nickname) {
-		return getPublicUsername().equalsIgnoreCase(nickname);
+		return getNickname().equalsIgnoreCase(nickname);
 	}
 	
 	public boolean isNicknameDirty(String nickname) {
-		return getPublicUsername().equalsIgnoreCase(nickname);
+		return getNickname().equalsIgnoreCase(nickname);
 	}
 	
 	public boolean isName(String name) {
@@ -207,5 +199,14 @@ public class Player {
 	@Override
 	public String toString() {
 		return getName();
+	}
+
+	public String getNickname() {
+		IsoPlayer player = get();
+		if(player != null) {
+			return player.getPublicUsername();
+		}
+
+		return null;
 	}
 }

@@ -60,13 +60,13 @@ public abstract class Printable {
 	}
 	
 	public synchronized void stackTrace(Throwable throwable) {
-		stackTrace((String)null, throwable);
+		stackTrace(throwable.getClass().getName(), throwable);
 	}
 	
 	
 	public synchronized void stackTrace(String errorText, Throwable throwable) {
 		if(errorText != null && !errorText.isEmpty()) {
-			errorText = errorText.trim() + ": ";
+			errorText = errorText.trim() + ": " + throwable.getCause();
 		}
 		
 		println("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());

@@ -233,6 +233,11 @@ public class NPCManager extends Manager {
 				}
 			}
 		}
+
+		@Override
+		public boolean runSecondary() {
+			return false;
+		}
 	}
 
 	@Override

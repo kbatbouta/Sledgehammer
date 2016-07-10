@@ -134,7 +134,7 @@ public class SledgeHammer extends Printable {
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			
 			// Initialize the Chat Engine.
-			chat = new ChatManager();
+			chat = new ChatManager(this);
 			
 			managerEvent = new EventManager(this);
 			
@@ -536,5 +536,13 @@ public class SledgeHammer extends Printable {
 	
 	public void setStringModifier(StringModifier stringModifier) {
 		this.stringModifier = stringModifier;
+	}
+
+	public List<Player> getPlayers() {
+		return getPlayerManager().getPlayers();
+	}
+
+	public Player getPlayerDirty(String name) {
+		return getPlayerManager().getPlayerDirty(name);
 	}
 }

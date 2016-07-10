@@ -81,8 +81,6 @@ public class PeriodicMessage {
 				String actualColor = ChatTags.getColor(getColor());
 				if(actualColor == null) color = ChatTags.COLOR_WHITE;
 				
-				System.out.println("Periodic Message Displayed: " + content);
-				
 				if (isBroadcasted()) {
 					// Broadcast it as a /broadcast message.
 					SledgeHammer.instance.getChatManager().broadcastMessage(content, actualColor);

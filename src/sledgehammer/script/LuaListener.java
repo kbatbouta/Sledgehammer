@@ -273,4 +273,9 @@ public class LuaListener extends Printable implements EventListener {
 	public String getName() {
 		return NAME;
 	}
+
+	@Override
+	public boolean runSecondary() {
+		return false;
+	}
 }

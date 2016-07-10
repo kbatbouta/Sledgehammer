@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.module.SQLModule;
 import sledgehammer.util.ZUtil;
 import zombie.network.DataBaseBuffer;
@@ -60,61 +61,6 @@ public class ModuleCore extends SQLModule {
 				stackTrace(e2);
 			}
 		}
-	}
-	
-	public String toggleGlobalMute(String username) {
-		if(username == null) return "Username is null.";
-		try {
-			List<String> listGlobalMuters = getGloballyMutedUsernames();
-			String muted = get(TABLE_GLOBAL_MUTE, "name", username, "mute");
-			if(muted != null) {
-				if(muted.equals("1")) {
-					PreparedStatement statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MUTE + " SET mute = \"0\" where name = \"" + username + "\"");
-					statement.executeUpdate();
-					statement.close();
-					listGlobalMuters.remove(username);
-					return "Global mute disabled.";
-				} else
-				if(muted.equals("0")) {
-					PreparedStatement statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MUTE + " SET mute = \"1\" where name = \"" + username + "\"");
-					statement.executeUpdate();
-					statement.close();
-					if(!listGlobalMuters.contains(username)) listGlobalMuters.add(username);
-					return "Global mute enabled. To disable it, type \"/globalmute\"";
-				}
-			} else {
-				PreparedStatement statement = prepareStatement("INSERT INTO " + TABLE_GLOBAL_MUTE + " (name, mute) VALUES (\"" + username + "\", \"1\")");
-				statement.executeUpdate();
-				statement.close();
-				if(!listGlobalMuters.contains(username)) listGlobalMuters.add(username);
-				return "Global mute enabled. To disable it, type \"/globalmute\"";
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		return "Failed to toggle global mute. (Internal Error)";
-	}
-	
-	protected boolean getGlobalMuted(String username) {
-		if(username == null) {
-			println("getGlobalMuted: Username is null!");
-			return false;
-		}
-		try {
-			String muted = get(TABLE_GLOBAL_MUTE, "name", username, "mute");
-			if(muted != null) {
-				if(muted.equals("1")) {
-					return true;
-				} else {
-					return false;
-				}
-			}
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return false;
 	}
 
 	@Override
@@ -176,7 +122,9 @@ public class ModuleCore extends SQLModule {
 			// Add the PeriodicMessage to the collection.
 			addPeriodicMessage(periodicMessage);
 			
-			println("Periodic Message added: name: " + name + " content: " + content + " color: " + color + " enabled: " + enabled + " time: " + time + " broadcast: " + broadcast);
+			if(SledgeHammer.DEBUG) {				
+				println("Periodic Message added: name: " + name + " content: " + content + " color: " + color + " enabled: " + enabled + " time: " + time + " broadcast: " + broadcast);
+			}
 		}
 	}
 

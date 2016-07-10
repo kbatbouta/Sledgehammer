@@ -6,6 +6,7 @@ public abstract class Event {
 	
 	private boolean handled = false;
 	private boolean announce = false;
+	private boolean ignoreCore = false;
 	long timeStamp = 0L;
 	private boolean canceled = false;
 	
@@ -41,6 +42,14 @@ public abstract class Event {
 
 	public void setCanceled(boolean canceled) {
 		this.canceled  = canceled;
+	}
+	
+	public boolean ignoreCore() {
+		return ignoreCore;
+	}
+	
+	public void setIgnoreCore(boolean flag) {
+		ignoreCore = flag;
 	}
 	
 	public abstract String getID();

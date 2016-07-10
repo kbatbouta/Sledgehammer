@@ -376,10 +376,52 @@ public class PlayerManager extends Manager {
 	}
 	
 	public Player getPlayerDirty(String name) {
-		// TODO
-		return null;
+		
+		// Search by username.
+		Player player = getPlayerByUsername(name);
+		
+		// Search by nickname.
+		if(player == null) {			
+			player = getPlayerByNickname(name);
+		}
+		
+		// Search dirty for username.
+		if(player == null) {
+			for(Player nextPlayer : getPlayers()) {
+				if(nextPlayer.getUsername().contains(name)) {
+					player = nextPlayer;
+					break;
+				}
+			}
+		}
+		
+		// Search dirty for nickname.
+		if(player == null) {
+			for(Player nextPlayer : getPlayers()) {
+				if(nextPlayer.getNickname().contains(name)) {
+					player = nextPlayer;
+					break;
+				}
+			}
+		}
+		
+		return player;
 	}
 	
+	private Player getPlayerByNickname(String name) {
+		
+		Player player = null;
+		
+		for(Player nextPlayer : getPlayers()) {
+			if(nextPlayer.getNickname().equals(name)) {
+				player = nextPlayer;
+				break;
+			}
+		}
+		
+		return player;
+	}
+
 	public void onConnect(Player player) {
 		
 	}
@@ -419,6 +461,11 @@ public class PlayerManager extends Manager {
 			if(event.getID() == DisconnectEvent.ID) {				
 				manager.onDisconnect(((DisconnectEvent)event).getPlayer());
 			}
+		}
+
+		@Override
+		public boolean runSecondary() {
+			return false;
 		}	
 	}
 	
@@ -438,6 +485,11 @@ public class PlayerManager extends Manager {
 			if(event.getID() == ConnectEvent.ID) {				
 				manager.onConnect(((ConnectEvent)event).getPlayer());
 			}
+		}
+
+		@Override
+		public boolean runSecondary() {
+			return false;
 		}	
 	}
 
