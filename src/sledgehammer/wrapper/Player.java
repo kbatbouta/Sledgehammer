@@ -82,7 +82,7 @@ public class Player {
 	
 	private void init() {
 		IsoPlayer player = get();
-		if(player != null) username = get().getUsername();
+		if(player   != null) username = get().getUsername();
 		if(username == null) username = connection.username;
 		
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
@@ -187,9 +187,9 @@ public class Player {
 	}
 	
 	public void setProperty(String property, String content, boolean save) {
-		mapProperties.put(property, content);
+		mapProperties.put(property.toLowerCase(), content);
 
-		if(save) saveProperties();			
+		if(save) saveProperties();
 	}
 	
 	public void saveProperties() {
@@ -198,5 +198,14 @@ public class Player {
 	
 	public String getProperty(String property) {
 		return mapProperties.get(property.toLowerCase());
+	}
+
+	public void set(IsoPlayer iso) {
+		this.iso = iso;
+	}
+	
+	@Override
+	public String toString() {
+		return getName();
 	}
 }

@@ -44,6 +44,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapTooltips.put("broadcast"    , "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"");
 		mapTooltips.put("commitsuicide", "End your character's life.");
 		mapTooltips.put("muteglobal"   , "Toggles global chat.");
+		mapTooltips.put("properties"   , "Lists a player's properties. ex: /properties rj.");
 		mapTooltips.put("ban"          , 
 				"Bans a player. Flags:" + NEW_LINE + 
 				" -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" + NEW_LINE + 
@@ -58,14 +59,15 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
 		
 		mapContexts = new HashMap<>();
-		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"            );
-		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"        );
-		mapContexts.put("muteglobal"   , "sledgehammer.core.basic.muteglobal"    );
-		mapContexts.put("commitsuicide", "sledgehammer.core.basic.commitsuicide" );
-		mapContexts.put("ban"          , "sledgehammer.core.moderation.ban"      );
-		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"     );
-		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"    );
-		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast");
+		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
+		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"         );
+		mapContexts.put("muteglobal"   , "sledgehammer.core.basic.muteglobal"     );
+		mapContexts.put("commitsuicide", "sledgehammer.core.basic.commitsuicide"  );
+		mapContexts.put("properties"   , "sledgehammer.core.moderation.properties");
+		mapContexts.put("ban"          , "sledgehammer.core.moderation.ban"       );
+		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
+		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
+		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
 
 		PermissionsManager managerPermissions = module.getPermissionsManager();
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("pm"           ));
@@ -100,6 +102,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				"warn",
 				"broadcast",
 				"commitsuicide",
+				"properties",
 				"ban",
 				"unban",
 				"muteglobal",
@@ -242,6 +245,44 @@ public class CoreCommandListener extends Printable implements CommandListener {
         		return;
         	}
         } else
+        if(command.equalsIgnoreCase("properties")) {
+        	if(module.hasPermission(username, getPermissionContext("properties"))) {  
+        		Player playerProperties = null;
+        		
+        		if(args.length == 0) {
+        			playerProperties = player;
+        		} else if(args.length == 1) {
+        			playerProperties = SledgeHammer.instance.getPlayer(username);
+        		} else {
+        			response = onTooltip(c.getPlayer(),"properties");
+        			c.setResponse(Result.FAILURE, response);
+        			return;
+        		}
+        		
+        		if(playerProperties != null) {
+        			Map<String, String> properties = playerProperties.getProperties();
+        			
+        			response = "Properties for player \"" + playerProperties + "\":" + ChatTags.NEW_LINE + " ";
+        			
+        			for(String key : properties.keySet()) {
+        				String value = properties.get(key);        				
+        				response += key + ": " + value + ChatTags.NEW_LINE + " ";
+        			}
+        			
+        			c.setResponse(Result.SUCCESS, response);
+        			c.setLoggedMessage(LogEvent.LogType.INFO, username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
+        			
+        		} else {
+        			response = onTooltip(c.getPlayer(), "properties");
+        			c.setResponse(Result.FAILURE, response);
+        			return;
+        		}
+        		
+        	} else {
+        		c.deny();
+        		return;
+        	}
+		} else
         if(command.equalsIgnoreCase("ban")) {
         	if(module.hasPermission(username, getPermissionContext("ban"))) {        		
         		if(args.length > 0) {        		
@@ -376,7 +417,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 			
-			Player playerBanned = new Player(username);
+			Player playerBanned = SledgeHammer.instance.getPlayer(username);
 			UdpConnection connectionBanned = playerBanned.getConnection();
 
 			if(bIP && IP != null && !IP.isEmpty()) {

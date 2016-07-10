@@ -298,6 +298,7 @@ public class ModuleCore extends SQLModule {
 	}
 	
 	public void saveProperties(int id, Map<String, String> mapProperties) {
+		
 		Gson gson = ZUtil.getGson();
 		String json = gson.toJson(mapProperties);
 		

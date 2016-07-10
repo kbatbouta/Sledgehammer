@@ -479,8 +479,24 @@ public class SledgeHammer extends Printable {
 		return getPlayerManager().resolve(id);
 	}
 	
+	/**
+	 * Returns a player based on a user's name. If the player is not online, an offline copy will be made.
+	 * 
+	 * @param username
+	 * 
+	 * @return
+	 */
 	public Player getPlayer(String username) {
-		return getPlayerManager().getPlayerByUsername(username);
+		
+		if(username == null) return null;
+		
+		Player player = getPlayerManager().getPlayerByUsername(username);
+		
+		if(player == null) {
+			player = getPlayerManager().createOfflinePlayer(username);
+		}
+		
+		return player;
 	}
 	
 	

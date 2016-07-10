@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.util.Printable;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -28,6 +28,8 @@ public class PlayerManager extends Manager {
 	private Map<String, Player> mapPlayersByUserName;
 	
 	private Map<Integer, Player> mapPlayersByDatabaseID;
+	
+	private Player admin = new Player();
 	
 	/**
 	 * Instance of SledgeHammer. While this is statically accessible through the
@@ -345,16 +347,21 @@ public class PlayerManager extends Manager {
 	 * 
 	 * @return
 	 */
-	private Player createOfflinePlayer(String username) {
+	public Player createOfflinePlayer(String username) {
 		
 		// Check if username given is valid.
 		if(username == null) throw new IllegalArgumentException("Username given is null!");
 		
+		Player player = getPlayerByUsername(username);
+		
+		// If the player is online, then simply return that copy instead.
+		if(player != null) return player;
+		
 		// Create an offline player.
-		Player player = new Player(username);
+		player = new Player(username);
 		
 		// Add this player to the cache.
-		addPlayer(player);
+		// addPlayer(player);
 		
 		// Return the result.
 		return player;
@@ -372,6 +379,10 @@ public class PlayerManager extends Manager {
 		// TODO
 		return null;
 	}
+	
+	public void onConnect(Player player) {
+		
+	}
 
 	/**
 	 * Handles disconnection of players with the cache.
@@ -384,6 +395,9 @@ public class PlayerManager extends Manager {
 		listPlayers.remove(player);
 		mapPlayersByDatabaseID.remove(id);
 		mapPlayersByUserName.remove(username);
+		
+		// Save the Player's properties.
+		player.saveProperties();
 	}
 	
 	@Override
@@ -404,6 +418,25 @@ public class PlayerManager extends Manager {
 		public void handleEvent(Event event) {
 			if(event.getID() == DisconnectEvent.ID) {				
 				manager.onDisconnect(((DisconnectEvent)event).getPlayer());
+			}
+		}	
+	}
+	
+	private class ConnectionHandler implements EventListener {
+
+		private PlayerManager manager;
+		
+		ConnectionHandler(PlayerManager manager) {
+			this.manager = manager;
+		}
+		
+		@Override
+		public String[] getTypes() { return new String[] {ConnectEvent.ID}; }
+
+		@Override
+		public void handleEvent(Event event) {
+			if(event.getID() == ConnectEvent.ID) {				
+				manager.onConnect(((ConnectEvent)event).getPlayer());
 			}
 		}	
 	}
@@ -443,6 +476,10 @@ public class PlayerManager extends Manager {
 	
 	public void saveProperties(int id, Map<String, String> mapProperties) {
 		sledgeHammer.getModuleManager().getCoreModule().saveProperties(id, mapProperties);
+	}
+	
+	public Player getAdmin() {
+		return admin;
 	}
 	
 }

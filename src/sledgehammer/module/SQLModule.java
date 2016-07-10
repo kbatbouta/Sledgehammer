@@ -418,7 +418,14 @@ public abstract class SQLModule extends Module {
 	}
 	
 	public void update(String table, String matchName, String matchValue, String targetName, String targetValue) throws SQLException {
-		PreparedStatement statement = prepareStatement("UPDATE " + table + " SET " + targetName + " = \"" + targetValue + "\" WHERE " + matchName + " = \"" + matchValue + "\"");
+		
+		String stringStatement = "UPDATE " + table + " SET " + targetName + " = ? WHERE " + matchName + " = ?";
+		
+		println(stringStatement);
+		
+		PreparedStatement statement = prepareStatement(stringStatement);
+		statement.setString(1, targetValue);
+		statement.setString(2, matchValue);
 		statement.executeUpdate();
 		statement.close();
 	}
@@ -432,11 +439,16 @@ public abstract class SQLModule extends Module {
 		
 		String valueBuild = "(";
 		for(String value : values) {
-			valueBuild += "\"" + value + "\",";
+			valueBuild += "?,";
 		}
 		valueBuild = valueBuild.substring(0, valueBuild.length() - 1) + ")";
 		
 		PreparedStatement statement = prepareStatement("INSERT INTO " + table + nameBuild + " VALUES " + valueBuild);
+		
+		for(int index = 0; index < values.length; index++) {
+			statement.setString(index+1, values[index]);
+		}
+		
 		statement.executeUpdate();
 		statement.close();
 	}

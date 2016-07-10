@@ -187,10 +187,14 @@ public class EventManager extends Manager {
 				return (handleCommand((CommandEvent) event, logEvent));
 			}
 
+			EventListener coreEventListener = sledgeHammer.getModuleManager().getCoreModule().getEventListener();
+			
 			List<EventListener> listEventListeners = mapEventListeners.get(event.getID());
 			if (listEventListeners != null) {
 				for (EventListener listener : listEventListeners) {
-					listener.handleEvent(event);
+					if(listener != coreEventListener) {						
+						listener.handleEvent(event);
+					}
 					if (event.canceled())
 						return event;
 					if (event.handled())
@@ -204,7 +208,7 @@ public class EventManager extends Manager {
 
 			// Force Core Event-handling to be last, for modification potential.
 			if (!event.handled()) {
-				sledgeHammer.getModuleManager().getCoreModule().getEventListener().handleEvent(event);
+				coreEventListener.handleEvent(event);
 			}
 
 			// If the Event is set to canceled, return before logging it.
@@ -307,9 +311,9 @@ public class EventManager extends Manager {
 
 		// Create a Player instance.
 		if (connection == null)
-			player = new Player();
+			player = sledgeHammer.getPlayerManager().getAdmin();
 		else
-			player = new Player(connection);
+			player = sledgeHammer.getPlayer(connection.username);
 
 		// Create a CommandEvent.
 		CommandEvent c = new CommandEvent(player, input);
@@ -342,7 +346,7 @@ public class EventManager extends Manager {
 
 							println("CommandString: " + commandString);
 
-							Player playerEmulated = new Player(name);
+							Player playerEmulated = SledgeHammer.instance.getPlayer(name);
 
 							CommandEvent event = new CommandEvent(playerEmulated, commandString);
 							handleCommand(event, logEvent);

@@ -64,8 +64,11 @@ public class CoreEventListener implements EventListener {
 			}
 		} else
 		if(event.getID() == DisconnectEvent.ID) {
-			String username = ((DisconnectEvent)event).getPlayer().getUsername();
-			listGlobalMuters.remove(username);
+			
+			// Remove the player from the global list.
+			listGlobalMuters.remove(((DisconnectEvent)event).getPlayer().getUsername());
+			
+			
 		} else
 		if(event.getID() == DeathEvent.ID) {
 			if(!event.shouldAnnounce() || ((DeathEvent)event).getPlayer().get() instanceof NPC) return;
