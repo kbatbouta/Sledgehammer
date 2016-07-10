@@ -57,7 +57,7 @@ public class PlayerManager extends Manager {
 		disconnectionHandler = new DisconnectionHandler(this);
 	}
 	
-	public void addPlayer(Player player) {
+	public Player addPlayer(Player player) {
 	
 		// Check to make sure the player passed is valid.
 		if(player == null) throw new IllegalArgumentException("Player given is null!");
@@ -65,6 +65,8 @@ public class PlayerManager extends Manager {
 		int id = player.getID();
 		String username = player.getUsername();
 		
+		Player playerCheck = getPlayerByUsername(username);
+		if(playerCheck != null) return playerCheck;
 		
 		if(!mapPlayersByUserName.containsKey(username)) {			
 			mapPlayersByUserName.put(username, player);
@@ -78,6 +80,7 @@ public class PlayerManager extends Manager {
 			mapPlayersByDatabaseID.put(id, player);
 		}
 		
+		return player;
 
 	}
 	

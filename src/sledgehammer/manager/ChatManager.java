@@ -83,8 +83,6 @@ public class ChatManager extends Manager {
 
 	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor,  boolean addTimeStamp, boolean bypassMute) {
 		
-		System.out.println("Messaging player: " + player);
-		
 		UdpConnection connection = player.getConnection();
 		
 		if(!bypassMute && player.getProperty("muteglobal").equals("1")) return "User muted their global chat.";

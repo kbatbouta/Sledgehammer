@@ -45,6 +45,7 @@ public class CoreEventListener implements EventListener {
 
 	@Override
 	public void handleEvent(Event event) {
+		event.setIgnoreCore(true);
 		ChatManager chat = SledgeHammer.instance.getChatManager();
 		String text = event.getLogMessage();
 		
@@ -116,9 +117,8 @@ public class CoreEventListener implements EventListener {
 			}			
 		} else {
 			
-			IsoPlayer isoPlayer = GameServer.getAnyPlayerFromConnection(connectionCommander);
-			
-			
+			IsoPlayer isoPlayer = player.get();
+
 			int playerID = isoPlayer != null ? isoPlayer.OnlineID : -1;
 			byte sayIt = (byte) (event.sayIt() ? 1 : 0);
 			byte chatType = event.getChatType();
@@ -147,7 +147,7 @@ public class CoreEventListener implements EventListener {
 						}
 						
 						if(ServerOptions.instance.getBoolean("LogLocalChat")) {							
-							module.messagePlayer(player, "[Local] " + event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, true);
+							module.messagePlayer(nextPlayer, "[Local] " + event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, true);
 						}
 						
 					}
