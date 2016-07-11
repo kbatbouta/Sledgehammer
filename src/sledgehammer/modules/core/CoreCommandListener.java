@@ -171,6 +171,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
     				return;
     			} else {
     				response = "/pm [player] [message...]";
+    				c.setResponse(Result.SUCCESS, response);
+    				return;
     			}
     		} else {
     			c.deny();

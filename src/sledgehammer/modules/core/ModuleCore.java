@@ -152,56 +152,56 @@ public class ModuleCore extends SQLModule {
 	}
 	
 	private void savePeriodicMessage(PeriodicMessage message) {
-		try {
-
-			// Grab all variables as strings.
-			String name      =      message.getName();
-			String content   =      message.getContent();
-			String color     =      message.getColor();
-			String enabled   = "" + message.isEnabled();
-			String time      = "" + message.getTime();
-			String broadcast = "" + message.isBroadcasted();
-
-			PreparedStatement statement;
-			
-			// If the message already exists.
-			if(has(TABLE_GLOBAL_MESSAGES, "name", message.getName())) {
-				
-				// Update content.
-				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET content = \"" + content + "\" WHERE name = \"" + name + "\"");
-				statement.executeUpdate();
-				statement.close();
-				
-				// Update color.
-				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET color = \"" + color + "\" WHERE name = \"" + name + "\"");
-				statement.executeUpdate();
-				statement.close();
-				
-				// Update enabled.
-				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET enabled = \"" + enabled + "\" WHERE name = \"" + name + "\"");
-				statement.executeUpdate();
-				statement.close();
-				
-				// Update time.
-				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET time = \"" + time + "\" WHERE name = \"" + name + "\"");
-				statement.executeUpdate();
-				statement.close();
-				
-				// Update broadcast.
-				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET broadcast = \"" + broadcast + "\" WHERE name = \"" + name + "\"");
-				statement.executeUpdate();
-				statement.close();
-				
-			// This is brand new. Save as new.
-			} else {
-				statement = prepareStatement("INSERT INTO " + TABLE_GLOBAL_MESSAGES + " (name, content, color, enabled, time, broadcast) VALUES "
-						+ "(\"" + name + "\", \"" + content + "\", \"" + color + "\", \"" + enabled + "\", \"" + time + "\", \"" + broadcast + "\")");
-				statement.executeUpdate();
-				statement.close();
-			}
-		} catch(SQLException e) {
-			stackTrace("Failed to save PeriodicMessage: " + message.getName() + ".", e);
-		}
+//		try {
+//
+//			// Grab all variables as strings.
+//			String name      =      message.getName();
+//			String content   =      message.getContent();
+//			String color     =      message.getColor();
+//			String enabled   = "" + message.isEnabled();
+//			String time      = "" + message.getTime();
+//			String broadcast = "" + message.isBroadcasted();
+//
+//			PreparedStatement statement;
+//			
+//			// If the message already exists.
+//			if(has(TABLE_GLOBAL_MESSAGES, "name", message.getName())) {
+//				
+//				// Update content.
+//				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET content = \"" + content + "\" WHERE name = \"" + name + "\"");
+//				statement.executeUpdate();
+//				statement.close();
+//				
+//				// Update color.
+//				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET color = \"" + color + "\" WHERE name = \"" + name + "\"");
+//				statement.executeUpdate();
+//				statement.close();
+//				
+//				// Update enabled.
+//				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET enabled = \"" + enabled + "\" WHERE name = \"" + name + "\"");
+//				statement.executeUpdate();
+//				statement.close();
+//				
+//				// Update time.
+//				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET time = \"" + time + "\" WHERE name = \"" + name + "\"");
+//				statement.executeUpdate();
+//				statement.close();
+//				
+//				// Update broadcast.
+//				statement = prepareStatement("UPDATE " + TABLE_GLOBAL_MESSAGES + " SET broadcast = \"" + broadcast + "\" WHERE name = \"" + name + "\"");
+//				statement.executeUpdate();
+//				statement.close();
+//				
+//			// This is brand new. Save as new.
+//			} else {
+//				statement = prepareStatement("INSERT INTO " + TABLE_GLOBAL_MESSAGES + " (name, content, color, enabled, time, broadcast) VALUES "
+//						+ "(\"" + name + "\", \"" + content + "\", \"" + color + "\", \"" + enabled + "\", \"" + time + "\", \"" + broadcast + "\")");
+//				statement.executeUpdate();
+//				statement.close();
+//			}
+//		} catch(SQLException e) {
+//			stackTrace("Failed to save PeriodicMessage: " + message.getName() + ".", e);
+//		}
 	}
 
 	public void onUpdate(long delta) {
