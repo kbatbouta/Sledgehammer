@@ -122,6 +122,20 @@ public class GenericEvent extends Event {
 	public String getLogMessage() {
 		return logMessage;
 	}
+	
+	/**
+	 * Executes a command on the module that send this <GenericEvent>.
+	 * 
+	 * @param type
+	 * 
+	 * @param context
+	 */
+	public void executeCommand(String type, String context) {
+		Module module = getModule();
+		if(module != null) {
+			module.executeCommand(type, context);
+		}
+	}
 
 	/**
 	 * Sets the logged message for this <GenericEvent>. If null, the event will not be logged.

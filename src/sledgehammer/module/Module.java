@@ -333,6 +333,17 @@ public abstract class Module extends Printable {
 		return loaded;
 	}
 
+	/**
+	 * Used to execute GenericEvent commands. This will be picked up by modules that @override this this.
+	 * 
+	 * @param type
+	 * 
+	 * @param context
+	 */
+	public void executeCommand(String type, String context) {
+		
+	}
+
 	public abstract void onLoad();
 
 	public abstract void onStart();
@@ -346,4 +357,5 @@ public abstract class Module extends Printable {
 	public abstract String getID();
 
 	public abstract String getVersion();
+	
 }
