@@ -122,6 +122,12 @@ public class CommandEvent extends PlayerEvent {
 		}
 		return args;
 	}
+	
+	public String getArgumentsAsString() {
+		if(getArguments().length == 0) return null;
+		String raw = getRaw();
+		return raw.substring(command.length() + 1, raw.length());
+	}
 
 	public void setLoggedImportant(boolean b) {
 		this.logImportant = b;
