@@ -33,6 +33,33 @@ public abstract class Printable {
 			System.out.print(compiledString);
 		}
 	}
+	
+	/**
+	 * Prints lines with "getName(): [message...]".
+	 * 
+	 * @param messages
+	 */
+	public synchronized void errorln(Object... messages) {
+
+		if(messages.length == 0) {
+			System.err.println();
+		} else {			
+			// Grab the name of the instance.
+			String name = getName();
+			
+			// Create the header, based on if the name String is null of empty.
+			String header = name == null || name.isEmpty() ? "" : name + ": ";
+			
+			// Go through each Object, and print them as a separate line.
+			String compiledString = "";
+			for (Object message : messages) {
+				compiledString += header + message + newLine;
+			}
+			
+			// Print the result.
+			System.err.print(compiledString);
+		}
+	}
 
 	/**
 	 * Prints a message with a header, without a new-line.
@@ -69,9 +96,9 @@ public abstract class Printable {
 			errorText = errorText.trim() + ": " + throwable.getCause();
 		}
 		
-		println("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());
+		errorln("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());
 		for(StackTraceElement element : throwable.getStackTrace()) {
-			println(element);
+			errorln(element);
 		}
 		
 		// Send to the EventManager for ExceptionListeners to handle.
@@ -85,7 +112,7 @@ public abstract class Printable {
 	
 	public synchronized void stackTrace() {
 		for(StackTraceElement element : Thread.currentThread().getStackTrace()) {
-			println(element);
+			errorln(element);
 		}
 	}
 
