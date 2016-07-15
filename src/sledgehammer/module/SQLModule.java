@@ -126,6 +126,14 @@ public abstract class SQLModule extends Module {
 		return false;
 	}
 	
+	public int getRowCount(String table) throws SQLException {
+		PreparedStatement statement = prepareStatement("SELECT COUNT(*) FROM " + table);
+		ResultSet set = statement.executeQuery();
+		int count = 0;
+		while (set.next()) count++;
+		return count;
+	}
+	
 	public boolean doesFieldExist(String[][] table, String fieldName) {
 		for(String[] field : table) {
 			if(field != null && field[0] != null && field[0].equalsIgnoreCase(fieldName)) {
@@ -417,6 +425,45 @@ public abstract class SQLModule extends Module {
 		}
 	}
 	
+	public void set(String table, String identifierField, String identifierValue, String[] fields, String[] values) throws SQLException {
+		if(has(table, identifierField, identifierValue)) {
+			update(table, identifierField, identifierValue, fields, values);
+		} else {
+			insert(table, fields, values);
+		}
+	}
+	
+	private void update(String table, String identifierField, String identifierValue, String[] fields,
+			String[] values) {
+		
+		String setString = "";
+		
+		for(int index = 0; index < fields.length; index++) {
+			setString += fields[index] + " = \"" + values[index] + "\",";
+		}
+		setString = setString.substring(0, setString.length() - 1);
+		
+		
+		String query = "UPDATE " + table + " SET " + setString + " WHERE " + identifierField.length() + " = \"" + identifierValue.length() + ";";
+		println(query);
+		
+		PreparedStatement statement = null;
+		
+		try {
+		statement = prepareStatement(query);
+			statement.executeQuery().close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			stackTrace(e);
+		} finally {			
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				stackTrace("Failed to close statement.", e);
+			}
+		}
+	}
+
 	public void update(String table, String matchName, String matchValue, String targetName, String targetValue) throws SQLException {
 		
 		String stringStatement = "UPDATE " + table + " SET " + targetName + " = ? WHERE " + matchName + " = ?";
