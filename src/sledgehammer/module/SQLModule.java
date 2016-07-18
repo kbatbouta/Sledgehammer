@@ -443,7 +443,6 @@ public abstract class SQLModule extends Module {
 		
 		
 		String query = "UPDATE " + table + " SET " + setString + " WHERE " + identifierField.length() + " = \"" + identifierValue.length() + ";";
-		println(query);
 		
 		PreparedStatement statement = null;
 		
@@ -465,8 +464,6 @@ public abstract class SQLModule extends Module {
 	public void update(String table, String matchName, String matchValue, String targetName, String targetValue) throws SQLException {
 		
 		String stringStatement = "UPDATE " + table + " SET " + targetName + " = ? WHERE " + matchName + " = ?";
-		
-		println(stringStatement);
 		
 		PreparedStatement statement = prepareStatement(stringStatement);
 		statement.setString(1, targetValue);
