@@ -335,7 +335,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     				response = "Global mute disabled.";
     			} else {
     				muted = "1";
-    				response = "Global mute enabled. To disable it, type \"/globalmute\"";
+    				response = "Global mute enabled. To disable it, type \"/muteglobal\"";
     			}
     			
     			player.setProperty("muteglobal", muted);
