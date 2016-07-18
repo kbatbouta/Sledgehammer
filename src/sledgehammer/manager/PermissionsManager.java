@@ -10,7 +10,6 @@ import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.PermissionsHandler;
-import sledgehammer.util.Printable;
 import zombie.core.Core;
 import zombie.network.DataBaseBuffer;
 

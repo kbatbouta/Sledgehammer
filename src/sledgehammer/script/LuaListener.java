@@ -9,7 +9,7 @@ import sledgehammer.util.Printable;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoLivingCharacter;
 import zombie.characters.IsoPlayer;
-import zombie.characters.IsoZombie;
+//import zombie.characters.IsoZombie;
 import zombie.characters.SurvivorDesc;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoMovingObject;
@@ -70,7 +70,7 @@ public class LuaListener extends Printable implements EventListener {
 			validArguments = _OnClientCommand(arguments);
 		}
 
-		if (!validArguments && DEBUG) {
+		if (!validArguments) {
 			println("Invalid number of arguments on ScriptEvent: \"" + context + "\".");
 		}
 
@@ -154,13 +154,13 @@ public class LuaListener extends Printable implements EventListener {
 
 	private boolean _OnZombieUpdate(Object[] arguments) {
 
-		IsoZombie zombie = null;
-
-		if (arguments.length != 1) {
-			return false;
-		}
-
-		zombie = (IsoZombie) arguments[0];
+//		IsoZombie zombie = null;
+//
+//		if (arguments.length != 1) {
+//			return false;
+//		}
+//
+//		zombie = (IsoZombie) arguments[0];
 
 		return true;
 	}

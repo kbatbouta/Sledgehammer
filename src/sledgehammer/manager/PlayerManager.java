@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
@@ -472,29 +471,29 @@ public class PlayerManager extends Manager {
 		}	
 	}
 	
-	private class ConnectionHandler implements EventListener {
-
-		private PlayerManager manager;
-		
-		ConnectionHandler(PlayerManager manager) {
-			this.manager = manager;
-		}
-		
-		@Override
-		public String[] getTypes() { return new String[] {ConnectEvent.ID}; }
-
-		@Override
-		public void handleEvent(Event event) {
-			if(event.getID() == ConnectEvent.ID) {				
-				manager.onConnect(((ConnectEvent)event).getPlayer());
-			}
-		}
-
-		@Override
-		public boolean runSecondary() {
-			return false;
-		}	
-	}
+//	private class ConnectionHandler implements EventListener {
+//
+//		private PlayerManager manager;
+//		
+//		ConnectionHandler(PlayerManager manager) {
+//			this.manager = manager;
+//		}
+//		
+//		@Override
+//		public String[] getTypes() { return new String[] {ConnectEvent.ID}; }
+//
+//		@Override
+//		public void handleEvent(Event event) {
+//			if(event.getID() == ConnectEvent.ID) {				
+//				manager.onConnect(((ConnectEvent)event).getPlayer());
+//			}
+//		}
+//
+//		@Override
+//		public boolean runSecondary() {
+//			return false;
+//		}	
+//	}
 
 	@Override
 	public void onStart() {

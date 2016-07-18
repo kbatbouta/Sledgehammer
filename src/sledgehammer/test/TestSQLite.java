@@ -7,7 +7,7 @@ package sledgehammer.test;
 //import zombie.network.DataBaseBuffer;
 //import zombie.network.ServerWorldDatabase;
 //
-//public class TestSQLite {
+public class TestSQLite {
 //	
 //	public static void println(String... messages) {
 //		for (String message : messages)
@@ -36,4 +36,4 @@ package sledgehammer.test;
 //		println("" + Factions.instance.doesFieldExist(tableFactions, "tag"));
 //		println("" + Factions.instance.doesFieldExist(tableFactions, "owner"));
 //	}
-//}
+}

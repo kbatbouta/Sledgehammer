@@ -1,7 +1,6 @@
 package sledgehammer.modules.core;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
@@ -17,7 +16,6 @@ import sledgehammer.util.ChatTags;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
-import zombie.network.GameServer;
 import zombie.network.ServerOptions;
 import zombie.sledgehammer.npc.NPC;
 

@@ -1,8 +1,5 @@
 package sledgehammer.event;
 
-import se.krka.kahlua.vm.KahluaTable;
-import zombie.iso.IsoGridSquare;
-
 public class ScriptEvent extends Event {
 
 	public static final String ID = "ScriptEvent";

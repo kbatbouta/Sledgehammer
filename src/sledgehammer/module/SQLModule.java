@@ -15,8 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.util.Response;
-import sledgehammer.util.Result;
 import zombie.GameWindow;
 
 public abstract class SQLModule extends Module {
@@ -485,7 +483,7 @@ public abstract class SQLModule extends Module {
 		nameBuild = nameBuild.substring(0, nameBuild.length() - 1) + ")";
 		
 		String valueBuild = "(";
-		for(String value : values) {
+		for(@SuppressWarnings("unused") String value : values) {
 			valueBuild += "?,";
 		}
 		valueBuild = valueBuild.substring(0, valueBuild.length() - 1) + ")";

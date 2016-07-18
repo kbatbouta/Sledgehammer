@@ -1,15 +1,10 @@
 package sledgehammer.manager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import sledgehammer.SledgeHammer;
 import sledgehammer.wrapper.Player;
-import zombie.characters.IsoPlayer;
 import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
-import zombie.network.GameServer;
 import zombie.network.PacketTypes;
 
 // Imports chat colors for short-hand.

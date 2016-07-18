@@ -20,7 +20,6 @@ import sledgehammer.module.Module;
 import sledgehammer.modules.ModuleMonitor;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.vanilla.ModuleVanilla;
-import sledgehammer.util.Printable;
 import sledgehammer.util.ZUtil;
 
 /**

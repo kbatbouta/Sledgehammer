@@ -6,7 +6,7 @@ package sledgehammer.test;
 //import zombie.core.Core;
 //import zombie.network.ServerWorldDatabase;
 //
-//public class TestFactions {
+public class TestFactions {
 //
 //	private static String user1 = "Jab";
 //	private static String user2 = "Ja";
@@ -421,4 +421,4 @@ package sledgehammer.test;
 //		println("User Cache: " + user2);
 //		println("User tag: " + Factions.instance.getUserTag(user2));
 //	}
-//}
+}

@@ -116,8 +116,9 @@ public class SledgeHammer extends Printable {
 	}
 	
 	public SledgeHammer() {
+		println(VERSION);
+		
 		new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();
-		// Load the settings for SledgeHammer.
 		loadSettings();
 	}
 
@@ -125,9 +126,6 @@ public class SledgeHammer extends Printable {
 	 * Initializes the SledgeHammer engine.
 	 */
 	public void init() {
-
-		// Displays version.
-		println(VERSION);
 		
 		try {
 			
@@ -518,11 +516,11 @@ public class SledgeHammer extends Printable {
 			IllegalArgumentException, IllegalAccessException {
 		instance = new SledgeHammer();
 		
-		
 		System.setProperty("java.library.path", System.getProperty("user.dir") + File.separator + "natives");
 		Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
 		fieldSysPath.setAccessible(true);
 		fieldSysPath.set(null, null);
+		
 		GameServer.main(args);
 	}
 
