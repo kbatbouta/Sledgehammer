@@ -38,12 +38,6 @@ public class NPCManager extends Manager {
 	public static final String NAME = "NPCManager";
 	
 	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer;
-	
-	/**
 	 * Map containing all actions to influence NPCs.
 	 */
 	private Map<String, Action> mapActions;
@@ -71,7 +65,7 @@ public class NPCManager extends Manager {
 	 * @param sledgeHammer
 	 */
 	public NPCManager(SledgeHammer sledgeHammer) {
-		this.sledgeHammer = sledgeHammer;
+		super(sledgeHammer);
 		
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
@@ -298,7 +292,7 @@ public class NPCManager extends Manager {
 				boolean torchCone = (flags & 16) != 0;
 				boolean onFire    = (flags & 32) != 0;
 
-				for (UdpConnection c : sledgeHammer.getConnections()) {
+				for (UdpConnection c : getConnections()) {
 					ByteBufferWriter byteBufferWriter = c.startPacket();
 					PacketTypes.doPacket((byte) 7, byteBufferWriter);
 					byteBufferWriter.putShort((short) npc.OnlineID);

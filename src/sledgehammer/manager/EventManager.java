@@ -32,12 +32,6 @@ import static sledgehammer.util.ChatTags.*;
 public class EventManager extends Manager {
 
 	public static final String NAME = "EventManager";
-	
-	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer = null;
 
 	/**
 	 * Map for registered EventListener interfaces.
@@ -64,10 +58,9 @@ public class EventManager extends Manager {
 	 * 
 	 * @param instance
 	 */
-	public EventManager(SledgeHammer instance) {
+	public EventManager(SledgeHammer sledgeHammer) {
 		
-		// Set the SledgeHammer instance given.
-		sledgeHammer = instance;
+		super(sledgeHammer);
 		
 		// Initialize Maps.
 		mapEventListeners = new HashMap<>();
@@ -114,7 +107,7 @@ public class EventManager extends Manager {
 			}
 		}
 
-		CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
+		CoreCommandListener coreCommandListener = getSledgeHammer().getModuleManager().getCoreModule().getCommandListener();
 
 		if (coreCommandListener != null) {
 			String[] commands = coreCommandListener.getCommands();
@@ -132,7 +125,7 @@ public class EventManager extends Manager {
 			}
 		}
 
-		CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
+		CommandListener vanillaListener = getSledgeHammer().getModuleManager().getVanillaModule().getCommandListener();
 		if (vanillaListener != null) {
 			String[] commands = vanillaListener.getCommands();
 			if (commands != null) {
@@ -186,7 +179,7 @@ public class EventManager extends Manager {
 				return (handleCommand((CommandEvent) event, logEvent));
 			}
 
-			EventListener coreEventListener = sledgeHammer.getModuleManager().getCoreModule().getEventListener();
+			EventListener coreEventListener = getSledgeHammer().getModuleManager().getCoreModule().getEventListener();
 			
 			List<EventListener> listEventListeners = mapEventListeners.get(event.getID());
 			if (listEventListeners != null) {
@@ -320,9 +313,9 @@ public class EventManager extends Manager {
 
 		// Create a Player instance.
 		if (connection == null)
-			player = sledgeHammer.getPlayerManager().getAdmin();
+			player = getSledgeHammer().getPlayerManager().getAdmin();
 		else
-			player = sledgeHammer.getPlayer(connection.username);
+			player = getSledgeHammer().getPlayer(connection.username);
 
 		// Create a CommandEvent.
 		CommandEvent c = new CommandEvent(player, input);
@@ -389,6 +382,8 @@ public class EventManager extends Manager {
 							break;
 					}
 				}
+				
+				SledgeHammer sledgeHammer = getSledgeHammer();
 
 				// Force Vanilla CommandListener to last for modification
 				// potential.

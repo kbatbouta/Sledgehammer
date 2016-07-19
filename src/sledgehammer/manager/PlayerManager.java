@@ -44,7 +44,7 @@ public class PlayerManager extends Manager {
 	 * @param sledgeHammer
 	 */
 	public PlayerManager(SledgeHammer sledgeHammer) {
-		this.sledgeHammer = sledgeHammer;
+		super(sledgeHammer);
 		
 		// Initialize Player list.
 		listPlayers = new ArrayList<>();
@@ -470,30 +470,6 @@ public class PlayerManager extends Manager {
 			return false;
 		}	
 	}
-	
-//	private class ConnectionHandler implements EventListener {
-//
-//		private PlayerManager manager;
-//		
-//		ConnectionHandler(PlayerManager manager) {
-//			this.manager = manager;
-//		}
-//		
-//		@Override
-//		public String[] getTypes() { return new String[] {ConnectEvent.ID}; }
-//
-//		@Override
-//		public void handleEvent(Event event) {
-//			if(event.getID() == ConnectEvent.ID) {				
-//				manager.onConnect(((ConnectEvent)event).getPlayer());
-//			}
-//		}
-//
-//		@Override
-//		public boolean runSecondary() {
-//			return false;
-//		}	
-//	}
 
 	@Override
 	public void onStart() {
@@ -507,14 +483,10 @@ public class PlayerManager extends Manager {
 
 	@Override
 	public void onLoad() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void onUpdate() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	/**

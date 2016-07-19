@@ -49,8 +49,8 @@ public class PermissionsManager extends Manager {
 	 * 
 	 * @param instance
 	 */
-	public PermissionsManager(SledgeHammer instance) {
-		sledgeHammer = instance;
+	public PermissionsManager(SledgeHammer sledgeHammer) {
+		super(sledgeHammer);
 		listPermissionHandlers = new ArrayList<>();
 		mapDefaultPlayerPermissions = new HashMap<>();
 		
@@ -220,15 +220,6 @@ public class PermissionsManager extends Manager {
 	 */
 	public void addDefaultPlayerPermission(String permissionContext, boolean flag) {
 		this.mapDefaultPlayerPermissions.put(permissionContext, flag);
-	}
-
-	/**
-	 * Returns SledgeHammer instance running this manager.
-	 * 
-	 * @return
-	 */
-	SledgeHammer getSledgeHammer() {
-		return sledgeHammer;
 	}
 
 	@Override

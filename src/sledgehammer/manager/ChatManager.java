@@ -22,10 +22,8 @@ public class ChatManager extends Manager {
 	
 	private UdpEngine udpEngine;
 
-	private SledgeHammer sledgeHammer;
-	
 	public ChatManager(SledgeHammer sledgeHammer) {
-		this.sledgeHammer = sledgeHammer;
+		super(sledgeHammer);
 	}
 	
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
@@ -52,17 +50,17 @@ public class ChatManager extends Manager {
 //	}
 	
 	public String privateMessage(String commander, String username, String text) {
-		Player player = sledgeHammer.getPlayer(username);
+		Player player = getSledgeHammer().getPlayer(username);
 		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
 	
 	public String warnPlayer(String commander, String username, String text) {
-		Player player = sledgeHammer.getPlayer(username);
+		Player player = getSledgeHammer().getPlayer(username);
 		return messagePlayer(player, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
 	}
 	
 	public String privateMessage(String commander, UdpConnection connection, String text) {
-		Player player = sledgeHammer.getPlayer(connection.username);
+		Player player = getSledgeHammer().getPlayer(connection.username);
 		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
 	}
 	
@@ -101,14 +99,14 @@ public class ChatManager extends Manager {
 
 	public void messageGlobal(String message) {
 		if(udpEngine == null) return;
-		for (Player player : sledgeHammer.getPlayers()) {
+		for (Player player : getSledgeHammer().getPlayers()) {
 			messagePlayer(player, null, null, message, null, true, false);
 		}
 	}
 	
 	public void messageGlobal(String header, String message) {
 		if(udpEngine == null) return;
-		for (Player player : sledgeHammer.getPlayers()) {
+		for (Player player : getSledgeHammer().getPlayers()) {
 			messagePlayer(player, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
 		}
 	}
@@ -118,7 +116,7 @@ public class ChatManager extends Manager {
 			println("UdpEngine is null in messageGlobal");
 			return;
 		}
-		for (Player player : sledgeHammer.getPlayers()) {
+		for (Player player : getSledgeHammer().getPlayers()) {
 			messagePlayer(player, header, headerColor, message, messageColor, true, false);
 		}
 	}
@@ -126,7 +124,7 @@ public class ChatManager extends Manager {
 	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
 		if(udpEngine == null) return;
 		
-		for (Player player : sledgeHammer.getPlayers()) {
+		for (Player player : getSledgeHammer().getPlayers()) {
 			messagePlayer(player, header, headerColor, message, messageColor, timeStamp, false);
 		}
 	}

@@ -38,12 +38,6 @@ public final class ModuleManager extends Manager {
 	public static boolean DEBUG = false;
 
 	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer = null;
-
-	/**
 	 * Map for modules, organized by their associated IDs.
 	 */
 	private Map<String, Module> mapModules;
@@ -85,10 +79,9 @@ public final class ModuleManager extends Manager {
 	 * 
 	 * @param instance
 	 */
-	public ModuleManager(SledgeHammer instance) {
+	public ModuleManager(SledgeHammer sledgeHammer) {
 		
-		// Set the SledgeHammer instance using this manager.
-		sledgeHammer   = instance         ;
+		super(sledgeHammer);
 		// Initialize the Lists.
 		listModules    = new ArrayList<>();
 		listUnloadNext = new ArrayList<>();
@@ -125,7 +118,7 @@ public final class ModuleManager extends Manager {
 		// Ensures a plug-in folder exists.
 		if (!ZUtil.pluginFolder.exists()) ZUtil.pluginFolder.mkdirs();
 		
-		listPluginsRaw = sledgeHammer.getSettings().getPluginList();
+		listPluginsRaw = getSledgeHammer().getSettings().getPluginList();
 
 		println("Loading modules.");
 
@@ -206,7 +199,7 @@ public final class ModuleManager extends Manager {
 	 */
 	public void registerModule(Module module) {
 		
-		synchronized (sledgeHammer) {
+		synchronized (getSledgeHammer()) {
 			if (module == null) throw new IllegalArgumentException("Module is null!");
 
 			if (!listModules.contains(module)) {
@@ -470,14 +463,6 @@ public final class ModuleManager extends Manager {
 		return this.listModules;
 	}
 	
-	/**
-	 * Returns the SledgeHammer instance using this manager.
-	 * @return
-	 */
-	SledgeHammer getSledgeHammer() {
-		return sledgeHammer;
-	}
-
 	@Override
 	public void onLoad() {
 		loadDefaultModules();
