@@ -138,7 +138,7 @@ public class NPCManager extends Manager {
 		GameServer.IDToPlayerMap.remove(Integer.valueOf(npc.OnlineID));
 		GameServer.Players.remove(npc);
 		
-		for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
+		for (UdpConnection connection : getConnections()) {
 			ByteBufferWriter b = connection.startPacket();
 			PacketTypes.doPacket(PacketTypes.PlayerTimeout, b);
 			b.putInt(npc.OnlineID);
