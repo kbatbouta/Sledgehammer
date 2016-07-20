@@ -414,6 +414,7 @@ public final class ModuleManager extends Manager {
 	 * 
 	 * @return
 	 */
+	@Override
 	public ModuleCore getCoreModule() {
 		return moduleCore;
 	}
