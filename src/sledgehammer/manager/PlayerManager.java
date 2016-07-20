@@ -30,12 +30,6 @@ public class PlayerManager extends Manager {
 	
 	private Player admin = new Player();
 	
-	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer;
-	
 	private DisconnectionHandler disconnectionHandler;
 	
 	/**
@@ -304,10 +298,6 @@ public class PlayerManager extends Manager {
 		return getIsoPlayerDirty(username, true);
 	}
 	
-	public SledgeHammer getSledgeHammer() {
-		return sledgeHammer;
-	}
-	
 	/**
 	 * Resolves a Player instance of the database ID.
 	 * 
@@ -473,12 +463,12 @@ public class PlayerManager extends Manager {
 
 	@Override
 	public void onStart() {
-		sledgeHammer.register(disconnectionHandler);
+		getSledgeHammer().register(disconnectionHandler);
 	}
 
 	@Override
 	public void onShutDown() {
-		sledgeHammer.unregister(disconnectionHandler);
+		getSledgeHammer().unregister(disconnectionHandler);
 	}
 
 	@Override
@@ -497,11 +487,11 @@ public class PlayerManager extends Manager {
 	 * @return
 	 */
 	public Map<String, String> getProperties(int id) {
-		return sledgeHammer.getModuleManager().getCoreModule().getProperties(id);
+		return getSledgeHammer().getModuleManager().getCoreModule().getProperties(id);
 	}
 	
 	public void saveProperties(int id, Map<String, String> mapProperties) {
-		sledgeHammer.getModuleManager().getCoreModule().saveProperties(id, mapProperties);
+		getSledgeHammer().getModuleManager().getCoreModule().saveProperties(id, mapProperties);
 	}
 	
 	public Player getAdmin() {
