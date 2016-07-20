@@ -11,14 +11,14 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
-import sledgehammer.interfaces.StringTranslator;
+import sledgehammer.interfaces.ContextListener;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
-import sledgehammer.modules.core.CoreTranslator;
+import sledgehammer.modules.core.CoreContextListener;
 import sledgehammer.util.Printable;
 import sledgehammer.wrapper.Player;
 import zombie.GameWindow;
@@ -100,7 +100,7 @@ public class SledgeHammer extends Printable {
 	 */
 	private String publicServerName;
 	
-	private StringTranslator translator;
+	private ContextListener translator;
 	
 	/**
 	 * Test-Case constructor. Use this constructor for testing a Module.
@@ -117,7 +117,7 @@ public class SledgeHammer extends Printable {
 	}
 	
 	public SledgeHammer() {
-		translator = new CoreTranslator();
+		translator = new CoreContextListener();
 		
 		new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();
 		loadSettings();
@@ -130,7 +130,7 @@ public class SledgeHammer extends Printable {
 		
 		try {
 			
-			translator = new CoreTranslator();
+			translator = new CoreContextListener();
 			
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			
@@ -531,11 +531,11 @@ public class SledgeHammer extends Printable {
 		getEventManager().unregister(listener);
 	}
 	
-	public StringTranslator getStringModifier() {
+	public ContextListener getStringModifier() {
 		return translator;
 	}
 	
-	public void setStringModifier(StringTranslator stringModifier) {
+	public void setStringModifier(ContextListener stringModifier) {
 		this.translator = stringModifier;
 	}
 
