@@ -3,6 +3,7 @@ package sledgehammer.manager;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.util.Printable;
 import zombie.core.raknet.UdpConnection;
 
@@ -31,8 +32,17 @@ public abstract class Manager extends Printable {
 		this.sledgeHammer = sledgeHammer;
 	}
 	
+	/**
+	 * Returns a list of active connections.
+	 * 
+	 * @return
+	 */
 	public List<UdpConnection> getConnections() {
 		return getSledgeHammer().getConnections();
+	}
+	
+	public ModuleCore getCoreModule() {
+		return getSledgeHammer().getModuleManager().getCoreModule();
 	}
 
 	/**
