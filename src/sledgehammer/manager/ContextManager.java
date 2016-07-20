@@ -1,15 +1,16 @@
 package sledgehammer.manager;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.interfaces.ContextListener;
 
 public class ContextManager extends Manager {
 	
 	public static final String NAME = "ContextManager";
 	
-	private Map<String, String> mapContexts;
+	private List<ContextListener> listContextListeners;
 
 	public ContextManager(SledgeHammer sledgeHammer) {
 		super(sledgeHammer);
@@ -17,7 +18,7 @@ public class ContextManager extends Manager {
 	
 	@Override
 	public void onLoad() {
-		mapContexts = new HashMap<>();
+		listContextListeners = new ArrayList<>();
 	}
 
 	@Override
@@ -26,13 +27,51 @@ public class ContextManager extends Manager {
 
 	@Override
 	public void onUpdate() {
-	
 	}
 
 	@Override
 	public void onShutDown() {
-		mapContexts.clear();
-		mapContexts = null;
+		listContextListeners.clear();
+		listContextListeners = null;
+	}
+	
+	public void saveContexts() {
+		// TODO.
+	}
+	
+	public void loadContexts() {
+		// TODO.
+	}
+	
+	public String getContext(String context) {
+		String result = null;
+		
+		for(ContextListener listener : getContextListeners()) {
+			if(listener != null) {
+				result = listener.getContext(context);
+				if(result != null) break;
+			}
+		}
+		
+		return result;
+	}
+	
+	public void register(ContextListener listener) {
+		if(listener == null) throw new IllegalArgumentException("ContextListener is null!");
+		List<ContextListener> listContextListeners = getContextListeners();
+		if(!listContextListeners.contains(listener)) {
+			listContextListeners.add(listener);
+		}
+	}
+	
+	public void unregister(ContextListener listener) {
+		if(listener == null) throw new IllegalArgumentException("ContextListener is null!");
+		List<ContextListener> listContextListeners = getContextListeners();
+		listContextListeners.remove(listener);
+	}
+	
+	public List<ContextListener> getContextListeners() {
+		return listContextListeners;
 	}
 	
 	@Override
