@@ -1,5 +1,22 @@
 package sledgehammer.module;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -8,6 +25,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -291,6 +309,49 @@ public abstract class SQLModule extends Module {
 		return map;
 	}
 	
+	/**
+	 * Returns a map of the first matched row of a given table.
+	 * 
+	 * @param tableName
+	 * 
+	 * @param matchName
+	 * 
+	 * @param matchValue
+	 * 
+	 * @return
+	 * 
+	 * @throws SQLException
+	 */
+	public Map<String, String> getRow(String tableName, String matchName, String matchValue) throws SQLException {
+		Map<String, String> map = new HashMap<>();
+
+		// Create a statement retrieving matched rows.
+		PreparedStatement statement;
+		statement = prepareStatement(
+				"SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
+
+		// Execute and fetch iterator for returned rows.
+		ResultSet result = statement.executeQuery();
+
+		// Go through the first matched row.
+		if (result.next()) {
+
+			ResultSetMetaData meta = result.getMetaData();
+			
+			// Go through each column.
+			for(int index = 0; index < meta.getColumnCount(); index++) {
+				String columnName = meta.getColumnName(index);
+				String value = result.getString(index);
+				map.put(columnName, value);
+			}
+			
+		}
+		// Close SQL handlers, and return the map.
+		result.close();
+		statement.close();
+		return map;
+	}
+	
 	public Map<String, List<String>> getAll(String tableName, String matchName, String matchValue, String[] targetNames) throws SQLException {
 	
 		// Create a Map to store each field respectively in lists.
@@ -529,48 +590,6 @@ public abstract class SQLModule extends Module {
 	public String getDBCacheDirectory() {
 		return GameWindow.getCacheDir() + File.separator + "db" + File.separator;
 	}
-	
-//	public void restartConnection() {
-//		try {
-//			try {
-//				connection.close();
-//				connection = null;
-//				
-//				File dbFile = new File(GameWindow.getCacheDir() + File.separator + "db" + File.separator + GameServer.ServerName + ".db");
-//				dbFile.setReadable(true, false);
-//				dbFile.setExecutable(true, false);
-//				dbFile.setWritable(true, false);
-//				DebugLog.log("user database \"" + dbFile.getPath() + "\"");
-//				Class.forName("org.sqlite.JDBC");
-//				if (!dbFile.exists()) {
-//					try {
-//						dbFile.createNewFile();
-//						connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-//					} catch (Exception var11) {
-//						var11.printStackTrace();
-//                        LoggerManager.getLogger("admin").write("SQLite failed to create Connection to db file.");
-//                        SledgeHammer.instance.handleCommand(null, "quit");
-//					}
-//				}
-//
-//				if (connection == null) {
-//					try {
-//						connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-//					} catch (Exception var10) {
-//						DebugLog.log("failed to create user database, server shut down");
-//                        LoggerManager.getLogger("admin").write("SQLite failed to create Connection to db file.");
-//                        SledgeHammer.instance.handleCommand(null, "quit");
-//					}
-//				}
-//
-//			} catch (SQLException e) {
-//				e.printStackTrace();
-//			}
-//			DataBaseBuffer.setConnection(connection);
-//		} catch (ClassNotFoundException e) {
-//			e.printStackTrace();
-//		}
-//	}
 	
 	public Connection getConnection() {
 		return this.connection;

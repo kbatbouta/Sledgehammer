@@ -1,11 +1,27 @@
 package sledgehammer.manager;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import sledgehammer.SledgeHammer;
 import sledgehammer.wrapper.Player;
-import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
-import zombie.network.PacketTypes;
+import zombie.sledgehammer.PacketHelper;
 
 // Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
@@ -40,15 +56,6 @@ public class ChatManager extends Manager {
 		return null;
 	}
 	
-//	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-//		
-//		if(player != null) {
-//			return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
-//		} else {
-//			return "Connection does not exist.";
-//		}
-//	}
-	
 	public String privateMessage(String commander, String username, String text) {
 		Player player = getSledgeHammer().getPlayer(username);
 		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
@@ -65,36 +72,11 @@ public class ChatManager extends Manager {
 	}
 	
 	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
-		ByteBufferWriter bufferWriter = connection.startPacket();
-		PacketTypes.doPacket(PacketTypes.Chat, bufferWriter);
-		bufferWriter.putInt(playerID);
-		bufferWriter.putByte(chatType);
-		bufferWriter.putUTF(text);
-		bufferWriter.putByte(sayIt);
-		connection.endPacketImmediate();
+		PacketHelper.localMessage(connection, playerID, text, chatType, sayIt);
 	}
 
 	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor,  boolean addTimeStamp, boolean bypassMute) {
-		
-		UdpConnection connection = player.getConnection();
-		
-		if(!bypassMute && player.getProperty("muteglobal").equals("1")) return "User muted their global chat.";
-		
-		String message = "";
-		if(addTimeStamp) message += "[T]";
-
-		if(header != null && !header.isEmpty()) message += headerColor + " " + header;
-		
-		if(textColor != null && !textColor.isEmpty()) message += textColor + " ";
-		
-		message += text + COLOR_WHITE + " ";
-		
-		ByteBufferWriter b2 = connection.startPacket();
-		PacketTypes.doPacket(PacketTypes.ReceiveCommand, b2);
-		b2.putUTF(message);
-		connection.endPacketImmediate();
-		
-		return "Message sent.";
+		return PacketHelper.messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);
 	}
 
 	public void messageGlobal(String message) {
@@ -130,15 +112,7 @@ public class ChatManager extends Manager {
 	}
 	
 	public void broadcastMessage(String message, String messageColor) {
-		if(messageColor == null || messageColor.isEmpty()) messageColor = COLOR_LIGHT_RED;
-		String messageOut = "[B]" + messageColor + " " + message;
-		
-		for (UdpConnection connection : udpEngine.connections) {
-			ByteBufferWriter bufferWriter = connection.startPacket();
-			PacketTypes.doPacket((byte) 81, bufferWriter);
-			bufferWriter.putUTF(messageOut);
-			connection.endPacketImmediate();
-		}
+		PacketHelper.broadcastMessage(message, messageColor);
 	}
 	
 	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {

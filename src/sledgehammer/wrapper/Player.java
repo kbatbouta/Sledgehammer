@@ -1,12 +1,29 @@
 package sledgehammer.wrapper;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.manager.PlayerManager;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerWorldDatabase;
+import zombie.sledgehammer.SledgeHelper;
 
 public class Player {
 	
@@ -21,14 +38,14 @@ public class Player {
 	public Player(IsoPlayer iso) {
 		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
 		this.iso = iso;
-		connection = PlayerManager.getConnection(iso);
+		connection = SledgeHelper.getConnection(iso);
 		init();
 	}
 	
 	public Player(UdpConnection connection) {
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
-		this.iso = PlayerManager.getIsoPlayer(connection);
+		this.iso = SledgeHelper.getIsoPlayer(connection);
 		init();
 	}
 	

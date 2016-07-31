@@ -1,5 +1,22 @@
 package sledgehammer;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -27,6 +44,7 @@ import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.network.GameServer;
 import zombie.network.ServerOptions;
+import zombie.sledgehammer.SledgeHelper;
 
 /**
  * Main class of operations for SledgeHammer.
@@ -453,27 +471,27 @@ public class SledgeHammer extends Printable {
 
 	
 	public IsoPlayer getIsoPlayer(String name) {
-		return PlayerManager.getIsoPlayer(name);
+		return SledgeHelper.getIsoPlayer(name);
 	}
 	
 	public IsoPlayer getIsoPlayerDirty(String name) {
-		return PlayerManager.getIsoPlayerDirty(name);
+		return SledgeHelper.getIsoPlayerDirty(name);
 	}
 	
 	public IsoPlayer getIsoPlayerByUsername(String username) {
-		return PlayerManager.getIsoPlayerByUsername(username);
+		return SledgeHelper.getIsoPlayerByUsername(username);
 	}
 	
 	public IsoPlayer getIsoPlayerByUsernameDirty(String username) {
-		return PlayerManager.getIsoPlayerByUsernameDirty(username);
+		return SledgeHelper.getIsoPlayerByUsernameDirty(username);
 	}
 	
 	public IsoPlayer getIsoPlayerByNickname(String nickname) {
-		return PlayerManager.getIsoPlayerByNickname(nickname);
+		return SledgeHelper.getIsoPlayerByNickname(nickname);
 	}
 	
 	public IsoPlayer getIsoPlayerByNicknameDirty(String nickname) {
-		return PlayerManager.getIsoPlayerByNicknameDirty(nickname);
+		return SledgeHelper.getIsoPlayerByNicknameDirty(nickname);
 	}
 	
 	public Player getPlayer(int id) {

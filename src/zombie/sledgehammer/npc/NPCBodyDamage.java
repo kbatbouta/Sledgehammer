@@ -1,4 +1,4 @@
-package sledgehammer.npc;
+package zombie.sledgehammer.npc;
 
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;

@@ -1,5 +1,22 @@
 package sledgehammer.manager;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,19 +31,13 @@ import sledgehammer.modules.ModuleNPC;
 import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
-import sledgehammer.npc.action.ActionFollowTargetPath;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
 import sledgehammer.wrapper.Player;
-import zombie.ZombiePopulationManager;
-import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
-import zombie.core.raknet.UdpEngine;
-import zombie.inventory.types.HandWeapon;
-import zombie.iso.Vector2;
 import zombie.network.GameServer;
-import zombie.network.PacketTypes;
-import zombie.network.ServerLOS;
+import zombie.sledgehammer.PacketHelper;
 import zombie.sledgehammer.npc.NPC;
+import zombie.sledgehammer.npc.action.ActionFollowTargetPath;
 
 /**
  * Manager class designed to handle NPC components, as well as update them.
@@ -105,19 +116,7 @@ public class NPCManager extends Manager {
 	 * @return
 	 */
 	public NPC addNPC(NPC npc) {
-		
-		//long guid = random.nextLong();
-		GameServer.PlayerToAddressMap.put(npc, (long) npc.PlayerIndex);
-		GameServer.playerToCoordsMap.put(Integer.valueOf(npc.PlayerIndex), new Vector2());
-		GameServer.IDToPlayerMap.put(npc.PlayerIndex, npc);
-		GameServer.Players.add(npc);
-
-		UdpEngine udpEngine = SledgeHammer.instance.getUdpEngine();
-		
-		for (UdpConnection c : udpEngine.connections) {
-			GameServer.sendPlayerConnect(npc, c);
-		}
-
+		npc = PacketHelper.addNPC(npc);
 		listNPCs.add(npc);
 		return npc;
 	}
@@ -128,25 +127,8 @@ public class NPCManager extends Manager {
 	 * @param npc
 	 */
 	public void destroyNPC(NPC npc) {
-		
-		npc.DoDeath((HandWeapon) null, npc);
-		
-		npc.removeFromWorld();
-		npc.removeFromSquare();
-		GameServer.PlayerToAddressMap.remove(npc);
-		GameServer.IDToAddressMap.remove(Integer.valueOf(npc.OnlineID));
-		GameServer.IDToPlayerMap.remove(Integer.valueOf(npc.OnlineID));
-		GameServer.Players.remove(npc);
-		
-		for (UdpConnection connection : getConnections()) {
-			ByteBufferWriter b = connection.startPacket();
-			PacketTypes.doPacket(PacketTypes.PlayerTimeout, b);
-			b.putInt(npc.OnlineID);
-			connection.endPacketImmediate();
-		}
-
-		ServerLOS.instance.removePlayer(npc);
-		ZombiePopulationManager.instance.updateLoadedAreas();
+		PacketHelper.destroyNPC(npc);
+		listNPCs.remove(npc);
 	}
 	
 	/**
@@ -275,64 +257,7 @@ public class NPCManager extends Manager {
 			// Set the last time updated to now.
 			timeThen = timeNow;
 			
-			// Go through each NPC in the list, and send the players the information.
-			for (NPC npc : listNPCs) {
-				
-				byte flags = 0;
-				
-				boolean animFlag = npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0;
-				
-				if (npc.def.Finished ) flags = (byte) (flags |  1);
-				if (npc.def.Looped   ) flags = (byte) (flags |  2);
-				if (animFlag         ) flags = (byte) (flags |  4);
-				if (npc.bSneaking    ) flags = (byte) (flags |  8);
-				if (npc.isTorchCone()) flags = (byte) (flags | 16);
-				if (npc.isOnFire()   ) flags = (byte) (flags | 32);
-				
-				boolean torchCone = (flags & 16) != 0;
-				boolean onFire    = (flags & 32) != 0;
-
-				for (UdpConnection c : getConnections()) {
-					ByteBufferWriter byteBufferWriter = c.startPacket();
-					PacketTypes.doPacket((byte) 7, byteBufferWriter);
-					byteBufferWriter.putShort((short) npc.OnlineID);
-					byteBufferWriter.putByte((byte) npc.dir.index());
-					
-					byteBufferWriter.putFloat(npc.getX()             );
-					byteBufferWriter.putFloat(npc.getY()             );
-					byteBufferWriter.putFloat(npc.getZ()             );
-					byteBufferWriter.putFloat(npc.playerMoveDir.x    );
-					byteBufferWriter.putFloat(npc.playerMoveDir.y    );
-					
-					byteBufferWriter.putByte(npc.NetRemoteState);
-					
-					// Send the current animation state.
-					if (npc.sprite != null) {
-						byteBufferWriter.putByte((byte) npc.sprite.AnimStack.indexOf(npc.sprite.CurrentAnim));
-					} else {
-						byteBufferWriter.putByte((byte) 0);
-					}
-					
-					byteBufferWriter.putByte((byte) ((int) npc.def.Frame));
-					
-					// Send the Animation frame delta and lighting data.
-					byteBufferWriter.putFloat(npc.def.AnimFrameIncrease);
-					byteBufferWriter.putFloat(npc.mpTorchDist          );
-					byteBufferWriter.putFloat(npc.mpTorchStrength      );
-					
-					boolean legAnimation = npc.legsSprite != null && npc.legsSprite.CurrentAnim != null && npc.legsSprite.CurrentAnim.FinishUnloopedOnFrame == 0;
-					
-					if (npc.def.Finished) flags = (byte) (flags |  1);
-					if (npc.def.Looped)   flags = (byte) (flags |  2);
-					if (legAnimation)     flags = (byte) (flags |  4);
-					if (npc.bSneaking)    flags = (byte) (flags |  8);
-					if (torchCone)        flags = (byte) (flags | 16);
-					if (onFire)           flags = (byte) (flags | 32);
-					
-					byteBufferWriter.putByte(flags);
-					c.endPacketSuperHighUnreliable();
-				}
-			}
+			PacketHelper.updateNPCs(listNPCs);
 		}
 	}
 

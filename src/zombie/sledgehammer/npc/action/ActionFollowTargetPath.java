@@ -1,4 +1,4 @@
-package sledgehammer.npc.action;
+package zombie.sledgehammer.npc.action;
 
 import zombie.ai.astar.Path;
 import zombie.ai.astar.AStarPathFinder.PathFindProgress;
@@ -8,6 +8,7 @@ import zombie.iso.Vector2;
 import zombie.network.GameServer;
 import zombie.sledgehammer.npc.NPC;
 import sledgehammer.modules.ModuleNPC;
+import sledgehammer.npc.action.PathAction;
 
 public class ActionFollowTargetPath extends PathAction {
 

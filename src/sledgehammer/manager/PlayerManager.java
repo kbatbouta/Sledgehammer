@@ -1,5 +1,22 @@
 package sledgehammer.manager;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,9 +27,6 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.wrapper.Player;
-import zombie.characters.IsoPlayer;
-import zombie.core.raknet.UdpConnection;
-import zombie.network.GameServer;
 import zombie.network.ServerWorldDatabase;
 
 public class PlayerManager extends Manager {
@@ -79,223 +93,6 @@ public class PlayerManager extends Manager {
 	
 	public List<Player> getPlayers() {
 		return listPlayers;
-	}
-	
-	/**
-	 * Returns a Player, based on a user-name.
-	 * 
-	 * If the wild-card parameter is flag as true, this method will search to
-	 * see if the user-name given is contained in a player's user-name.
-	 * 
-	 * @param username
-	 *
-	 * @param wildcard
-	 *
-	 * @return
-	 */
-	private static IsoPlayer getIsoPlayerByUsername(String username, boolean wildcard) {
-
-		if (wildcard) username = username.toLowerCase().trim();
-		
-		for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
-			for (int playerIndex = 0; playerIndex < 4; ++playerIndex) {
-				IsoPlayer player = connection.players[playerIndex];
-				if (player != null) {
-					String usernameNext = player.getUsername().toLowerCase();
-					if (wildcard) {
-						if (usernameNext.contains(username)) return player;
-					} else {
-						if (usernameNext.equals(username)) return player;
-					}
-				}
-			}
-		}
-
-		return null;
-	}
-	
-	/**
-	 * Returns a Player, based on a nick-name.
-	 * 
-	 * If the wild-card parameter is flag as true, this method will search to
-	 * see if the nick-name given is contained in a player's nick-name.
-	 * 
-	 * @param nickname
-	 *
-	 * @param wildcard
-	 *
-	 * @return
-	 */
-	private static IsoPlayer getIsoPlayerByNickname(String nickname, boolean wildcard) {
-
-		if (wildcard) nickname = nickname.toLowerCase().trim();
-		
-		for (UdpConnection connection : SledgeHammer.instance.getConnections()) {
-			for (int playerIndex = 0; playerIndex < 4; ++playerIndex) {
-				IsoPlayer player = connection.players[playerIndex];
-				if (player != null) {
-					
-					String usernameNext = player.getPublicUsername();
-					if(usernameNext == null) continue;
-					usernameNext = usernameNext.toLowerCase();
-					
-					if (wildcard) {
-						if (usernameNext.contains(nickname)) return player;
-					} else {
-						if (usernameNext.equals(nickname)) return player;
-					}
-				}
-			}
-		}
-
-		return null;
-	}
-	
-	/**
-	 * Returns a Player, based on a user-name. If the name given doesn't match any
-	 * connected user-names, a second search will occur, attempting to match
-	 * nicknames with the name.
-	 * 
-	 * @param username
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayer(String name) {
-		IsoPlayer player = null;
-		
-		player = getIsoPlayerByUsername(name, false);
-		
-		if(player == null) {
-			player = getIsoPlayerByNickname(name, false);
-		}
-		
-		return player;
-	}
-	
-	/**
-	 * Returns a Player, based on a user-name. If the name given doesn't match any
-	 * connected user-names, a second search will occur, attempting to match
-	 * nicknames with the name.
-	 * 
-	 * If the wild-card parameter is flag as true, a 2nd iteration of the search
-	 * will be made if the player is not located, searching for the name given,
-	 * to see if the name is contained in a user-name, or nickname of a player.
-	 * 
-	 * @param name
-	 * 
-	 * @param wildcard
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayerDirty(String name, boolean wildcard) {
-		IsoPlayer player = null;
-		
-		player = getIsoPlayerByUsername(name, false);
-		
-		if(player == null) {
-			player = getIsoPlayerByNickname(name, false);
-		}
-		
-		if(player == null && wildcard) {
-			
-			name = name.toLowerCase().trim();
-			
-			player = getIsoPlayerByUsername(name, true);
-			
-			if(player == null) {
-				player = getIsoPlayerByNickname(name, true);
-			}
-		}
-		
-		return player;
-	}
-	
-	/**
-	 * Returns a Player, based on the UdpConnection given.
-	 * 
-	 * @param connection
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayer(UdpConnection connection) {
-		long guid = connection.getConnectedGUID();
-		
-		for(IsoPlayer player : GameServer.PlayerToAddressMap.keySet()) {
-			if(player != null) {
-				Long value = (Long) GameServer.PlayerToAddressMap.get(player);
-				if(value.longValue() == guid) {
-					return (IsoPlayer) player;
-				}
-			}
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Returns a UdpConnection instance tied with the IsoPlayer instance given.
-	 * 
-	 * @param player
-	 * 
-	 * @return
-	 */
-	public static UdpConnection getConnection(IsoPlayer player) {
-		Long guid = GameServer.PlayerToAddressMap.get(player);
-
-		if (guid == null)
-			return null;
-
-		return SledgeHammer.instance.getUdpEngine().getActiveConnection(guid.longValue());
-	}
-	
-	/**
-	 * 
-	 * @param username
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayerByUsername(String username) {
-		return getIsoPlayerByUsername(username, false);
-	}
-
-	/**
-	 * 
-	 * @param nickname
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayerByNickname(String nickname) {
-		return getIsoPlayerByNickname(nickname, false);
-	}
-	
-	/**
-	 * 
-	 * @param nickname
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayerByNicknameDirty(String nickname) {
-		return getIsoPlayerByNickname(nickname, true);
-	}
-
-	/**
-	 * 
-	 * @param username
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayerByUsernameDirty(String username) {
-		return getIsoPlayerByUsername(username, true);
-	}
-	
-	/**
-	 * Returns a Player, based on a username.
-	 * 
-	 * @param username
-	 * 
-	 * @return
-	 */
-	public static IsoPlayer getIsoPlayerDirty(String username) {
-		return getIsoPlayerDirty(username, true);
 	}
 	
 	/**

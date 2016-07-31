@@ -1,5 +1,22 @@
 package sledgehammer.modules.core;
 
+/*
+ This file is part of Sledgehammer.
+
+    Sledgehammer is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Sledgehammer is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +31,10 @@ import sledgehammer.util.Printable;
 import sledgehammer.util.Result;
 import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
-import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.znet.SteamUtils;
-import zombie.network.PacketTypes;
 import zombie.network.ServerWorldDatabase;
+import zombie.sledgehammer.PacketHelper;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
@@ -556,13 +572,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	}
 	
 	private void kickUser(UdpConnection connection, String reason) {
-		if(connection == null) return;
-		if(reason == null) reason = "Kicked.";
-		ByteBufferWriter bufferWriter = connection.startPacket();
-		PacketTypes.doPacket((byte) 83, bufferWriter);
-		bufferWriter.putUTF("You have been kicked from this server. " + reason);
-		connection.endPacketImmediate();
-		connection.forceDisconnect();
+		PacketHelper.kickUser(connection, reason);
 	}
 	
 	private void unban(CommandEvent c, String[] args) throws SQLException {
