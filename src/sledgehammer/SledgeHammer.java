@@ -147,7 +147,7 @@ public class SledgeHammer extends Printable {
 	public void init() {
 		
 		try {
-			
+			loadSettings();
 			translator = new CoreContextListener();
 			
 			publicServerName = ServerOptions.instance.getOption("PublicName");

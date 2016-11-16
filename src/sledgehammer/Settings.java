@@ -79,7 +79,11 @@ public class Settings extends Printable {
 				if(s_maximumExplosionRadius != null) {
 					try {
 						this.maximumExplosionRadius = Short.parseShort(s_maximumExplosionRadius);
-					} catch(NumberFormatException e){}
+					} catch(NumberFormatException e){
+						e.printStackTrace();
+					}
+				} else {
+					println("MaximumExplosionRadius is not set. Setting to " + this.maximumExplosionRadius + ".");
 				}
 
 				// Grab the list of plugins as a string.
@@ -146,7 +150,7 @@ public class Settings extends Printable {
 			ini.setVariable("GENERAL", "helicopter", "true", "Whether or not to enable or disable the helicopter ambient event.");
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 			ini.setVariable("GENERAL", "allowRCON", "false", "Whether or not to run the vanilla Remote-Console system.");
-			ini.setVariable("GENERAL", "safetyExplosionRadius", "12", "This is to allow mods with large explosions, and prevent malicious players with mods to spam large-radius explosions. If you do not need to, do not adjust this value.");
+			ini.setVariable("GENERAL", "maximumExplosionRadius", "12", "This is to allow mods with large explosions, and prevent malicious players with mods to spam large-radius explosions. If you do not need to, do not adjust this value.");
 		}
 	}
 	
