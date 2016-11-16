@@ -14,7 +14,7 @@ public class CheaterEvent extends PlayerEvent {
 
 	@Override
 	public String getLogMessage() {
-		return logMessage;
+		return "CHEATER: " + logMessage;
 	}
 
 	@Override
