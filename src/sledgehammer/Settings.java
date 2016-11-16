@@ -45,6 +45,8 @@ public class Settings extends Printable {
 	private String[] pluginList;
 
 	private String permissionDeniedMessage = "Permission Denied.";
+	
+	private short maximumExplosionRadius = 12;
 
 	/**
 	 * Main constructor.
@@ -72,6 +74,13 @@ public class Settings extends Printable {
 
 				// Read the settings file.
 				ini.read();
+				
+				String s_maximumExplosionRadius = ini.getVariableAsString("GENERAL", "maximumExplosionRadius");
+				if(s_maximumExplosionRadius != null) {
+					try {
+						this.maximumExplosionRadius = Short.parseShort(s_maximumExplosionRadius);
+					} catch(NumberFormatException e){}
+				}
 
 				// Grab the list of plugins as a string.
 				String listPluginsRaw = ini.getVariableAsString("GENERAL", "plugins");
@@ -137,6 +146,7 @@ public class Settings extends Printable {
 			ini.setVariable("GENERAL", "helicopter", "true", "Whether or not to enable or disable the helicopter ambient event.");
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 			ini.setVariable("GENERAL", "allowRCON", "false", "Whether or not to run the vanilla Remote-Console system.");
+			ini.setVariable("GENERAL", "safetyExplosionRadius", "12", "This is to allow mods with large explosions, and prevent malicious players with mods to spam large-radius explosions. If you do not need to, do not adjust this value.");
 		}
 	}
 	
@@ -176,6 +186,10 @@ public class Settings extends Printable {
 	public boolean allowRCON() {
 		String setting = ini.getVariableAsString("GENERAL", "allowRCON");
 		return setting.equalsIgnoreCase("true") || setting.equalsIgnoreCase("yes") || setting.equalsIgnoreCase("1");
+	}
+	
+	public short getMaximumExplosionRadius() {
+		return maximumExplosionRadius;
 	}
 	
 }
