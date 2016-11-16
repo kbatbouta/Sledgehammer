@@ -120,6 +120,8 @@ public class SledgeHammer extends Printable {
 	
 	private ContextListener translator;
 	
+	private boolean firstLoad = true;
+	
 	/**
 	 * Test-Case constructor. Use this constructor for testing a Module.
 	 * 
@@ -147,7 +149,11 @@ public class SledgeHammer extends Printable {
 	public void init() {
 		
 		try {
-			loadSettings();
+			if(!firstLoad) {				
+				loadSettings();
+			}
+			firstLoad = false;
+			
 			translator = new CoreContextListener();
 			
 			publicServerName = ServerOptions.instance.getOption("PublicName");
