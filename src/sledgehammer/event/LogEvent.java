@@ -75,6 +75,10 @@ public class LogEvent extends Event {
 	public boolean isImportant() {
 		return this.importance;
 	}
+	
+	public void setImportant(boolean flag) {
+		this.importance = flag;
+	}
 
 	@Override
 	public String getLogMessage() {
