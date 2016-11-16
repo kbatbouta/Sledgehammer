@@ -261,17 +261,10 @@ public class EventManager extends Manager {
 			}
 		}
 	}
-
-	/**
-	 * Logs a Event, running through each LogListener interface.
-	 * 
-	 * @param event
-	 */
-	public void logEvent(Event event) {
+	
+	private void log(LogEvent logEvent) {
 		try {
-			// Create a new LogEvent instance for the Event.
-			LogEvent logEvent = new LogEvent(event);
-
+			Event event = logEvent.getEvent();
 			// Go through each LogListener interface and fire it.
 			for (LogListener listener : listLogListeners) {
 				if (listener != null) {					
@@ -297,13 +290,35 @@ public class EventManager extends Manager {
 			} else {
 				LoggerManager.getLogger(log).write(logEvent.getLogMessage());
 			}
-
 		} catch (Exception e) {
-			println("Error logging event " + event + ": " + e.getMessage());
+			println("Error logging event " + logEvent.getEvent() + ": " + e.getMessage());
 			for (StackTraceElement o : e.getStackTrace()) {
 				println(o);
 			}
 		}
+	}
+
+	/**
+	 * Logs a Event, running through each LogListener interface.
+	 * 
+	 * @param event
+	 * 
+	 * @param important
+	 */
+	public void logEvent(Event event, boolean important) {
+		LogEvent logEvent = new LogEvent(event);
+		logEvent.setImportant(important);
+		log(logEvent);
+	}
+	
+	/**
+	 * Logs a Event, running through each LogListener interface.
+	 * 
+	 * @param event
+	 */
+	public void logEvent(Event event) {
+		LogEvent logEvent = new LogEvent(event);
+		log(logEvent);
 	}
 
 	/**
