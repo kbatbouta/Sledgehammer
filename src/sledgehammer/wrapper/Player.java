@@ -20,48 +20,57 @@ This file is part of Sledgehammer.
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.AliveEvent;
+import sledgehammer.event.DeathEvent;
 import zombie.characters.IsoPlayer;
+import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
+import zombie.network.PacketTypes;
+import zombie.network.ServerOptions;
 import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.SledgeHelper;
 
 public class Player {
+	
+	public static final Player admin = new Player();
 	
 	private IsoPlayer iso;
 	private UdpConnection connection;
 	private String username;
 	
 	private Map<String, String> mapProperties;
-	
+	private long sinceDeath = 0L;
 	private int id = -1;
-	
-	public Player(IsoPlayer iso) {
-		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
-		this.iso = iso;
-		connection = SledgeHelper.getConnection(iso);
-		init();
-	}
+	private boolean isNewAccount = false;
+	private boolean isNewCharacter = false;
+	private boolean isAlive = true;	
+	private boolean hasInit = false;
+		
+//	public Player(IsoPlayer iso) {
+//		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
+//		this.iso = iso;
+//		connection = SledgeHelper.getConnection(iso);
+//	}
 	
 	public Player(UdpConnection connection) {
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
 		this.iso = SledgeHelper.getIsoPlayer(connection);
-		init();
 	}
 	
-	public Player(UdpConnection connection, IsoPlayer iso) {
-		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
-		if(iso        == null) throw new IllegalArgumentException("IsoPlayer instance given is null!"    );
-
-		this.connection = connection;
-		this.iso = iso;
-		init();
-	}
+//	public Player(UdpConnection connection, IsoPlayer iso) {
+//		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
+//		if(iso        == null) throw new IllegalArgumentException("IsoPlayer instance given is null!"    );
+//
+//		this.connection = connection;
+//		this.iso = iso;
+//
+//	}
 	
 	/**
 	 * Constructor for 'Console' connections. This includes 3rd-Party console access.
 	 */
-	public Player() {
+	private Player() {
 		username = "admin";
 	}
 	
@@ -93,21 +102,51 @@ public class Player {
 				break;
 			}
 		}
-		id = ServerWorldDatabase.instance.resolvePlayerID(username);
-		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
-		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
+		
+		initProperties();
 	}
 	
-	private void init() {
-		IsoPlayer player = get();
-		if(player   != null) username = get().getUsername();
-		if(username == null) username = connection.username;
-		
+	public void init() {
+		if(!hasInit) {
+			IsoPlayer player = get();
+			if(player   != null) username = get().getUsername();
+			if(username == null) username = connection.username;
+			
+			initProperties();
+			hasInit = true;
+		}
+	}
+	
+	public void initProperties() {
 		id = ServerWorldDatabase.instance.resolvePlayerID(username);
 		
 		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
 		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
 		
+		if(getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
+			System.out.println("NewCharacter: " + getUsername());
+			this.isNewCharacter = true;
+			this.isAlive = false;
+		}		
+	}
+	
+	public void setAlive(boolean flag) {
+		if(isAlive && !flag) {
+			isAlive = false;
+			setProperty("alive", "0");
+			DeathEvent event = new DeathEvent(this);
+			boolean announce = ServerOptions.instance.getBoolean("AnnounceDeath").booleanValue();
+			event.announce(announce);
+			SledgeHammer.instance.handle(event);
+			sinceDeath = System.currentTimeMillis();
+		}
+		// Async protection against flipping between alive and death states.
+		if(!isAlive && flag && (System.currentTimeMillis() - sinceDeath) > 5000L) {
+			isAlive = true;
+			setProperty("alive", "1");
+			AliveEvent event = new AliveEvent(this);
+			SledgeHammer.instance.handle(event);
+		}
 	}
 	
 	public IsoPlayer get() {
@@ -226,4 +265,64 @@ public class Player {
 
 		return null;
 	}
+	
+	public boolean isNewAccount() {
+		return isNewAccount;
+	}
+	
+	public void setNewAccount(boolean flag) {
+		this.isNewAccount = flag;
+	}
+
+	public boolean isNewCharacter() {
+		return isNewCharacter;
+	}
+
+	public void setNewCharacter(boolean flag) {
+		this.isNewCharacter = flag;
+	}
+	
+//	public void updateInventory() {
+//	
+//		ByteBufferWriter bbw = connection.startPacket();
+//		PacketTypes.doPacket((byte) 65, bbw);
+//		
+//		bbw.putShort((short) iso.OnlineID);
+//		bbw.putByte((byte)iso.PlayerIndex);
+//		
+//		try {
+//			iso.getInventory().save(bbw.bb, false);
+//		} catch (Exception var6) {
+//			var6.printStackTrace();
+//		}
+//		
+//		if(iso.getClothingItem_Torso() != null) {
+//			bbw.bb.putShort((short)iso.getInventory().getItems().indexOf(iso.getClothingItem_Torso()));
+//		} else {
+//			bbw.bb.putShort((short)-1);
+//		}
+//		
+//		if(iso.getClothingItem_Legs() != null) {
+//			bbw.bb.putShort((short)iso.getInventory().getItems().indexOf(iso.getClothingItem_Legs()));
+//		} else {
+//			bbw.bb.putShort((short)-1);
+//		}
+//		
+//		if(iso.getClothingItem_Feet() != null) {
+//			bbw.bb.putShort((short)iso.getInventory().getItems().indexOf(iso.getClothingItem_Feet()));
+//		} else {
+//			bbw.bb.putShort((short)-1);
+//		}
+//
+//		connection.endPacketImmediate();
+//	}
+//	
+//	public void giveItem(String name, int count) {
+//		ByteBufferWriter b2 = connection.startPacket();
+//		PacketTypes.doPacket((byte) 85, b2);
+//		b2.putShort((short) iso.OnlineID);
+//		b2.putUTF(name);
+//		b2.putInt(count);
+//		connection.endPacketImmediate();
+//	}
 }

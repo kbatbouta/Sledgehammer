@@ -42,8 +42,6 @@ public class PlayerManager extends Manager {
 	
 	private Map<Integer, Player> mapPlayersByDatabaseID;
 	
-	private Player admin = new Player();
-	
 	private DisconnectionHandler disconnectionHandler;
 	
 	/**
@@ -147,7 +145,7 @@ public class PlayerManager extends Manager {
 		if(player != null) return player;
 		
 		// Create an offline player.
-		player = new Player(username);
+		// player = new Player(username);
 		
 		// Add this player to the cache.
 		// addPlayer(player);
@@ -292,7 +290,18 @@ public class PlayerManager extends Manager {
 	}
 	
 	public Player getAdmin() {
-		return admin;
+		return Player.admin;
+	}
+
+	public void registerPlayer(Player player, String username) {
+		int id = player.getID();
+		mapPlayersByUserName.put(username, player);
+		if(!listPlayers.contains(player)) {	
+			listPlayers.add(player);
+		}
+		if(!mapPlayersByDatabaseID.containsKey(id)) {
+			mapPlayersByDatabaseID.put(id, player);
+		}
 	}
 	
 }
