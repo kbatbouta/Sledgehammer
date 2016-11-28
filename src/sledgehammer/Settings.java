@@ -47,6 +47,10 @@ public class Settings extends Printable {
 	private String permissionDeniedMessage = "Permission Denied.";
 	
 	private short maximumExplosionRadius = 12;
+	
+	private short accountIdleExpireTime = 0;
+	private String[] accountIdleExclusion = null;
+	
 
 	/**
 	 * Main constructor.
@@ -85,7 +89,30 @@ public class Settings extends Printable {
 				} else {
 					println("MaximumExplosionRadius is not set. Setting to " + this.maximumExplosionRadius + ".");
 				}
-
+				
+				String s_accountIdleExpireTime = ini.getVariableAsString("GENERAL", "accountIdleExpireTime");
+				if(s_accountIdleExpireTime != null && !s_accountIdleExpireTime.isEmpty() && !s_accountIdleExpireTime.equalsIgnoreCase("null")) {
+					try {
+						accountIdleExpireTime = Short.parseShort(s_accountIdleExpireTime);
+					} catch(NumberFormatException e) {
+						e.printStackTrace();
+					}
+				} else {
+					accountIdleExpireTime = 0;
+				}
+				
+				String s_accountIdleExclusion = ini.getVariableAsString("GENERAL", "accountIdleExclusion");
+				if(s_accountIdleExclusion != null && !s_accountIdleExclusion.isEmpty() && !s_accountIdleExclusion.equalsIgnoreCase("null")) {
+					String[] names = s_accountIdleExclusion.trim().split(",");
+					if(names.length > 0) {
+						for(int index = 0; index < names.length; index++) {
+							names[index] = names[index].trim();
+						}						
+					}
+					println("Added " + names.length + " username(s) to idle expiration exclusions list.");
+					this.accountIdleExclusion = names;
+				}
+				
 				// Grab the list of plugins as a string.
 				String listPluginsRaw = ini.getVariableAsString("GENERAL", "plugins");
 
@@ -151,6 +178,8 @@ public class Settings extends Printable {
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
 			ini.setVariable("GENERAL", "allowRCON", "false", "Whether or not to run the vanilla Remote-Console system.");
 			ini.setVariable("GENERAL", "maximumExplosionRadius", "12", "This is to allow mods with large explosions, and prevent malicious players with mods to spam large-radius explosions. If you do not need to, do not adjust this value.");
+			ini.setVariable("GENERAL", "accountIdleExpireTime", "0", "Expiration time (In days), for accounts to be deleted. If set to 0, this feature is disabled.");
+			ini.setVariable("GENERAL", "accountIdleExclusion", "", "Usernames are put here to exclude from the inactivity expiration.");
 		}
 	}
 	
@@ -194,6 +223,14 @@ public class Settings extends Printable {
 	
 	public short getMaximumExplosionRadius() {
 		return maximumExplosionRadius;
+	}
+	
+	public short getAccountIdleExpireTime() {
+		return this.accountIdleExpireTime;
+	}
+	
+	public String[] getAccountIdleExclusions() {
+		return this.accountIdleExclusion;
 	}
 	
 }

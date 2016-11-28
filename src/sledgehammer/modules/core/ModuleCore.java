@@ -19,6 +19,7 @@ This file is part of Sledgehammer.
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.module.SQLModule;
 import sledgehammer.util.ZUtil;
 import zombie.network.DataBaseBuffer;
+import zombie.network.ServerWorldDatabase;
 
 public class ModuleCore extends SQLModule {
 
@@ -47,10 +49,19 @@ public class ModuleCore extends SQLModule {
 	private static String TABLE_GLOBAL_MESSAGES   = "sledgehammer_global_messages"  ;
 	private static String TABLE_PLAYER_PROPERTIES = "sledgehammer_player_properties";
 	
+	public static long LONG_SECOND = 1000L;
+	public static long LONG_MINUTE = LONG_SECOND * 60L;
+	public static long LONG_HOUR   = LONG_MINUTE * 60L;
+	public static long LONG_DAY    = LONG_HOUR   * 24L;
+	
+	private int delayPeriodicMessages   =   60000;
+	private long delayCheckAccountExpire = LONG_DAY;
+	
 	private List<PeriodicMessage> listPeriodicMessages;
 	private Map<String, PeriodicMessage> mapPeriodicMessages;
 	
-	private long timeThen = 0L;
+	private long timeThenPeriodicMessages   = 0L;
+	private long timeThenCheckAccountExpire = 0L;
 	
 	public ModuleCore() {
 		super(DataBaseBuffer.getDatabaseConnection());
@@ -227,7 +238,7 @@ public class ModuleCore extends SQLModule {
 		long timeNow = System.currentTimeMillis();
 		
 		// If it has been a minute since the last check.
-		if(timeNow - timeThen > 60000) {
+		if(timeNow - timeThenPeriodicMessages > delayPeriodicMessages) {
 			
 			// Go through each PeriodicMessage instance.
 			for(PeriodicMessage message : listPeriodicMessages) {
@@ -237,8 +248,46 @@ public class ModuleCore extends SQLModule {
 			}
 			
 			// Set the time to reset the delta.
-			timeThen = timeNow;
+			timeThenPeriodicMessages = timeNow;
 		}
+		
+		short days = SledgeHammer.instance.getSettings().getAccountIdleExpireTime();
+		if(days > 0) {			
+			if(timeNow - timeThenCheckAccountExpire > delayCheckAccountExpire) {
+				println("Checking for expired accounts (Inactive for over " + days + " days)");
+				String[] exclusions = SledgeHammer.instance.getSettings().getAccountIdleExclusions();
+				try {
+					Map<String, Long> mapPlayers = ServerWorldDatabase.instance.getAllPlayersWithTimes();
+					for(String username: mapPlayers.keySet()) {
+						
+						boolean skip = false;
+						if(exclusions != null) {							
+							for(String ex: exclusions) {
+								if(username.equalsIgnoreCase(ex)) {
+									skip = true;
+									break;
+								}
+							}
+						}
+						if(skip) continue;
+						
+						long lastConnection = mapPlayers.get(username);
+						long d = timeNow - lastConnection;
+						if(d > (LONG_DAY * days)) {
+							// delete account.
+							println("Account: \"" + username + "\" has an expired account. (" + (d / LONG_DAY) + " days)");
+							ServerWorldDatabase.instance.removeUser(username);
+						}
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+				
+				// Set the time to reset the delta.
+				timeThenCheckAccountExpire = timeNow;
+			}
+		}
+		
 		
 	}
 	
