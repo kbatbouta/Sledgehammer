@@ -107,6 +107,7 @@ public class Player {
 	}
 	
 	public void init() {
+		
 		if(!hasInit) {
 			IsoPlayer player = get();
 			if(player   != null) username = get().getUsername();
@@ -117,9 +118,11 @@ public class Player {
 		}
 	}
 	
+	public void setID(int id) {
+		this.id = id;
+	}
+	
 	public void initProperties() {
-		id = ServerWorldDatabase.instance.resolvePlayerID(username);
-		
 		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
 		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
 		
@@ -245,6 +248,9 @@ public class Player {
 	}
 	
 	public String getProperty(String property) {
+		if(mapProperties == null) {
+			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
+		}
 		return mapProperties.get(property.toLowerCase());
 	}
 
