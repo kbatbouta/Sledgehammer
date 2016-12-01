@@ -35,6 +35,7 @@ import java.util.jar.JarFile;
 import sledgehammer.SledgeHammer;
 import sledgehammer.module.Module;
 import sledgehammer.modules.core.ModuleCore;
+import sledgehammer.modules.core.ModuleTerritories;
 import sledgehammer.modules.vanilla.ModuleVanilla;
 import sledgehammer.util.ZUtil;
 import zombie.sledgehammer.modules.ModuleMonitor;
@@ -110,6 +111,7 @@ public final class ModuleManager extends Manager {
 	 * Loads the Core Module services already included in SledgeHammer.
 	 */
 	private void loadDefaultModules() {
+		
 		try {
 			
 			moduleVanilla = new ModuleVanilla();
@@ -120,8 +122,13 @@ public final class ModuleManager extends Manager {
 			registerModule(moduleVanilla);
 			registerModule(moduleCore   );
 			
-		} catch(Exception e) {
+			try{
+				registerModule(new ModuleTerritories());
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 			
+		} catch(Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
 		
