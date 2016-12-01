@@ -6,6 +6,7 @@ import sledgehammer.interfaces.EventListener;
 
 public class TerritoriesEventListener implements EventListener {
 	
+	@SuppressWarnings("unused")
 	private ModuleTerritories module;
 	
 	TerritoriesEventListener(ModuleTerritories module) {

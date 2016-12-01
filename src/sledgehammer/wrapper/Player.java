@@ -19,15 +19,15 @@ This file is part of Sledgehammer.
 
 import java.util.Map;
 
+import org.lwjgl.util.vector.Vector2f;
+import org.lwjgl.util.vector.Vector3f;
+
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import zombie.characters.IsoPlayer;
-import zombie.core.network.ByteBufferWriter;
 import zombie.core.raknet.UdpConnection;
-import zombie.network.PacketTypes;
 import zombie.network.ServerOptions;
-import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.SledgeHelper;
 
 public class Player {
@@ -37,6 +37,9 @@ public class Player {
 	private IsoPlayer iso;
 	private UdpConnection connection;
 	private String username;
+	
+	private Vector3f position;
+	private Vector2f metaPosition;
 	
 	private Map<String, String> mapProperties;
 	private long sinceDeath = 0L;
@@ -107,6 +110,9 @@ public class Player {
 	}
 	
 	public void init() {
+		
+		position = new Vector3f(0,0,0);
+		metaPosition = new Vector2f(0,0);
 		
 		if(!hasInit) {
 			IsoPlayer player = get();
@@ -286,6 +292,14 @@ public class Player {
 
 	public void setNewCharacter(boolean flag) {
 		this.isNewCharacter = flag;
+	}
+	
+	public Vector3f getPosition() {
+		return this.position;
+	}
+	
+	public Vector2f getMetaPosition() {
+		return this.metaPosition;
 	}
 	
 //	public void updateInventory() {
