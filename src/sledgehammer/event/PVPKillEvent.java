@@ -42,7 +42,11 @@ public class PVPKillEvent extends Event {
 
 	@Override
 	public String getLogMessage() {
-		return playerKiller.getUsername() + " killed " + playerKilled.getUsername() + '.';
+		String playerKillerName = "Unknown Player (Null)";
+		String playerKilledName = "Unknown Player (Null)";
+		if(playerKiller != null) playerKillerName = playerKiller.getUsername();
+		if(playerKilled != null) playerKilledName = playerKilled.getUsername();
+		return playerKillerName + " killed " + playerKilledName + '.';
 	}
 
 	@Override
