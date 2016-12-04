@@ -33,6 +33,7 @@ import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.znet.SteamUtils;
+import zombie.iso.IsoWorld;
 import zombie.network.ServerMap;
 import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.PacketHelper;
@@ -149,7 +150,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(command.startsWith("purge")) {
 			if(module.hasPermission(username, getPermissionContext("purge"))) {
-				response = "Purged " + ServerMap.instance.purgeZombies() + " Zombies.";
+				response = "Purged " + ServerMap.instance.purgeZombies() + " Zombies. There are " + ServerMap.instance.ZombieMap.size() + " zombie ID(s) currently in the Zombie ID Map. There are currently " + IsoWorld.instance.CurrentCell.getZombieList().size() + " Zombie(s) in the ZombieList." ;
 				c.setResponse(Result.SUCCESS, response);
 				return;
 			} else {
