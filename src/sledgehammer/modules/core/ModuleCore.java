@@ -292,6 +292,7 @@ public class ModuleCore extends SQLModule {
 	
 	public Map<String, String> getProperties(int id) {
 		
+		if(id == -1) {return null; }
 		String json = null;
 		
 		try {

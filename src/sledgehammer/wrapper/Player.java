@@ -1,5 +1,7 @@
 package sledgehammer.wrapper;
 
+import java.util.HashMap;
+
 /*
 This file is part of Sledgehammer.
 
@@ -28,6 +30,7 @@ import sledgehammer.event.DeathEvent;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;
+import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.SledgeHelper;
 
 public class Player {
@@ -119,7 +122,6 @@ public class Player {
 			if(player   != null) username = get().getUsername();
 			if(username == null) username = connection.username;
 			
-			initProperties();
 			hasInit = true;
 		}
 	}
@@ -244,6 +246,12 @@ public class Player {
 	}
 	
 	public void setProperty(String property, String content, boolean save) {
+		if(mapProperties == null) {
+			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
+		}
+		if(mapProperties == null) {
+			mapProperties = new HashMap<>();
+		}
 		mapProperties.put(property.toLowerCase(), content);
 
 		if(save) saveProperties();
@@ -257,7 +265,15 @@ public class Player {
 		if(mapProperties == null) {
 			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
 		}
-		return mapProperties.get(property.toLowerCase());
+		if(mapProperties == null) {
+			setID(ServerWorldDatabase.instance.resolvePlayerID(getUsername()));
+			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
+		}
+		if(mapProperties != null) {			
+			return mapProperties.get(property.toLowerCase());
+		}
+		
+		return null;
 	}
 
 	public void set(IsoPlayer iso) {
