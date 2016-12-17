@@ -76,7 +76,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				" -S: SteamID flag (ID required!) ex: /unban -S \"11330\"" + NEW_LINE +
 				" -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
 		
-		mapTooltips.put("purge", "Purges zombies that are dead and not removed from the list.");
+//		mapTooltips.put("purge", "Purges zombies that are dead and not removed from the list.");
 		
 		mapContexts = new HashMap<>();
 		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
@@ -88,7 +88,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
-		mapContexts.put("purge"        , "sledgehammer.core.moderation.purge"     );
+//		mapContexts.put("purge"        , "sledgehammer.core.moderation.purge"     );
 
 		PermissionsManager managerPermissions = module.getPermissionsManager();
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("pm"           ));
@@ -127,7 +127,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				"ban",
 				"unban",
 				"muteglobal",
-				"purge"
+//				"purge"
 		};
 	}
 	
@@ -148,16 +148,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(DEBUG) println("Command fired by " + username + ": " + c.getRaw());
 		
-		if(command.startsWith("purge")) {
-			if(module.hasPermission(username, getPermissionContext("purge"))) {
-				response = "Purged " + ServerMap.instance.purgeZombies() + " Zombies. There are " + ServerMap.instance.ZombieMap.size() + " zombie ID(s) currently in the Zombie ID Map. There are currently " + IsoWorld.instance.CurrentCell.getZombieList().size() + " Zombie(s) in the ZombieList." ;
-				c.setResponse(Result.SUCCESS, response);
-				return;
-			} else {
-				c.deny();
-				return;
-			}
-		}
+//		if(command.startsWith("purge")) {
+//			if(module.hasPermission(username, getPermissionContext("purge"))) {
+//				response = "Purged " + ServerMap.instance.purgeZombies() + " Zombies. There are " + ServerMap.instance.ZombieMap.size() + " zombie ID(s) currently in the Zombie ID Map. There are currently " + IsoWorld.instance.CurrentCell.getZombieList().size() + " Zombie(s) in the ZombieList." ;
+//				c.setResponse(Result.SUCCESS, response);
+//				return;
+//			} else {
+//				c.deny();
+//				return;
+//			}
+//		}
 		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				

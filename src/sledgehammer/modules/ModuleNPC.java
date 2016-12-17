@@ -59,7 +59,7 @@ public class ModuleNPC extends SQLModule {
 
 	public void onLoad() {
 		mapSpawners = new HashMap<>();
-		LuaManager.exposer.exposeClass(NPC.class);
+		// LuaManager.exposer.exposeClass(NPC.class);
 		
 		commandListener = new CommandListener() {
 

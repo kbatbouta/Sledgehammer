@@ -116,6 +116,7 @@ public class CoreEventListener implements EventListener {
 		
 		Player player = event.getPlayer();
 		String text = event.getText();
+
 		UdpConnection connectionCommander = player.getConnection();
 
 		text = ChatTags.stripTags(text, false);
