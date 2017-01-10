@@ -75,6 +75,10 @@ public class ModuleVanilla extends Module {
 		mapContexts.put("stoprain"               , "base.command.admin.stoprain"               );
 		mapContexts.put("teleport"               , "base.command.admin.teleport"               );
 		mapContexts.put("thunder"                , "base.command.admin.thunder"                );
+		mapContexts.put("banuser"                , "base.command.admin.banuser"                );
+		mapContexts.put("unbanuser"              , "base.command.admin.unbanuser"              );
+		mapContexts.put("banid"                  , "base.command.admin.banid"                  );
+		mapContexts.put("unbanid"                , "base.command.admin.unbanid"                );
 	}
 	
 	public void onLoad() {
