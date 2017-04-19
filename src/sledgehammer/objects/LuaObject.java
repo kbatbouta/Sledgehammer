@@ -13,6 +13,9 @@ import zombie.Lua.LuaManager;
  */
 public abstract class LuaObject extends Printable {
 	
+	public static final byte COPY_OVERWRITE  = (byte) 0;
+	public static final byte COPY_UNDERWRITE = (byte) 1;
+	
 	/**
 	 * The name of the LuaObject.
 	 */
@@ -82,9 +85,6 @@ public abstract class LuaObject extends Printable {
 		
 		return table;
 	}
-	
-	public static final byte COPY_OVERWRITE = (byte) 0;
-	public static final byte COPY_UNDERWRITE = (byte) 1;
 	
 	/**
 	 * Copies data from another LuaObject
