@@ -44,7 +44,7 @@ public abstract class LuaObject extends Printable {
 		this.name = name;
 		
 		// Initialize the raw data Map.
-		data = new HashMap<>();
+		this.data = new HashMap<>();
 	}
 	
 	public LuaObject(String name, KahluaTable table) {
@@ -53,7 +53,9 @@ public abstract class LuaObject extends Printable {
 		this.name = name;
 		
 		// Initialize the raw data Map.
-		data = new HashMap<>();
+		this.data = new HashMap<>();
+		
+		this.table = newTable();
 		
 		// Let the implementation decide what to do with the table.
 		load(table);
@@ -83,7 +85,7 @@ public abstract class LuaObject extends Printable {
 	public KahluaTable constructTable() {
 		
 		// Create a new table.
-		KahluaTable table = LuaManager.platform.newTable();
+		KahluaTable table = newTable();
 		
 		// Create definitions map.
 		Map<String, Object> definitions = new HashMap<>();
@@ -216,7 +218,7 @@ public abstract class LuaObject extends Printable {
 	 */
 	public static KahluaTable copyTable(KahluaTable other) {
 		// Create a new table.
-		KahluaTable table = LuaManager.platform.newTable();
+		KahluaTable table = newTable();
 		
 		// Set the metatable from the other metatable.
 		table.setMetatable(other.getMetatable());
