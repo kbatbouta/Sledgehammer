@@ -235,6 +235,10 @@ public abstract class LuaObject extends Printable {
 		return table;
 	}
 	
+	public static KahluaTable newTable() {
+		return LuaManager.platform.newTable();
+	}
+	
 	/**
 	 * Defines the LuaObject's structure.
 	 * @return
