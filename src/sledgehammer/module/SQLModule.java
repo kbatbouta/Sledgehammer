@@ -352,6 +352,54 @@ public abstract class SQLModule extends Module {
 		return map;
 	}
 	
+	/**
+	 * Returns a map of the first matched row of a given table.
+	 * 
+	 * @param tableName
+	 * 
+	 * @param matchName
+	 * 
+	 * @param matchValue
+	 * 
+	 * @return
+	 * 
+	 * @throws SQLException
+	 */
+	public Map<String, String> getRow(String tableName, String[] matchNames, String[] matchValues) throws SQLException {
+		Map<String, String> map = new HashMap<>();
+
+		// Create a statement retrieving matched rows.
+		PreparedStatement statement;
+		String s = "SELECT * FROM " + tableName + " WHERE ";
+		for(int index = 0; index < matchNames.length; index++) {
+			s += matchNames[index] + " = \"" + matchValues[index] + "\" AND ";
+		}
+		
+		s = s.substring(0, s.length() - 5) + ";";				
+		statement = prepareStatement(s);
+		
+		// Execute and fetch iterator for returned rows.
+		ResultSet result = statement.executeQuery();
+
+		// Go through the first matched row.
+		if (result.next()) {
+
+			ResultSetMetaData meta = result.getMetaData();
+			
+			// Go through each column.
+			for(int index = 0; index < meta.getColumnCount(); index++) {
+				String columnName = meta.getColumnName(index);
+				String value = result.getString(index);
+				map.put(columnName, value);
+			}
+			
+		}
+		// Close SQL handlers, and return the map.
+		result.close();
+		statement.close();
+		return map;
+	}
+	
 	public Map<String, List<String>> getAll(String tableName, String matchName, String matchValue, String[] targetNames) throws SQLException {
 	
 		// Create a Map to store each field respectively in lists.
