@@ -62,6 +62,8 @@ public class Player {
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
 		this.iso = SledgeHelper.getIsoPlayer(connection);
+		position = new Vector3f(0,0,0);
+		metaPosition = new Vector2f(0,0);
 	}
 	
 //	public Player(UdpConnection connection, IsoPlayer iso) {
@@ -96,7 +98,7 @@ public class Player {
 		this.iso = SledgeHammer.instance.getIsoPlayerDirty(username);
 		
 		// Go through each connection.
-		for(UdpConnection conn : SledgeHammer.instance.getUdpEngine().connections) {
+		for(UdpConnection conn : SledgeHammer.instance.getConnections()) {
 			
 			// If the username on the UdpConnection instance matches,
 			if(conn.username.equalsIgnoreCase(username)) {
@@ -110,6 +112,8 @@ public class Player {
 		}
 		
 		initProperties();
+		position = new Vector3f(0,0,0);
+		metaPosition = new Vector2f(0,0);
 	}
 	
 	public void init() {
