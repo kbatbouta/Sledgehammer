@@ -82,7 +82,14 @@ public class PermissionsManager extends Manager {
    	 * 
    	 * @throws SQLException
    	 */
-	public boolean isUserAdmin(String username) {		
+	public boolean isUserAdmin(String username) {
+		if(username != null) {
+			if(username.equalsIgnoreCase("admin")) {
+				return true;
+			}
+		} else {
+			return false;
+		}
 		
 		String admin = "";
 
@@ -205,7 +212,7 @@ public class PermissionsManager extends Manager {
 	 * @return
 	 */
 	public String getPermissionDeniedMessage() {
-		return sledgeHammer.getSettings().getPermissionDeniedMessage();
+		return sledgeHammer.instance.getSettings().getPermissionDeniedMessage();
 	}
 	
 	/**
