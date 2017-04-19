@@ -130,3 +130,9 @@ bin/
 *.class
 
 src/sledgehammer/terminus
+/steamclient64.dll
+/steamclient.dll
+/tier0_s64.dll
+/tier0_s.dll
+/vstdlib_s64.dll
+/vstdlib_s.dll
