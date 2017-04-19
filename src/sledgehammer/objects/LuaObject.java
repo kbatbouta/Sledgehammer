@@ -1,5 +1,6 @@
 package sledgehammer.objects;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
@@ -15,6 +16,8 @@ public abstract class LuaObject extends Printable {
 	
 	public static final byte COPY_OVERWRITE  = (byte) 0;
 	public static final byte COPY_UNDERWRITE = (byte) 1;
+	
+	private boolean constructed = false;
 	
 	/**
 	 * The name of the LuaObject.
@@ -40,8 +43,8 @@ public abstract class LuaObject extends Printable {
 		// Set the name of the LuaObject.
 		this.name = name;
 		
-		// Create the native table.
-		this.table = constructTable();
+		// Initialize the raw data Map.
+		data = new HashMap<>();
 	}
 	
 	/**
@@ -54,6 +57,10 @@ public abstract class LuaObject extends Printable {
 	
 	// Returns the raw table.
 	public KahluaTable get() {
+		
+		// If the table hasn't been defined yet.
+		if (!this.constructed) validate();
+		
 		return this.table;
 	}
 	
@@ -93,6 +100,9 @@ public abstract class LuaObject extends Printable {
 	 */
 	public void copy(LuaObject other, byte flag) {
 		
+		// If the table hasn't been defined yet.
+		if (!this.constructed) validate();
+		
 		// Check to make sure that LuaObjects are the same.
 		if (getName() != other.getName()) {
 			errorln("LuaObject Class cannot be copied, because given class is different:"
@@ -125,7 +135,14 @@ public abstract class LuaObject extends Printable {
 	 * @param object
 	 */
 	public void set(String field, Object object) {
+		
+		// If the table hasn't been defined yet.
+		if (!this.constructed) validate();
+		
+		// Set the raw data.
 		this.data.put(field, object);
+		
+		// Set the Lua data.
 		this.table.rawset(field, object);
 	}
 	
@@ -135,6 +152,10 @@ public abstract class LuaObject extends Printable {
 	 * @return
 	 */
 	public Object get(String field) {
+		
+		// If the table hasn't been defined yet.
+		if (!this.constructed) validate();
+		
 		return this.table.rawget(field);
 	}
 	
@@ -143,7 +164,26 @@ public abstract class LuaObject extends Printable {
 	 * @return
 	 */
 	public Map<String, Object> getData() {
+		
+		// If the table hasn't been defined yet.
+		if (!this.constructed) validate();
+		
 		return this.data;
+	}
+	
+	/**
+	 * Validates table construction.
+	 */
+	public void validate() {
+		// If the table hasn't been defined yet.
+		if (!this.constructed) {
+			
+			// Create the table.
+			this.table = constructTable();
+			
+			// Set constructed flag to true to let the object know the table is defined.
+			this.constructed = true;
+		}
 	}
 	
 	/**
