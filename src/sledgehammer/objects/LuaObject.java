@@ -129,6 +129,14 @@ public abstract class LuaObject extends Printable {
 		}
 	}
 	
+	public void reset() {
+		// Initialize the raw data Map.
+		data = new HashMap<>();
+		
+		// Revalidates the table.
+		validate();
+	}
+	
 	/**
 	 * Sets a field's data.
 	 * @param field
@@ -171,7 +179,7 @@ public abstract class LuaObject extends Printable {
 		return this.data;
 	}
 	
-	/**
+	/** 
 	 * Validates table construction.
 	 */
 	public void validate() {
@@ -184,6 +192,32 @@ public abstract class LuaObject extends Printable {
 			// Set constructed flag to true to let the object know the table is defined.
 			this.constructed = true;
 		}
+	}
+	
+	/**
+	 * Creates a shallow copy of a KahluaTable instance.
+	 * @param other
+	 * @return
+	 */
+	public static KahluaTable copyTable(KahluaTable other) {
+		// Create a new table.
+		KahluaTable table = LuaManager.platform.newTable();
+		
+		// Set the metatable from the other metatable.
+		table.setMetatable(other.getMetatable());
+
+		// Grab the length of the table to copy.
+		int length = other.len();
+		
+		// Go through each field entry.
+		for(int index = 0; index < length; index++) {
+			
+			// Set the data.
+			table.rawset(index, other.rawget(index));
+		}
+		
+		// Return the copied table.
+		return table;
 	}
 	
 	/**
