@@ -1,7 +1,8 @@
 package sledgehammer.objects;
 
-import java.util.HashMap;
 import java.util.Map;
+
+import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * Color Lua class for SledgeHammer Lua.
@@ -40,6 +41,10 @@ public class LuaObject_Color extends LuaObject {
 	 */
 	public LuaObject_Color() {
 		super(NAME);
+	}
+	
+	public LuaObject_Color(KahluaTable table) {
+		super(NAME, table);
 	}
 
 	/**
@@ -176,6 +181,14 @@ public class LuaObject_Color extends LuaObject {
 		definitions.put("g", 0F);
 		definitions.put("b", 0F);
 		definitions.put("a", 0F);
+	}
+
+	@Override
+	public void load(KahluaTable table) {
+		setRed(  (float) table.rawget("r"));
+		setGreen((float) table.rawget("g"));
+		setBlue( (float) table.rawget("b"));
+		setAlpha((float) table.rawget("a"));
 	}
 	
 }

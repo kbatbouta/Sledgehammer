@@ -47,6 +47,18 @@ public abstract class LuaObject extends Printable {
 		data = new HashMap<>();
 	}
 	
+	public LuaObject(String name, KahluaTable table) {
+		
+		// Set the name of the LuaObject.
+		this.name = name;
+		
+		// Initialize the raw data Map.
+		data = new HashMap<>();
+		
+		// Let the implementation decide what to do with the table.
+		load(table);
+	}
+
 	/**
 	 * Returns the name of the LuaObject.
 	 * @return
@@ -228,4 +240,5 @@ public abstract class LuaObject extends Printable {
 	 * @return
 	 */
 	public abstract void construct(Map<String, Object> definitions);
+	public abstract void load(KahluaTable table);
 }
