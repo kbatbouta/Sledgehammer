@@ -155,10 +155,7 @@ public class LuaObject_Color extends LuaObject {
 	 * @return
 	 */
 	public static float limit(float value) {
-		float f = value;
-		if(f > 1.0F) f = 1.0F;
-		else if(f < 0.0F) f = 0.0F;
-		return f;
+		return limit(value, 0.0F, 1.0F);
 	}
 	
 	/**
@@ -177,10 +174,10 @@ public class LuaObject_Color extends LuaObject {
 	
 	@Override
 	public void construct(Map<String, Object> definitions) {
-		definitions.put("r", 0F);
-		definitions.put("g", 0F);
-		definitions.put("b", 0F);
-		definitions.put("a", 0F);
+		definitions.put("r", getRed()  );
+		definitions.put("g", getGreen());
+		definitions.put("b", getBlue() );
+		definitions.put("a", getAlpha());
 	}
 
 	@Override
