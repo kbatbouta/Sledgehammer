@@ -68,11 +68,10 @@ public abstract class LuaObject {
 		for(String field : definitions.keySet()) {
 			Object o = definitions.get(field);
 			
-			// If this is one of our own.
+			// If this is one of our own defined LuaObjects.
 			if (o instanceof LuaObject) {
-				
 				// This allows recursive definitions to properly manifest.
-				this.table.rawset(field, ((LuaObject)o).constructTable());
+				this.table.rawset(field, ((LuaObject)o).get());
 			} else {
 				
 				// Generic Object definition.
