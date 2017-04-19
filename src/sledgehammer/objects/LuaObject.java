@@ -73,8 +73,11 @@ public abstract class LuaObject extends Printable {
 		// Create a new table.
 		KahluaTable table = LuaManager.platform.newTable();
 		
+		// Create definitions map.
+		Map<String, Object> definitions = new HashMap<>();
+		
 		// Grab implemented definitions to define.
-		Map<String, Object> definitions = getDefinitions();
+		construct(definitions);
 		
 		for(String field : definitions.keySet()) {
 			Object o = definitions.get(field);
@@ -224,5 +227,5 @@ public abstract class LuaObject extends Printable {
 	 * Defines the LuaObject's structure.
 	 * @return
 	 */
-	public abstract Map<String, Object> getDefinitions();
+	public abstract void construct(Map<String, Object> definitions);
 }

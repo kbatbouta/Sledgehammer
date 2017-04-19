@@ -171,16 +171,11 @@ public class LuaObject_Color extends LuaObject {
 	}
 	
 	@Override
-	public Map<String, Object> getDefinitions() {
-		
-		Map<String, Object> definitions = new HashMap<>();
-		
+	public void construct(Map<String, Object> definitions) {
 		definitions.put("r", 0F);
 		definitions.put("g", 0F);
 		definitions.put("b", 0F);
 		definitions.put("a", 0F);
-		
-		return definitions;
 	}
 	
 }
