@@ -23,8 +23,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,5 +167,11 @@ public class ZUtil {
 			throw new IOException("Failed to get field handle to set library path");
 		}
 	}
-
+	
+	private static DateFormat dfm = new SimpleDateFormat("yyyyMMddHHmm");
+	
+	public static long getCurrentTimeStamp() {
+		return (new Date()).getTime() / 1000L;
+	}
+	
 }
