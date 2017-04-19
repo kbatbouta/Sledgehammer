@@ -3,6 +3,7 @@ package sledgehammer.objects;
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.util.Printable;
 import zombie.Lua.LuaManager;
 
 /**
@@ -10,7 +11,7 @@ import zombie.Lua.LuaManager;
  * @author Jab
  *
  */
-public abstract class LuaObject {
+public abstract class LuaObject extends Printable {
 	
 	/**
 	 * The name of the LuaObject.
@@ -80,6 +81,42 @@ public abstract class LuaObject {
 		}
 		
 		return table;
+	}
+	
+	public static final byte COPY_OVERWRITE = (byte) 0;
+	public static final byte COPY_UNDERWRITE = (byte) 1;
+	
+	/**
+	 * Copies data from another LuaObject
+	 * @param other
+	 * @param flag
+	 */
+	public void copy(LuaObject other, byte flag) {
+		
+		// Check to make sure that LuaObjects are the same.
+		if (getName() != other.getName()) {
+			errorln("LuaObject Class cannot be copied, because given class is different:"
+					+ "(LuaObject: \"" + getName() + "\", Given: \"" + other.getName() + "\").");
+			return;
+		}
+		
+		// Grab the data from the other LuaObject.
+		Map<String, Object> dataOther = other.getData();
+		
+		// Grab the data from this LuaObject.
+		Map<String, Object> data = getData();
+		
+		// Go through each field in the other LuaObject.
+		for(String field : dataOther.keySet()) {
+			if (flag == COPY_OVERWRITE) {				
+				data.put(field, dataOther.get(field));
+			} else
+			if (flag == COPY_UNDERWRITE) {
+				if(data.get(field) == null) {
+					data.put(field, dataOther.get(field));
+				}
+			}
+		}
 	}
 	
 	/**
