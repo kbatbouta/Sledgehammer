@@ -99,11 +99,11 @@ public abstract class LuaObject extends Printable {
 			// If this is one of our own defined LuaObjects.
 			if (o instanceof LuaObject) {
 				// This allows recursive definitions to properly manifest.
-				this.table.rawset(field, ((LuaObject)o).get());
+				table.rawset(field, ((LuaObject)o).get());
 			} else {
 				
 				// Generic Object definition.
-				this.table.rawset(field, o);				
+				table.rawset(field, o);				
 			}
 		}
 		
