@@ -9,7 +9,7 @@ import se.krka.kahlua.vm.KahluaTable;
  * @author Jab
  *
  */
-public class LuaObject_Color extends LuaObject {
+public class LuaObject_Color extends LuaObject implements Comparable<LuaObject_Color> {
 
 	/**
 	 * Name of the LuaObject.
@@ -186,6 +186,42 @@ public class LuaObject_Color extends LuaObject {
 		setGreen((float) table.rawget("g"));
 		setBlue( (float) table.rawget("b"));
 		setAlpha((float) table.rawget("a"));
+	}
+	
+	@Override
+	public String toString() {
+		return getRed() + ";" + getGreen() + ";" + getBlue() + ";" + getAlpha();
+	}
+
+	@Override
+	/**
+	 * Returns 0 if the other color matches. Returns 1 if not matching. Returns 2 if the colors match, however the alpha do not.
+	 */
+	public int compareTo(LuaObject_Color other) {
+		
+		// Variables
+		float r, g, b, a, or, og, ob, oa;
+		
+		// This color.
+		r = getRed();
+		g = getGreen();
+		b = getBlue();
+		a = getAlpha();
+		
+		// Other color
+		or = other.getRed();
+		og = other.getGreen();
+		ob = other.getBlue();
+		oa = other.getAlpha();
+		
+		// Matching.
+		if(r == or && g == og && b == ob && a == oa) return 0;
+		
+		// Matching color, but not alpha.
+		else if(r == or && g == og && b == ob && a == oa) return 2;
+		
+		// Not matching.
+		else return 1;
 	}
 	
 }
