@@ -17,7 +17,7 @@ public abstract class LuaObject extends Printable {
 	public static final byte COPY_OVERWRITE  = (byte) 0;
 	public static final byte COPY_UNDERWRITE = (byte) 1;
 	
-	private boolean dirty = false;
+	private boolean dirty = true;
 	
 	private boolean constructed = false;
 	
@@ -225,6 +225,14 @@ public abstract class LuaObject extends Printable {
 			// Set constructed flag to true to let the object know the table is defined.
 			this.constructed = true;
 		}
+	}
+	
+	/**
+	 * Returns whether or not the LuaObject is considered dirty (Data has changed without saving it).
+	 * @return
+	 */
+	public boolean isDirty() {
+		return this.dirty;
 	}
 	
 	/**
