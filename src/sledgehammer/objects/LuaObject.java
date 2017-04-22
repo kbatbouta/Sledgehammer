@@ -17,6 +17,8 @@ public abstract class LuaObject extends Printable {
 	public static final byte COPY_OVERWRITE  = (byte) 0;
 	public static final byte COPY_UNDERWRITE = (byte) 1;
 	
+	private boolean dirty = false;
+	
 	private boolean constructed = false;
 	
 	/**
@@ -76,6 +78,20 @@ public abstract class LuaObject extends Printable {
 		if (!this.constructed) validate();
 		
 		return this.table;
+	}
+	
+	/**
+	 * Marks the LuaObject dirty. This method is for save purposes.
+	 */
+	public void markDirty() {
+		dirty = true;
+	}
+	
+	/**
+	 * Marks the LuaObject as clean. This method is for save purposes.
+	 */
+	public void markClean() {
+		dirty = false;
 	}
 	
 	/**
