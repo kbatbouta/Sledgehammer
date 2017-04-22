@@ -203,4 +203,8 @@ public class ZUtil {
 		}
 	}
 	
+	public static long currentTimeStamp() {
+		return (System.currentTimeMillis() / 1000);
+	}
+	
 }
