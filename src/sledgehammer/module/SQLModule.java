@@ -604,33 +604,6 @@ public abstract class SQLModule extends Module {
 		statement.close();
 	}
 	
-	public String encrypt(String previousPwd) {
-		if (previousPwd == null || previousPwd.isEmpty()) {
-			return "";
-		} else {
-			byte[] crypted = null;
-
-			try {
-				crypted = MessageDigest.getInstance("MD5")
-						.digest(previousPwd.getBytes());
-			} catch (NoSuchAlgorithmException var6) {
-				println("Can\'t encrypt password");
-				var6.printStackTrace();
-			}
-			StringBuilder hashString = new StringBuilder();
-			for (int i = 0; i < crypted.length; ++i) {
-				String hex = Integer.toHexString(crypted[i]);
-				if (hex.length() == 1) {
-					hashString.append('0');
-					hashString.append(hex.charAt(hex.length() - 1));
-				} else {
-					hashString.append(hex.substring(hex.length() - 2));
-				}
-			}
-			return hashString.toString();
-		}
-	}
-	
 	public void setConnection(Connection connection) {
 		this.connection = connection;
 	}

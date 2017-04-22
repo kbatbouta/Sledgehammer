@@ -23,6 +23,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -172,6 +174,33 @@ public class ZUtil {
 	
 	public static long getCurrentTimeStamp() {
 		return (new Date()).getTime() / 1000L;
+	}
+	
+	public static String encrypt(String previousPwd) {
+		if (previousPwd == null || previousPwd.isEmpty()) {
+			return "";
+		} else {
+			byte[] crypted = null;
+
+			try {
+				crypted = MessageDigest.getInstance("MD5")
+						.digest(previousPwd.getBytes());
+			} catch (NoSuchAlgorithmException e) {
+				SledgeHammer.instance.println("Can\'t encrypt password");
+				e.printStackTrace();
+			}
+			StringBuilder hashString = new StringBuilder();
+			for (int i = 0; i < crypted.length; ++i) {
+				String hex = Integer.toHexString(crypted[i]);
+				if (hex.length() == 1) {
+					hashString.append('0');
+					hashString.append(hex.charAt(hex.length() - 1));
+				} else {
+					hashString.append(hex.substring(hex.length() - 2));
+				}
+			}
+			return hashString.toString();
+		}
 	}
 	
 }
