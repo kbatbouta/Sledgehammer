@@ -124,6 +124,7 @@ fmod.dll
 fmod64.dll
 
 # Legal exclusion of class files.
+src/zombieold
 src/zombie
 src/sledgehammer/modules/vanilla/VanillaCommandListener.java
 bin/
