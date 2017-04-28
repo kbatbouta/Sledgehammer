@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.SledgeHammer;
 import zombie.GameWindow;
 
 public abstract class SQLModule extends Module {
@@ -622,5 +623,35 @@ public abstract class SQLModule extends Module {
 	
 	public Statement createStatement() throws SQLException {
 		return getConnection().createStatement();
+	}
+	
+	/**
+     * @deprecated
+	 */
+	public String encrypt(String previousPwd) {
+		if (previousPwd == null || previousPwd.isEmpty()) {
+			return "";
+		} else {
+			byte[] crypted = null;
+
+			try {
+				crypted = MessageDigest.getInstance("MD5")
+						.digest(previousPwd.getBytes());
+			} catch (NoSuchAlgorithmException e) {
+				SledgeHammer.instance.println("Can\'t encrypt password");
+				e.printStackTrace();
+			}
+			StringBuilder hashString = new StringBuilder();
+			for (int i = 0; i < crypted.length; ++i) {
+				String hex = Integer.toHexString(crypted[i]);
+				if (hex.length() == 1) {
+					hashString.append('0');
+					hashString.append(hex.charAt(hex.length() - 1));
+				} else {
+					hashString.append(hex.substring(hex.length() - 2));
+				}
+			}
+			return hashString.toString();
+		}
 	}
 }
