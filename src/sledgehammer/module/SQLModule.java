@@ -626,7 +626,9 @@ public abstract class SQLModule extends Module {
 	}
 	
 	/**
-     * @deprecated
+	 * @deprecated (static method is in ZUtils.java now)
+	 * @param previousPwd
+	 * @return
 	 */
 	public String encrypt(String previousPwd) {
 		if (previousPwd == null || previousPwd.isEmpty()) {
