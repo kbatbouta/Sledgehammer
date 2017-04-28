@@ -33,10 +33,10 @@ import sledgehammer.wrapper.Player;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.znet.SteamUtils;
-import zombie.iso.IsoWorld;
 import zombie.network.ServerMap;
 import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.PacketHelper;
+import zombie.iso.IsoWorld;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;

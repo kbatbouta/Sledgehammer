@@ -26,10 +26,10 @@ import sledgehammer.util.Printable;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoZombie;
 import zombie.inventory.ItemContainer;
-import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.sledgehammer.npc.NPC;
+import zombie.iso.IsoMovingObject;
 
 public abstract class Behavior extends Printable {
 	

@@ -29,8 +29,8 @@ import zombie.characters.IsoPlayer;
 //import zombie.characters.IsoZombie;
 import zombie.characters.SurvivorDesc;
 import zombie.iso.IsoGridSquare;
-import zombie.iso.IsoMovingObject;
 import zombie.iso.IsoObject;
+import zombie.iso.IsoMovingObject;
 
 public class LuaListener extends Printable implements EventListener {
 
