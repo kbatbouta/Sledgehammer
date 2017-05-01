@@ -225,14 +225,14 @@ public class ChatManager extends Manager {
 			}
 		}
 		
-		public void addMessage(LuaObject_ChatMessage message) {
+		public void addMessage(LuaObject_ChatMessage chatMessage) {
 			// Only add new messages.
-			if(!listMessages.contains(message)) {
-				listMessages.add(message);
+			if(!listMessages.contains(chatMessage)) {
+				listMessages.add(chatMessage);
 			}
 			
 			for(Player player : SledgeHammer.instance.getPlayers()) {
-				SledgeHammer.instance.sendServerCommand(player, "Sledgehammer.Core.Chat", "S2C", message);
+				SledgeHammer.instance.sendServerCommand(player, "Sledgehammer.Core.Chat", "S2C", chatMessage);
 			}
 		}
 		
@@ -337,7 +337,12 @@ public class ChatManager extends Manager {
 	 * @param chatMessage
 	 */
 	public void digestMessage(LuaObject_ChatMessage chatMessage) {
+		// Grab channel.
+		String channel = chatMessage.getChannel();
 		
+		ChatChannel chatChannel = mapChannels.get(channel);
+		
+		chatChannel.addMessage(chatMessage);
 	}
 	
 }
