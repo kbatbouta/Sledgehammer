@@ -60,7 +60,7 @@ public class ChatManager extends Manager {
 		addChatChannel("Global");
 		addChatChannel("Local");
 		
-		listener = new ChatChannelListener();
+		listener = new ChatChannelListener(this);
 	}
 	
 	public void startChat() {
@@ -210,12 +210,29 @@ public class ChatManager extends Manager {
 		private void setName(String name) {
 			this.name = name;
 		}
+
+		public void addPlayerMessage(LuaObject_ChatMessagePlayer chatMessagePlayer) {
+			
+			// Only add new messages.
+			if(!listMessages.contains(chatMessagePlayer)) {
+				listMessages.add(chatMessagePlayer);
+			}
+			
+			for(Player player : SledgeHammer.instance.getPlayers()) {
+				if(player.getID() != chatMessagePlayer.getPlayerID()) {					
+					SledgeHammer.instance.sendServerCommand(player, "Sledgehammer.Core.Chat", "S2C", chatMessagePlayer);
+				}
+			}
+		}
 		
 		public void addMessage(LuaObject_ChatMessage message) {
+			// Only add new messages.
 			if(!listMessages.contains(message)) {
 				listMessages.add(message);
-				
-				// TODO: broadcast to channel.
+			}
+			
+			for(Player player : SledgeHammer.instance.getPlayers()) {
+				SledgeHammer.instance.sendServerCommand(player, "Sledgehammer.Core.Chat", "S2C", message);
 			}
 		}
 		
@@ -256,11 +273,18 @@ public class ChatManager extends Manager {
 		public String getName() {
 			return this.name;
 		}
+
 		
 	}
 	
 	public class ChatChannelListener implements EventListener {
 
+		private ChatManager manager;
+		
+		public ChatChannelListener(ChatManager manager) {
+			this.manager = manager;
+		}
+		
 		@Override
 		public String[] getTypes() {
 			return new String[] {ClientCommandEvent.ID};
@@ -275,6 +299,12 @@ public class ChatManager extends Manager {
 					// Client-to-Server
 					if(command.getCommand().equals("C2S")) {
 						//TODO: Handle code.
+						
+						// Create & Load LuaObject.
+						LuaObject_ChatMessagePlayer chatMessagePlayer = new LuaObject_ChatMessagePlayer(command.getTable());
+						
+						// Digest message.
+						manager.digestPlayerMessage(chatMessagePlayer);
 					}
 				}
 			}
@@ -285,6 +315,28 @@ public class ChatManager extends Manager {
 		public boolean runSecondary() {
 			return false;
 		}
+		
+	}
+
+	/**
+	 * Digests a player's message, sending it to other clients.
+	 * @param chatMessagePlayer
+	 */
+	public void digestPlayerMessage(LuaObject_ChatMessagePlayer chatMessagePlayer) {
+		
+		// Grab channel.
+		String channel = chatMessagePlayer.getChannel();
+		
+		ChatChannel chatChannel = mapChannels.get(channel);
+		
+		chatChannel.addPlayerMessage(chatMessagePlayer);
+	}
+	
+	/**
+	 * Digests a message, sending it to other clients.
+	 * @param chatMessage
+	 */
+	public void digestMessage(LuaObject_ChatMessage chatMessage) {
 		
 	}
 	
