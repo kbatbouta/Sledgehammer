@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.List;
 
+import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
@@ -36,6 +37,7 @@ import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
 import sledgehammer.modules.core.CoreContextListener;
+import sledgehammer.objects.LuaObject;
 import sledgehammer.util.Printable;
 import sledgehammer.wrapper.Player;
 import zombie.GameWindow;
@@ -571,5 +573,27 @@ public class SledgeHammer extends Printable {
 
 	public Player getPlayerDirty(String name) {
 		return getPlayerManager().getPlayerDirty(name);
+	}
+
+	/**
+	 * Sends a Lua ServerCommand to a given Player.
+	 * @param player
+	 * @param module
+	 * @param command
+	 * @param luaObject
+	 */
+	public void sendServerCommand(Player player, String module, String command, LuaObject luaObject) {
+		sendServerCommand(player, module, command, luaObject.get());
+	}
+	
+	/**
+	 * Sends a Lua ServerCommand to a given Player.
+	 * @param player
+	 * @param module
+	 * @param command
+	 * @param kahluaTable
+	 */
+	public void sendServerCommand(Player player, String module, String command, KahluaTable kahluaTable) {
+		GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());
 	}
 }
