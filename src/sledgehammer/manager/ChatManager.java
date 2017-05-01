@@ -18,6 +18,12 @@ This file is part of Sledgehammer.
 */
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ClientCommandEvent;
+import sledgehammer.event.Event;
+import sledgehammer.event.ScriptEvent;
+import sledgehammer.interfaces.EventListener;
+import sledgehammer.objects.LuaObject_ChatMessage;
+import sledgehammer.objects.LuaObject_ChatMessagePlayer;
 import sledgehammer.wrapper.Player;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
@@ -25,6 +31,11 @@ import zombie.sledgehammer.PacketHelper;
 
 // Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manager class designed to handle chat-packet operations.
@@ -37,11 +48,34 @@ public class ChatManager extends Manager {
 	public static final String NAME = "ChatManager";
 	
 	private UdpEngine udpEngine;
+	
+	public Map<String, ChatChannel> mapChannels;
+	
+	private ChatChannelListener listener;
 
 	public ChatManager(SledgeHammer sledgeHammer) {
 		super(sledgeHammer);
+		
+		mapChannels = new HashMap<>();
+		addChatChannel("Global");
+		addChatChannel("Local");
+		
+		listener = new ChatChannelListener();
 	}
 	
+	public void startChat() {
+		SledgeHammer.instance.register(listener);
+	}
+	
+	public void stopChat() {
+		SledgeHammer.instance.unregister(listener);
+	}
+	
+	private void addChatChannel(String name) {
+		ChatChannel channel = new ChatChannel(name);
+		mapChannels.put(name, channel);
+	}
+
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
 		try {
 			Player player = SledgeHammer.instance.getPlayer(username);
@@ -156,4 +190,102 @@ public class ChatManager extends Manager {
 	@Override
 	public void onShutDown() {}
 
+	/**
+	 * 
+	 * Class designed to store and manage all chat messages for a channel (tab).
+	 * 
+	 * @author Jab
+	 *
+	 */
+	public class ChatChannel {
+
+		private String name;
+		private List<LuaObject_ChatMessage> listMessages;
+		
+		public ChatChannel(String name) {
+			setName(name);
+			listMessages = new ArrayList<>();
+		}
+		
+		private void setName(String name) {
+			this.name = name;
+		}
+		
+		public void addMessage(LuaObject_ChatMessage message) {
+			if(!listMessages.contains(message)) {
+				listMessages.add(message);
+				
+				// TODO: broadcast to channel.
+			}
+		}
+		
+		/**
+		 * Returns a List container of LuaObject_ChatMessagePlayer from a given player's ID.
+		 * @param playerID
+		 * @return
+		 */
+		public List<LuaObject_ChatMessagePlayer> getMessagesForPlayer(int playerID) {
+			List<LuaObject_ChatMessagePlayer> listMessages = new ArrayList<>();
+			for(LuaObject_ChatMessage message : this.listMessages) {
+				if(message instanceof LuaObject_ChatMessagePlayer) {
+					LuaObject_ChatMessagePlayer messagePlayer = (LuaObject_ChatMessagePlayer)message;
+					if(messagePlayer.getPlayerID() == playerID) {
+						listMessages.add(messagePlayer);
+					}
+				}
+			}
+			return listMessages;
+		}
+		
+		public void editMessage() {
+			//TODO: implement
+		}
+		
+		public void deleteMessagesForPlayer(int playerID) {
+			List<LuaObject_ChatMessagePlayer> listMessages = getMessagesForPlayer(playerID);
+			
+			this.listMessages.removeAll(listMessages);
+			
+			// TODO: Broadcast deleted messages.
+		}
+		
+		public void deleteMessages(List<LuaObject_ChatMessage> listMessages) {
+			// TODO: Broadcast deleted messages.
+		}
+		
+		public String getName() {
+			return this.name;
+		}
+		
+	}
+	
+	public class ChatChannelListener implements EventListener {
+
+		@Override
+		public String[] getTypes() {
+			return new String[] {ClientCommandEvent.ID};
+		}
+
+		@Override
+		public void handleEvent(Event event) {
+			if(event.getID() == ClientCommandEvent.ID) {
+				ClientCommandEvent command = (ClientCommandEvent) event;
+				// Chat module.
+				if(command.getModule().equals("Sledgehammer.Core.Chat")) {
+					// Client-to-Server
+					if(command.getCommand().equals("C2S")) {
+						//TODO: Handle code.
+					}
+				}
+			}
+			
+		}
+
+		@Override
+		public boolean runSecondary() {
+			return false;
+		}
+		
+	}
+	
 }

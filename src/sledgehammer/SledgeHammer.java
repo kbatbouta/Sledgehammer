@@ -187,6 +187,7 @@ public class SledgeHammer extends Printable {
 	public void start() {
 		getModuleManager().onStart();
 		getPlayerManager().onStart();
+		getChatManager().startChat();
 	}
 
 	/**
@@ -227,6 +228,7 @@ public class SledgeHammer extends Printable {
 			synchronized (this) {
 				managerModule.onShutDown();
 				managerPlayer.onShutDown();
+				getChatManager().stopChat();
 			}
 			
 		} catch(Exception e) {
