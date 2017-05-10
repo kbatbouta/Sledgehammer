@@ -358,6 +358,12 @@ public class SledgeHammer extends Printable {
 		getEventManager().registerEventListener(listener);
 	}
 	
+	public void register(CommandListener listener) {
+		for(String command : listener.getCommands()) {			
+			getEventManager().registerCommandListener(command, listener);
+		}
+	}
+	
 	/**
 	 * Registers a CommandListener interface, with a command, given as a String.
 	 * 
