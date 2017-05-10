@@ -438,6 +438,10 @@ public final class ModuleManager extends Manager {
 			}
 		}
 		
+		if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
+			moduleCore.onClientCommand(e);
+		}
+		
 	}
 
 
