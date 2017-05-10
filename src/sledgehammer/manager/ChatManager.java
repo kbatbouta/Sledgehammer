@@ -18,7 +18,7 @@ This file is part of Sledgehammer.
 */
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.ClientCommandEvent;
+import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.ScriptEvent;
 import sledgehammer.interfaces.EventListener;
@@ -285,13 +285,13 @@ public class ChatManager extends Manager {
 		
 		@Override
 		public String[] getTypes() {
-			return new String[] {ClientCommandEvent.ID};
+			return new String[] {ClientEvent.ID};
 		}
 
 		@Override
 		public void handleEvent(Event event) {
-			if(event.getID() == ClientCommandEvent.ID) {
-				ClientCommandEvent command = (ClientCommandEvent) event;
+			if(event.getID() == ClientEvent.ID) {
+				ClientEvent command = (ClientEvent) event;
 				// Chat module.
 				if(command.getModule().equals("Sledgehammer.Core.Chat")) {
 					// Client-to-Server
