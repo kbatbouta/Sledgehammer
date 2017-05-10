@@ -33,6 +33,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ClientEvent;
 import sledgehammer.module.Module;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.core.ModuleTerritories;
@@ -426,6 +427,17 @@ public final class ModuleManager extends Manager {
 		}
 		
 		return listSettings;
+	}
+	
+	public void handleClientCommand(ClientEvent e) {
+		
+		for(Module module : this.getLoadedModules()) {
+
+			if (module.getModuleName().equalsIgnoreCase(e.getModule())) {
+				module.onClientCommand(e);
+			}
+		}
+		
 	}
 
 

@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ClientEvent;
 import sledgehammer.module.SQLModule;
 import sledgehammer.util.ZUtil;
 import zombie.network.DataBaseBuffer;
@@ -37,6 +38,7 @@ public class ModuleCore extends SQLModule {
 
 	public static final String ID      = "sledgehammer_core";
 	public static final String NAME    = "Core"             ;
+	public static final String MODULE  = "Core"             ;
 	public static final String VERSION = "1.00"             ;
 	
 	public CoreLuaEventListener luaEventListener = null;
@@ -346,9 +348,11 @@ public class ModuleCore extends SQLModule {
 		//unregister(luaEventListener);
 	}
 
-	public void onUnload() { }
-	public String getID()      { return ID     ; }
-	public String getName()    { return NAME   ; }
-	public String getVersion() { return VERSION; }
-	
+	public void onUnload() {}
+	public void onClientCommand(ClientEvent e) {}
+	public String getID()         { return ID     ; }
+	public String getName()       { return NAME   ; }
+	public String getModuleName() { return MODULE; }
+	public String getVersion()    { return VERSION; }
+
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
@@ -91,15 +92,7 @@ public abstract class Module extends Printable {
 	}
 
 	public void register(CommandListener listener) {
-		String[] commands = listener.getCommands();
-		if (commands == null) {
-			throw new IllegalArgumentException("CommandListener commands array is null!");
-		} else if (commands.length == 0) {
-			throw new IllegalArgumentException("CommandListener commands array is empty!");
-		}
-		for (String command : commands) {
-			SledgeHammer.instance.register(command, listener);
-		}
+			SledgeHammer.instance.register(listener);
 	}
 
 	public boolean stopModule() {
@@ -374,5 +367,9 @@ public abstract class Module extends Printable {
 	public abstract String getID();
 
 	public abstract String getVersion();
+	
+	public abstract String getModuleName();
+
+	public abstract void onClientCommand(ClientEvent e);
 	
 }

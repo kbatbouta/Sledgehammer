@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ClientEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.module.SQLModule;
@@ -28,7 +29,6 @@ import sledgehammer.npc.behavior.BehaviorSurvive;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
 import sledgehammer.wrapper.Player;
-import zombie.Lua.LuaManager;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
@@ -43,6 +43,7 @@ public class ModuleNPC extends SQLModule {
 
 	public static final String ID      = "sledgehammer_npc";
 	public static final String NAME    = "NPC-Spawner"     ;
+	public static final String MODULE  = "NPC"             ;
 	public static final String VERSION = "1.00"            ;
 	public static final boolean DEBUG  = true              ;
 	
@@ -177,9 +178,16 @@ public class ModuleNPC extends SQLModule {
 
 	public void onUpdate(long delta) {}
 	
-	public String getID()      { return ID      ; }
-	public String getName()    { return NAME    ; }
-	public String getVersion() { return VERSION ; }
+	public String getID()         { return ID      ; }
+	public String getName()       { return NAME    ; }
+	public String getModuleName() { return MODULE  ; }
+	public String getVersion()    { return VERSION ; }
+
+
+	public void onClientCommand(ClientEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 
 
 }

@@ -1,12 +1,14 @@
 package sledgehammer.modules.core;
 
+import sledgehammer.event.ClientEvent;
 import sledgehammer.module.Module;
 
 public class ModuleTerritories extends Module {
 
-	public static final String ID = "ModuleTerritories";
+	public static final String ID      = "ModuleTerritories";
+	public static final String NAME    = "Territories";
+	public static final String MODULE  = "Territories";
 	public static final String VERSION = "1.00";
-	public static final String NAME = "Territories";
 	
 	private TerritoriesEventListener eventListener;
 	
@@ -37,8 +39,10 @@ public class ModuleTerritories extends Module {
 		eventListener = null;
 	}
 
-	@Override public String getID()      { return ID;      }
-	@Override public String getVersion() { return VERSION; }
-	@Override public String getName()    { return NAME;    }
-	
+	public String getID()         { return ID;      }
+	public String getName()       { return NAME;    }
+	public String getModuleName() { return MODULE;  }
+	public String getVersion()    { return VERSION; }
+
+	public void onClientCommand(ClientEvent e) {}
 }
