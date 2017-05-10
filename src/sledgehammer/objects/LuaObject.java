@@ -189,13 +189,18 @@ public abstract class LuaObject extends Printable {
 		// If the table hasn't been defined yet.
 		if (!this.constructed) validate();
 		
-		if (this.data == null) validate();
+		// All Lua values must be Doubles.
+		if (object instanceof Number) {
+
+			double value = ((Number)object).doubleValue();
+			
+			// Set the raw data.
+			this.data.put(field, value);
+			
+			// Set the Lua data.
+			this.table.rawset(field, value);
+		}
 		
-		// Set the raw data.
-		this.data.put(field, object);
-		
-		// Set the Lua data.
-		this.table.rawset(field, object);
 	}
 	
 	/**
