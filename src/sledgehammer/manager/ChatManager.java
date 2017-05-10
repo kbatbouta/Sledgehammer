@@ -54,8 +54,6 @@ public class ChatManager extends Manager {
 	private ChatChannelListener listener;
 
 	public ChatManager(SledgeHammer sledgeHammer) {
-		super(sledgeHammer);
-		
 		mapChannels = new HashMap<>();
 		addChatChannel("Global");
 		addChatChannel("Local");

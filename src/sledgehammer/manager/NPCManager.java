@@ -72,12 +72,9 @@ public class NPCManager extends Manager {
 	
 	/**
 	 * Main constructor.
-	 * 
-	 * @param sledgeHammer
 	 */
-	public NPCManager(SledgeHammer sledgeHammer) {
-		super(sledgeHammer);
-		
+	public NPCManager() {
+
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
 		
@@ -86,10 +83,10 @@ public class NPCManager extends Manager {
 		
 		// Event Listener for joining.
 		connectionListener = new ConnectionListener(this);
-		sledgeHammer.register(connectionListener);
+		getSledgeHammer().register(connectionListener);
 		
 		moduleNPC = new ModuleNPC();
-		sledgeHammer.getModuleManager().registerModule(moduleNPC);
+		getSledgeHammer().getModuleManager().registerModule(moduleNPC);
 	}
 	
 	/**

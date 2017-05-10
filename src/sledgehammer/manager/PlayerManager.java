@@ -46,11 +46,8 @@ public class PlayerManager extends Manager {
 	
 	/**
 	 * Main constructor.
-	 * 
-	 * @param sledgeHammer
 	 */
-	public PlayerManager(SledgeHammer sledgeHammer) {
-		super(sledgeHammer);
+	public PlayerManager() {
 		
 		// Initialize Player list.
 		listPlayers = new ArrayList<>();

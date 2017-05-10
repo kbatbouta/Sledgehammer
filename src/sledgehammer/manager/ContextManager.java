@@ -29,10 +29,6 @@ public class ContextManager extends Manager {
 	
 	private List<ContextListener> listContextListeners;
 
-	public ContextManager(SledgeHammer sledgeHammer) {
-		super(sledgeHammer);
-	}
-	
 	@Override
 	public void onLoad() {
 		listContextListeners = new ArrayList<>();

@@ -163,17 +163,17 @@ public class SledgeHammer extends Printable {
 			// Initialize the Chat Engine.
 			chat = new ChatManager(this);
 			
-			managerEvent = new EventManager(this);
+			managerEvent = new EventManager();
 			
-			managerPermissions = new PermissionsManager(this);
+			managerPermissions = new PermissionsManager();
 			
 			// Initialize the ModuleManager.
-			managerModule = new ModuleManager(this);
+			managerModule = new ModuleManager();
 
-			managerPlayer = new PlayerManager(this);
+			managerPlayer = new PlayerManager();
 			
 			// Initialize the NPC Engine.
-			managerNPC = new NPCManager(this);
+			managerNPC = new NPCManager();
 			
 			// Then, load the core modules, and start the Modules.
 			if(!TESTMODULE) {

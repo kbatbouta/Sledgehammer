@@ -63,11 +63,8 @@ public class PermissionsManager extends Manager {
 	
 	/**
 	 * Main constructor.
-	 * 
-	 * @param instance
 	 */
-	public PermissionsManager(SledgeHammer sledgeHammer) {
-		super(sledgeHammer);
+	public PermissionsManager() {
 		listPermissionHandlers = new ArrayList<>();
 		mapDefaultPlayerPermissions = new HashMap<>();
 		

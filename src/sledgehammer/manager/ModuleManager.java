@@ -94,12 +94,9 @@ public final class ModuleManager extends Manager {
 
 	/**
 	 * Main Constructor.
-	 * 
-	 * @param instance
 	 */
-	public ModuleManager(SledgeHammer sledgeHammer) {
+	public ModuleManager() {
 		
-		super(sledgeHammer);
 		// Initialize the Lists.
 		listModules    = new ArrayList<>();
 		listUnloadNext = new ArrayList<>();

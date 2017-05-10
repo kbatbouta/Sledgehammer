@@ -35,21 +35,6 @@ import zombie.core.raknet.UdpConnection;
 public abstract class Manager extends Printable {
 
 	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer;
-
-	/**
-	 * Main constructor. Passes SledgeHammer.
-	 * 
-	 * @param sledgeHammer
-	 */
-	public Manager(SledgeHammer sledgeHammer) {
-		this.sledgeHammer = sledgeHammer;
-	}
-	
-	/**
 	 * Returns a list of active connections.
 	 * 
 	 * @return
@@ -61,14 +46,9 @@ public abstract class Manager extends Printable {
 	public ModuleCore getCoreModule() {
 		return getSledgeHammer().getModuleManager().getCoreModule();
 	}
-
-	/**
-	 * Returns the SledgeHammer instance using this manager.
-	 * 
-	 * @return
-	 */
+	
 	public SledgeHammer getSledgeHammer() {
-		return sledgeHammer;
+		return SledgeHammer.instance;
 	}
 
 	/**

@@ -72,12 +72,8 @@ public class EventManager extends Manager {
 
 	/**
 	 * Main constructor.
-	 * 
-	 * @param instance
 	 */
-	public EventManager(SledgeHammer sledgeHammer) {
-		
-		super(sledgeHammer);
+	public EventManager() {
 		
 		// Initialize Maps.
 		mapEventListeners = new HashMap<>();

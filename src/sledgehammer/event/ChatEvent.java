@@ -45,6 +45,7 @@ public class ChatEvent extends PlayerEvent {
 			throw new IllegalArgumentException("Player given is null!");
 		}
 		if(input == null || input.isEmpty()) {
+			//FIXME: Potentially throws off chat.
 			throw new IllegalArgumentException("Input given is null or empty!");
 		}
 
