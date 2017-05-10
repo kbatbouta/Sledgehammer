@@ -2,6 +2,7 @@ package sledgehammer.event;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.wrapper.Player;
+import zombie.network.GameServer;
 
 public class ClientEvent extends PlayerEvent {
 
@@ -16,6 +17,18 @@ public class ClientEvent extends PlayerEvent {
 		setModule(module);
 		setCommand(command);
 		setTable(table);
+	}
+	
+	public void respond() {
+		GameServer.sendServerCommand(getModule(), getCommand(), getTable(), getPlayer().getConnection());
+	}
+	
+	public void respond(KahluaTable table) {
+		GameServer.sendServerCommand(getModule(), getCommand(), table, getPlayer().getConnection());
+	}
+	
+	public void respond(String command, KahluaTable table) {
+		GameServer.sendServerCommand(getModule(), command, table, getPlayer().getConnection());
 	}
 	
 	public String getModule() {
