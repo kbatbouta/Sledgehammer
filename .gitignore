@@ -126,6 +126,7 @@ fmod64.dll
 # Legal exclusion of class files.
 src/zombieold
 src/zombie
+src/zombie3711
 src/zombie3710
 src/zombie3709
 src/sledgehammer/modules/vanilla/VanillaCommandListener.java
