@@ -42,11 +42,12 @@ public abstract class LuaObject extends Printable {
 	 */
 	public LuaObject(String name) {
 		
+		// Initialize the raw data Map.
+		this.data = new HashMap<>();
+
 		// Set the name of the LuaObject.
 		setObjectName(name);
 		
-		// Initialize the raw data Map.
-		this.data = new HashMap<>();
 	}
 	
 	public LuaObject(String name, KahluaTable table) {
@@ -72,7 +73,8 @@ public abstract class LuaObject extends Printable {
 	}
 	
 	public void setObjectName(String name) {
-		if(!this.name.equals(name)) {
+		
+		if(this.name == null || !this.name.equals(name)) {
 			this.name = name;
 			set("__name", name);
 		}
@@ -186,6 +188,8 @@ public abstract class LuaObject extends Printable {
 		
 		// If the table hasn't been defined yet.
 		if (!this.constructed) validate();
+		
+		if (this.data == null) validate();
 		
 		// Set the raw data.
 		this.data.put(field, object);
