@@ -192,6 +192,7 @@ public abstract class LuaObject extends Printable {
 		// All Lua values must be Doubles.
 		if (object instanceof Number) {
 
+			// Force number to double.
 			double value = ((Number)object).doubleValue();
 			
 			// Set the raw data.
@@ -199,6 +200,13 @@ public abstract class LuaObject extends Printable {
 			
 			// Set the Lua data.
 			this.table.rawset(field, value);
+		} else {
+			
+			// Set the raw data.
+			this.data.put(field, object);
+			
+			// Set the Lua data.
+			this.table.rawset(field, object);
 		}
 		
 	}
