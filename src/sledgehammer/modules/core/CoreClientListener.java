@@ -4,6 +4,7 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.objects.LuaObject;
+import sledgehammer.objects.LuaObject_RequestInfo;
 import sledgehammer.wrapper.Player;
 import zombie.network.GameServer;
 
@@ -38,14 +39,10 @@ public class CoreClientListener implements EventListener {
 			
 			if(command.equalsIgnoreCase("requestInfo")) {
 				
-				// Create a table to return.
-				KahluaTable rTable = LuaObject.newTable();
-				
-				// Set the ID of the player.
-				rTable.rawset("playerID", (double) player.getID());
-				System.out.println(rTable.rawget("playerID"));
-				// Return the command with the table.
-				event.respond(rTable);
+				LuaObject_RequestInfo info = new LuaObject_RequestInfo();
+				info.setPlayerID(player.getID());
+
+				event.respond(info);
 			}
 		}
 	}
