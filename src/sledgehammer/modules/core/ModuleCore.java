@@ -41,8 +41,7 @@ public class ModuleCore extends SQLModule {
 	public static final String MODULE  = "Core"             ;
 	public static final String VERSION = "1.00"             ;
 	
-	public CoreLuaEventListener luaEventListener = null;
-	
+	private CoreClientListener clientListener;
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	
@@ -95,9 +94,9 @@ public class ModuleCore extends SQLModule {
 		validateTables();
 		
 		// Initialize the listeners.
-		commandListener  = new CoreCommandListener(this);
-		eventListener    = new CoreEventListener(this);
-		luaEventListener = new CoreLuaEventListener(this);
+		commandListener = new CoreCommandListener(this);
+		eventListener   = new CoreEventListener(this);
+		clientListener  = new CoreClientListener(this);
 		
 		// Initialize the Lists & Maps.
 		listPeriodicMessages = new ArrayList<>();
@@ -334,7 +333,7 @@ public class ModuleCore extends SQLModule {
 	}
 
 	public void onStart()  {
-		//register(luaEventListener);
+		register(clientListener);
 	}
 	
 	public void onStop()   {
@@ -345,7 +344,7 @@ public class ModuleCore extends SQLModule {
 			}
 		}
 		
-		//unregister(luaEventListener);
+		unregister(clientListener);
 	}
 
 	public void onUnload() {}
