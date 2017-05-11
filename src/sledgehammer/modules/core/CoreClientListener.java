@@ -1,9 +1,13 @@
 package sledgehammer.modules.core;
+import java.util.Set;
+
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.objects.LuaObject;
+import sledgehammer.objects.LuaObject_RequestChatChannels;
 import sledgehammer.objects.LuaObject_RequestInfo;
 import sledgehammer.wrapper.Player;
 import zombie.network.GameServer;
@@ -43,6 +47,19 @@ public class CoreClientListener implements EventListener {
 				info.setPlayerID(player.getID());
 
 				event.respond(info);
+			}
+			
+			if(command.equalsIgnoreCase("getChatChannels")) {
+				
+				Set<String> chatChannels = SledgeHammer.instance.getChatManager().mapChannels.keySet();
+				
+				LuaObject_RequestChatChannels request = new LuaObject_RequestChatChannels();
+				
+				for(String channel : chatChannels) {
+					request.addChannel(channel);
+				}
+				
+				event.respond(request);
 			}
 		}
 	}

@@ -57,6 +57,8 @@ public class ChatManager extends Manager {
 		mapChannels = new HashMap<>();
 		addChatChannel("Global");
 		addChatChannel("Local");
+		addChatChannel("Faction");
+		addChatChannel("Admin");
 		
 		listener = new ChatChannelListener(this);
 	}
