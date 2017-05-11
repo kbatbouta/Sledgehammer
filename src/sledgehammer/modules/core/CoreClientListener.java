@@ -5,7 +5,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.manager.ChatManager.LuaObject_ChatChannel;
+import sledgehammer.objects.LuaObject_ChatChannel;
 import sledgehammer.objects.LuaObject_RequestChatChannels;
 import sledgehammer.objects.LuaObject_RequestInfo;
 import sledgehammer.wrapper.Player;
