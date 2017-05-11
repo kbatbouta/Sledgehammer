@@ -322,6 +322,15 @@ public class Player {
 		return this.metaPosition;
 	}
 	
+	/**
+	 * Proxy method for asking if the Player has a permission.
+	 * @param context
+	 * @return
+	 */
+	public boolean hasPermission(String context) {
+		return SledgeHammer.instance.getPermissionsManager().hasPermission(getUsername(), context);
+	}
+	
 //	public void updateInventory() {
 //	
 //		ByteBufferWriter bbw = connection.startPacket();
