@@ -1,4 +1,4 @@
-package sledgehammer.wrapper;
+package sledgehammer.objects;
 
 import java.util.HashMap;
 

@@ -32,9 +32,9 @@ import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.modules.core.CoreCommandListener;
+import sledgehammer.objects.Player;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Result;
-import sledgehammer.wrapper.Player;
 import zombie.core.logger.LoggerManager;
 import zombie.core.raknet.UdpConnection;
 

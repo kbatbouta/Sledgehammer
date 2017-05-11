@@ -6,7 +6,6 @@ import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.wrapper.Player;
 
 /**
  * 

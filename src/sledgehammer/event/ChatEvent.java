@@ -19,8 +19,8 @@ This file is part of Sledgehammer.
 
 import java.util.List;
 
+import sledgehammer.objects.Player;
 import sledgehammer.util.ChatTags;
-import sledgehammer.wrapper.Player;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;

@@ -18,8 +18,8 @@ This file is part of Sledgehammer.
 */
 
 import sledgehammer.interfaces.ContextListener;
+import sledgehammer.objects.Player;
 import sledgehammer.util.Printable;
-import sledgehammer.wrapper.Player;
 import zombie.core.Translator;
 
 public class CoreContextListener extends Printable implements ContextListener {

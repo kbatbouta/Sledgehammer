@@ -3,7 +3,7 @@ package sledgehammer.event;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 
 public class PlayerInfoEvent extends PlayerEvent {
 

@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.objects.Player;
 import sledgehammer.util.Result;
-import sledgehammer.wrapper.Player;
 
 public class CommandEvent extends PlayerEvent {
 	

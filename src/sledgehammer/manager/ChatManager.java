@@ -25,7 +25,7 @@ import sledgehammer.objects.LuaObject;
 import sledgehammer.objects.LuaObject_ChatChannel;
 import sledgehammer.objects.LuaObject_ChatMessage;
 import sledgehammer.objects.LuaObject_ChatMessagePlayer;
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.sledgehammer.PacketHelper;

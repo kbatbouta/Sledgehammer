@@ -26,7 +26,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 import zombie.network.ServerWorldDatabase;
 
 public class PlayerManager extends Manager {

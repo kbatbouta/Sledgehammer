@@ -1,6 +1,6 @@
 package sledgehammer.event;
 
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 
 public class AliveEvent extends PlayerEvent {
 

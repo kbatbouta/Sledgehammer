@@ -8,7 +8,7 @@ import sledgehammer.interfaces.EventListener;
 import sledgehammer.objects.LuaObject_ChatChannel;
 import sledgehammer.objects.LuaObject_RequestChatChannels;
 import sledgehammer.objects.LuaObject_RequestInfo;
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 
 public class CoreClientListener implements EventListener {
 

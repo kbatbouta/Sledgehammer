@@ -32,7 +32,7 @@ import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.GameServer;
 import zombie.sledgehammer.PacketHelper;

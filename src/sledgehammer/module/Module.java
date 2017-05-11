@@ -36,9 +36,9 @@ import sledgehammer.manager.ChatManager;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.PermissionsManager;
+import sledgehammer.objects.Player;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
-import sledgehammer.wrapper.Player;
 import zombie.core.raknet.UdpConnection;
 
 public abstract class Module extends Printable {

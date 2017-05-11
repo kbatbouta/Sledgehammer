@@ -18,7 +18,7 @@ This file is part of Sledgehammer.
 */
 
 import sledgehammer.event.CommandEvent;
-import sledgehammer.wrapper.Player;
+import sledgehammer.objects.Player;
 
 public interface CommandListener {
 	String[] getCommands();
