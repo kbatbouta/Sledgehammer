@@ -41,6 +41,7 @@ public abstract class Behavior extends Printable {
 		this.npc = npc;
 	}
 		
+	@SuppressWarnings("unchecked")
 	public List<IsoWorldInventoryObject> getNearbyItemsOnGround(int radius) {
 		return getNPC().getNearbyItemsOnGround(radius);
 	}
@@ -228,6 +229,7 @@ public abstract class Behavior extends Printable {
 		getNPC().stopAction();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<IsoZombie> getNearestZombies(int radius) {
 		return getNPC().getNearestZombies(radius);
 	}

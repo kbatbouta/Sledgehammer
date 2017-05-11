@@ -20,7 +20,6 @@ This file is part of Sledgehammer.
 import java.util.ArrayList;
 import java.util.List;
 
-import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.ContextListener;
 
 public class ContextManager extends Manager {

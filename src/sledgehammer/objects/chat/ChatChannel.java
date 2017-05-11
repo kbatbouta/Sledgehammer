@@ -1,11 +1,12 @@
-package sledgehammer.objects;
+package sledgehammer.objects.chat;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.object.LuaTable;
+import sledgehammer.objects.Player;
 
 /**
  * 
@@ -14,19 +15,23 @@ import sledgehammer.SledgeHammer;
  * @author Jab
  *
  */
-public class LuaObject_ChatChannel extends LuaObject {
+public class ChatChannel extends LuaTable {
 
 	private String channelName;
 	
 	private String context = "sledgehammer.chat.channel";
-	private List<LuaObject_ChatMessage> listMessages;
+	private List<ChatMessage> listMessages;
 	
-	public LuaObject_ChatChannel(String name) {
+	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
 		listMessages = new LinkedList<>();
 	}
 	
+	public ChatChannel(KahluaTable table) {
+		super("chatChannel", table);
+	}
+
 	public String getContext() {
 		return context;
 	}
@@ -42,7 +47,7 @@ public class LuaObject_ChatChannel extends LuaObject {
 		this.channelName = name;
 	}
 
-	public void addPlayerMessage(LuaObject_ChatMessagePlayer chatMessagePlayer) {
+	public void addPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
 		
 		// Only add new messages.
 		if(!listMessages.contains(chatMessagePlayer)) {
@@ -56,7 +61,7 @@ public class LuaObject_ChatChannel extends LuaObject {
 		}
 	}
 	
-	public void addMessage(LuaObject_ChatMessage chatMessage) {
+	public void addMessage(ChatMessage chatMessage) {
 		// Only add new messages.
 		if(!listMessages.contains(chatMessage)) {
 			listMessages.add(chatMessage);
@@ -72,11 +77,11 @@ public class LuaObject_ChatChannel extends LuaObject {
 	 * @param playerID
 	 * @return
 	 */
-	public List<LuaObject_ChatMessagePlayer> getMessagesForPlayer(int playerID) {
-		List<LuaObject_ChatMessagePlayer> listMessages = new LinkedList<>();
-		for(LuaObject_ChatMessage message : this.listMessages) {
-			if(message instanceof LuaObject_ChatMessagePlayer) {
-				LuaObject_ChatMessagePlayer messagePlayer = (LuaObject_ChatMessagePlayer)message;
+	public List<ChatMessagePlayer> getMessagesForPlayer(int playerID) {
+		List<ChatMessagePlayer> listMessages = new LinkedList<>();
+		for(ChatMessage message : this.listMessages) {
+			if(message instanceof ChatMessagePlayer) {
+				ChatMessagePlayer messagePlayer = (ChatMessagePlayer)message;
 				if(messagePlayer.getPlayerID() == playerID) {
 					listMessages.add(messagePlayer);
 				}
@@ -90,14 +95,14 @@ public class LuaObject_ChatChannel extends LuaObject {
 	}
 	
 	public void deleteMessagesForPlayer(int playerID) {
-		List<LuaObject_ChatMessagePlayer> listMessages = getMessagesForPlayer(playerID);
+		List<ChatMessagePlayer> listMessages = getMessagesForPlayer(playerID);
 		
 		this.listMessages.removeAll(listMessages);
 		
 		// TODO: Broadcast deleted messages.
 	}
 	
-	public void deleteMessages(List<LuaObject_ChatMessage> listMessages) {
+	public void deleteMessages(List<ChatMessage> listMessages) {
 		// TODO: Broadcast deleted messages.
 	}
 	
@@ -106,13 +111,14 @@ public class LuaObject_ChatChannel extends LuaObject {
 	}
 
 	@Override
-	public void construct(Map<String, Object> definitions) {
-		definitions.put("channelName", getChannelName());
+	public void onLoad(KahluaTable table) {
+		channelName = table.rawget("channelName").toString();
 	}
 
 	@Override
-	public void load(KahluaTable table) {
-		channelName = table.rawget("channelName").toString();
+	public void onExport() {
+		set("channelName", getChannelName());
+		set("context", getContext());
 	}
 
 	

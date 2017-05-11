@@ -1,7 +1,7 @@
 package sledgehammer.event;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.objects.LuaObject;
+import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
 import zombie.network.GameServer;
 
@@ -33,12 +33,12 @@ public class ClientEvent extends PlayerEvent {
 		GameServer.sendServerCommand(getModule(), command, table, getPlayer().getConnection());
 	}
 
-	public void respond(LuaObject obj) {
-		GameServer.sendServerCommand(getModule(), getCommand(), obj.get(), getPlayer().getConnection());
+	public void respond(LuaTable obj) {
+		GameServer.sendServerCommand(getModule(), getCommand(), obj.export(), getPlayer().getConnection());
 	}
 	
-	public void respond(String command, LuaObject obj) {
-		GameServer.sendServerCommand(getModule(), command, obj.get(), getPlayer().getConnection());
+	public void respond(String command, LuaTable obj) {
+		GameServer.sendServerCommand(getModule(), command, obj.export(), getPlayer().getConnection());
 	}
 	
 	public String getModule() {

@@ -5,10 +5,10 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.objects.LuaObject_ChatChannel;
-import sledgehammer.objects.LuaObject_RequestChatChannels;
-import sledgehammer.objects.LuaObject_RequestInfo;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.ChatChannel;
+import sledgehammer.requests.RequestChatChannels;
+import sledgehammer.requests.RequestInfo;
 
 public class CoreClientListener implements EventListener {
 
@@ -33,6 +33,7 @@ public class CoreClientListener implements EventListener {
 		Player player     = event.getPlayer();
 		
 		if (module.equalsIgnoreCase("core")) {
+			
 			if (command.equalsIgnoreCase("handshake")) {
 				// We just want to ping back to the client saying we received the request.
 				event.respond();
@@ -40,19 +41,18 @@ public class CoreClientListener implements EventListener {
 			
 			if(command.equalsIgnoreCase("requestInfo")) {
 				
-				LuaObject_RequestInfo info = new LuaObject_RequestInfo();
-				info.setPlayerID(player.getID());
+				RequestInfo info = new RequestInfo();
+				info.setSelf(player);
 
 				event.respond(info);
 			}
 			
 			if(command.equalsIgnoreCase("getChatChannels")) {
 				
-				List<LuaObject_ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
+				List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
+				RequestChatChannels request = new RequestChatChannels();
 				
-				LuaObject_RequestChatChannels request = new LuaObject_RequestChatChannels();
-				
-				for(LuaObject_ChatChannel channel : channels) {
+				for(ChatChannel channel : channels) {
 					request.addChannel(channel);
 				}
 				

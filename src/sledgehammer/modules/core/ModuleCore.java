@@ -230,6 +230,7 @@ public class ModuleCore extends SQLModule {
 //		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void onUpdate(long delta) {
 		
 		eventListener.getPlayerTimeStamps().clear();

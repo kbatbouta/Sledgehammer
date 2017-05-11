@@ -21,11 +21,10 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.objects.LuaObject;
-import sledgehammer.objects.LuaObject_ChatChannel;
-import sledgehammer.objects.LuaObject_ChatMessage;
-import sledgehammer.objects.LuaObject_ChatMessagePlayer;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.ChatChannel;
+import sledgehammer.objects.chat.ChatMessage;
+import sledgehammer.objects.chat.ChatMessagePlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.sledgehammer.PacketHelper;
@@ -33,13 +32,10 @@ import zombie.sledgehammer.PacketHelper;
 // Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * Manager class designed to handle chat-packet operations.
@@ -53,7 +49,7 @@ public class ChatManager extends Manager {
 	
 	private UdpEngine udpEngine;
 	
-	public Map<String, LuaObject_ChatChannel> mapChannels;
+	public Map<String, ChatChannel> mapChannels;
 	
 	private ChatChannelListener listener;
 
@@ -76,7 +72,7 @@ public class ChatManager extends Manager {
 	}
 	
 	private void addChatChannel(String name) {
-		LuaObject_ChatChannel channel = new LuaObject_ChatChannel(name);
+		ChatChannel channel = new ChatChannel(name);
 		mapChannels.put(name, channel);
 	}
 
@@ -198,14 +194,14 @@ public class ChatManager extends Manager {
 	 * @param player
 	 * @return Returns the accepted List of chat channels for a given player.
 	 */
-	public List<LuaObject_ChatChannel> getChannelsForPlayer(Player player) {
-		List<LuaObject_ChatChannel> list = new LinkedList<>();
+	public List<ChatChannel> getChannelsForPlayer(Player player) {
+		List<ChatChannel> list = new LinkedList<>();
 		
 		// Go through each ChatChannel.
 		for(String channelName : mapChannels.keySet()) {
 			
 			// Grab the next channel in the list.
-			LuaObject_ChatChannel nextChannel = mapChannels.get(channelName);
+			ChatChannel nextChannel = mapChannels.get(channelName);
 			
 			// Check to make sure the player has access to this channel.
 			if(player.hasPermission(nextChannel.getContext())) {
@@ -243,7 +239,7 @@ public class ChatManager extends Manager {
 						//TODO: Handle code.
 						
 						// Create & Load LuaObject.
-						LuaObject_ChatMessagePlayer chatMessagePlayer = new LuaObject_ChatMessagePlayer(command.getTable());
+						ChatMessagePlayer chatMessagePlayer = new ChatMessagePlayer(command.getTable());
 						
 						// Digest message.
 						manager.digestPlayerMessage(chatMessagePlayer);
@@ -264,12 +260,12 @@ public class ChatManager extends Manager {
 	 * Digests a player's message, sending it to other clients.
 	 * @param chatMessagePlayer
 	 */
-	public void digestPlayerMessage(LuaObject_ChatMessagePlayer chatMessagePlayer) {
+	public void digestPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
 		
 		// Grab channel.
 		String channel = chatMessagePlayer.getChannel();
 		
-		LuaObject_ChatChannel chatChannel = mapChannels.get(channel);
+		ChatChannel chatChannel = mapChannels.get(channel);
 		
 		chatChannel.addPlayerMessage(chatMessagePlayer);
 	}
@@ -278,11 +274,11 @@ public class ChatManager extends Manager {
 	 * Digests a message, sending it to other clients.
 	 * @param chatMessage
 	 */
-	public void digestMessage(LuaObject_ChatMessage chatMessage) {
+	public void digestMessage(ChatMessage chatMessage) {
 		// Grab channel.
 		String channel = chatMessage.getChannel();
 		
-		LuaObject_ChatChannel chatChannel = mapChannels.get(channel);
+		ChatChannel chatChannel = mapChannels.get(channel);
 		
 		chatChannel.addMessage(chatMessage);
 	}

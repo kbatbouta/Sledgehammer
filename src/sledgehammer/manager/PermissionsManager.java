@@ -209,7 +209,7 @@ public class PermissionsManager extends Manager {
 	 * @return
 	 */
 	public String getPermissionDeniedMessage() {
-		return sledgeHammer.instance.getSettings().getPermissionDeniedMessage();
+		return sledgeHammer.getSettings().getPermissionDeniedMessage();
 	}
 	
 	/**

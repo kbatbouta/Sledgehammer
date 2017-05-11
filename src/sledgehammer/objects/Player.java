@@ -24,16 +24,18 @@ import java.util.Map;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
+import sledgehammer.object.LuaTable;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;
 import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.SledgeHelper;
 
-public class Player {
+public class Player extends LuaTable {
 	
 	public static final Player admin = new Player();
 	
@@ -52,13 +54,8 @@ public class Player {
 	private boolean isAlive = true;	
 	private boolean hasInit = false;
 		
-//	public Player(IsoPlayer iso) {
-//		if(iso == null) throw new IllegalArgumentException("IsoPlayer instance given is null!");
-//		this.iso = iso;
-//		connection = SledgeHelper.getConnection(iso);
-//	}
-	
 	public Player(UdpConnection connection) {
+		super("Player");
 		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
 		this.iso = SledgeHelper.getIsoPlayer(connection);
@@ -66,20 +63,12 @@ public class Player {
 		metaPosition = new Vector2f(0,0);
 	}
 	
-//	public Player(UdpConnection connection, IsoPlayer iso) {
-//		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
-//		if(iso        == null) throw new IllegalArgumentException("IsoPlayer instance given is null!"    );
-//
-//		this.connection = connection;
-//		this.iso = iso;
-//
-//	}
-	
 	/**
 	 * Constructor for 'Console' connections. This includes 3rd-Party console access.
 	 */
 	private Player() {
-		username = "admin";
+		super("Player");
+		username = "admin";		
 	}
 	
 	/**
@@ -90,7 +79,7 @@ public class Player {
 	 * @param username
 	 */
 	public Player(String username) {
-		
+		super("Player");
 		// Set the username of the Player instance to the parameter given.
 		this.username = username;
 
@@ -122,10 +111,9 @@ public class Player {
 		metaPosition = new Vector2f(0,0);
 		
 		if(!hasInit) {
-			IsoPlayer player = get();
-			if(player   != null) username = get().getUsername();
+			IsoPlayer player = getIso();
+			if(player   != null) username = getIso().getUsername();
 			if(username == null) username = connection.username;
-			
 			hasInit = true;
 		}
 	}
@@ -164,7 +152,7 @@ public class Player {
 		}
 	}
 	
-	public IsoPlayer get() {
+	public IsoPlayer getIso() {
 		return iso;
 	}
 	
@@ -189,7 +177,6 @@ public class Player {
 		if(name == null) {
 			name = getUsername();
 		}
-		
 		return name;
 	}
 	
@@ -226,7 +213,7 @@ public class Player {
 	}
 	
 	public boolean isAdmin() {
-		return get() == null ? username.equalsIgnoreCase("admin") : get().accessLevel.equals("admin");
+		return getIso() == null ? username.equalsIgnoreCase("admin") : getIso().accessLevel.equals("admin");
 	}
 
 	public int getID() {
@@ -290,7 +277,7 @@ public class Player {
 	}
 
 	public String getNickname() {
-		IsoPlayer player = get();
+		IsoPlayer player = getIso();
 		if(player != null) {
 			return player.getPublicUsername();
 		}
@@ -330,48 +317,17 @@ public class Player {
 	public boolean hasPermission(String context) {
 		return SledgeHammer.instance.getPermissionsManager().hasPermission(getUsername(), context);
 	}
+
+	@Override
+	public void onLoad(KahluaTable table) {
+		// Players will only be authored by the server.
+	}
+
+	@Override
+	public void onExport() {
+		set("id", getID());
+		set("username", getUsername());
+		set("nickname", getNickname());
+	}
 	
-//	public void updateInventory() {
-//	
-//		ByteBufferWriter bbw = connection.startPacket();
-//		PacketTypes.doPacket((byte) 65, bbw);
-//		
-//		bbw.putShort((short) iso.OnlineID);
-//		bbw.putByte((byte)iso.PlayerIndex);
-//		
-//		try {
-//			iso.getInventory().save(bbw.bb, false);
-//		} catch (Exception var6) {
-//			var6.printStackTrace();
-//		}
-//		
-//		if(iso.getClothingItem_Torso() != null) {
-//			bbw.bb.putShort((short)iso.getInventory().getItems().indexOf(iso.getClothingItem_Torso()));
-//		} else {
-//			bbw.bb.putShort((short)-1);
-//		}
-//		
-//		if(iso.getClothingItem_Legs() != null) {
-//			bbw.bb.putShort((short)iso.getInventory().getItems().indexOf(iso.getClothingItem_Legs()));
-//		} else {
-//			bbw.bb.putShort((short)-1);
-//		}
-//		
-//		if(iso.getClothingItem_Feet() != null) {
-//			bbw.bb.putShort((short)iso.getInventory().getItems().indexOf(iso.getClothingItem_Feet()));
-//		} else {
-//			bbw.bb.putShort((short)-1);
-//		}
-//
-//		connection.endPacketImmediate();
-//	}
-//	
-//	public void giveItem(String name, int count) {
-//		ByteBufferWriter b2 = connection.startPacket();
-//		PacketTypes.doPacket((byte) 85, b2);
-//		b2.putShort((short) iso.OnlineID);
-//		b2.putUTF(name);
-//		b2.putInt(count);
-//		connection.endPacketImmediate();
-//	}
 }

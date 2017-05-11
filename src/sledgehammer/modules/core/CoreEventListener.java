@@ -77,7 +77,7 @@ public class CoreEventListener implements EventListener {
 			
 		} else
 		if(event.getID() == DeathEvent.ID) {
-			if(!event.shouldAnnounce() || ((DeathEvent)event).getPlayer().get() instanceof NPC) return;
+			if(!event.shouldAnnounce() || ((DeathEvent)event).getPlayer().getIso() instanceof NPC) return;
 			String username = ((DeathEvent)event).getPlayer().getUsername();
 			if(username != null) {				
 				Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
@@ -96,7 +96,7 @@ public class CoreEventListener implements EventListener {
 			if(!event.shouldAnnounce()) return;
 			
 			Player killed = ((PVPKillEvent)event).getKilled();
-			if(killed.get() instanceof NPC) return;
+			if(killed.getIso() instanceof NPC) return;
 			
 			String username = killed.getUsername();
 			
@@ -133,7 +133,7 @@ public class CoreEventListener implements EventListener {
 			}			
 		} else {
 			
-			IsoPlayer isoPlayer = player.get();
+			IsoPlayer isoPlayer = player.getIso();
 
 			int playerID = isoPlayer != null ? isoPlayer.OnlineID : -1;
 			byte sayIt = (byte) (event.sayIt() ? 1 : 0);

@@ -33,10 +33,8 @@ import sledgehammer.util.Result;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.znet.SteamUtils;
-import zombie.network.ServerMap;
 import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.PacketHelper;
-import zombie.iso.IsoWorld;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
@@ -265,7 +263,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
         } else
         if(command.startsWith("commitsuicide")) {
         	if(module.hasPermission(username, getPermissionContext("commitsuicide"))) {        		
-        		IsoPlayer iso = player.get();
+        		IsoPlayer iso = player.getIso();
         		if(iso != null) {        		
         			iso.setHealth(-1.0F);
         			iso.DoDeath(iso.bareHands, iso, true);

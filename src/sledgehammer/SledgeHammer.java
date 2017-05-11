@@ -37,7 +37,7 @@ import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
 import sledgehammer.modules.core.CoreContextListener;
-import sledgehammer.objects.LuaObject;
+import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -324,6 +324,7 @@ public class SledgeHammer extends Printable {
 	 * 
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public List<UdpConnection> getConnections() {
 		return getUdpEngine().getConnections();
 	}
@@ -588,8 +589,8 @@ public class SledgeHammer extends Printable {
 	 * @param command
 	 * @param luaObject
 	 */
-	public void sendServerCommand(Player player, String module, String command, LuaObject luaObject) {
-		sendServerCommand(player, module, command, luaObject.get());
+	public void sendServerCommand(Player player, String module, String command, LuaTable luaObject) {
+		sendServerCommand(player, module, command, luaObject.export());
 	}
 	
 	/**

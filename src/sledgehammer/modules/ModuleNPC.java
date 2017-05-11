@@ -76,7 +76,7 @@ public class ModuleNPC extends SQLModule {
 				if(command.equalsIgnoreCase("addnpc")) {
 					if(module.hasPermission(commanderName, getPermissionContext("addnpc"))) {						
 						if(args.length == 1) {
-							IsoPlayer player = c.getPlayer().get();
+							IsoPlayer player = c.getPlayer().getIso();
 							IsoGridSquare square = null;
 							float x = 0, y = 0, z = 0;
 							if(player != null) {
