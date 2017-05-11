@@ -1,20 +1,18 @@
 package sledgehammer.modules.core;
-import java.util.Set;
+import java.util.List;
 
-import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.objects.LuaObject;
+import sledgehammer.manager.ChatManager.LuaObject_ChatChannel;
 import sledgehammer.objects.LuaObject_RequestChatChannels;
 import sledgehammer.objects.LuaObject_RequestInfo;
 import sledgehammer.wrapper.Player;
-import zombie.network.GameServer;
 
 public class CoreClientListener implements EventListener {
 
-	private ModuleCore module;
+	ModuleCore module;
 	
 	public CoreClientListener(ModuleCore module) {
 		this.module = module;
@@ -32,7 +30,6 @@ public class CoreClientListener implements EventListener {
 		// Get event content.
 		String module     = event.getModule();
 		String command    = event.getCommand();
-		KahluaTable table = event.getTable();
 		Player player     = event.getPlayer();
 		
 		if (module.equalsIgnoreCase("core")) {
@@ -51,11 +48,11 @@ public class CoreClientListener implements EventListener {
 			
 			if(command.equalsIgnoreCase("getChatChannels")) {
 				
-				Set<String> chatChannels = SledgeHammer.instance.getChatManager().mapChannels.keySet();
+				List<LuaObject_ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
 				
 				LuaObject_RequestChatChannels request = new LuaObject_RequestChatChannels();
 				
-				for(String channel : chatChannels) {
+				for(LuaObject_ChatChannel channel : channels) {
 					request.addChannel(channel);
 				}
 				

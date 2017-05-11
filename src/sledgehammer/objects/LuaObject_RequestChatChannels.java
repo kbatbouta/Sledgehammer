@@ -3,6 +3,7 @@ package sledgehammer.objects;
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.manager.ChatManager.LuaObject_ChatChannel;
 
 public class LuaObject_RequestChatChannels extends LuaObject {
 
@@ -15,7 +16,7 @@ public class LuaObject_RequestChatChannels extends LuaObject {
 		channels = newTable();
 	}
 	
-	public void addChannel(String channel) {
+	public void addChannel(LuaObject_ChatChannel channel) {
 		channels.rawset(size++, channel);
 		set("channels", channels);
 	}

@@ -20,8 +20,8 @@ This file is part of Sledgehammer.
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.ScriptEvent;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.objects.LuaObject;
 import sledgehammer.objects.LuaObject_ChatMessage;
 import sledgehammer.objects.LuaObject_ChatMessagePlayer;
 import sledgehammer.wrapper.Player;
@@ -34,8 +34,11 @@ import static sledgehammer.util.ChatTags.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * Manager class designed to handle chat-packet operations.
@@ -49,7 +52,7 @@ public class ChatManager extends Manager {
 	
 	private UdpEngine udpEngine;
 	
-	public Map<String, ChatChannel> mapChannels;
+	public Map<String, LuaObject_ChatChannel> mapChannels;
 	
 	private ChatChannelListener listener;
 
@@ -72,7 +75,7 @@ public class ChatManager extends Manager {
 	}
 	
 	private void addChatChannel(String name) {
-		ChatChannel channel = new ChatChannel(name);
+		LuaObject_ChatChannel channel = new LuaObject_ChatChannel(name);
 		mapChannels.put(name, channel);
 	}
 
@@ -191,24 +194,63 @@ public class ChatManager extends Manager {
 	public void onShutDown() {}
 
 	/**
+	 * @param player
+	 * @return Returns the accepted List of chat channels for a given player.
+	 */
+	public List<LuaObject_ChatChannel> getChannelsForPlayer(Player player) {
+		List<LuaObject_ChatChannel> list = new LinkedList<>();
+		
+		// Go through each ChatChannel.
+		for(String channelName : mapChannels.keySet()) {
+			
+			// Grab the next channel in the list.
+			LuaObject_ChatChannel nextChannel = mapChannels.get(channelName);
+			
+			// Check to make sure the player has access to this channel.
+			if(player.hasPermission(nextChannel.getContext())) {
+				
+				// If so, then add it to the list to return.
+				list.add(nextChannel);
+			}
+		}
+		
+		// Return the result list of channels for the player.
+		return list;
+	}
+	
+	/**
 	 * 
 	 * Class designed to store and manage all chat messages for a channel (tab).
 	 * 
 	 * @author Jab
 	 *
 	 */
-	public class ChatChannel {
+	public class LuaObject_ChatChannel extends LuaObject {
 
-		private String name;
+		private String channelName;
+		
+		private String context = "sledgehammer.chat.channel";
 		private List<LuaObject_ChatMessage> listMessages;
 		
-		public ChatChannel(String name) {
-			setName(name);
+		public LuaObject_ChatChannel(String name) {
+			super("chatChannel");
+			setChannelName(name);
 			listMessages = new ArrayList<>();
 		}
 		
-		private void setName(String name) {
-			this.name = name;
+		public String getContext() {
+			return context;
+		}
+		
+		public void setContext(String context) {
+			if(!context.equals(this.context)) {
+				this.context = context;
+				set("context", context);
+			}
+		}
+
+		private void setChannelName(String name) {
+			this.channelName = name;
 		}
 
 		public void addPlayerMessage(LuaObject_ChatMessagePlayer chatMessagePlayer) {
@@ -270,8 +312,18 @@ public class ChatManager extends Manager {
 			// TODO: Broadcast deleted messages.
 		}
 		
-		public String getName() {
-			return this.name;
+		public String getChannelName() {
+			return this.channelName;
+		}
+
+		@Override
+		public void construct(Map<String, Object> definitions) {
+			definitions.put("channelName", getChannelName());
+		}
+
+		@Override
+		public void load(KahluaTable table) {
+			channelName = table.rawget("channelName").toString();
 		}
 
 		
@@ -327,7 +379,7 @@ public class ChatManager extends Manager {
 		// Grab channel.
 		String channel = chatMessagePlayer.getChannel();
 		
-		ChatChannel chatChannel = mapChannels.get(channel);
+		LuaObject_ChatChannel chatChannel = mapChannels.get(channel);
 		
 		chatChannel.addPlayerMessage(chatMessagePlayer);
 	}
@@ -340,7 +392,7 @@ public class ChatManager extends Manager {
 		// Grab channel.
 		String channel = chatMessage.getChannel();
 		
-		ChatChannel chatChannel = mapChannels.get(channel);
+		LuaObject_ChatChannel chatChannel = mapChannels.get(channel);
 		
 		chatChannel.addMessage(chatMessage);
 	}
