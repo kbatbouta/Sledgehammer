@@ -24,9 +24,11 @@ public class ClientEvent extends PlayerEvent {
 			request = true;
 		}
 		
-		if(moduleRaw.startsWith("sledgehammer.module.") || moduleRaw.startsWith("request:sledgehammer.module.")) {
+		if(moduleRaw.contains("sledgehammer.module.") || moduleRaw.startsWith("request:sledgehammer.module.")) {
 			String[] split = module.split("sledgehammer.module.");
 			setModule(split[1]);
+		} else if (moduleRaw.startsWith("request:")) {
+			setModule(moduleRaw.split("request:")[1]);
 		} else {			
 			setModule(module);
 		}

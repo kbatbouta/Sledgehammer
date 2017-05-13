@@ -4,6 +4,7 @@ import java.util.List;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
+import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
@@ -22,7 +23,6 @@ public class CoreClientListener implements EventListener {
 		return new String[] { ClientEvent.ID };
 	}
 	
-
 	public void handleEvent(Event e) {
 		// Cast to proper Event sub-class.
 		ClientEvent event = (ClientEvent) e;
@@ -32,12 +32,22 @@ public class CoreClientListener implements EventListener {
 		String command    = event.getCommand();
 		Player player     = event.getPlayer();
 		
-		if (module.equalsIgnoreCase("core")) {
+		if (module.equalsIgnoreCase("sledgehammer")) {
 			
 			if (command.equalsIgnoreCase("handshake")) {
+				
 				// We just want to ping back to the client saying we received the request.
 				event.respond();
+
+				// Create a HandShakeEvent.
+				HandShakeEvent handshakeEvent = new HandShakeEvent(player);
+				
+				// Handle the event.
+				SledgeHammer.instance.handle(handshakeEvent);
 			}
+			
+			
+		} else if(module.equalsIgnoreCase("core")) {
 			
 			if(command.equalsIgnoreCase("requestInfo")) {
 				
@@ -45,18 +55,6 @@ public class CoreClientListener implements EventListener {
 				info.setSelf(player);
 
 				event.respond(info);
-			}
-			
-			if(command.equalsIgnoreCase("getChatChannels")) {
-				
-				List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
-				RequestChatChannels request = new RequestChatChannels();
-				
-				for(ChatChannel channel : channels) {
-					request.addChannel(channel);
-				}
-				
-				event.respond(request);
 			}
 		}
 	}
@@ -66,5 +64,4 @@ public class CoreClientListener implements EventListener {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
 }

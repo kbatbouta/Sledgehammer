@@ -19,13 +19,15 @@ This file is part of Sledgehammer.
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
+import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
-import sledgehammer.objects.send.SendChatChannel;
+import sledgehammer.requests.RequestChatChannels;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.sledgehammer.PacketHelper;
@@ -38,15 +40,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import se.krka.kahlua.vm.KahluaTable;
-
 /**
  * Manager class designed to handle chat-packet operations.
  * 
  * @author Jab
  *
  */
-public class ChatManager extends Manager {
+public class ChatManager extends Manager implements EventListener {
 
 	public static final String NAME = "ChatManager";
 	
@@ -54,24 +54,20 @@ public class ChatManager extends Manager {
 	
 	public Map<String, ChatChannel> mapChannels;
 	
-	private ChatChannelListener listener;
-
 	public ChatManager(SledgeHammer sledgeHammer) {
 		mapChannels = new HashMap<>();
+	}
+	
+	public void startChat() {
+		SledgeHammer.instance.register(this);
 		addChatChannel("Global");
 		addChatChannel("Local");
 		addChatChannel("Faction");
 		addChatChannel("Admin");
-		
-		listener = new ChatChannelListener(this);
-	}
-	
-	public void startChat() {
-		SledgeHammer.instance.register(listener);
 	}
 	
 	public void stopChat() {
-		SledgeHammer.instance.unregister(listener);
+		SledgeHammer.instance.unregister(this);
 	}
 	
 	private void addChatChannel(String name) {
@@ -189,25 +185,21 @@ public class ChatManager extends Manager {
 	public String warnPlayerDirty(String commander, String username, String text) {
 		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
 	}
+	
+	/**
+	 * Attempts to broadcast all channels to a player.
+	 * @param player
+	 */
+	private void broadcastChannels(Player player) {
+		for(ChatChannel channel : mapChannels.values()) {
+			channel.sendToPlayer(player);
+		}
+	}
 
-	@Override
-	public String getName() { return NAME; }
 
 	public void setUdpEngine(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
 	}
-
-	@Override
-	public void onLoad() {}
-
-	@Override
-	public void onStart() {}
-
-	@Override
-	public void onUpdate() {}
-
-	@Override
-	public void onShutDown() {}
 
 	/**
 	 * @param player
@@ -232,47 +224,6 @@ public class ChatManager extends Manager {
 		
 		// Return the result list of channels for the player.
 		return list;
-	}
-	
-	public class ChatChannelListener implements EventListener {
-
-		private ChatManager manager;
-		
-		public ChatChannelListener(ChatManager manager) {
-			this.manager = manager;
-		}
-		
-		@Override
-		public String[] getTypes() {
-			return new String[] {ClientEvent.ID};
-		}
-
-		@Override
-		public void handleEvent(Event event) {
-			if(event.getID() == ClientEvent.ID) {
-				ClientEvent command = (ClientEvent) event;
-				// Chat module.
-				if(command.getModule().equals("Sledgehammer.Core.Chat")) {
-					// Client-to-Server
-					if(command.getCommand().equals("C2S")) {
-						//TODO: Handle code.
-						
-						// Create & Load LuaObject.
-						ChatMessagePlayer chatMessagePlayer = new ChatMessagePlayer(command.getTable());
-						
-						// Digest message.
-						manager.digestPlayerMessage(chatMessagePlayer);
-					}
-				}
-			}
-			
-		}
-
-		@Override
-		public boolean runSecondary() {
-			return false;
-		}
-		
 	}
 
 	/**
@@ -301,5 +252,78 @@ public class ChatManager extends Manager {
 		
 		chatChannel.addMessage(chatMessage);
 	}
+
+	@Override
+	public String[] getTypes() {
+		return new String [] {ClientEvent.ID, HandShakeEvent.ID, DisconnectEvent.ID}; 
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		if(event.getID() == ClientEvent.ID) {
+			handleClientEvent((ClientEvent)event);
+		} else if(event.getID() == HandShakeEvent.ID) {
+			handleHandShakeEvent((HandShakeEvent)event);
+		} else if(event.getID() == DisconnectEvent.ID) {
+			handleDisconnectEvent((DisconnectEvent)event);
+		}
+	}
+
+	private void handleHandShakeEvent(HandShakeEvent event) {
+		// Player player = event.getPlayer();
+		// println("ChatManager: onHandShake() for Player: " + player.getUsername());		
+		// broadcastChannels(player);
+	}
+
+	private void handleClientEvent(ClientEvent event) {
+
+		// Get event content.
+		String module     = event.getModule();
+		String command    = event.getCommand();
+		Player player     = event.getPlayer();
+		
+		if (module.equalsIgnoreCase("core.chat")) {
+			
+			if(command.equalsIgnoreCase("getChatChannels")) {
+				
+				List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
+				RequestChatChannels request = new RequestChatChannels();
+				
+				for(ChatChannel channel : channels) {
+					request.addChannel(channel);
+				}
+				
+				event.respond(request);
+			}
+		}
+//		// Chat module.
+//		if(event.getModule().equals("Sledgehammer.Core.Chat")) {
+//			// Client-to-Server
+//			if(event.getCommand().equals("C2S")) {
+//				//TODO: Handle code.
+//				
+//				// Create & Load LuaObject.
+//				ChatMessagePlayer chatMessagePlayer = new ChatMessagePlayer(event.getTable());
+//				
+//				// Digest message.
+//				digestPlayerMessage(chatMessagePlayer);
+//			}
+//		}
+	}
+
+	private void handleDisconnectEvent(DisconnectEvent event) {
+		Player player = event.getPlayer();
+		
+		for(ChatChannel channel : this.mapChannels.values()) {
+			channel.onDisconnect(player);
+		}
+	}
+
+	public boolean runSecondary() { return false; }
 	
+	public String getName() { return NAME; }
+	public void onLoad() {}
+	public void onStart() {}
+	public void onUpdate() {}
+	public void onShutDown() {}
 }

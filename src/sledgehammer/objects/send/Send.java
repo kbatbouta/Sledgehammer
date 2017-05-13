@@ -29,6 +29,10 @@ public abstract class Send extends LuaTable {
 		return getName();
 	}
 	
+	public String toString() {
+		return this.getClass().getSimpleName() + ": Module=" + getModule() + "; Command=" + getCommand() + ";";
+	}
+	
 	// Server authored only.
 	public void onLoad(KahluaTable table) {}
 }

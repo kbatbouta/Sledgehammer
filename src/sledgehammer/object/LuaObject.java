@@ -11,7 +11,7 @@ import zombie.Lua.LuaManager;
  */
 public abstract class LuaObject extends Printable {
 	
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	public static boolean VERBOSE = false;
 	
 	private String name;
