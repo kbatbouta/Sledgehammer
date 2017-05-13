@@ -1,7 +1,5 @@
 package sledgehammer.objects.send;
 
-import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.object.LuaTable;
 import sledgehammer.objects.chat.ChatChannel;
 
 /**
@@ -14,7 +12,7 @@ public class SendChatChannel extends Send {
 	private ChatChannel channel;
 	
 	public SendChatChannel(ChatChannel channel) {
-		super("core", "sendChatChannel");
+		super("core.chat", "sendChatChannel");
 		this.channel = channel;
 	}
 
