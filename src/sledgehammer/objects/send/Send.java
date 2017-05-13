@@ -10,10 +10,25 @@ import sledgehammer.object.LuaTable;
  */
 public abstract class Send extends LuaTable {
 
-	public Send(String name) {
-		super(name);
+	private String module;
+	
+	public Send(String module, String command) {
+		super(command);
+		setModule(module);
+	}
+	
+	private void setModule(String module) {
+		this.module = module;
 	}
 
+	public String getModule() {
+		return this.module;
+	}
+	
+	public String getCommand() {
+		return getName();
+	}
+	
 	// Server authored only.
 	public void onLoad(KahluaTable table) {}
 }
