@@ -25,6 +25,7 @@ import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
+import sledgehammer.objects.send.SendChatChannel;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.sledgehammer.PacketHelper;
@@ -36,6 +37,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * Manager class designed to handle chat-packet operations.
@@ -74,6 +77,22 @@ public class ChatManager extends Manager {
 	private void addChatChannel(String name) {
 		ChatChannel channel = new ChatChannel(name);
 		mapChannels.put(name, channel);
+		
+		if(SledgeHammer.instance.isStarted()) {
+			broadcastChannel(channel);
+		}
+	}
+
+	private void broadcastChannel(ChatChannel channel) {
+		
+		if(channel == null) {
+			throw new IllegalArgumentException("ChatChannel given is null!");
+		}
+	
+		// Go through each player, and verify if the chat is visible.
+		for(Player player : SledgeHammer.instance.getPlayers()) {
+			channel.sendToPlayer(player);
+		}
 	}
 
 	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
