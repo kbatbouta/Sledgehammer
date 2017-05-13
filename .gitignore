@@ -1,6 +1,7 @@
 .metadata
 
 tmp/
+*.log
 *.tmp
 *.bak
 *.swp
