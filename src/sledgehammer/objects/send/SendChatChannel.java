@@ -9,17 +9,14 @@ import sledgehammer.objects.chat.ChatChannel;
  * @author Jab
  *
  */
-public class SendChatChannel extends LuaTable {
+public class SendChatChannel extends Send {
 	
 	private ChatChannel channel;
 	
 	public SendChatChannel(ChatChannel channel) {
-		super("sendChatChannel");
+		super("core", "sendChatChannel");
 		this.channel = channel;
 	}
-
-	// Server Auth only.
-	public void onLoad(KahluaTable table) {}
 
 	@Override
 	public void onExport() {
