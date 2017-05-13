@@ -1,15 +1,18 @@
 package sledgehammer.objects.chat;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.send.SendChatChannel;
 
 /**
- * 
+ * TODO: Document.
  * Class designed to store and manage all chat messages for a channel (tab).
  * 
  * @author Jab
@@ -20,12 +23,19 @@ public class ChatChannel extends LuaTable {
 	private String channelName;
 	
 	private String context = "sledgehammer.chat.channel";
+	
+	private Map<String, Player> mapPlayersSent;
+
 	private List<ChatMessage> listMessages;
+	
+	private SendChatChannel send;
 	
 	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
 		listMessages = new LinkedList<>();
+		mapPlayersSent = new HashMap<>();
+		send = new SendChatChannel(this);
 	}
 	
 	public ChatChannel(KahluaTable table) {
@@ -123,6 +133,19 @@ public class ChatChannel extends LuaTable {
 
 	public boolean canPlayerSee(Player player) {
 		return player.hasPermission(getContext());
+	}
+
+	public void sendToPlayer(Player player) {
+		if(!mapPlayersSent.containsKey(player.getName())) {
+			if(canPlayerSee(player)) {
+				SledgeHammer.instance.send(send);
+				mapPlayersSent.put(player.getName(), player);
+			}
+		}
+	}
+	
+	public boolean hasAlreadySentPlayer(Player player) {
+		return mapPlayersSent.get(player.getName()) != null;
 	}
 
 	
