@@ -39,6 +39,7 @@ import sledgehammer.manager.PlayerManager;
 import sledgehammer.modules.core.CoreContextListener;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.send.Send;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
 import zombie.characters.IsoPlayer;
@@ -611,5 +612,25 @@ public class SledgeHammer extends Printable {
 	 */
 	public void sendServerCommand(Player player, String module, String command, KahluaTable kahluaTable) {
 		GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());
+	}
+
+	/**
+	 * Sends a Send LuaTable Object to online players.
+	 * @param send
+	 * @param player
+	 */
+	public void send(Send send) {
+		for(Player player : getPlayers()) {			
+			send(send, player);
+		}
+	}
+	
+	/**
+	 * Sends a Send LuaTable Object to a given Player.
+	 * @param send
+	 * @param player
+	 */
+	public void send(Send send, Player player) {
+		GameServer.sendServerCommand(send.getModule(), send.getCommand(), send.export(), player.getConnection());
 	}
 }
