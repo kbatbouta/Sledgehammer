@@ -124,6 +124,8 @@ public class SledgeHammer extends Printable {
 	
 	private boolean firstLoad = true;
 	
+	private boolean started = false;
+	
 	/**
 	 * Test-Case constructor. Use this constructor for testing a Module.
 	 * 
@@ -190,6 +192,7 @@ public class SledgeHammer extends Printable {
 		getModuleManager().onStart();
 		getPlayerManager().onStart();
 		getChatManager().startChat();
+		started = true;
 	}
 
 	/**
@@ -237,6 +240,8 @@ public class SledgeHammer extends Printable {
 			
 			stackTrace("An Error occured while stopping Sledgehammer.", e);
 		}
+		
+		started = false;
 	}
 
 	/**
@@ -336,6 +341,10 @@ public class SledgeHammer extends Printable {
 	 */
 	public Settings getSettings() {
 		return settings;
+	}
+	
+	public boolean isStarted() {
+		return this.started;
 	}
 	
 	/**
