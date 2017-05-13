@@ -148,5 +148,11 @@ public class ChatChannel extends LuaTable {
 		return mapPlayersSent.get(player.getName()) != null;
 	}
 
+	public void onDisconnect(Player player) {
+		mapPlayersSent.remove(player.getName());
+		
+		// TODO: Broadcast player leaving.
+	}
+
 	
 }
