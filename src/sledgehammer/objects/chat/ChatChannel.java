@@ -121,5 +121,9 @@ public class ChatChannel extends LuaTable {
 		set("context", getContext());
 	}
 
+	public boolean canPlayerSee(Player player) {
+		return player.hasPermission(getContext());
+	}
+
 	
 }
