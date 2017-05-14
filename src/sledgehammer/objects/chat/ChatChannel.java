@@ -10,6 +10,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.send.SendChatChannel;
+import sledgehammer.objects.send.SendChatMessage;
 
 /**
  * TODO: Document.
@@ -30,12 +31,15 @@ public class ChatChannel extends LuaTable {
 	
 	private SendChatChannel send;
 	
+	private SendChatMessage sendMessage;
+	
 	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
 		listMessages = new LinkedList<>();
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
+		sendMessage = new SendChatMessage();
 	}
 	
 	public ChatChannel(KahluaTable table) {
@@ -66,9 +70,14 @@ public class ChatChannel extends LuaTable {
 		
 		for(Player player : SledgeHammer.instance.getPlayers()) {
 			if(player.getID() != chatMessagePlayer.getPlayerID()) {					
-				SledgeHammer.instance.sendServerCommand(player, "Sledgehammer.Core.Chat", "S2C", chatMessagePlayer);
+				sendMessage(chatMessagePlayer, player);
 			}
 		}
+	}
+	
+	public void sendMessage(ChatMessage message, Player player) {
+		sendMessage.setChatMessage(message);
+		SledgeHammer.instance.send(sendMessage, player);
 	}
 	
 	public void addMessage(ChatMessage chatMessage) {
