@@ -11,6 +11,7 @@ import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.send.SendChatChannel;
 import sledgehammer.objects.send.SendChatMessage;
+import sledgehammer.objects.send.SendChatMessagePlayer;
 
 /**
  * TODO: Document.
@@ -33,6 +34,8 @@ public class ChatChannel extends LuaTable {
 	
 	private SendChatMessage sendMessage;
 	
+	private SendChatMessagePlayer sendMessagePlayer;
+	
 	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
@@ -40,6 +43,7 @@ public class ChatChannel extends LuaTable {
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
 		sendMessage = new SendChatMessage();
+		sendMessagePlayer = new SendChatMessagePlayer();
 	}
 	
 	public ChatChannel(KahluaTable table) {
@@ -69,7 +73,7 @@ public class ChatChannel extends LuaTable {
 		}
 		
 		for(Player player : SledgeHammer.instance.getPlayers()) {
-			if(player.getID() != chatMessagePlayer.getPlayerID()) {					
+			if(player.hasPermission(getContext())) {				
 				sendMessage(chatMessagePlayer, player);
 			}
 		}
@@ -80,14 +84,28 @@ public class ChatChannel extends LuaTable {
 		SledgeHammer.instance.send(sendMessage, player);
 	}
 	
+	public void sendMessagePlayer(ChatMessagePlayer message, Player player) {
+		sendMessagePlayer.setChatMessage(message);
+		SledgeHammer.instance.send(sendMessagePlayer, player);
+	}
+	
 	public void addMessage(ChatMessage chatMessage) {
+		
+		println("Adding Message: " + chatMessage.getMessage());
+		
 		// Only add new messages.
 		if(!listMessages.contains(chatMessage)) {
 			listMessages.add(chatMessage);
 		}
 		
-		for(Player player : SledgeHammer.instance.getPlayers()) {
-			SledgeHammer.instance.sendServerCommand(player, "Sledgehammer.Core.Chat", "S2C", chatMessage);
+		if(chatMessage instanceof ChatMessagePlayer) {			
+			for(Player player : SledgeHammer.instance.getPlayers()) {
+				sendMessagePlayer((ChatMessagePlayer) chatMessage, player);
+			}
+		} else {
+			for(Player player : SledgeHammer.instance.getPlayers()) {
+				sendMessage(chatMessage, player);
+			}
 		}
 	}
 	
@@ -101,7 +119,7 @@ public class ChatChannel extends LuaTable {
 		for(ChatMessage message : this.listMessages) {
 			if(message instanceof ChatMessagePlayer) {
 				ChatMessagePlayer messagePlayer = (ChatMessagePlayer)message;
-				if(messagePlayer.getPlayerID() == playerID) {
+				if(messagePlayer.getPlayer().getID() == playerID) {
 					listMessages.add(messagePlayer);
 				}
 			}

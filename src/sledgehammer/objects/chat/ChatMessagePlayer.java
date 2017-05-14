@@ -1,25 +1,37 @@
 package sledgehammer.objects.chat;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
+import sledgehammer.objects.Player;
 
 public class ChatMessagePlayer extends ChatMessage {
 	
-	private int playerID;
+	private Player player;
 	
 	public ChatMessagePlayer(KahluaTable table) {
 		super(table);
 		setName("ChatMessagePlayer");
 	}
 	
-	public int getPlayerID() {
-		return this.playerID;
+	public ChatMessagePlayer(KahluaTable table, long id) {
+		super(table);
+		setID(id);
+	}
+
+	public Player getPlayer() {
+		return this.player;
 	}
 	
-	public void setPlayerID(int playerID) {
-		if(this.playerID != playerID) {
-			this.playerID = playerID;
-			set("playerID", playerID);			
+	public void setPlayer(Player player) {
+		if(this.player != player) {
+			this.player = player;
 		}
+	}
+	
+	@Override
+	public void onExport() {
+		super.onExport();
+		set("player", player);
 	}
 	
 	@Override
@@ -28,6 +40,8 @@ public class ChatMessagePlayer extends ChatMessage {
 		// Load superclass table-data first.
 		super.onLoad(table);
 		
-		setPlayerID(Integer.parseInt(table.rawget("playerID").toString()));
+		int playerID = (new Double(table.rawget("playerID").toString()).intValue());
+		Player player = SledgeHammer.instance.getPlayer(playerID);
+		setPlayer(player);
 	}
 }

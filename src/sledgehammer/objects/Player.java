@@ -43,6 +43,8 @@ public class Player extends LuaTable {
 	private UdpConnection connection;
 	private String username;
 	
+	private Color color;
+	
 	private Vector3f position;
 	private Vector2f metaPosition;
 	
@@ -61,6 +63,7 @@ public class Player extends LuaTable {
 		this.iso = SledgeHelper.getIsoPlayer(connection);
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
+		color = Color.WHITE;
 	}
 	
 	/**
@@ -322,12 +325,21 @@ public class Player extends LuaTable {
 	public void onLoad(KahluaTable table) {
 		// Players will only be authored by the server.
 	}
+	
+	public Color getColor() {
+		return this.color;
+	}
+	
+	public void setColor(Color color) {
+		this.color = color;
+	}
 
 	@Override
 	public void onExport() {
 		set("id", getID());
 		set("username", getUsername());
 		set("nickname", getNickname());
+		set("color", getColor());
 	}
 	
 }

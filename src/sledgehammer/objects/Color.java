@@ -1,5 +1,8 @@
 package sledgehammer.objects;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.object.LuaTable;
 
@@ -14,6 +17,64 @@ public class Color extends LuaTable implements Comparable<Color> {
 	 * Name of the LuaObject.
 	 */
 	public static final String NAME = "Color";
+
+	public static final Color WHITE        = new Color(1.0f,1.0f,1.0f);
+	public static final Color LIGHT_GRAY   = new Color(0.7f,0.7f,0.7f);
+	public static final Color DARK_GRAY    = new Color(0.3f,0.3f,0.3f);	
+	public static final Color BLACK        = new Color(0.0f,0.0f,0.0f);
+	public static final Color LIGHT_RED    = new Color(1.0f,0.6f,0.6f);
+	public static final Color RED          = new Color(1.0f,0.25f,0.25f);
+	public static final Color DARK_RED     = new Color(0.6f,0.0f,0.0f);
+	public static final Color BEIGE        = new Color(1.0f,0.65f,0.38f);
+	public static final Color ORANGE       = new Color(1.0f,0.45f,0.18f);
+	public static final Color BROWN        = new Color(0.6f,0.2f,0.1f);
+	public static final Color LIGHT_YELLOW = new Color(1.0f,1.0f,0.8f);
+	public static final Color YELLOW       = new Color(1.0f,1.0f,0.25f);
+	public static final Color DARK_YELLOW  = new Color(0.6f,0.6f,0.0f);
+	public static final Color LIGHT_GREEN  = new Color(0.6f,1.0f,0.6f);
+	public static final Color GREEN        = new Color(0.25f,1.0f,0.25f);
+	public static final Color DARK_GREEN   = new Color(0.0f,0.6f,0.0f);
+	public static final Color LIGHT_BLUE   = new Color(0.6f,1.0f,1.0f);
+	public static final Color BLUE         = new Color(0.25f,1.0f,1.0f);
+	public static final Color DARK_BLUE    = new Color(0.25f,0.25f,1.0f);
+	public static final Color INDIGO       = new Color(0.5f,0.5f,1f);
+	public static final Color LIGHT_PURPLE = new Color(1.0f,0.6f,1.0f);
+	public static final Color PURPLE       = new Color(1.0f,0.25f,1.0f);
+	public static final Color DARK_PURPLE  = new Color(0.6f,0.0f,0.6f);
+	public static final Color PINK         = new Color(1.0f,0.45f,1.0f);
+	
+	public static Map<String, Color> mapColors;
+	static {
+		mapColors = new HashMap<>();
+		mapColors.put("white"       , WHITE       );
+		mapColors.put("light-gray"  , LIGHT_GRAY  );
+		mapColors.put("dark-gray"   , DARK_GRAY   );
+		mapColors.put("black"       , BLACK       );
+		mapColors.put("light-red"   , LIGHT_RED   );
+		mapColors.put("red"         , RED         );
+		mapColors.put("dark-red"    , DARK_RED    );
+		mapColors.put("beige"       , BEIGE       );
+		mapColors.put("orange"      , ORANGE      );
+		mapColors.put("brown"       , BROWN       );
+		mapColors.put("light-yellow", LIGHT_YELLOW);
+		mapColors.put("yellow"      , YELLOW      );
+		mapColors.put("dark-yellow" , DARK_YELLOW );
+		mapColors.put("light-green" , LIGHT_GREEN );
+		mapColors.put("green"       , GREEN       );
+		mapColors.put("dark-green"  , DARK_GREEN  );
+		mapColors.put("indigo"      , INDIGO      );
+		mapColors.put("light-blue"  , LIGHT_BLUE  );
+		mapColors.put("blue"        , BLUE        );
+		mapColors.put("dark-blue"   , DARK_BLUE   );
+		mapColors.put("light-purple", LIGHT_PURPLE);
+		mapColors.put("purple"      , PURPLE      );
+		mapColors.put("dark-purple" , DARK_PURPLE );
+		mapColors.put("pink"        , PINK        );
+	}
+	
+	public static Color getColor(String color) {
+		return mapColors.get(color.toLowerCase());
+	}
 	
 	/**
 	 * Red (0.0-1.0 Float) (Default is 0.0F)
@@ -40,6 +101,21 @@ public class Color extends LuaTable implements Comparable<Color> {
 	 */
 	public Color() {
 		super(NAME);
+	}
+	
+	public Color(float r, float g, float b, float a) {
+		super(NAME);
+		setRed(r);
+		setGreen(g);
+		setBlue(b);
+		setAlpha(a);
+	}
+	
+	public Color(float r, float g, float b) {
+		super(NAME);
+		setRed(r);
+		setGreen(g);
+		setBlue(b);
 	}
 	
 	public Color(KahluaTable table) {

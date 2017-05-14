@@ -37,7 +37,7 @@ public class ChatMessage extends LuaTable {
 	public void setChannel(String channel) {
 		channel = channel.toLowerCase().trim();
 		
-		if(!this.channel.equals(channel)) {			
+		if(this.channel == null || !this.channel.equals(channel)) {			
 			this.channel = channel;
 		}
 	}
@@ -46,7 +46,7 @@ public class ChatMessage extends LuaTable {
 		return this.messageID;
 	}
 	
-	private void setID(long id) {
+	void setID(long id) {
 		if(this.messageID != id) {
 			this.messageID = id;
 		}
@@ -57,7 +57,7 @@ public class ChatMessage extends LuaTable {
 	}
 	
 	public void setMessage(String message) {
-		if(!message.equals(this.message)) {
+		if(this.message == null || !this.message.equals(message)) {
 			this.message = message;
 		}
 	}
@@ -68,7 +68,7 @@ public class ChatMessage extends LuaTable {
 
 	@Override
 	public void onLoad(KahluaTable table) {
-		setID(Long.parseLong(table.rawget("id").toString()));
+		setID(new Double(table.rawget("id").toString()).longValue());
 		setChannel(table.rawget("channel").toString());
 		setMessage(table.rawget("message").toString());
 	}

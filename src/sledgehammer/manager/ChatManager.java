@@ -28,6 +28,7 @@ import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
 import sledgehammer.requests.RequestChatChannels;
+import sledgehammer.util.ZUtil;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.sledgehammer.PacketHelper;
@@ -39,6 +40,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * Manager class designed to handle chat-packet operations.
@@ -294,6 +297,15 @@ public class ChatManager extends Manager implements EventListener {
 				}
 				
 				event.respond(request);
+			} else if(command.equalsIgnoreCase("sendChatMessagePlayer")) {
+				// Get the arguments.
+				KahluaTable table = event.getTable();
+				KahluaTable tableMessage = (KahluaTable) table.rawget("message");
+				ChatMessagePlayer message = new ChatMessagePlayer(tableMessage, System.nanoTime());
+				String channelName = (String) tableMessage.rawget("channel");
+				
+				ChatChannel channel = mapChannels.get(channelName);
+				channel.addMessage(message);
 			}
 		}
 //		// Chat module.
