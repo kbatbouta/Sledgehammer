@@ -285,29 +285,29 @@ public class ChatManager extends Manager implements EventListener {
 		String command    = event.getCommand();
 		Player player     = event.getPlayer();
 		
-		if (module.equalsIgnoreCase("core.chat")) {
-			
-			if(command.equalsIgnoreCase("getChatChannels")) {
-				
-				List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
-				RequestChatChannels request = new RequestChatChannels();
-				
-				for(ChatChannel channel : channels) {
-					request.addChannel(channel);
-				}
-				
-				event.respond(request);
-			} else if(command.equalsIgnoreCase("sendChatMessagePlayer")) {
-				// Get the arguments.
-				KahluaTable table = event.getTable();
-				KahluaTable tableMessage = (KahluaTable) table.rawget("message");
-				ChatMessagePlayer message = new ChatMessagePlayer(tableMessage, System.nanoTime());
-				String channelName = (String) tableMessage.rawget("channel");
-				
-				ChatChannel channel = mapChannels.get(channelName);
-				channel.addMessage(message);
-			}
-		}
+//		if (module.equalsIgnoreCase("core.chat")) {
+//			
+//			if(command.equalsIgnoreCase("getChatChannels")) {
+//				
+//				List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
+//				RequestChatChannels request = new RequestChatChannels();
+//				
+//				for(ChatChannel channel : channels) {
+//					request.addChannel(channel);
+//				}
+//				
+//				event.respond(request);
+//			} else if(command.equalsIgnoreCase("sendChatMessagePlayer")) {
+//				// Get the arguments.
+//				KahluaTable table = event.getTable();
+//				KahluaTable tableMessage = (KahluaTable) table.rawget("message");
+//				ChatMessagePlayer message = new ChatMessagePlayer(tableMessage, System.nanoTime());
+//				String channelName = (String) tableMessage.rawget("channel");
+//				
+//				ChatChannel channel = mapChannels.get(channelName);
+//				channel.addMessage(message);
+//			}
+//		}
 //		// Chat module.
 //		if(event.getModule().equals("Sledgehammer.Core.Chat")) {
 //			// Client-to-Server
@@ -338,4 +338,8 @@ public class ChatManager extends Manager implements EventListener {
 	public void onStart() {}
 	public void onUpdate() {}
 	public void onShutDown() {}
+
+	public ChatChannel getChannel(String channelName) {
+		return mapChannels.get(channelName);
+	}
 }

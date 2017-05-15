@@ -35,6 +35,7 @@ import java.util.jar.JarFile;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.module.Module;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.modules.core.ModuleCore;
 import sledgehammer.modules.core.ModuleTerritories;
 import sledgehammer.modules.vanilla.ModuleVanilla;
@@ -81,6 +82,8 @@ public final class ModuleManager extends Manager {
 	 * ModuleCore instance to handle core-level components of SledgeHammer.
 	 */
 	private ModuleCore moduleCore;
+	
+	private ModuleChat moduleChat;
 
 	/**
 	 * String Array to store the list of the plugins from SledgeHammer.ini
@@ -99,10 +102,11 @@ public final class ModuleManager extends Manager {
 	public ModuleManager() {
 		
 		// Initialize the Lists.
-		listModules    = new ArrayList<>();
+		listModules = new ArrayList<>();
 		listUnloadNext = new ArrayList<>();
+		
 		// Initialize the Maps.
-		mapModules     = new HashMap<>()  ;
+		mapModules = new HashMap<>();
 	}
 	
 	/**
@@ -114,11 +118,13 @@ public final class ModuleManager extends Manager {
 			
 			moduleVanilla = new ModuleVanilla();
 			moduleCore    = new ModuleCore()   ;
+			moduleChat    = new ModuleChat()   ;
 			
 			if (DEBUG) registerModule(new ModuleMonitor());
 	
 			registerModule(moduleVanilla);
 			registerModule(moduleCore   );
+			registerModule(moduleChat   );
 			
 			try{
 				registerModule(new ModuleTerritories());
