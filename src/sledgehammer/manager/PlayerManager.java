@@ -151,7 +151,13 @@ public class PlayerManager extends Manager {
 	}
 	
 	public Player getPlayerByUsername(String username) {
-		return mapPlayersByUserName.get(username);
+		Player player = mapPlayersByUserName.get(username);
+		
+		if (player == null) {
+			return addPlayer(new Player(username));
+		}
+		
+		return player;
 	}
 	
 	public Player getPlayerByID(int id) {
