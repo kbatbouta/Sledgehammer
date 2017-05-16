@@ -2,11 +2,13 @@ package sledgehammer.objects.chat;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.objects.Player;
 
 public class ChatMessagePlayer extends ChatMessage {
-	
+
 	private Player player;
+	private String origin = "in-game";
 	
 	public ChatMessagePlayer(KahluaTable table) {
 		super(table);

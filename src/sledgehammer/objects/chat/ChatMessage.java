@@ -1,13 +1,32 @@
 package sledgehammer.objects.chat;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaTable;
 
+/**
+ * TODO: Document.
+ * @author Jab
+ *
+ */
 public class ChatMessage extends LuaTable {
 
-	private long messageID;
+	public static final String ORIGIN_CLIENT = "client";
+	public static final String ORIGIN_SERVER = "server";
+	public static final String ORIGIN_MODULE = "module";
+	public static final String ORIGIN_CORE   = "core";
+	
+	private String origin;
 	private String channel;
 	private String message;
+	private String messageOriginal;
+	private long messageID = -1L;
+	private long modifiedTimestamp = -1L;
+	private int editorID = -1;
+	private int deleterID = -1;
+	private boolean edited = false;
+	private boolean deleted = false;
 	
 	/**
 	 * Constructor for creating a new ChatMessage Object.
@@ -22,12 +41,84 @@ public class ChatMessage extends LuaTable {
 		setID(generateMessageID());
 	}
 	
+	public ChatMessage(String channel, String message, String messageOriginal, long messageID, long modifiedTimestamp,
+			int editorID, int deleterID, boolean edited, boolean deleted) {
+		super("ChatMessage");
+		this.channel = channel;
+		this.message = message;
+		this.messageOriginal = messageOriginal;
+		this.messageID = messageID;
+		this.modifiedTimestamp = modifiedTimestamp;
+		this.editorID = editorID;
+		this.deleterID = deleterID;
+		this.edited = edited;
+		this.deleted = deleted;
+	}
+	
 	/**
 	 * Constructor for loading an existing ChatMessage Object.
 	 * @param table
 	 */
 	public ChatMessage(KahluaTable table) {
 		super("ChatMessage", table);
+	}
+
+	@Override
+	public void onLoad(KahluaTable table) {
+		setID(new Double(table.rawget("messageID").toString()).longValue());
+		setChannel(table.rawget("channel").toString());
+		setMessage(table.rawget("message").toString());
+		setOriginalMessage(table.rawget("messageOriginal").toString());
+		setEdited(Boolean.parseBoolean(table.rawget("edited").toString()));
+		setEditorID((int) (Double.parseDouble(table.rawget("editorID").toString())));
+	
+		setDeleted(Boolean.parseBoolean(table.rawget("deleted").toString()));
+		setDeleterID((int) (Double.parseDouble(table.rawget("deleterID").toString())));
+		Double d = Double.parseDouble(table.rawget("modifiedTimestamp").toString());
+		setModifiedTimestamp(d.longValue());
+		
+		// If origin is set.
+		Object o = table.rawget("origin");
+		if(o != null) {			
+			setOrigin(o.toString());
+		}
+	}
+
+	private void setDeleted(boolean flag) {
+		this.deleted = flag;
+	}
+
+	private void setDeleterID(int id) {
+		this.deleterID = id;
+	}
+
+	private void setModifiedTimestamp(long value) {
+		this.modifiedTimestamp = value;
+	}
+
+	private void setOriginalMessage(String string) {
+		this.messageOriginal = string;
+	}
+
+	private void setEdited(boolean flag) {
+		this.edited = flag;
+	}
+
+	private void setEditorID(int id) {
+		this.editorID = id;
+	}
+
+	@Override
+	public void onExport() {
+		set("messageID", getMessageID());
+		set("channel", getChannel());
+		set("message", getMessage());
+		set("messageOriginal", getOriginalMessage());
+		set("edited", isEdited());
+		set("editorID", getEditorID());
+		set("deleted", isDeleted());
+		set("deleterID", getDeleterID());
+		set("modifiedTimestamp", getModifiedTimestamp());
 	}
 	
 	public String getChannel() {
@@ -42,7 +133,7 @@ public class ChatMessage extends LuaTable {
 		}
 	}
 	
-	public long getID() {
+	public long getMessageID() {
 		return this.messageID;
 	}
 	
@@ -61,23 +152,45 @@ public class ChatMessage extends LuaTable {
 			this.message = message;
 		}
 	}
-	
+
+	public long getModifiedTimestamp() {
+		return this.modifiedTimestamp;
+	}
+
+	public int getDeleterID() {
+		return this.deleterID;
+	}
+
+	public boolean isDeleted() {
+		return this.deleted;
+	}
+
+	public int getEditorID() {
+		return this.editorID;
+	}
+
+	public boolean isEdited() {
+		return this.edited;
+	}
+
+	public String getOriginalMessage() {
+		return this.messageOriginal;
+	}
+
 	public static long generateMessageID() {
 		return System.currentTimeMillis();
 	}
-
-	@Override
-	public void onLoad(KahluaTable table) {
-		setID(new Double(table.rawget("id").toString()).longValue());
-		setChannel(table.rawget("channel").toString());
-		setMessage(table.rawget("message").toString());
+	
+	public String getOrigin() {
+		return this.origin;
 	}
-
-	@Override
-	public void onExport() {
-		set("id", getID());
-		set("channel", getChannel());
-		set("message", getMessage());
+	
+	public void setOrigin(String origin) {
+		this.origin = origin;
 	}
-
+	
+	public void save() {
+		ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+		module.saveMessage(this);
+	}
 }

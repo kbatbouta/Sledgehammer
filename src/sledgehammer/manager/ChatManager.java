@@ -63,23 +63,28 @@ public class ChatManager extends Manager implements EventListener {
 	
 	public void startChat() {
 		SledgeHammer.instance.register(this);
-		addChatChannel("Global");
-		addChatChannel("Local");
-		addChatChannel("Faction");
-		addChatChannel("Admin");
+//		addChatChannel("Global");
+//		addChatChannel("Local");
+//		addChatChannel("Faction");
+//		addChatChannel("Admin");
 	}
 	
 	public void stopChat() {
 		SledgeHammer.instance.unregister(this);
 	}
 	
-	private void addChatChannel(String name) {
-		ChatChannel channel = new ChatChannel(name);
-		mapChannels.put(name, channel);
+	public void addChatChannel(ChatChannel channel) {
+		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
 		
 		if(SledgeHammer.instance.isStarted()) {
 			broadcastChannel(channel);
 		}
+	}
+	
+	public ChatChannel addChatChannel(String name) {
+		ChatChannel channel = new ChatChannel(name);
+		addChatChannel(channel);
+		return channel;
 	}
 
 	private void broadcastChannel(ChatChannel channel) {
@@ -340,6 +345,6 @@ public class ChatManager extends Manager implements EventListener {
 	public void onShutDown() {}
 
 	public ChatChannel getChannel(String channelName) {
-		return mapChannels.get(channelName);
+		return mapChannels.get(channelName.toLowerCase());
 	}
 }

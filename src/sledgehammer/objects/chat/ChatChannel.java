@@ -22,6 +22,8 @@ import sledgehammer.objects.send.SendChatMessagePlayer;
  */
 public class ChatChannel extends LuaTable {
 
+	private int id;
+	
 	private String channelName;
 	
 	private String context = "sledgehammer.chat.channel";
@@ -181,5 +183,12 @@ public class ChatChannel extends LuaTable {
 		// TODO: Broadcast player leaving.
 	}
 
+	public int getID() {
+		return id;
+	}
+	
+	public void setID(int id) {
+		this.id = id;
+	}
 	
 }
