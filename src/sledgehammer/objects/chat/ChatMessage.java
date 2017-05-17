@@ -122,6 +122,7 @@ public class ChatMessage extends LuaTable {
 		set("deleterID", getDeleterID());
 		set("modifiedTimestamp", getModifiedTimestamp());
 		set("time", getTime());
+		set("origin", getOrigin());
 	}
 	
 	public String getChannel() {

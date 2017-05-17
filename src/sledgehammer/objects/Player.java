@@ -105,7 +105,7 @@ public class Player extends LuaTable {
 		for(UdpConnection conn : SledgeHammer.instance.getConnections()) {
 			
 			// If the username on the UdpConnection instance matches,
-			if(conn.username.equalsIgnoreCase(username)) {
+			if(conn.username != null && conn.username.equalsIgnoreCase(username)) {
 				
 				// Set this connection as the instance of the Player.
 				this.connection = conn;

@@ -23,6 +23,7 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
@@ -163,6 +164,11 @@ public class ChatManager extends Manager implements EventListener {
 		chatChannel.addMessage(chatMessage);
 		
 		mapMessagesByID.put(chatMessage.getMessageID(), chatMessage);
+	}
+	
+	public void saveMessage(ChatMessage chatMessage) {
+		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+		moduleChat.saveMessage(chatMessage);
 	}
 	
 	/**

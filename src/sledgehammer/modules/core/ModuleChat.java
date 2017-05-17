@@ -11,6 +11,7 @@ import java.util.Stack;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.module.SQLModule;
@@ -143,6 +144,9 @@ public class ModuleChat extends SQLModule {
 			
 			ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(channelName);
 			channel.addMessage(message);
+			
+			ChatMessageEvent e = new ChatMessageEvent(message);
+			SledgeHammer.instance.handle(e);
 		}
 	}
 	
@@ -169,18 +173,21 @@ public class ModuleChat extends SQLModule {
 					String _messageOriginal = set.getString("message_original");
 					String _playerName      = set.getString("player_name");
 					String _time            = set.getString("time");
+					String _origin          = set.getString("origin");
 					long _modifiedTimestamp = set.getLong("modified_timestamp");
 					boolean _edited         = set.getBoolean("edited");
 					int _editorID           = set.getInt("editor_id");
 					boolean _deleted        = set.getBoolean("deleted");
 					int _deleterID          = set.getInt("deleter_id");
 					
-					if (_playerID != -1) {
+					if (_playerID != -1 && _origin == ChatMessage.ORIGIN_CLIENT) {
 						message = new ChatMessagePlayer(_messageID, _channel, _message, _messageOriginal, _edited,
 								_editorID, _deleted, _deleterID, _modifiedTimestamp, _time, _playerID, _playerName);
+						message.setOrigin(_origin);
 					} else {
 						message = new ChatMessage(_messageID, _channel, _message, _messageOriginal, _edited, _editorID,
 								_deleted, _deleterID, _modifiedTimestamp, _time);
+						message.setOrigin(_origin);
 					}
 					
 					getManager().addMessageToCache(message);
