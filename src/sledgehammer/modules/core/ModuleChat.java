@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -155,7 +156,7 @@ public class ModuleChat extends SQLModule {
 			statement = prepareStatement(sql);
 			set = statement.executeQuery();
 			
-			Stack<ChatMessage> stackMessages = new Stack<>();
+			List<ChatMessage> listMessages = new LinkedList<>();
 			
 			while(set.next()) {
 				long _messageID = set.getLong("id");
@@ -185,10 +186,10 @@ public class ModuleChat extends SQLModule {
 					getManager().addMessageToCache(message);
 				}
 				
-				stackMessages.push(message);
+				listMessages.add(message);
 			}
-			for(int index = 0; index < stackMessages.size(); index++) {				
-				channel.addMessage(stackMessages.pop());
+			for(int index = 0; index < listMessages.size(); index++) {				
+				channel.addMessage(listMessages.get(index));
 			}
 			
 			set.close();

@@ -177,6 +177,14 @@ public class Player extends LuaTable {
 	}
 	
 	public UdpConnection getConnection() {
+		if(connection == null) {
+			for(UdpConnection next : SledgeHammer.instance.getConnections()) {
+				if(next.username.equalsIgnoreCase(getUsername())) {
+					setConnection(connection);
+					break;
+				}
+			}
+		}
 		return connection;
 	}
 	

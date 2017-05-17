@@ -1,8 +1,10 @@
 package sledgehammer.event;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
+import zombie.core.raknet.UdpConnection;
 import zombie.network.GameServer;
 
 public class ClientEvent extends PlayerEvent {
