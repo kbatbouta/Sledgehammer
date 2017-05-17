@@ -296,15 +296,6 @@ public class ModuleChat extends SQLModule {
 		}
 	}
 	
-	public static String getHourTime() {
-		String minutes = String.valueOf(Calendar.getInstance().get(12));
-	      if(Calendar.getInstance().get(12) < 10) {
-	         minutes = "0" + minutes;
-	      }
-
-	    return Calendar.getInstance().get(11) + ":" + minutes;
-	}
-
 	public String getID()         { return ID;      }
 	public String getName()       { return NAME;    }
 	public String getModuleName() { return MODULE;  }
