@@ -20,6 +20,18 @@ public class ChatMessagePlayer extends ChatMessage {
 		setID(id);
 	}
 
+	public ChatMessagePlayer(long messageID, String channel, String message, String messageOriginal,
+			boolean edited, int editorID, boolean deleted, int deleterID, long modifiedTimestamp, String time, int playerID, String playerName) {
+		super(messageID, channel, message, messageOriginal, edited, editorID, deleted, deleterID, modifiedTimestamp, time);
+		setPlayer(SledgeHammer.instance.getPlayer(playerID));
+		
+		// Player expired or unregistered.
+		if(getPlayer() == null) {
+			Player player = new Player(playerName);
+			setPlayer(player);
+		}
+	}
+
 	public Player getPlayer() {
 		return this.player;
 	}

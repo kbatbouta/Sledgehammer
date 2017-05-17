@@ -1,8 +1,12 @@
 package sledgehammer.modules.core;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Stack;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
@@ -14,6 +18,7 @@ import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
 import sledgehammer.requests.RequestChatChannels;
+import zombie.Lua.LuaManager;
 
 public class ModuleChat extends SQLModule {
 
@@ -25,32 +30,32 @@ public class ModuleChat extends SQLModule {
 	private static final String TABLE_CHANNELS = "sledgehammer_channels";
 	private static final String TABLE_MESSAGES = "sledgehammer_messages";
 	
-	public ModuleChat() {
-		
-	}
+	public ModuleChat() {}
 	
 	public void onLoad() {
 		// Establish the SQLite database connection.
 		establishConnection("sledgehammer_chat");
 		validateTables();
-		
-		addChannel(new ChatChannel("All"));
-		addChannel(new ChatChannel("Global"));
-		addChannel(new ChatChannel("Local"));
-		addChannel(new ChatChannel("Test"));
 	}
-	
+
 	public void validateTables() {
 		Statement statement;
 		try {
 			statement = createStatement();
-			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (id INTEGER PRIMARY KEY ASC, name TEXT, description TEXT);");
+			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT);");
 			statement.executeUpdate("create table if not exists " + TABLE_MESSAGES 
-					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT);");
+					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT, time TEXT);");
 			statement.close();
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void onStart() {
+		addChannel(new ChatChannel("All"));
+		addChannel(new ChatChannel("Global"));
+		addChannel(new ChatChannel("Local"));
+		addChannel(new ChatChannel("Test"));
 	}
 	
 	public void addChannel(ChatChannel channel) {
@@ -60,14 +65,42 @@ public class ModuleChat extends SQLModule {
 	
 	
 	public void loadChannel(ChatChannel channel) {
+		PreparedStatement pStatement;
+		ResultSet set;
 		Statement statement;
 		try {
 			statement = createStatement();
-			
-			// TODO: Settings.
-			// statement.executeUpdate("create table if not exists " + "sledgehammer_channel_" + channel.getChannelName() + " (" /*Settings */+ ");");
 			statement.executeUpdate("create table if not exists " + "sledgehammer_channel_" + channel.getChannelName() + "_history (message_id INTEGER, time_added BIGINT);");
+			
+			pStatement = prepareStatement("SELECT * from " + TABLE_CHANNELS + " WHERE name = \"" + channel.getChannelName() + "\";");
+			set = pStatement.executeQuery();
+			if(set.next()) {
+				println("Loading ChatChannel: " + channel.getChannelName());
+				
+				// Grab the stored definitions of the ChatChannel.
+				String _desc = set.getString("description");
+				String _cont = set.getString("context");
+				
+				// Apply definitions.
+				channel.setDescription(_desc);
+				channel.setContext(_cont);
+				
+				// Grab channel history (If any).
+				getChannelHistory(channel, 32);
+				
+			} else {
+				println("Creating ChatChannel: " + channel.getChannelName());
+				
+				// No definitions or history for channels being created.
+				
+				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\");");
+			}
+
+			// Close streams.
+			set.close();
+			pStatement.close();
 			statement.close();
+			
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -76,8 +109,7 @@ public class ModuleChat extends SQLModule {
 	public ChatManager getManager() {
 		return SledgeHammer.instance.getChatManager();
 	}
-
-	public void onStart() {}
+	
 	public void onUpdate(long delta) {}
 	public void onStop() {}
 	public void onUnload() {}
@@ -103,13 +135,66 @@ public class ModuleChat extends SQLModule {
 			KahluaTable table = event.getTable();
 			KahluaTable tableMessage = (KahluaTable) table.rawget("message");
 			ChatMessagePlayer message = new ChatMessagePlayer(tableMessage, System.nanoTime());
-			
+			message.setTime(LuaManager.getHourMinuteJava());
 			saveMessage(message);
 			
 			String channelName = (String) tableMessage.rawget("channel");
 			
 			ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(channelName);
 			channel.addMessage(message);
+		}
+	}
+	
+	public void getChannelHistory(ChatChannel channel, int length) {
+		//TODO: Implement.
+		PreparedStatement statement;
+		ResultSet set;
+		try {
+			String sql = "SELECT * FROM " + TABLE_MESSAGES + " WHERE channel = \"" + channel.getChannelName().toLowerCase() + "\" ORDER BY id DESC LIMIT " + length + ";";
+			println(sql);
+			statement = prepareStatement(sql);
+			set = statement.executeQuery();
+			
+			Stack<ChatMessage> stackMessages = new Stack<>();
+			
+			while(set.next()) {
+				long _messageID = set.getLong("id");
+				int _playerID = set.getInt("player_id");
+				ChatMessage message = getManager().getMessageFromCache(_messageID);
+				if(message == null) {
+					
+					String _channel         = set.getString("Channel");
+					String _message         = set.getString("message");
+					String _messageOriginal = set.getString("message_original");
+					String _playerName      = set.getString("player_name");
+					String _time            = set.getString("time");
+					long _modifiedTimestamp = set.getLong("modified_timestamp");
+					boolean _edited         = set.getBoolean("edited");
+					int _editorID           = set.getInt("editor_id");
+					boolean _deleted        = set.getBoolean("deleted");
+					int _deleterID          = set.getInt("deleter_id");
+					
+					if (_playerID != -1) {
+						message = new ChatMessagePlayer(_messageID, _channel, _message, _messageOriginal, _edited,
+								_editorID, _deleted, _deleterID, _modifiedTimestamp, _time, _playerID, _playerName);
+					} else {
+						message = new ChatMessage(_messageID, _channel, _message, _messageOriginal, _edited, _editorID,
+								_deleted, _deleterID, _modifiedTimestamp, _time);
+					}
+					
+					getManager().addMessageToCache(message);
+				}
+				
+				stackMessages.push(message);
+			}
+			for(int index = 0; index < stackMessages.size(); index++) {				
+				channel.addMessage(stackMessages.pop());
+			}
+			
+			set.close();
+			statement.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -150,12 +235,13 @@ public class ModuleChat extends SQLModule {
 						+ "deleter_id = \"" + message.getDeleterID() + "\" AND "
 						+ "modified_timestamp = \"" + message.getModifiedTimestamp() + "\" AND "
 						+ "player_id = \"" + playerID + "\" AND "
-						+ "player_name = \"" + playerName + "\" "
+						+ "player_name = \"" + playerName + "\" AND"
+						+ "time = \"" + message.getTime() + "\" "
 					+ "WHERE id = " + message.getMessageID() + "\";";
 			
 			} else {
 				sql = "INSERT INTO " + TABLE_MESSAGES
-						+ " (id, origin, channel, message, message_original, edited, editor_id, deleted, deleter_id, modified_timestamp, player_id, player_name) "
+						+ " (id, origin, channel, message, message_original, edited, editor_id, deleted, deleter_id, modified_timestamp, player_id, player_name, time) "
 						+ "VALUES ("
 							+ "\"" + messageID + "\","
 							+ "\"" + origin + "\","
@@ -168,7 +254,8 @@ public class ModuleChat extends SQLModule {
 							+ "\"" + message.getDeleterID() + "\","
 							+ "\"" + message.getModifiedTimestamp() + "\","
 							+ "\"" + playerID + "\","
-							+ "\"" + playerName + "\""
+							+ "\"" + playerName + "\","
+							+ "\"" + message.getTime() + "\""
 						+ ");";
 			}
 
@@ -186,6 +273,36 @@ public class ModuleChat extends SQLModule {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@SuppressWarnings("unused")
+	private void loadAllChannels() {
+		PreparedStatement statement;
+		ResultSet set;
+		try {
+			statement = prepareStatement("SELECT * from " + TABLE_CHANNELS + ";");
+			set = statement.executeQuery();
+			
+			while(set.next()) {
+				String _name = set.getString("name");
+				String _desc = set.getString("description");
+				String _cont = set.getString("context");
+				ChatChannel channel = new ChatChannel(_name, _desc, _cont);
+				getManager().addChatChannel(channel);
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static String getHourTime() {
+		String minutes = String.valueOf(Calendar.getInstance().get(12));
+	      if(Calendar.getInstance().get(12) < 10) {
+	         minutes = "0" + minutes;
+	      }
+
+	    return Calendar.getInstance().get(11) + ":" + minutes;
 	}
 
 	public String getID()         { return ID;      }

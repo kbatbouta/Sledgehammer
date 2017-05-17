@@ -27,8 +27,6 @@ import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
-import sledgehammer.requests.RequestChatChannels;
-import sledgehammer.util.ZUtil;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.sledgehammer.PacketHelper;
@@ -37,11 +35,10 @@ import zombie.sledgehammer.PacketHelper;
 import static sledgehammer.util.ChatTags.*;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * Manager class designed to handle chat-packet operations.
@@ -56,17 +53,26 @@ public class ChatManager extends Manager implements EventListener {
 	private UdpEngine udpEngine;
 	
 	public Map<String, ChatChannel> mapChannels;
+	private LinkedHashMap<Long, ChatMessage> mapMessagesByID;
 	
 	public ChatManager(SledgeHammer sledgeHammer) {
+
 		mapChannels = new HashMap<>();
+		
+		int maxSize = 0x800;
+		
+		mapMessagesByID = new LinkedHashMap<Long, ChatMessage>() {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+	        protected boolean removeEldestEntry(final Map.Entry<Long, ChatMessage> eldest) {
+	            return size() > maxSize;
+	        }
+		};
 	}
 	
 	public void startChat() {
 		SledgeHammer.instance.register(this);
-//		addChatChannel("Global");
-//		addChatChannel("Local");
-//		addChatChannel("Faction");
-//		addChatChannel("Admin");
 	}
 	
 	public void stopChat() {
@@ -98,113 +104,7 @@ public class ChatManager extends Manager implements EventListener {
 			channel.sendToPlayer(player);
 		}
 	}
-
-	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-		try {
-			Player player = SledgeHammer.instance.getPlayer(username);
-			if(player != null) {
-				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
-			} else {
-				return "Player not found: " + username + ".";
-			}
-		} catch(Exception e) {
-			
-		}
-		return null;
-	}
 	
-	public String privateMessage(String commander, String username, String text) {
-		Player player = getSledgeHammer().getPlayer(username);
-		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
-	}
-	
-	public String warnPlayer(String commander, String username, String text) {
-		Player player = getSledgeHammer().getPlayer(username);
-		return messagePlayer(player, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
-	}
-	
-	public String privateMessage(String commander, UdpConnection connection, String text) {
-		Player player = getSledgeHammer().getPlayer(connection.username);
-		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
-	}
-	
-	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
-		PacketHelper.localMessage(connection, playerID, text, chatType, sayIt);
-	}
-
-	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor,  boolean addTimeStamp, boolean bypassMute) {
-		return PacketHelper.messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);
-	}
-
-	public void messageGlobal(String message) {
-		if(udpEngine == null) return;
-		for (Player player : getSledgeHammer().getPlayers()) {
-			messagePlayer(player, null, null, message, null, true, false);
-		}
-	}
-	
-	public void messageGlobal(String header, String message) {
-		if(udpEngine == null) return;
-		for (Player player : getSledgeHammer().getPlayers()) {
-			messagePlayer(player, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
-		}
-	}
-	
-	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
-		if(udpEngine == null) {
-			println("UdpEngine is null in messageGlobal");
-			return;
-		}
-		for (Player player : getSledgeHammer().getPlayers()) {
-			messagePlayer(player, header, headerColor, message, messageColor, true, false);
-		}
-	}
-	
-	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
-		if(udpEngine == null) return;
-		
-		for (Player player : getSledgeHammer().getPlayers()) {
-			messagePlayer(player, header, headerColor, message, messageColor, timeStamp, false);
-		}
-	}
-	
-	public void broadcastMessage(String message, String messageColor) {
-		PacketHelper.broadcastMessage(message, messageColor);
-	}
-	
-	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-		try {
-			Player player = SledgeHammer.instance.getPlayerDirty(username);
-			if(player != null) {
-				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
-			} else {
-				return "Player not found: " + username + ".";
-			}
-		} catch(Exception e) {
-			
-		}
-		return null;
-	}
-	
-	public String privateMessageDirty(String commander, String username, String text) {
-		return messagePlayerDirty(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
-	}
-	
-	public String warnPlayerDirty(String commander, String username, String text) {
-		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
-	}
-	
-	/**
-	 * Attempts to broadcast all channels to a player.
-	 * @param player
-	 */
-	private void broadcastChannels(Player player) {
-		for(ChatChannel channel : mapChannels.values()) {
-			channel.sendToPlayer(player);
-		}
-	}
-
-
 	public void setUdpEngine(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
 	}
@@ -246,6 +146,8 @@ public class ChatManager extends Manager implements EventListener {
 		ChatChannel chatChannel = mapChannels.get(channel);
 		
 		chatChannel.addPlayerMessage(chatMessagePlayer);
+		
+		mapMessagesByID.put(chatMessagePlayer.getMessageID(), chatMessagePlayer);
 	}
 	
 	/**
@@ -259,6 +161,18 @@ public class ChatManager extends Manager implements EventListener {
 		ChatChannel chatChannel = mapChannels.get(channel);
 		
 		chatChannel.addMessage(chatMessage);
+		
+		mapMessagesByID.put(chatMessage.getMessageID(), chatMessage);
+	}
+	
+	/**
+	 * Attempts to broadcast all channels to a player.
+	 * @param player
+	 */
+	void broadcastChannels(Player player) {
+		for(ChatChannel channel : mapChannels.values()) {
+			channel.sendToPlayer(player);
+		}
 	}
 
 	@Override
@@ -327,12 +241,27 @@ public class ChatManager extends Manager implements EventListener {
 //			}
 //		}
 	}
-
+	
 	private void handleDisconnectEvent(DisconnectEvent event) {
 		Player player = event.getPlayer();
 		
 		for(ChatChannel channel : this.mapChannels.values()) {
 			channel.onDisconnect(player);
+		}
+	}
+	
+	public ChatChannel getChannel(String channelName) {
+		return mapChannels.get(channelName.toLowerCase());
+	}
+
+	public ChatMessage getMessageFromCache(long messageID) {
+		return mapMessagesByID.get(messageID);
+	}
+	
+	public void addMessageToCache(ChatMessage message) {
+		ChatMessage msg = mapMessagesByID.get(message.getMessageID());
+		if(msg == null) {
+			mapMessagesByID.put(message.getMessageID(), message);
 		}
 	}
 
@@ -343,8 +272,210 @@ public class ChatManager extends Manager implements EventListener {
 	public void onStart() {}
 	public void onUpdate() {}
 	public void onShutDown() {}
-
-	public ChatChannel getChannel(String channelName) {
-		return mapChannels.get(channelName.toLowerCase());
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param username
+	 * @param header
+	 * @param headerColor
+	 * @param text
+	 * @param textColor
+	 * @param addTimeStamp
+	 * @param bypassMute
+	 * @return
+	 */
+	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		try {
+			Player player = SledgeHammer.instance.getPlayer(username);
+			if(player != null) {
+				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+			} else {
+				return "Player not found: " + username + ".";
+			}
+		} catch(Exception e) {
+			
+		}
+		return null;
 	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param commander
+	 * @param username
+	 * @param text
+	 * @return
+	 */
+	public String privateMessage(String commander, String username, String text) {
+		Player player = getSledgeHammer().getPlayer(username);
+		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param commander
+	 * @param username
+	 * @param text
+	 * @return
+	 */
+	public String warnPlayer(String commander, String username, String text) {
+		Player player = getSledgeHammer().getPlayer(username);
+		return messagePlayer(player, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param commander
+	 * @param connection
+	 * @param text
+	 * @return
+	 */
+	public String privateMessage(String commander, UdpConnection connection, String text) {
+		Player player = getSledgeHammer().getPlayer(connection.username);
+		return messagePlayer(player, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param connection
+	 * @param playerID
+	 * @param text
+	 * @param chatType
+	 * @param sayIt
+	 */
+	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
+		PacketHelper.localMessage(connection, playerID, text, chatType, sayIt);
+	}
+
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param player
+	 * @param header
+	 * @param headerColor
+	 * @param text
+	 * @param textColor
+	 * @param addTimeStamp
+	 * @param bypassMute
+	 * @return
+	 */
+	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor,  boolean addTimeStamp, boolean bypassMute) {
+		if(player.isConnected()) {			
+			return PacketHelper.messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);
+		}
+		return null;
+	}
+
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param message
+	 */
+	public void messageGlobal(String message) {
+		if(udpEngine == null) return;
+		for (Player player : getSledgeHammer().getPlayers()) {
+			if(player.isConnected()) {
+				messagePlayer(player, null, null, message, null, true, false);
+			}
+		}
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param header
+	 * @param message
+	 */
+	public void messageGlobal(String header, String message) {
+		if(udpEngine == null) return;
+		for (Player player : getSledgeHammer().getPlayers()) {
+			messagePlayer(player, header, COLOR_WHITE, message, COLOR_WHITE, true, false);
+		}
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param header
+	 * @param headerColor
+	 * @param message
+	 * @param messageColor
+	 */
+	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
+		if(udpEngine == null) {
+			println("UdpEngine is null in messageGlobal");
+			return;
+		}
+		for (Player player : getSledgeHammer().getPlayers()) {
+			messagePlayer(player, header, headerColor, message, messageColor, true, false);
+		}
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param header
+	 * @param headerColor
+	 * @param message
+	 * @param messageColor
+	 * @param timeStamp
+	 */
+	public void messageGlobal(String header, String headerColor, String message, String messageColor, boolean timeStamp) {
+		if(udpEngine == null) return;
+		
+		for (Player player : getSledgeHammer().getPlayers()) {
+			messagePlayer(player, header, headerColor, message, messageColor, timeStamp, false);
+		}
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param message
+	 * @param messageColor
+	 */
+	public void broadcastMessage(String message, String messageColor) {
+		PacketHelper.broadcastMessage(message, messageColor);
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param username
+	 * @param header
+	 * @param headerColor
+	 * @param text
+	 * @param textColor
+	 * @param addTimeStamp
+	 * @param bypassMute
+	 * @return
+	 */
+	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
+		try {
+			Player player = SledgeHammer.instance.getPlayerDirty(username);
+			if(player != null) {
+				return messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);			
+			} else {
+				return "Player not found: " + username + ".";
+			}
+		} catch(Exception e) {
+			
+		}
+		return null;
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param commander
+	 * @param username
+	 * @param text
+	 * @return
+	 */
+	public String privateMessageDirty(String commander, String username, String text) {
+		return messagePlayerDirty(username, "[PM][" + commander + "]: ", COLOR_LIGHT_GREEN, text, COLOR_LIGHT_GREEN, true, true);
+	}
+	
+	/**
+	 * @deprecated LEGACY FORMAT
+	 * @param commander
+	 * @param username
+	 * @param text
+	 * @return
+	 */
+	public String warnPlayerDirty(String commander, String username, String text) {
+		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
+	}
+	
 }

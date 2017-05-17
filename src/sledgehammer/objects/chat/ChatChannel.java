@@ -1,5 +1,6 @@
 package sledgehammer.objects.chat;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.object.LuaArray;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.send.SendChatChannel;
@@ -21,16 +23,22 @@ import sledgehammer.objects.send.SendChatMessagePlayer;
  *
  */
 public class ChatChannel extends LuaTable {
+	
+	public static final int CHANNEL_HISTORY_SIZE = 512;
+	
+	public static final String DEFAULT_CONTEXT = "sledgehammer.chat.channel";
 
 	private int id;
 	
 	private String channelName;
 	
-	private String context = "sledgehammer.chat.channel";
+	private String description = "";
+	
+	private String context = DEFAULT_CONTEXT;
 	
 	private Map<String, Player> mapPlayersSent;
 
-	private List<ChatMessage> listMessages;
+	private LinkedList<ChatMessage> listMessages;
 	
 	private SendChatChannel send;
 	
@@ -41,7 +49,7 @@ public class ChatChannel extends LuaTable {
 	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
-		listMessages = new LinkedList<>();
+		listMessages = new LinkedList<ChatMessage>();
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
 		sendMessage = new SendChatMessage();
@@ -52,6 +60,30 @@ public class ChatChannel extends LuaTable {
 		super("chatChannel", table);
 	}
 
+	public ChatChannel(String name, String desc, String cont) {
+		super("chatChanel");
+		setChannelName(name);
+		setDescription(desc);
+		setContext(cont);
+	}
+	
+	/**
+	 * If the channel has its own context permission, 
+	 * then it is running as white-listed.
+	 * @return
+	 */
+	public boolean isWhitelisted() {
+		return !getContext().equals(DEFAULT_CONTEXT);
+	}
+	
+	public String getDescription() {
+		return this.description;
+	}
+	
+	public void setDescription(String desc) {
+		this.description = desc;
+	}
+
 	public String getContext() {
 		return context;
 	}
@@ -59,7 +91,6 @@ public class ChatChannel extends LuaTable {
 	public void setContext(String context) {
 		if(!context.equals(this.context)) {
 			this.context = context;
-			set("context", context);
 		}
 	}
 
@@ -72,6 +103,9 @@ public class ChatChannel extends LuaTable {
 		// Only add new messages.
 		if(!listMessages.contains(chatMessagePlayer)) {
 			listMessages.add(chatMessagePlayer);
+			if(listMessages.size() > CHANNEL_HISTORY_SIZE) {
+				listMessages.removeFirst();
+			}
 		}
 		
 		for(Player player : SledgeHammer.instance.getPlayers()) {
@@ -98,6 +132,9 @@ public class ChatChannel extends LuaTable {
 		// Only add new messages.
 		if(!listMessages.contains(chatMessage)) {
 			listMessages.add(chatMessage);
+			if(listMessages.size() > CHANNEL_HISTORY_SIZE) {
+				listMessages.removeFirst();
+			}
 		}
 		
 		if(chatMessage instanceof ChatMessagePlayer) {			
@@ -152,12 +189,27 @@ public class ChatChannel extends LuaTable {
 	@Override
 	public void onLoad(KahluaTable table) {
 		channelName = table.rawget("channelName").toString();
+		// TODO: Future-Implement when clients can create channels.
 	}
 
 	@Override
 	public void onExport() {
 		set("channelName", getChannelName());
 		set("context", getContext());
+		set("description", getDescription());
+		set("history", getLastMessages(32));
+	}
+	
+	public LuaArray<ChatMessage> getLastMessages(int amount) {
+		LuaArray<ChatMessage> listLastMessages = new LuaArray<>();
+		int size = listMessages.size();
+		
+		for(int index = size - 1; index > size - 33; index--) {
+			if(index < 0) break;
+			listLastMessages.add(listMessages.get(index));
+		}
+		
+		return listLastMessages;
 	}
 
 	public boolean canPlayerSee(Player player) {

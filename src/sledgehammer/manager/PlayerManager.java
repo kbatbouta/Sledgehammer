@@ -154,10 +154,24 @@ public class PlayerManager extends Manager {
 		Player player = mapPlayersByUserName.get(username);
 		
 		if (player == null) {
-			return addPlayer(new Player(username));
+			player = new Player(username);			
+			mapPlayersByUserName.put(username, player);
+			
+			if(!listPlayers.contains(player)) {			
+				listPlayers.add(player);
+			}
+			
+			int id = getPlayerID(username);
+			if(!mapPlayersByDatabaseID.containsKey(id)) {
+				mapPlayersByDatabaseID.put(id, player);
+			}
 		}
 		
 		return player;
+	}
+	
+	public int getPlayerID(String username) {
+		return ServerWorldDatabase.instance.resolvePlayerID(username);
 	}
 	
 	public Player getPlayerByID(int id) {

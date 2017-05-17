@@ -28,6 +28,7 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
+import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.object.LuaTable;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -42,6 +43,7 @@ public class Player extends LuaTable {
 	private IsoPlayer iso;
 	private UdpConnection connection;
 	private String username;
+	private String nickname;
 	
 	private Color color;
 	
@@ -64,6 +66,11 @@ public class Player extends LuaTable {
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
 		color = Color.WHITE;
+		
+		if(SledgeHammer.instance.isStarted()) {			
+			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
+			SledgeHammer.instance.handle(event);
+		}
 	}
 	
 	/**
@@ -71,7 +78,12 @@ public class Player extends LuaTable {
 	 */
 	private Player() {
 		super("Player");
-		username = "admin";		
+		username = "admin";	
+		
+		if(SledgeHammer.instance.isStarted()) {			
+			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
+			SledgeHammer.instance.handle(event);
+		}
 	}
 	
 	/**
@@ -106,6 +118,11 @@ public class Player extends LuaTable {
 		initProperties();
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
+		
+		if(SledgeHammer.instance.isStarted()) {			
+			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
+			SledgeHammer.instance.handle(event);
+		}
 	}
 	
 	public void init() {
@@ -280,12 +297,8 @@ public class Player extends LuaTable {
 	}
 
 	public String getNickname() {
-		IsoPlayer player = getIso();
-		if(player != null) {
-			return player.getPublicUsername();
-		}
-
-		return null;
+		if(nickname == null) return username;
+		return nickname;
 	}
 	
 	public boolean isNewAccount() {
@@ -340,6 +353,10 @@ public class Player extends LuaTable {
 		set("username", getUsername());
 		set("nickname", getNickname());
 		set("color", getColor());
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
 	}
 	
 }

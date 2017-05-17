@@ -27,6 +27,7 @@ public class ChatMessage extends LuaTable {
 	private int deleterID = -1;
 	private boolean edited = false;
 	private boolean deleted = false;
+	private String time;
 	
 	/**
 	 * Constructor for creating a new ChatMessage Object.
@@ -41,18 +42,19 @@ public class ChatMessage extends LuaTable {
 		setID(generateMessageID());
 	}
 	
-	public ChatMessage(String channel, String message, String messageOriginal, long messageID, long modifiedTimestamp,
-			int editorID, int deleterID, boolean edited, boolean deleted) {
+	public ChatMessage(long id, String channel, String message, String messageOriginal,
+			boolean edited, int editorID, boolean deleted, int deleterID, long modifiedTimestamp, String time) {
 		super("ChatMessage");
-		this.channel = channel;
-		this.message = message;
-		this.messageOriginal = messageOriginal;
-		this.messageID = messageID;
+		this.messageID         = id;
+		this.channel           = channel;
+		this.message           = message;
+		this.messageOriginal   = messageOriginal;
 		this.modifiedTimestamp = modifiedTimestamp;
-		this.editorID = editorID;
-		this.deleterID = deleterID;
-		this.edited = edited;
-		this.deleted = deleted;
+		this.editorID          = editorID;
+		this.deleterID         = deleterID;
+		this.edited            = edited;
+		this.deleted           = deleted;
+		this.time              = time;
 	}
 	
 	/**
@@ -119,6 +121,7 @@ public class ChatMessage extends LuaTable {
 		set("deleted", isDeleted());
 		set("deleterID", getDeleterID());
 		set("modifiedTimestamp", getModifiedTimestamp());
+		set("time", getTime());
 	}
 	
 	public String getChannel() {
@@ -187,6 +190,14 @@ public class ChatMessage extends LuaTable {
 	
 	public void setOrigin(String origin) {
 		this.origin = origin;
+	}
+	
+	public void setTime(String time) {
+		this.time = time;
+	}
+	
+	public String getTime() {
+		return this.time;
 	}
 	
 	public void save() {

@@ -25,6 +25,7 @@ import java.util.List;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
+import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
@@ -193,6 +194,12 @@ public class SledgeHammer extends Printable {
 		getModuleManager().onStart();
 		getPlayerManager().onStart();
 		getChatManager().startChat();
+		
+		for(Player player : getPlayerManager().getPlayers()) {
+			PlayerCreatedEvent event = new PlayerCreatedEvent(player);
+			SledgeHammer.instance.handle(event);
+		}
+		
 		started = true;
 	}
 
@@ -632,6 +639,8 @@ public class SledgeHammer extends Printable {
 	 */
 	public void send(Send send, Player player) {
 		println("Sending to player: " + send);
-		GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(), player.getConnection());
+		if(player.isConnected()) {			
+			GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(), player.getConnection());
+		}
 	}
 }

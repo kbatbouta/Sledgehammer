@@ -36,12 +36,6 @@ public abstract class LuaTable extends LuaObject {
 		this.data = new HashMap<>();
 	}
 	
-	public void setName(String name) {
-		if(getName() == null || !getName().equals(name)) {
-			super.setName(name);
-		}
-	}
-	
 	public LuaTable(String name, KahluaTable table) {
 		super(name);
 		
@@ -56,44 +50,33 @@ public abstract class LuaTable extends LuaObject {
 
 		KahluaTable outTable;
 		
-		if(true) { // (FIXME: Future dirty markers for Objects.)
+		// Call 'onExport()' to make sure the data is accurate.
+		onExport();
+		
+		if(DEBUG) {			
+			println("Exporting LuaTable: " + getName());
+		}
+		
+		outTable = newTable();
+		
+		for (Object key : this.data.keySet()) {
+			Object value = this.data.get(key);
 			
-			// Call 'onExport()' to make sure the data is accurate.
-			onExport();
-			
-			if(DEBUG) {			
-				println("Exporting LuaTable: " + getName());
+			if(DEBUG) {				
+				println("Exporting Key: " + key + ", Value:" + value);
 			}
 			
-			outTable = newTable();
-			
-			for (Object key : this.data.keySet()) {
-				Object value = this.data.get(key);
-				
-				if(DEBUG) {				
-					println("Exporting Key: " + key + ", Value:" + value);
-				}
-				
-				value = processValue(value);
-				if(value != null) {				
-					outTable.rawset(key, value);
-				} else {
-					println("Processed value for key '" + key + "' is null.");
-				}
+			value = processValue(value);
+			if(value != null) {				
+				outTable.rawset(key, value);
+			} else {
+				println("Processed value for key '" + key + "' is null.");
 			}
-			
-			// Set the lastTable to be outTable.
-			// lastTable = outTable;
-			
-			// Mark clean as last table is assigned for any further exports
-			// without changes.
-			markClean();
-		} 
-//		else {
-//			
-//			// Set the last table to be exported. (Clean means nothing has changed)
-//			outTable = lastTable;
-//		}
+		}
+		
+		// Mark clean as last table is assigned for any further exports
+		// without changes.
+		markClean();
 		
 		// Set the name of the object.
 		outTable.rawset("__name", getName());
