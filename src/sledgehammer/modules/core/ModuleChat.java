@@ -54,7 +54,6 @@ public class ModuleChat extends SQLModule {
 	}
 	
 	public void onStart() {
-		addChannel(new ChatChannel("All"));
 		addChannel(new ChatChannel("Global"));
 		addChannel(new ChatChannel("Local"));
 		addChannel(new ChatChannel("Test"));
@@ -174,7 +173,7 @@ public class ModuleChat extends SQLModule {
 					String _playerName      = set.getString("player_name");
 					String _time            = set.getString("time");
 					String _origin          = set.getString("origin");
-					int type = set.getInt("type");
+					int type                = set.getInt("type");
 					long _modifiedTimestamp = set.getLong("modified_timestamp");
 					boolean _edited         = set.getBoolean("edited");
 					int _editorID           = set.getInt("editor_id");
