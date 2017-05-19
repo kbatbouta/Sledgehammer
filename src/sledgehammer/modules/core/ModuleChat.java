@@ -46,7 +46,7 @@ public class ModuleChat extends SQLModule {
 			statement = createStatement();
 			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT);");
 			statement.executeUpdate("create table if not exists " + TABLE_MESSAGES 
-					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT, time TEXT);");
+					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT, time TEXT, type INTEGER);");
 			statement.close();
 		} catch(SQLException e) {
 			e.printStackTrace();
@@ -174,13 +174,14 @@ public class ModuleChat extends SQLModule {
 					String _playerName      = set.getString("player_name");
 					String _time            = set.getString("time");
 					String _origin          = set.getString("origin");
+					int type = set.getInt("type");
 					long _modifiedTimestamp = set.getLong("modified_timestamp");
 					boolean _edited         = set.getBoolean("edited");
 					int _editorID           = set.getInt("editor_id");
 					boolean _deleted        = set.getBoolean("deleted");
 					int _deleterID          = set.getInt("deleter_id");
 					
-					if (_playerID != -1 && _origin == ChatMessage.ORIGIN_CLIENT) {
+					if (type == 1) {
 						message = new ChatMessagePlayer(_messageID, _channel, _message, _messageOriginal, _edited,
 								_editorID, _deleted, _deleterID, _modifiedTimestamp, _time, _playerID, _playerName);
 						message.setOrigin(_origin);
@@ -195,7 +196,10 @@ public class ModuleChat extends SQLModule {
 				
 				listMessages.add(message);
 			}
-			for(int index = 0; index < listMessages.size(); index++) {				
+			
+			int size = listMessages.size();
+			
+			for(int index = 0; index < size; index++) {				
 				channel.addMessage(listMessages.get(index));
 			}
 			
@@ -211,6 +215,7 @@ public class ModuleChat extends SQLModule {
 		try {
 			long messageID = message.getMessageID();
 			String origin = message.getOrigin();
+			int type = 0;
 			
 			ChatChannel channel = getManager().getChannel(message.getChannel());
 			if(channel == null) {
@@ -222,6 +227,7 @@ public class ModuleChat extends SQLModule {
 			String playerName = "";
 			
 			if(message instanceof ChatMessagePlayer) {
+				type = 1;
 				ChatMessagePlayer mPlayer = (ChatMessagePlayer)message;
 				playerID = mPlayer.getPlayer().getID();
 				playerName = mPlayer.getPlayer().getNickname();
@@ -244,12 +250,13 @@ public class ModuleChat extends SQLModule {
 						+ "modified_timestamp = \"" + message.getModifiedTimestamp() + "\" AND "
 						+ "player_id = \"" + playerID + "\" AND "
 						+ "player_name = \"" + playerName + "\" AND"
-						+ "time = \"" + message.getTime() + "\" "
+						+ "time = \"" + message.getTime() + "\" AND"
+						+ "type = \"" + type + "\" "
 					+ "WHERE id = " + message.getMessageID() + "\";";
 			
 			} else {
 				sql = "INSERT INTO " + TABLE_MESSAGES
-						+ " (id, origin, channel, message, message_original, edited, editor_id, deleted, deleter_id, modified_timestamp, player_id, player_name, time) "
+						+ " (id, origin, channel, message, message_original, edited, editor_id, deleted, deleter_id, modified_timestamp, player_id, player_name, time, type) "
 						+ "VALUES ("
 							+ "\"" + messageID + "\","
 							+ "\"" + origin + "\","
@@ -263,7 +270,8 @@ public class ModuleChat extends SQLModule {
 							+ "\"" + message.getModifiedTimestamp() + "\","
 							+ "\"" + playerID + "\","
 							+ "\"" + playerName + "\","
-							+ "\"" + message.getTime() + "\""
+							+ "\"" + message.getTime() + "\","
+							+ "\"" + type + "\""
 						+ ");";
 			}
 

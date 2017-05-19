@@ -141,7 +141,7 @@ public class ChatMessage extends LuaTable {
 		return this.messageID;
 	}
 	
-	void setID(long id) {
+	public void setID(long id) {
 		if(this.messageID != id) {
 			this.messageID = id;
 		}
