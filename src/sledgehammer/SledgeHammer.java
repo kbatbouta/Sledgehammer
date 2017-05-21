@@ -638,8 +638,10 @@ public class SledgeHammer extends Printable {
 	 * @param player
 	 */
 	public void send(Send send, Player player) {
-		println("Sending to player: " + send);
-		if(player.isConnected()) {			
+		if(player.isConnected()) {
+			if(DEBUG) {				
+				println("Sending to player: " + send);
+			}
 			GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(), player.getConnection());
 		}
 	}

@@ -76,8 +76,6 @@ public class ModuleChat extends SQLModule {
 			pStatement = prepareStatement("SELECT * from " + TABLE_CHANNELS + " WHERE name = \"" + channel.getChannelName() + "\";");
 			set = pStatement.executeQuery();
 			if(set.next()) {
-				println("Loading ChatChannel: " + channel.getChannelName());
-				
 				// Grab the stored definitions of the ChatChannel.
 				String _desc = set.getString("description");
 				String _cont = set.getString("context");
@@ -90,10 +88,7 @@ public class ModuleChat extends SQLModule {
 				getChannelHistory(channel, 32);
 				
 			} else {
-				println("Creating ChatChannel: " + channel.getChannelName());
-				
 				// No definitions or history for channels being created.
-				
 				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\");");
 			}
 
@@ -155,7 +150,6 @@ public class ModuleChat extends SQLModule {
 		ResultSet set;
 		try {
 			String sql = "SELECT * FROM " + TABLE_MESSAGES + " WHERE channel = \"" + channel.getChannelName().toLowerCase() + "\" ORDER BY id DESC LIMIT " + length + ";";
-			println(sql);
 			statement = prepareStatement(sql);
 			set = statement.executeQuery();
 			
@@ -315,5 +309,32 @@ public class ModuleChat extends SQLModule {
 	public String getName()       { return NAME;    }
 	public String getModuleName() { return MODULE;  }
 	public String getVersion()    { return VERSION; }
+
+	public void deleteChannel(ChatChannel channel) {
+		getManager().removeChatChannel(channel);
+		PreparedStatement statement;
+		try {			
+			statement = prepareStatement(
+					"DELETE FROM " + TABLE_CHANNELS + " WHERE name = \"" + channel.getChannelName() + "\"");
+			statement.executeUpdate();
+			statement.close();
+			
+			statement = prepareStatement(
+					"DELETE FROM " + TABLE_MESSAGES + " WHERE channel = \"" + channel.getChannelName().toLowerCase() + "\"");
+			statement.executeUpdate();
+			statement.close();
+			
+			statement = prepareStatement(
+					"DROP TABLE IF EXISTS " + "sledgehammer_channel_" + channel.getChannelName() + "_history;");
+			statement.executeUpdate();
+			statement.close();
+			
+			// Removes all players from the channel.
+			channel.removeAllPlayers();
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
 
 }

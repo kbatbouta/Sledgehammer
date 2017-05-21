@@ -67,7 +67,7 @@ public class ChatMessage extends LuaTable {
 
 	@Override
 	public void onLoad(KahluaTable table) {
-		setID(new Double(table.rawget("messageID").toString()).longValue());
+		setID(new Long(table.rawget("messageID").toString()));
 		setChannel(table.rawget("channel").toString());
 		setMessage(table.rawget("message").toString());
 		setOriginalMessage(table.rawget("messageOriginal").toString());
@@ -112,7 +112,7 @@ public class ChatMessage extends LuaTable {
 
 	@Override
 	public void onExport() {
-		set("messageID", getMessageID());
+		set("messageID", "" + getMessageID());
 		set("channel", getChannel());
 		set("message", getMessage());
 		set("messageOriginal", getOriginalMessage());

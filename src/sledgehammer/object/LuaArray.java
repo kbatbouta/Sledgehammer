@@ -13,6 +13,11 @@ public class LuaArray<T> extends LuaObject {
 		array = new LinkedList<>();
 	}
 	
+	public LuaArray(List<T> other) {
+		super("Array");
+		array = new LinkedList<>(other);
+	}
+	
 	public LuaArray(KahluaTable table) {
 		super("Array");
 		array = new LinkedList<>();

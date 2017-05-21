@@ -1,6 +1,9 @@
 package sledgehammer.objects.chat;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +17,7 @@ import sledgehammer.objects.Player;
 import sledgehammer.objects.send.SendChatChannel;
 import sledgehammer.objects.send.SendChatMessage;
 import sledgehammer.objects.send.SendChatMessagePlayer;
+import sledgehammer.objects.send.SendRemoveChatChannel;
 
 /**
  * TODO: Document.
@@ -22,7 +26,7 @@ import sledgehammer.objects.send.SendChatMessagePlayer;
  * @author Jab
  *
  */
-public class ChatChannel extends LuaTable {
+public class ChatChannel extends LuaTable  {
 	
 	public static final int CHANNEL_HISTORY_SIZE = 512;
 	
@@ -42,9 +46,13 @@ public class ChatChannel extends LuaTable {
 	
 	private SendChatChannel send;
 	
+	private SendRemoveChatChannel sendRemove;
+	
 	private SendChatMessage sendMessage;
 	
 	private SendChatMessagePlayer sendMessagePlayer;
+	
+	private ChatChannelComparator comparator;
 	
 	public ChatChannel(String name) {
 		super("chatChannel");
@@ -52,8 +60,11 @@ public class ChatChannel extends LuaTable {
 		listMessages = new LinkedList<ChatMessage>();
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
+		sendRemove = new SendRemoveChatChannel(this);
+		
 		sendMessage = new SendChatMessage();
 		sendMessagePlayer = new SendChatMessagePlayer();
+		comparator = new ChatChannelComparator();
 	}
 	
 	public ChatChannel(KahluaTable table) {
@@ -126,9 +137,6 @@ public class ChatChannel extends LuaTable {
 	}
 	
 	public void addMessage(ChatMessage chatMessage) {
-		
-		println("Adding Message: " + chatMessage.getMessage());
-		
 		// Only add new messages.
 		if(!listMessages.contains(chatMessage)) {
 			listMessages.add(chatMessage);
@@ -201,15 +209,20 @@ public class ChatChannel extends LuaTable {
 	}
 	
 	public LuaArray<ChatMessage> getLastMessages(int amount) {
-		LuaArray<ChatMessage> listLastMessages = new LuaArray<>();
+		List<ChatMessage> listLastMessages = new ArrayList<>();
 		int size = listMessages.size();
 		
-		for(int index = size - 1; index > size - 33; index--) {
+		for(int index = size - 1; index >= size - 33; index--) {
 			if(index < 0) break;
 			listLastMessages.add(listMessages.get(index));
 		}
 		
-		return listLastMessages;
+		Collections.sort(listLastMessages, comparator);
+		
+		LuaArray<ChatMessage> array = new LuaArray<>(listLastMessages);
+		
+		
+		return array;
 	}
 
 	public boolean canPlayerSee(Player player) {
@@ -241,6 +254,50 @@ public class ChatChannel extends LuaTable {
 	
 	public void setID(int id) {
 		this.id = id;
+	}
+	
+	public Collection<Player> getPlayers() {
+		return mapPlayersSent.values();
+	}
+	
+	public void removeAllPlayers() {
+		for(Player player : mapPlayersSent.values()) {
+			
+			// Send a command to remove the channel.
+			SledgeHammer.instance.send(sendRemove, player);
+			
+			// Remove the player from the list.
+			mapPlayersSent.remove(player.getName());
+		}
+	}
+	
+	public void removePlayer(Player player) {
+		
+		// If the player has the channel loaded.
+		if(mapPlayersSent.get(player.getName()) != null) {
+			
+			// Send a command to remove the channel.
+			SledgeHammer.instance.send(sendRemove, player);
+			
+			// Remove the player from the list.
+			mapPlayersSent.remove(player.getName());
+		}
+	}
+	
+	private class ChatChannelComparator implements Comparator<ChatMessage> {
+
+		@Override
+		public int compare(ChatMessage a, ChatMessage b) {
+			int i = 0;
+			if (a.getMessageID() < b.getMessageID()) {
+				i = -1;
+			} else
+			if (a.getMessageID() > b.getMessageID()) {
+				i = 1;
+			}
+			return i;
+		}
+		
 	}
 	
 }

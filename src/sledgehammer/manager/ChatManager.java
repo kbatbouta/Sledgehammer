@@ -80,12 +80,19 @@ public class ChatManager extends Manager implements EventListener {
 		SledgeHammer.instance.unregister(this);
 	}
 	
+	public void addChatChannelNoBroadcast(ChatChannel channel) {
+		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
+		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+		moduleChat.addChannel(channel);
+		
+	}
+	
 	public void addChatChannel(ChatChannel channel) {
 		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
 		
-		if(SledgeHammer.instance.isStarted()) {
-			broadcastChannel(channel);
-		}
+//		if(SledgeHammer.instance.isStarted()) {
+//			broadcastChannel(channel);
+//		}
 	}
 	
 	public ChatChannel addChatChannel(String name) {
@@ -482,6 +489,10 @@ public class ChatManager extends Manager implements EventListener {
 	 */
 	public String warnPlayerDirty(String commander, String username, String text) {
 		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
+	}
+
+	public void removeChatChannel(ChatChannel channel) {
+		this.mapChannels.remove(channel.getChannelName().toLowerCase());
 	}
 	
 }
