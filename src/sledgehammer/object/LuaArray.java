@@ -21,6 +21,20 @@ public class LuaArray<T> extends LuaObject {
 	public LuaArray(KahluaTable table) {
 		super("Array");
 		array = new LinkedList<>();
+		
+		for(int index = 0; index < table.size(); index++) {
+			Object nextObject = table.rawget(index);
+			if(nextObject != null) {
+				add((T) nextObject);
+			}
+		}
+	}
+
+	public LuaArray(T[] args) {
+		super("Array");
+		for(T t : args) {
+			add(t);
+		}
 	}
 
 	public void add(T t) {
@@ -56,5 +70,11 @@ public class LuaArray<T> extends LuaObject {
 	
 	public int size() {
 		return array.size();
+	}
+
+	public T[] toArray() {
+		Object[] array = new Object[this.array.size()];
+		array = this.array.toArray(array);
+		return (T[])array;
 	}
 }
