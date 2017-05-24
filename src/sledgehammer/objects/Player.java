@@ -29,7 +29,10 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import sledgehammer.event.PlayerCreatedEvent;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaTable;
+import sledgehammer.objects.chat.ChatChannel;
+import sledgehammer.objects.chat.ChatMessage;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;
@@ -365,6 +368,11 @@ public class Player extends LuaTable {
 
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
+	}
+
+	public void sendMessage(ChatMessage message) {
+		ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(message.getChannel());
+		channel.sendMessage(message, this);
 	}
 	
 }

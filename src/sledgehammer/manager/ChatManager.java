@@ -490,6 +490,7 @@ public class ChatManager extends Manager implements EventListener {
 	public String warnPlayerDirty(String commander, String username, String text) {
 		return messagePlayerDirty(username, "[WARNING]["+ commander + "]: ", COLOR_LIGHT_RED, text, COLOR_LIGHT_RED, true, true);
 	}
+	
 
 	public void removeChatChannel(ChatChannel channel) {
 		this.mapChannels.remove(channel.getChannelName().toLowerCase());

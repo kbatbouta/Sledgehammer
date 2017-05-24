@@ -27,9 +27,11 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.module.SQLModule;
+import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ZUtil;
 import zombie.network.DataBaseBuffer;
 import zombie.network.ServerWorldDatabase;
@@ -348,8 +350,16 @@ public class ModuleCore extends SQLModule {
 		unregister(clientListener);
 	}
 
+	public void onClientCommand(ClientEvent e) {
+		if(e.getCommand().equalsIgnoreCase("sendCommand")) {
+			KahluaTable table = (KahluaTable) e.getTable().rawget("command");
+			Command command = new Command(table);
+			command.setPlayer(e.getPlayer());
+			SledgeHammer.instance.handleCommand(command);
+		}
+	}
+
 	public void onUnload() {}
-	public void onClientCommand(ClientEvent e) {}
 	public String getID()         { return ID     ; }
 	public String getName()       { return NAME   ; }
 	public String getModuleName() { return MODULE; }

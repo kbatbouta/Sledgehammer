@@ -17,15 +17,21 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.event.CommandEvent;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.Command;
+import sledgehammer.util.Response;
 
+/**
+ * TODO: Document.
+ * @author Jab
+ *
+ */
 public interface CommandListener {
 	String[] getCommands();
 	
-	public void onCommand(CommandEvent command);
+	public void onCommand(Command command, Response response);
 	
-	public String onTooltip(Player player, String command);
+	public String onTooltip(Player player, Command command);
 	
-	public String getPermissionContext(String command);
+	public String getPermissionContext(String context);
 }

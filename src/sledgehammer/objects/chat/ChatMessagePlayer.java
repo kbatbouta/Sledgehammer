@@ -19,6 +19,13 @@ public class ChatMessagePlayer extends ChatMessage {
 		super(table);
 		setID(id);
 	}
+	
+	public ChatMessagePlayer(Player player, String message) {
+		super(message);
+		setName("ChatMessagePlayer");
+		setPlayer(player);
+		setID(System.nanoTime());
+	}
 
 	public ChatMessagePlayer(long messageID, String channel, String message, String messageOriginal,
 			boolean edited, int editorID, boolean deleted, int deleterID, long modifiedTimestamp, String time, int playerID, String playerName) {

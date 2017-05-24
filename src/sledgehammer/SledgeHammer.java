@@ -40,6 +40,7 @@ import sledgehammer.manager.PlayerManager;
 import sledgehammer.modules.core.CoreContextListener;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.Command;
 import sledgehammer.objects.send.Send;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -482,6 +483,14 @@ public class SledgeHammer extends Printable {
 	 */
 	public CommandEvent handleCommand(UdpConnection connection, String input) {
 		return getEventManager().handleCommand(connection, input, true);
+	}
+	
+	/**
+	 * TODO: Document.
+	 * @param command
+	 */
+	public void handleCommand(Command command) {
+		getEventManager().handleCommand(new CommandEvent(command), true);
 	}
 	
 	/**

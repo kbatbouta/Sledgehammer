@@ -27,8 +27,11 @@ import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.ChatMessagePlayer;
+import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Printable;
+import sledgehammer.util.Response;
 import sledgehammer.util.Result;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -48,6 +51,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
 
 	private Map<String, String> mapContexts;
 	private Map<String, String> mapTooltips;
+	
+	public static final Command commandProperties = new Command("properties");
 	
 	public CoreCommandListener(ModuleCore module) {
 		this.module = module;
@@ -96,7 +101,10 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	}
 	
 	@Override
-	public String onTooltip(Player player, String command) {
+	public String onTooltip(Player player, Command c) {
+		
+		String command = c.getCommand();
+		
 		if(player == null) return null;
 		if(command == null || command.isEmpty()) return null;
 		
@@ -137,14 +145,14 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		return mapContexts.get(command);
 	}
 
-	public void onCommand(CommandEvent c) {
-		Player player = c.getPlayer();
+	public void onCommand(Command com, Response r) {
+		Player player = com.getPlayer();
 		String username = player.getUsername();
-		String command = c.getCommand();
-		String[] args = c.getArguments();
+		String command = com.getCommand();
+		String[] args = com.getArguments();
 		String response = null;
 		
-		if(DEBUG) println("Command fired by " + username + ": " + c.getRaw());
+		if(DEBUG) println("Command fired by " + username + ": " + com.getRaw());
 		
 //		if(command.startsWith("purge")) {
 //			if(module.hasPermission(username, getPermissionContext("purge"))) {
@@ -159,10 +167,10 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
-				c.setResponse(Result.SUCCESS, ChatTags.listColors());
+				r.set(Result.SUCCESS, ChatTags.listColors());
 				return;
 			} else {
-				c.deny();
+				r.deny();
 				return;
 			}
 		}
@@ -179,7 +187,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     				}
     				
     				if(playerPM == null) {
-    					c.setResponse(Result.FAILURE, "Could not find player: " + playerName);
+    					r.set(Result.FAILURE, "Could not find player: " + playerName);
     					return;
     				}
     		
@@ -188,25 +196,29 @@ public class CoreCommandListener extends Printable implements CommandListener {
     					playerName = playerPM.getUsername();
     				}
     				
-    				String msg = c.getRaw().split(args[0])[1].trim();
+    				String msg = com.getRaw().split(args[0])[1].trim();
     				
 //    				String msg = "";
 //    				for(int x = 1; x < args.length; x++) {
 //    					msg += args[x] + " ";
 //    				}
 //    				msg = msg.substring(0, msg.length() - 1);
-    				
-    				response = module.privateMessageDirty(commanderName, playerName, msg);
-    				c.setResponse(Result.SUCCESS, response);
-    				c.setLoggedMessage(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
+    				Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
+    				if(playerDirty != null) {
+    					ChatMessagePlayer chatMessage = new ChatMessagePlayer(com.getPlayer(), msg);
+    					playerDirty.sendMessage(chatMessage);
+    					
+    					r.set(Result.SUCCESS, response);
+    					r.log(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
+    				}
     				return;
     			} else {
     				response = "/pm [player] [message...]";
-    				c.setResponse(Result.SUCCESS, response);
+    				r.set(Result.SUCCESS, response);
     				return;
     			}
     		} else {
-    			c.deny();
+    			r.deny();
     			return;
     		}
         } else
@@ -221,22 +233,22 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						}
 						msg = msg.substring(0, msg.length() - 1);
 						response = module.warnPlayerDirty(username, playerName, msg);
-						c.setResponse(Result.SUCCESS, response);
-						c.setLoggedMessage(LogEvent.LogType.STAFF,
+						r.set(Result.SUCCESS, response);
+						r.log(LogEvent.LogType.STAFF,
 								"WARNED " + playerName + " with message: \"" + msg + "\".");
 						return;
 					} else {
 						response = "/warn [player] [message...]";
-						c.setResponse(Result.FAILURE, response);
+						r.set(Result.FAILURE, response);
 						return;
 					}
 				} else {
 					response = "Permission denied.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 			} else {
-				c.deny();
+				r.deny();
 				return;
 			}
         } else
@@ -248,16 +260,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
         			module.broadcastMessage(args[1], color);        		
         			
         			response = "Broadcast sent.";
-        			c.setResponse(Result.SUCCESS, response);
-        			c.setLoggedMessage(LogEvent.LogType.STAFF, player.getUsername() + " broadcasted message: \"" + args[1] + "\".");
+        			r.set(Result.SUCCESS, response);
+        			r.log(LogEvent.LogType.STAFF, player.getUsername() + " broadcasted message: \"" + args[1] + "\".");
         			return;
         		} else {
         			response = "/broadcast \"color\" \"message\"...";
-        			c.setResponse(Result.FAILURE, response);
+        			r.set(Result.FAILURE, response);
         			return;
         		}
         	} else {
-        		c.deny();
+        		r.deny();
         		return;
         	}
         } else
@@ -269,12 +281,12 @@ public class CoreCommandListener extends Printable implements CommandListener {
         			iso.DoDeath(iso.bareHands, iso, true);
         		}
         		response = "Done.";
-        		c.setResponse(Result.SUCCESS, response);
-        		c.setLoggedMessage(LogEvent.LogType.INFO, player.getUsername() + " commited suicide.");
+        		r.set(Result.SUCCESS, response);
+        		r.log(LogEvent.LogType.INFO, player.getUsername() + " commited suicide.");
         		
         		return;
         	} else {
-        		c.deny();
+        		r.deny();
         		return;
         	}
         } else
@@ -287,8 +299,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
         		} else if(args.length == 1) {
         			playerProperties = SledgeHammer.instance.getPlayer(username);
         		} else {
-        			response = onTooltip(c.getPlayer(),"properties");
-        			c.setResponse(Result.FAILURE, response);
+        			response = onTooltip(com.getPlayer(), com);
+        			r.set(Result.FAILURE, response);
         			return;
         		}
         		
@@ -302,17 +314,17 @@ public class CoreCommandListener extends Printable implements CommandListener {
         				response += key + ": " + value + ChatTags.NEW_LINE + " ";
         			}
         			
-        			c.setResponse(Result.SUCCESS, response);
-        			c.setLoggedMessage(LogEvent.LogType.INFO, username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
+        			r.set(Result.SUCCESS, response);
+        			r.log(LogEvent.LogType.INFO, username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
         			
         		} else {
-        			response = onTooltip(c.getPlayer(), "properties");
-        			c.setResponse(Result.FAILURE, response);
+        			response = onTooltip(com.getPlayer(), com);
+        			r.set(Result.FAILURE, response);
         			return;
         		}
         		
         	} else {
-        		c.deny();
+        		r.deny();
         		return;
         	}
 		} else
@@ -320,19 +332,19 @@ public class CoreCommandListener extends Printable implements CommandListener {
         	if(module.hasPermission(username, getPermissionContext("ban"))) {        		
         		if(args.length > 0) {        		
         			try {
-        				ban(c, args);
+        				ban(com, r, args);
         				return;
         			} catch (SQLException e) {
         				println("SQL Error on command: Ban");
         				e.printStackTrace();
         			}
         		} else {
-        			response = onTooltip(c.getPlayer(),"ban");
-        			c.setResponse(Result.FAILURE, response);
+        			response = onTooltip(com.getPlayer(), com);
+        			r.set(Result.FAILURE, response);
         			return;
         		}
         	} else {
-        		c.deny();
+        		r.deny();
         		return;
         	}
         } else
@@ -340,19 +352,19 @@ public class CoreCommandListener extends Printable implements CommandListener {
         	if(module.hasPermission(username, getPermissionContext("unban"))) {        		
         		if(args.length > 0) {        		
         			try {
-        				unban(c, args);
+        				unban(com, r, args);
         				return;
         			} catch (SQLException e) {
         				println("SQL Error on command: Unban");
         				e.printStackTrace();
         			}
         		} else {
-        			response = onTooltip(c.getPlayer(), "unban");
-        			c.setResponse(Result.FAILURE, response);
+        			response = onTooltip(com.getPlayer(), com);
+        			r.set(Result.FAILURE, response);
         			return;
         		}
         	} else {
-        		c.deny();
+        		r.deny();
         		return;
         	}
         } else
@@ -374,19 +386,19 @@ public class CoreCommandListener extends Printable implements CommandListener {
     			String toggle = "on";
     			if(muted.equals("0")) toggle = "off";
     			
-    			c.setResponse(Result.SUCCESS, response);
-    			c.setLoggedMessage(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
+    			r.set(Result.SUCCESS, response);
+    			r.log(LogEvent.LogType.INFO, username + " turned " + toggle + " global chat.");
     			return;
     		} else {
-    			c.deny();
+    			r.deny();
     			return;
     		}
 		}
 	}
 	
-	private void ban(CommandEvent c, String[] args) throws SQLException {
+	private void ban(Command com, Response r, String[] args) throws SQLException {
 		String response = null;
-		String commander = c.getPlayer().getUsername();
+		String commander = com.getPlayer().getUsername();
 		
 		if(args.length > 1) {
 			String username   = null ;
@@ -414,7 +426,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						bIP = true;
 					} else {
 						response = "Cannot infer IP-Ban in Steam mode.";
-						c.setResponse(Result.FAILURE, response);
+						r.set(Result.FAILURE, response);
 						return;
 					}
 				} else
@@ -423,7 +435,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						bSteamID = true;
 					} else {
 						response = "Cannot infer SteamID Ban in Non-Steam mode.";
-						c.setResponse(Result.FAILURE, response);
+						r.set(Result.FAILURE, response);
 						return;
 					}
 				} else
@@ -434,7 +446,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						x++;
 					} else {
 						response = "Cannot IP-Ban in Steam mode.";
-						c.setResponse(Result.FAILURE, response);
+						r.set(Result.FAILURE, response);
 						return;
 					}
 				} else
@@ -445,21 +457,21 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						x++;
 					} else {
 						response = "Cannot SteamID Ban in Non-Steam mode.";
-						c.setResponse(Result.FAILURE, response);
+						r.set(Result.FAILURE, response);
 						return;
 					}
 				} else
 				if( (arg.startsWith("-S") || arg.startsWith("-s") || arg.startsWith("-I") || arg.startsWith("-i") || arg.startsWith("-U") || arg.startsWith("-u") || arg.startsWith("-R") || arg.startsWith("-r"))
 						&& (argN == null || argN.startsWith("-")) ) {
-					response = onTooltip(c.getPlayer(), "ban");
-					c.setResponse(Result.FAILURE, response);
+					response = onTooltip(com.getPlayer(), com);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 			}
 			
 			if(!bIP && !bSteamID && !bUsername) {
-				response = onTooltip(c.getPlayer(), "ban");
-				c.setResponse(Result.FAILURE, response);
+				response = onTooltip(com.getPlayer(), com);
+				r.set(Result.FAILURE, response);
 				return;
 			}
 			
@@ -469,7 +481,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			if(bIP && IP != null && !IP.isEmpty()) {
 				if(SteamUtils.isSteamModeEnabled()) {
 					response = "Cannot IP ban when the server is in Steam mode.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 				
@@ -478,22 +490,22 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				ServerWorldDatabase.instance.banIp(IP, username==null||username.isEmpty()?"NULL":username, reason, true);
 				response = "Banned IP." + username!=null?"":" You must use /unban -I \"" + IP + "\" in order to unban this IP.";
 				kickUser(connectionBanned, reason);
-				c.setResponse(Result.SUCCESS, response);
-				c.setLoggedImportant(true);
-				c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
+				r.set(Result.SUCCESS, response);
+				r.setLoggedImportant(true);
+				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
 				return;
 			}
 			
 			if(bSteamID && SteamID != null && !SteamID.isEmpty()) {
 				if(!SteamUtils.isSteamModeEnabled()) {
 					response = "Cannot Steam-Ban a user while NOT in Steam mode.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 				
 				if(!SteamUtils.isValidSteamID(SteamID)) {
 					response = "Invalid SteamID: \"" + SteamID + "\".";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;					
 				}
 				
@@ -502,15 +514,15 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				ServerWorldDatabase.instance.banSteamID(SteamID, username==null||username.isEmpty()?"NULL":username, reason, true);
 				response = "Steam-Banned Player.";
 				kickUser(connectionBanned, reason);
-				c.setResponse(Result.SUCCESS, response);
-				c.setLoggedImportant(true);
-				c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
+				r.set(Result.SUCCESS, response);
+				r.setLoggedImportant(true);
+				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			}
 			
 			if(!bUsername) {
 				response = "Must have -u \"username\" to use this command!";
-				c.setResponse(Result.FAILURE, response);
+				r.set(Result.FAILURE, response);
 				return;
 			}
 			
@@ -518,13 +530,13 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			if(bIP) {
 				if(SteamUtils.isSteamModeEnabled()) {
 					response = "Cannot IP ban when the server is in Steam mode.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 				
 				if(connectionBanned == null || !connectionBanned.connected) {
 					response = "User must be online in order to imply IP ban.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 				IP = connectionBanned.ip;
@@ -534,30 +546,30 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				ServerWorldDatabase.instance.banIp(IP, username, reason, true);
 				kickUser(connectionBanned, reason);
 				response = "IP-Banned Player.";
-				c.setResponse(Result.SUCCESS, response);
-				c.setLoggedImportant(true);
-				c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
+				r.set(Result.SUCCESS, response);
+				r.setLoggedImportant(true);
+				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
 				return;
 				
 			} else
 			if(bSteamID) {
 				if(!SteamUtils.isSteamModeEnabled()) {
 					response = "Cannot Steam-Ban a user while NOT in Steam mode.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 					
 				}
 				
 				if(connectionBanned == null || !connectionBanned.connected) {
 					response = "User must be online in order to imply Steam-ban.";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;
 				}
 				SteamID = "" + connectionBanned.steamID;
 				
 				if(!SteamUtils.isValidSteamID(SteamID)) {
 					response = "Invalid SteamID: \"" + SteamID + "\".";
-					c.setResponse(Result.FAILURE, response);
+					r.set(Result.FAILURE, response);
 					return;					
 				}
 				
@@ -565,22 +577,22 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				
 				response = ServerWorldDatabase.instance.banSteamID(SteamID, username, reason, true);
 				kickUser(connectionBanned, reason);
-				c.setResponse(Result.SUCCESS, response);
-				c.setLoggedImportant(true);
-				c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
+				r.set(Result.SUCCESS, response);
+				r.setLoggedImportant(true);
+				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			} else {
 				if(reason == null) reason = "Banned.";
 				response = ServerWorldDatabase.instance.banUser(username, true);
 				kickUser(connectionBanned, reason);
-				c.setResponse(Result.SUCCESS, response);
-				c.setLoggedImportant(true);
-				c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " banned " + username + ".");
+				r.set(Result.SUCCESS, response);
+				r.setLoggedImportant(true);
+				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ".");
 				return;
 			}
 		} else {
-			response = onTooltip(c.getPlayer(),"ban");
-			c.setResponse(Result.FAILURE, response);
+			response = onTooltip(com.getPlayer(), com);
+			r.set(Result.FAILURE, response);
 			return;
 		}
 		
@@ -590,14 +602,14 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		PacketHelper.kickUser(connection, reason);
 	}
 	
-	private void unban(CommandEvent c, String[] args) throws SQLException {
+	private void unban(Command com, Response r, String[] args) throws SQLException {
 		
 		boolean bUsername = false;
 		boolean bIP = false;
 		boolean bSteamID = false;
 		
 		String response = null;
-		String commander = c.getPlayer().getUsername();
+		String commander = com.getPlayer().getUsername();
 		
 		String username = null;
 		String IP = null;
@@ -622,15 +634,15 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			} else
 			if( (arg.startsWith("-I") || arg.startsWith("-S") || arg.startsWith("-U") || arg.startsWith("-u"))
 					&& (argN == null || argN.startsWith("-")) ) {
-				response = onTooltip(c.getPlayer(), "ban");
-				c.setResponse(Result.FAILURE, response);
+				response = onTooltip(com.getPlayer(), com);
+				r.set(Result.FAILURE, response);
 				return;
 			}
 		}
 		
 		if(!bIP && !bSteamID && !bUsername) {
-			response = onTooltip(c.getPlayer(), "unban");
-			c.setResponse(Result.FAILURE, response);
+			response = onTooltip(com.getPlayer(), com);
+			r.set(Result.FAILURE, response);
 			return;
 		}
 
@@ -649,13 +661,13 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			response = "Player unbanned.";
 		}
 		
-		c.setResponse(Result.SUCCESS, response);
-		c.setLoggedImportant(true);
-		c.setLoggedMessage(LogEvent.LogType.STAFF, commander + " unbanned " + username + ".");
+		r.set(Result.SUCCESS, response);
+		r.setLoggedImportant(true);
+		r.log(LogEvent.LogType.STAFF, commander + " unbanned " + username + ".");
 		return;
 	}
 
 	@Override
 	public String getName() { return "Core"; }
-	
+
 }

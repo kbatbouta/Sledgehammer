@@ -22,11 +22,12 @@ import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
-import sledgehammer.event.CommandEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.module.SQLModule;
 import sledgehammer.npc.behavior.BehaviorSurvive;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.Command;
+import sledgehammer.util.Response;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
 import zombie.characters.IsoGameCharacter;
@@ -68,7 +69,7 @@ public class ModuleNPC extends SQLModule {
 				return new String[] { "addnpc", "destroynpcs"};
 			}
 
-			public void onCommand(CommandEvent c) {
+			public void onCommand(Command c, Response r) {
 				String command = c.getCommand();
 				String[] args = c.getArguments();
 				Player commander = c.getPlayer();
@@ -95,7 +96,7 @@ public class ModuleNPC extends SQLModule {
 										z = player.z;			
 										square = ServerMap.instance.getGridSquare((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 										if(square == null) {											
-											c.setResponse(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
+											r.set(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
 											return;
 										}
 									}
@@ -115,33 +116,33 @@ public class ModuleNPC extends SQLModule {
 							
 							mapSpawners.put(fakePlayer, player);
 							
-							c.setResponse(Result.SUCCESS, "NPC created.");
+							r.set(Result.SUCCESS, "NPC created.");
 							return;
 						} else {
-							c.setResponse(Result.FAILURE, onTooltip(c.getPlayer(), command));
+							r.set(Result.FAILURE, onTooltip(c.getPlayer(), c));
 							return;
 						}
 					} else {
-						c.setResponse(Result.FAILURE, getPermissionDeniedMessage());
+						r.set(Result.FAILURE, getPermissionDeniedMessage());
 						return;
 					}
 				} else if(command.equalsIgnoreCase("destroynpcs")) {
 					if(module.hasPermission(commanderName, getPermissionContext("destroynpcs"))) {						
 						SledgeHammer.instance.getNPCManager().destroyNPCs();
-						c.setResponse(Result.SUCCESS, "NPCs destroyed.");
+						r.set(Result.SUCCESS, "NPCs destroyed.");
 					} else {
-						c.setResponse(Result.FAILURE, getPermissionDeniedMessage());
+						r.set(Result.FAILURE, getPermissionDeniedMessage());
 						return;
 					}
 				}
 			}
 
-			public String onTooltip(Player player, String command) {
-				if(module.hasPermission(player.getUsername(), getPermissionContext(command))) {
-					if(command.equalsIgnoreCase("addnpc")) {
+			public String onTooltip(Player player, Command command) {
+				if(module.hasPermission(player.getUsername(), getPermissionContext(command.getCommand()))) {
+					if(command.getCommand().equalsIgnoreCase("addnpc")) {
 						return "Adds a fake player at current location. ex: /addnpc \"name\"";
 					} else 
-					if(command.equalsIgnoreCase("destroynpcs")) {
+					if(command.getCommand().equalsIgnoreCase("destroynpcs")) {
 						return "Destroys all active NPCs.";
 					}
 				}
@@ -157,6 +158,7 @@ public class ModuleNPC extends SQLModule {
 				}
 				return null;
 			}
+
 		};
 	
 		register(commandListener);

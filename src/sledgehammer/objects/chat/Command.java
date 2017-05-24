@@ -6,6 +6,7 @@ import java.util.List;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.object.LuaArray;
 import sledgehammer.object.LuaTable;
+import sledgehammer.objects.Player;
 
 /**
  * TODO: Document.
@@ -16,6 +17,8 @@ public class Command extends LuaTable {
 	private String command;
 	private String[] args = new String[0];
 	private String raw = null;
+	private Player player;
+	private String channel;
 	
 	public Command(String raw) {
 		super("Command");
@@ -25,11 +28,22 @@ public class Command extends LuaTable {
 	public Command(String command, String[] args) {
 		super("Command");
 		this.command = command;
-		this.args = args;
+		if(args != null) {			
+			this.args = args;
+		}
+	}
+	
+	public Player getPlayer() {
+		return this.player;
+	}
+	
+	public void setPlayer(Player player) {
+		this.player = player;
 	}
 	
 	public Command(KahluaTable table) {
 		super("Command", table);
+		println("Raw: " + getRaw());
 	}
 	
 	public String getCommand() {
@@ -55,16 +69,29 @@ public class Command extends LuaTable {
 	}
 	
 	public void parse(String raw) {
-		this.raw = raw;
-		command = raw.split(" ")[0];
-		if(command.startsWith("/")) {			
-			command = command.substring(1, command.length());
-		}
-		this.args = getArguments(command, raw);
+
+		//FIXME: Args not properly parsing.
+//		command = new String(raw).trim().split(" ")[0].toLowerCase();
+//		this.args = getArguments(command, raw);
+//		
+//		raw = "/" + command;
+//		for(String arg: args) {
+//			if(arg.contains(" ")) {
+//				raw += " \"" + arg.trim() + "\"";
+//			} else {					
+//				raw += " " + arg.trim();
+//			}
+//		}
 	}
 	
 	public boolean hasArguments() {
 		return this.args != null && this.args.length > 0;
+	}
+	
+	public String getArgumentsAsString() {
+		if(getArguments().length == 0) return null;
+		String raw = getRaw();
+		return raw.substring(command.length() + 2, raw.length());
 	}
 	
 	public void debugPrint() {
@@ -85,20 +112,14 @@ public class Command extends LuaTable {
 	@Override
 	public void onLoad(KahluaTable table) {
 		Object raw = table.rawget("raw");
-		Object command = table.rawget("command");
-		Object args = table.rawget("args");
+		println("Object-raw: " + raw);
 		
-		if(raw != null && command == null) {			
-			parse(raw.toString());
-		} else {
-			command = table.rawget("command").toString();
-			if(args != null) {				
-				LuaArray<String> args2 = new LuaArray<>((KahluaTable) args);
-				this.args = args2.toArray();
-			} else {
-				this.args = new String[0];
-			}
+		Object channel = table.rawget("channel");
+		if(channel != null) {
+			setChannel(channel.toString());
 		}
+		
+		parse(raw.toString());
 	}
 
 	@Override
@@ -106,8 +127,18 @@ public class Command extends LuaTable {
 		set("raw", raw);
 		set("command", command);
 		set("args", new LuaArray<String>(args));
+		set("player", getPlayer());
+		set("channel", getChannel());
+	}
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
 	}
 	
+
 	public static String[] getArguments(String command, String input) {
 		List<String> argCache = new ArrayList<>();
 		String[] args = null;
@@ -160,11 +191,27 @@ public class Command extends LuaTable {
 		return args;
 	}
 	
+	public static String[] subArguments(String[] args, int i) {
+		
+		if(i < 0 && i < args.length) {
+			throw new IllegalArgumentException("I must be 0 or greater, and less than the argument.length.");
+		}
+		
+		if(args == null || args.length < 1) {
+			throw new IllegalArgumentException("Args array is invalid!");
+		}
+		
+		String[] newArgs = new String[args.length - i];
+		for(int x = i; x < args.length; x++) {
+			newArgs[x - i] = args[x];
+		}
+		return newArgs;
+	}
+	
 	public static void main(String[] args) {
 		new Command("/test1 arg1 arg2").debugPrint();
 		new Command("/test2 arg1 \"args and stuff\"").debugPrint();
-		new Command("/test3").debugPrint();
-		new Command("test4").debugPrint();
-		new Command("test5", new String[] {"arg1", "arg2"}).debugPrint();
+		new Command("test3", null).debugPrint();
+		new Command("test4", new String[] {"arg1", "arg2"}).debugPrint();
 	}
 }

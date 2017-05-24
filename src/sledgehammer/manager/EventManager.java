@@ -33,6 +33,7 @@ import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.modules.core.CoreCommandListener;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Result;
 import zombie.core.logger.LoggerManager;
@@ -92,8 +93,8 @@ public class EventManager extends Manager {
 	 * 
 	 * @param command
 	 */
-	private void help(CommandEvent command) {
-
+	private void help(CommandEvent c) {
+		Command command = c.getCommand();
 		Player player = command.getPlayer();
 
 		String response = "Commands: " + NEW_LINE + " " + COLOR_WHITE + " ";
@@ -106,10 +107,10 @@ public class EventManager extends Manager {
 						if (commands != null) {
 							for (String com : listener.getCommands()) {
 								if (com != null) {
-									String tip = listener.onTooltip(player, com.toLowerCase());
+									String tip = listener.onTooltip(player, new Command(com, null));
 									if (tip != null) {
 										response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
-												+ listener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+												+ listener.onTooltip(player, new Command(com, null)) + COLOR_WHITE + " "
 												+ NEW_LINE + " " + NEW_LINE + " ";
 									}
 								}
@@ -127,10 +128,10 @@ public class EventManager extends Manager {
 			if (commands != null) {
 				for (String com : coreCommandListener.getCommands()) {
 					if (com != null) {
-						String tip = coreCommandListener.onTooltip(player, com.toLowerCase());
+						String tip = coreCommandListener.onTooltip(player, new Command(com.toLowerCase()));
 						if (tip != null) {
 							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
-									+ coreCommandListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+									+ coreCommandListener.onTooltip(player, new Command(com.toLowerCase())) + COLOR_WHITE + " "
 									+ NEW_LINE + " " + NEW_LINE + " ";
 						}
 					}
@@ -144,10 +145,10 @@ public class EventManager extends Manager {
 			if (commands != null) {
 				for (String com : vanillaListener.getCommands()) {
 					if (com != null) {
-						String tip = vanillaListener.onTooltip(player, com.toLowerCase());
+						String tip = vanillaListener.onTooltip(player, command);
 						if (tip != null) {
 							response += COLOR_LIGHT_GREEN + " " + com + ": " + COLOR_WHITE + " "
-									+ vanillaListener.onTooltip(player, com.toLowerCase()) + COLOR_WHITE + " "
+									+ vanillaListener.onTooltip(player, command) + COLOR_WHITE + " "
 									+ NEW_LINE + " " + NEW_LINE + " ";
 						}
 					}
@@ -155,7 +156,7 @@ public class EventManager extends Manager {
 			}
 		}
 
-		command.setResponse(Result.SUCCESS, response);
+		c.getResponse().set(Result.SUCCESS, response);
 	}
 
 	/**
@@ -316,7 +317,7 @@ public class EventManager extends Manager {
 		LogEvent logEvent = new LogEvent(event);
 		log(logEvent);
 	}
-
+	
 	/**
 	 * Handles a command.
 	 * 
@@ -345,8 +346,11 @@ public class EventManager extends Manager {
 		else
 			player = getSledgeHammer().getPlayer(connection.username);
 
+		
 		// Create a CommandEvent.
-		CommandEvent c = new CommandEvent(player, input);
+		Command command = new Command(input);
+		command.setPlayer(player);
+		CommandEvent c = new CommandEvent(command);
 
 		// Fire the CommandEvent handle method, and return its result.
 		return handleCommand(c, logEvent);
@@ -359,34 +363,36 @@ public class EventManager extends Manager {
 	 * @param logEvent
 	 * @return
 	 */
-	private CommandEvent handleCommand(CommandEvent c, boolean logEvent) {
+	public CommandEvent handleCommand(CommandEvent c, boolean logEvent) {
 		synchronized (this) {
 			try {
-				String command = c.getCommand();
+				Command com = c.getCommand();
+				String command = com.getCommand();
 
-				Player player = c.getPlayer();
-				if (player.getUsername().equalsIgnoreCase("admin")) {
-					if (command.equalsIgnoreCase("emulate")) {
-						String[] args = c.getArguments();
-						if (args.length > 1) {
-							String name = args[0];
-
-							String commandString = c.getRaw();
-							commandString = commandString.split(name)[1].trim();
-
-							println("CommandString: " + commandString);
-
-							Player playerEmulated = SledgeHammer.instance.getPlayer(name);
-
-							CommandEvent event = new CommandEvent(playerEmulated, commandString);
-							handleCommand(event, logEvent);
-							event.setResponse(event.getResult(), ChatTags.stripTags(event.getResponse(), true));
-							return event;
-						} else {
-							return c;
-						}
-					}
-				}
+				Player player = com.getPlayer();
+//				if (player.getUsername().equalsIgnoreCase("admin")) {
+//					if (command.equalsIgnoreCase("emulate")) {
+//						String[] args = com.getArguments();
+//						if (args.length > 1) {
+//							String name = args[0];
+//
+//							String commandString = com.getRaw();
+//							commandString = commandString.split(name)[1].trim();
+//
+//							Player playerEmulated = SledgeHammer.instance.getPlayer(name);
+//							
+//							Command com2 = new Command(commandString);
+//							com2.setPlayer(playerEmulated);
+//							CommandEvent event = new CommandEvent(com2);
+//							handleCommand(event, logEvent);
+//							
+//							event.getResponse().set(event.getResponse().getResult(), ChatTags.stripTags(event.getResponse().getResponse(), true));
+//							return event;
+//						} else {
+//							return c;
+//						}
+//					}
+//				}
 
 				// If '/help' is fired.
 				if (command.equalsIgnoreCase("help")) {
@@ -402,7 +408,7 @@ public class EventManager extends Manager {
 						// If the listener is not null, fire the
 						// CommandListener.
 						if (listener != null)
-							listener.onCommand(c);
+							listener.onCommand(c.getCommand(), c.getResponse());
 
 						// If the listener set the command as handled, break the
 						// loop.
@@ -417,17 +423,17 @@ public class EventManager extends Manager {
 				// potential.
 				CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
 				if (!c.handled() && vanillaListener != null)
-					vanillaListener.onCommand(c);
+					vanillaListener.onCommand(c.getCommand(), c.getResponse());
 
 				CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
 
 				if (!c.handled() && coreCommandListener != null) {
-					coreCommandListener.onCommand(c);
+					coreCommandListener.onCommand(c.getCommand(), c.getResponse());
 				}
 
 				if (logEvent) {
 					// Iterate the log listeners after the command.
-					if (c.getLoggedMessage() != null) {
+					if (c.getResponse().getLogMessage() != null) {
 						LogEvent entry = new LogEvent(c);
 						for (LogListener listener : listLogListeners) {
 							if (listener != null)
@@ -438,8 +444,8 @@ public class EventManager extends Manager {
 
 				// For console commands, or other methods outside of the game,
 				// this strips the color codes, and replaces '<LINE>' with \n.
-				if (c.getPlayer().getConnection() == null) {
-					c.setResponse(c.getResult(), ChatTags.stripTags(c.getResponse(), true));
+				if (c.getCommand().getPlayer().getConnection() == null) {
+					c.getResponse().set(c.getResponse().getResult(), ChatTags.stripTags(c.getResponse().getResponse(), true));
 				}
 			} catch (Exception e) {
 				println("Error handling command " + c + ": " + e.getMessage());
