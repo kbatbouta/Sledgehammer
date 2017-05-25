@@ -488,9 +488,10 @@ public class SledgeHammer extends Printable {
 	/**
 	 * TODO: Document.
 	 * @param command
+	 * @return 
 	 */
-	public void handleCommand(Command command) {
-		getEventManager().handleCommand(new CommandEvent(command), true);
+	public CommandEvent handleCommand(Command command) {
+		return getEventManager().handleCommand(new CommandEvent(command), true);
 	}
 	
 	/**

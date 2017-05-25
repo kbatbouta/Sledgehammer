@@ -27,6 +27,7 @@ import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
 import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ChatTags;
@@ -178,6 +179,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     		if(module.hasPermission(username, getPermissionContext("pm"))) {    			
     			if(args.length >= 2) {
     				String playerName = args[0];
+    				println("playerName: " + playerName);
     				
     				IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
     				
@@ -191,25 +193,18 @@ public class CoreCommandListener extends Printable implements CommandListener {
     					return;
     				}
     		
-    				playerName = playerPM.getPublicUsername();
-    				if(playerName == null) {
-    					playerName = playerPM.getUsername();
-    				}
-    				
     				String msg = com.getRaw().split(args[0])[1].trim();
     				
-//    				String msg = "";
-//    				for(int x = 1; x < args.length; x++) {
-//    					msg += args[x] + " ";
-//    				}
-//    				msg = msg.substring(0, msg.length() - 1);
     				Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
     				if(playerDirty != null) {
     					ChatMessagePlayer chatMessage = new ChatMessagePlayer(com.getPlayer(), msg);
+    					chatMessage.setOrigin(ChatMessage.ORIGIN_CLIENT);
+    					chatMessage.setChannel(com.getChannel());
+    					chatMessage.setTime();
     					playerDirty.sendMessage(chatMessage);
     					
-    					r.set(Result.SUCCESS, response);
-    					r.log(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerName + " with message: \"" + msg + "\".");
+    					r.set(Result.SUCCESS, "Message sent.");
+    					r.log(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName() + " with message: \"" + msg + "\".");
     				}
     				return;
     			} else {

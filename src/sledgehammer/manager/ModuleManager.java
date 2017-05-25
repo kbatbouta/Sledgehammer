@@ -444,9 +444,9 @@ public final class ModuleManager extends Manager {
 			}
 		}
 		
-		if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
-			moduleCore.onClientCommand(e);
-		}
+//		if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
+//			moduleCore.onClientCommand(e);
+//		}
 		
 	}
 

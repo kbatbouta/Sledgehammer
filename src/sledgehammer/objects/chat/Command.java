@@ -1,6 +1,7 @@
 package sledgehammer.objects.chat;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import se.krka.kahlua.vm.KahluaTable;
@@ -41,6 +42,10 @@ public class Command extends LuaTable {
 		this.player = player;
 	}
 	
+	/**
+	 * FIXME: Something's wrong with args assignment.
+	 * @param table
+	 */
 	public Command(KahluaTable table) {
 		super("Command", table);
 		println("Raw: " + getRaw());
@@ -69,19 +74,9 @@ public class Command extends LuaTable {
 	}
 	
 	public void parse(String raw) {
-
-		//FIXME: Args not properly parsing.
-//		command = new String(raw).trim().split(" ")[0].toLowerCase();
-//		this.args = getArguments(command, raw);
-//		
-//		raw = "/" + command;
-//		for(String arg: args) {
-//			if(arg.contains(" ")) {
-//				raw += " \"" + arg.trim() + "\"";
-//			} else {					
-//				raw += " " + arg.trim();
-//			}
-//		}
+		command = new String(raw).replace("/", "").replace("!", "").trim().split(" ")[0].toLowerCase();
+		args = tryAgain(raw);
+		this.raw = raw;
 	}
 	
 	public boolean hasArguments() {
@@ -136,6 +131,29 @@ public class Command extends LuaTable {
 
 	public void setChannel(String channel) {
 		this.channel = channel;
+	}
+	
+	public static String[] tryAgain(String input) {
+		char[] chars = input.toCharArray();
+		List<String> args = new LinkedList<>();
+		String arg = "";
+		boolean in = false;
+		for(char c: chars) {
+			// System.out.println("next character: " + c + " : " + (int) c);
+			if(c == ' ')
+				if(!in) {args.add(arg);arg = ""; }
+				else arg += c;
+			else if(c == '\"') in = !in;
+			else arg += c;
+		}
+		
+		if(!arg.isEmpty()) args.add(arg);
+		String[] ret = new String[args.size() - 1];
+		for(int index = 1; index < args.size(); index++) {
+			// System.out.println("arg[" + index + "]: " + args.get(index));
+			ret[index - 1] = args.get(index);
+		}
+		return ret;
 	}
 	
 

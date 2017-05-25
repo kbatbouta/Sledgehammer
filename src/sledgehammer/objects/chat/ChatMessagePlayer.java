@@ -4,6 +4,7 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.objects.Player;
+import zombie.Lua.LuaManager;
 
 public class ChatMessagePlayer extends ChatMessage {
 
@@ -25,6 +26,8 @@ public class ChatMessagePlayer extends ChatMessage {
 		setName("ChatMessagePlayer");
 		setPlayer(player);
 		setID(System.nanoTime());
+		setMessage(message);
+		setOriginalMessage(message);
 	}
 
 	public ChatMessagePlayer(long messageID, String channel, String message, String messageOriginal,
@@ -65,4 +68,5 @@ public class ChatMessagePlayer extends ChatMessage {
 		Player player = SledgeHammer.instance.getPlayer(playerID);
 		setPlayer(player);
 	}
+	
 }

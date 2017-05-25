@@ -56,7 +56,7 @@ public class ModuleChat extends SQLModule {
 	public void onStart() {
 		addChannel(new ChatChannel("Global"));
 		addChannel(new ChatChannel("Local"));
-		addChannel(new ChatChannel("Test"));
+		addChannel(new ChatChannel("PMs"));
 	}
 	
 	public void addChannel(ChatChannel channel) {

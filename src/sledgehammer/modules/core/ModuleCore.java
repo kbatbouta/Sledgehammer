@@ -30,9 +30,13 @@ import com.google.gson.reflect.TypeToken;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.event.CommandEvent;
 import sledgehammer.module.SQLModule;
+import sledgehammer.objects.chat.ChatChannel;
+import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ZUtil;
+import zombie.Lua.LuaManager;
 import zombie.network.DataBaseBuffer;
 import zombie.network.ServerWorldDatabase;
 
@@ -353,9 +357,19 @@ public class ModuleCore extends SQLModule {
 	public void onClientCommand(ClientEvent e) {
 		if(e.getCommand().equalsIgnoreCase("sendCommand")) {
 			KahluaTable table = (KahluaTable) e.getTable().rawget("command");
-			Command command = new Command(table);
+			String raw = table.rawget("raw").toString();
+			String channelName = table.rawget("channel").toString();
+			Command command = new Command(raw);
+			command.setChannel(channelName);
 			command.setPlayer(e.getPlayer());
-			SledgeHammer.instance.handleCommand(command);
+			command.debugPrint();
+			CommandEvent event = SledgeHammer.instance.handleCommand(command);
+			ChatMessage message = new ChatMessage(event.getResponse().getResponse());
+			message.setTime();
+			message.setOrigin(ChatMessage.ORIGIN_SERVER);
+			message.setChannel(channelName);
+			e.getPlayer().sendMessage(message);
+			
 		}
 	}
 

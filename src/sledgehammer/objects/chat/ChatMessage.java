@@ -4,6 +4,7 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaTable;
+import zombie.Lua.LuaManager;
 
 /**
  * TODO: Document.
@@ -37,6 +38,8 @@ public class ChatMessage extends LuaTable {
 		
 		// Sets the message.
 		setMessage(message);
+		
+		setOriginalMessage(message);
 		
 		// Create long as both timestamp and ID.
 		setID(generateMessageID());
@@ -98,7 +101,7 @@ public class ChatMessage extends LuaTable {
 		this.modifiedTimestamp = value;
 	}
 
-	private void setOriginalMessage(String string) {
+	protected void setOriginalMessage(String string) {
 		this.messageOriginal = string;
 	}
 
@@ -204,5 +207,9 @@ public class ChatMessage extends LuaTable {
 	public void save() {
 		ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
 		module.saveMessage(this);
+	}
+	
+	public void setTime() {
+		this.setTime(LuaManager.getHourMinuteJava());
 	}
 }
