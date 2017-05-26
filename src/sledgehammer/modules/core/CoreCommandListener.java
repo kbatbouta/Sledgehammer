@@ -197,12 +197,12 @@ public class CoreCommandListener extends Printable implements CommandListener {
     				
     				Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
     				if(playerDirty != null) {
+    					//FIXME: Add database entry for PMs.
     					ChatMessagePlayer chatMessage = new ChatMessagePlayer(com.getPlayer(), msg);
     					chatMessage.setOrigin(ChatMessage.ORIGIN_CLIENT);
-    					chatMessage.setChannel(com.getChannel());
+    					chatMessage.setChannel("PMs");
     					chatMessage.setTime();
     					playerDirty.sendMessage(chatMessage);
-    					
     					r.set(Result.SUCCESS, "Message sent.");
     					r.log(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName() + " with message: \"" + msg + "\".");
     				}
