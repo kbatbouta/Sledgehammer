@@ -155,17 +155,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(DEBUG) println("Command fired by " + username + ": " + com.getRaw());
 		
-//		if(command.startsWith("purge")) {
-//			if(module.hasPermission(username, getPermissionContext("purge"))) {
-//				response = "Purged " + ServerMap.instance.purgeZombies() + " Zombies. There are " + ServerMap.instance.ZombieMap.size() + " zombie ID(s) currently in the Zombie ID Map. There are currently " + IsoWorld.instance.CurrentCell.getZombieList().size() + " Zombie(s) in the ZombieList." ;
-//				c.setResponse(Result.SUCCESS, response);
-//				return;
-//			} else {
-//				c.deny();
-//				return;
-//			}
-//		}
-		
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
 				r.set(Result.SUCCESS, ChatTags.listColors());
@@ -227,11 +216,28 @@ public class CoreCommandListener extends Printable implements CommandListener {
 							msg += args[x] + " ";
 						}
 						msg = msg.substring(0, msg.length() - 1);
-						response = module.warnPlayerDirty(username, playerName, msg);
-						r.set(Result.SUCCESS, response);
-						r.log(LogEvent.LogType.STAFF,
-								"WARNED " + playerName + " with message: \"" + msg + "\".");
-						return;
+						
+						Player playerDirty = SledgeHammer.instance.getPlayerDirty(playerName);
+						if(playerDirty != null) {							
+							if(playerDirty.isConnected()) {
+								
+								ChatMessagePlayer message = new ChatMessagePlayer(com.getPlayer(), "You have been warned. Reason: " + msg);
+								playerDirty.sendMessageAllChannels(message);
+								response = "Player warned.";
+								r.set(Result.SUCCESS, response);
+								r.log(LogEvent.LogType.STAFF,
+										"WARNED " + playerDirty.getName() + " with message: \"" + msg + "\".");
+								return;
+							} else {							
+								response = "player is not Online: \"" + playerDirty.getName() + "\"";
+								r.set(Result.FAILURE, response);
+								return;
+							}
+						} else {
+							response = "Player not found: " + playerName;
+							r.set(Result.FAILURE, response);
+							return;
+						}
 					} else {
 						response = "/warn [player] [message...]";
 						r.set(Result.FAILURE, response);

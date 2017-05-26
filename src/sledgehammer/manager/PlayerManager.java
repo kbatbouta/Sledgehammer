@@ -66,7 +66,7 @@ public class PlayerManager extends Manager {
 		int id = player.getID();
 		String username = player.getUsername();
 		
-		Player playerCheck = getPlayerByUsername(username);
+		Player playerCheck = getPlayerByUsername(username, false);
 		if(playerCheck != null) return playerCheck;
 		
 		if(!mapPlayersByUserName.containsKey(username)) {			
@@ -114,7 +114,7 @@ public class PlayerManager extends Manager {
 		if(username == null) return null;
 		
 		// Find if the player is already online.
-		player = getPlayerByUsername(username);
+		player = getPlayerByUsername(username, false);
 		
 		// If the player has not online, create an offline version.
 		if(player == null) player = createOfflinePlayer(username);
@@ -135,7 +135,7 @@ public class PlayerManager extends Manager {
 		// Check if username given is valid.
 		if(username == null) throw new IllegalArgumentException("Username given is null!");
 		
-		Player player = getPlayerByUsername(username);
+		Player player = getPlayerByUsername(username, true);
 		
 		// If the player is online, then simply return that copy instead.
 		if(player != null) return player;
@@ -150,10 +150,10 @@ public class PlayerManager extends Manager {
 		return player;
 	}
 	
-	public Player getPlayerByUsername(String username) {
+	public Player getPlayerByUsername(String username, boolean createOnNull) {
 		Player player = mapPlayersByUserName.get(username);
 		
-		if (player == null) {
+		if (player == null && createOnNull) {
 			player = new Player(username);			
 			mapPlayersByUserName.put(username, player);
 			
@@ -181,7 +181,7 @@ public class PlayerManager extends Manager {
 	public Player getPlayerDirty(String name) {
 		
 		// Search by username.
-		Player player = getPlayerByUsername(name);
+		Player player = getPlayerByUsername(name, false);
 		
 		// Search by nickname.
 		if(player == null) {			
@@ -191,7 +191,7 @@ public class PlayerManager extends Manager {
 		// Search dirty for username.
 		if(player == null) {
 			for(Player nextPlayer : getPlayers()) {
-				if(nextPlayer.getUsername().contains(name)) {
+				if(nextPlayer.getUsername().toLowerCase().contains(name.toLowerCase())) {
 					player = nextPlayer;
 					break;
 				}
@@ -201,7 +201,7 @@ public class PlayerManager extends Manager {
 		// Search dirty for nickname.
 		if(player == null) {
 			for(Player nextPlayer : getPlayers()) {
-				if(nextPlayer.getNickname().contains(name)) {
+				if(nextPlayer.getNickname().toLowerCase().contains(name.toLowerCase())) {
 					player = nextPlayer;
 					break;
 				}

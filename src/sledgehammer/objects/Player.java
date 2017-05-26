@@ -1,6 +1,7 @@
 package sledgehammer.objects;
 
 import java.util.HashMap;
+import java.util.List;
 
 /*
 This file is part of Sledgehammer.
@@ -29,6 +30,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import sledgehammer.event.PlayerCreatedEvent;
+import sledgehammer.manager.ChatManager;
 import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.chat.ChatChannel;
@@ -378,6 +380,18 @@ public class Player extends LuaTable {
 		} else {			
 			channel.sendMessage(message, this);
 		}
+	}
+
+	public void sendMessageAllChannels(ChatMessagePlayer message) {
+		String oldChannel = message.getChannel();
+		ChatChannel channel = ChatManager.chatChannelAll;
+		message.setChannel("*");
+		if(message instanceof ChatMessagePlayer) {
+			channel.sendMessagePlayer((ChatMessagePlayer)message, this);
+		} else {			
+			channel.sendMessage(message, this);
+		}
+		message.setChannel(oldChannel);
 	}
 	
 }

@@ -56,6 +56,8 @@ public class ChatManager extends Manager implements EventListener {
 	public Map<String, ChatChannel> mapChannels;
 	private LinkedHashMap<Long, ChatMessage> mapMessagesByID;
 	
+	public static ChatChannel chatChannelAll = new ChatChannel("*");
+	
 	public ChatManager(SledgeHammer sledgeHammer) {
 
 		mapChannels = new HashMap<>();

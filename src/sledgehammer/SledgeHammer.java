@@ -553,7 +553,7 @@ public class SledgeHammer extends Printable {
 		
 		if(username == null) return null;
 		
-		Player player = getPlayerManager().getPlayerByUsername(username);
+		Player player = getPlayerManager().getPlayerByUsername(username, false);
 		
 		if(player == null) {
 			player = getPlayerManager().createOfflinePlayer(username);

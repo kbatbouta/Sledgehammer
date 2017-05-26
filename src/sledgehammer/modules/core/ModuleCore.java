@@ -364,12 +364,19 @@ public class ModuleCore extends SQLModule {
 			command.setPlayer(e.getPlayer());
 			command.debugPrint();
 			CommandEvent event = SledgeHammer.instance.handleCommand(command);
-			ChatMessage message = new ChatMessage(event.getResponse().getResponse());
-			message.setTime();
-			message.setOrigin(ChatMessage.ORIGIN_SERVER);
-			message.setChannel(channelName);
-			e.getPlayer().sendMessage(message);
-			
+			if(event.isHandled()) {				
+				ChatMessage message = new ChatMessage(event.getResponse().getResponse());
+				message.setTime();
+				message.setOrigin(ChatMessage.ORIGIN_SERVER);
+				message.setChannel(channelName);
+				e.getPlayer().sendMessage(message);
+			} else {
+				ChatMessage message = new ChatMessage("Unknown command: " + command.getCommand());
+				message.setTime();
+				message.setOrigin(ChatMessage.ORIGIN_SERVER);
+				message.setChannel(channelName);
+				e.getPlayer().sendMessage(message);
+			}
 		}
 	}
 

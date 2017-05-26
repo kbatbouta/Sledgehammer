@@ -43,6 +43,12 @@ public class ChatMessage extends LuaTable {
 		
 		// Create long as both timestamp and ID.
 		setID(generateMessageID());
+		
+		// If the time is not set manually, create it for now.
+		setTime();
+		
+		// If the origin is not set manually, set it to server.
+		setOrigin(ORIGIN_SERVER);
 	}
 	
 	public ChatMessage(long id, String channel, String message, String messageOriginal,
@@ -133,7 +139,9 @@ public class ChatMessage extends LuaTable {
 	}
 	
 	public void setChannel(String channel) {
-		channel = channel.toLowerCase().trim();
+		if(channel != null) {			
+			channel = channel.toLowerCase().trim();
+		}
 		
 		if(this.channel == null || !this.channel.equals(channel)) {			
 			this.channel = channel;
