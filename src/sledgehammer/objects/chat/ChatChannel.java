@@ -161,7 +161,7 @@ public class ChatChannel extends LuaTable  {
 		
 		if(chatMessage instanceof ChatMessagePlayer) {			
 			for(Player player : SledgeHammer.instance.getPlayers()) {
-				if(this.getName().toLowerCase().equals("local")) {
+				if(this.getChannelName().toLowerCase().equals("local")) {
 					if(player.isWithinLocalRange(((ChatMessagePlayer)chatMessage).getPlayer())){
 						sendMessagePlayer((ChatMessagePlayer) chatMessage, player);						
 					}
