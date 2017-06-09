@@ -31,10 +31,14 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.CommandEvent;
+import sledgehammer.event.HandShakeEvent;
 import sledgehammer.module.SQLModule;
+import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.Command;
+import sledgehammer.objects.send.SendPlayer;
+import sledgehammer.requests.RequestInfo;
 import sledgehammer.util.ZUtil;
 import zombie.Lua.LuaManager;
 import zombie.network.DataBaseBuffer;
@@ -69,8 +73,11 @@ public class ModuleCore extends SQLModule {
 	private long timeThenPeriodicMessages   = 0L;
 	private long timeThenCheckAccountExpire = 0L;
 	
+	private SendPlayer sendPlayer;
+	
 	public ModuleCore() {
 		super(DataBaseBuffer.getDatabaseConnection());
+		sendPlayer = new SendPlayer();
 	}
 	
 	private void validateTables() {
@@ -355,31 +362,78 @@ public class ModuleCore extends SQLModule {
 	}
 
 	public void onClientCommand(ClientEvent e) {
-		if(e.getCommand().equalsIgnoreCase("sendCommand")) {
+		
+		// Cast to proper Event sub-class.
+		ClientEvent event = (ClientEvent) e;
+		
+		// Get event content.
+		String module     = event.getModule();
+		String command    = event.getCommand();
+		Player player     = event.getPlayer();
+		
+		if (command.equalsIgnoreCase("handshake")) {
+			
+			// We just want to ping back to the client saying we received the request.
+			event.respond();
+
+			// Create a HandShakeEvent.
+			HandShakeEvent handshakeEvent = new HandShakeEvent(player);
+			
+			// Handle the event.
+			SledgeHammer.instance.handle(handshakeEvent);
+			
+		} else if(command.equalsIgnoreCase("requestInfo")) {
+				
+			RequestInfo info = new RequestInfo();
+			info.setSelf(player);
+
+			event.respond(info);
+			
+		} else if(command.equalsIgnoreCase("sendCommand")) {
+			
 			KahluaTable table = (KahluaTable) e.getTable().rawget("command");
 			String raw = table.rawget("raw").toString();
 			String channelName = table.rawget("channel").toString();
-			Command command = new Command(raw);
-			command.setChannel(channelName);
-			command.setPlayer(e.getPlayer());
-			command.debugPrint();
-			CommandEvent event = SledgeHammer.instance.handleCommand(command);
-			if(event.isHandled()) {				
-				ChatMessage message = new ChatMessage(event.getResponse().getResponse());
+			Command _command = new Command(raw);
+			_command.setChannel(channelName);
+			_command.setPlayer(e.getPlayer());
+			_command.debugPrint();
+			CommandEvent _event = SledgeHammer.instance.handleCommand(_command);
+			if(_event.isHandled()) {				
+				ChatMessage message = new ChatMessage(_event.getResponse().getResponse());
 				message.setTime();
 				message.setOrigin(ChatMessage.ORIGIN_SERVER);
+				
+				ChatChannel channel = getChatManager().getChannel(channelName);
+				if(channel == null) {
+					channelName = "Global";
+				}
+				
 				message.setChannel(channelName);
 				e.getPlayer().sendMessage(message);
 			} else {
-				ChatMessage message = new ChatMessage("Unknown command: " + command.getCommand());
+				ChatMessage message = new ChatMessage("Unknown command: " + command);
 				message.setTime();
 				message.setOrigin(ChatMessage.ORIGIN_SERVER);
+				
+				// Checks if the origin Channel is avaliable.
+				// This can sometimes be affected by the command fired.
+				ChatChannel channel = getChatManager().getChannel(channelName);
+				if(channel == null) {
+					channelName = "Global";
+				}
+				
 				message.setChannel(channelName);
 				e.getPlayer().sendMessage(message);
 			}
 		}
 	}
 
+	public void updatePlayer(Player player) {
+		sendPlayer.setPlayer(player);
+		SledgeHammer.instance.send(sendPlayer);
+	}
+	
 	public void onUnload() {}
 	public String getID()         { return ID     ; }
 	public String getName()       { return NAME   ; }

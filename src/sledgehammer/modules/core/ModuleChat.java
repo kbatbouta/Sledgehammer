@@ -13,12 +13,15 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.event.CommandEvent;
+import sledgehammer.event.RequestChannelsEvent;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.module.SQLModule;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
+import sledgehammer.objects.chat.Command;
 import sledgehammer.requests.RequestChatChannels;
 import zombie.Lua.LuaManager;
 
@@ -44,7 +47,7 @@ public class ModuleChat extends SQLModule {
 		Statement statement;
 		try {
 			statement = createStatement();
-			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT);");
+			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT, public BOOL);");
 			statement.executeUpdate("create table if not exists " + TABLE_MESSAGES 
 					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT, time TEXT, type INTEGER);");
 			statement.close();
@@ -54,9 +57,16 @@ public class ModuleChat extends SQLModule {
 	}
 	
 	public void onStart() {
-		addChannel(new ChatChannel("Global"));
-		addChannel(new ChatChannel("Local"));
-		addChannel(new ChatChannel("PMs"));
+		
+		ChatChannel global = new ChatChannel("Global");
+		ChatChannel local = new ChatChannel("Local");
+		ChatChannel pms = new ChatChannel("PMs");
+		
+		global.setPublic(true);
+		
+		addChannel(global);
+		addChannel(local);
+		addChannel(pms);
 	}
 	
 	public void addChannel(ChatChannel channel) {
@@ -89,7 +99,7 @@ public class ModuleChat extends SQLModule {
 				
 			} else {
 				// No definitions or history for channels being created.
-				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\");");
+				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context, public) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\",\"" + channel.isPublic() + "\");");
 			}
 
 			// Close streams.
@@ -116,7 +126,12 @@ public class ModuleChat extends SQLModule {
 
 		if(command.equalsIgnoreCase("getChatChannels")) {
 	
+			
 			Player player = event.getPlayer();
+			
+			// Send request for channels before dispatching.
+			RequestChannelsEvent requestEvent = new RequestChannelsEvent(player);
+			SledgeHammer.instance.handle(requestEvent);
 			
 			List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
 			RequestChatChannels request = new RequestChatChannels();
@@ -136,7 +151,15 @@ public class ModuleChat extends SQLModule {
 			
 			String channelName = (String) tableMessage.rawget("channel");
 			
+			println("ChannelName: " + channelName);
+			
 			ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(channelName);
+			if(channel == null) {
+				errorln("Channel does not exist: \"" + channelName + "\".");
+				return;
+			}
+			
+			message.setChannel(channelName);
 			channel.addMessage(message);
 			
 			ChatMessageEvent e = new ChatMessageEvent(message);
@@ -296,7 +319,9 @@ public class ModuleChat extends SQLModule {
 				String _name = set.getString("name");
 				String _desc = set.getString("description");
 				String _cont = set.getString("context");
+				boolean _pub = set.getBoolean("public");
 				ChatChannel channel = new ChatChannel(_name, _desc, _cont);
+				channel.setPublic(_pub);
 				getManager().addChatChannel(channel);
 			}
 			

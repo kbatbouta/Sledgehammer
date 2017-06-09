@@ -101,7 +101,7 @@ public class Command extends LuaTable {
 	}
 	
 	public String toString() {
-		return getRaw();
+		return "(" + getPlayer() + ") " + getRaw();
 	}
 	
 	@Override
@@ -232,4 +232,5 @@ public class Command extends LuaTable {
 		new Command("test3", null).debugPrint();
 		new Command("test4", new String[] {"arg1", "arg2"}).debugPrint();
 	}
+
 }

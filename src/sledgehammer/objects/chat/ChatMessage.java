@@ -19,7 +19,7 @@ public class ChatMessage extends LuaTable {
 	public static final String ORIGIN_CORE   = "core";
 	
 	private String origin;
-	private String channel;
+	private String channel = "Global";
 	private String message;
 	private String messageOriginal;
 	private long messageID = -1L;

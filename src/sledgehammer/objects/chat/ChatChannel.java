@@ -54,6 +54,10 @@ public class ChatChannel extends LuaTable  {
 	
 	private ChatChannelComparator comparator;
 	
+	private boolean allowChat = true;
+	
+	private boolean isPublic = false;
+	
 	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
@@ -147,7 +151,13 @@ public class ChatChannel extends LuaTable  {
 		
 		if(chatMessage instanceof ChatMessagePlayer) {			
 			for(Player player : SledgeHammer.instance.getPlayers()) {
-				sendMessagePlayer((ChatMessagePlayer) chatMessage, player);
+				if(this.getName().toLowerCase().equals("local")) {
+					if(player.isWithinLocalRange(((ChatMessagePlayer)chatMessage).getPlayer())){
+						sendMessagePlayer((ChatMessagePlayer) chatMessage, player);						
+					}
+				} else {					
+					sendMessagePlayer((ChatMessagePlayer) chatMessage, player);
+				}
 			}
 		} else {
 			for(Player player : SledgeHammer.instance.getPlayers()) {
@@ -206,13 +216,27 @@ public class ChatChannel extends LuaTable  {
 		set("context", getContext());
 		set("description", getDescription());
 		set("history", getLastMessages(32));
+		set("public", isPublic());
+	}
+	
+	public boolean isPublic() {
+		return isPublic;
+	}
+	
+	public void setPublic(boolean flag) {
+		this.isPublic = flag;
+	}
+
+	public LinkedList<ChatMessage> getAllMessages() {
+		return this.listMessages;
 	}
 	
 	public LuaArray<ChatMessage> getLastMessages(int amount) {
 		List<ChatMessage> listLastMessages = new ArrayList<>();
+		
 		int size = listMessages.size();
 		
-		for(int index = size - 1; index >= size - 33; index--) {
+		for(int index = size - 1; index >= size - amount - 1; index--) {
 			if(index < 0) break;
 			listLastMessages.add(listMessages.get(index));
 		}
@@ -220,7 +244,6 @@ public class ChatChannel extends LuaTable  {
 		Collections.sort(listLastMessages, comparator);
 		
 		LuaArray<ChatMessage> array = new LuaArray<>(listLastMessages);
-		
 		
 		return array;
 	}
@@ -261,14 +284,19 @@ public class ChatChannel extends LuaTable  {
 	}
 	
 	public void removeAllPlayers() {
-		for(Player player : mapPlayersSent.values()) {
-			
-			// Send a command to remove the channel.
-			SledgeHammer.instance.send(sendRemove, player);
-			
-			// Remove the player from the list.
-			mapPlayersSent.remove(player.getName());
+		
+		for(Player player : SledgeHammer.instance.getPlayers()) {
+			if(this.canPlayerSee(player)) {
+				SledgeHammer.instance.send(sendRemove, player);
+			}
 		}
+		
+//		for(Player player : mapPlayersSent.values()) {
+//			// Send a command to remove the channel.
+//			SledgeHammer.instance.send(sendRemove, player);
+//		}
+		// Remove all players from the list.
+		mapPlayersSent.clear();
 	}
 	
 	public void removePlayer(Player player) {
@@ -298,6 +326,22 @@ public class ChatChannel extends LuaTable  {
 			return i;
 		}
 		
+	}
+	
+	public void setAlllowChat(boolean flag) {
+		this.allowChat = flag;
+	}
+	
+	public boolean allowsChat() {
+		return this.allowChat;
+	}
+
+	public void addMessage(String string) {
+		addMessage(new ChatMessage(string));
+	}
+
+	public void setAllMessages(LinkedList<ChatMessage> messages) {
+		this.listMessages = messages;
 	}
 	
 }

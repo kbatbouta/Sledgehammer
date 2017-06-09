@@ -393,5 +393,22 @@ public class Player extends LuaTable {
 		}
 		message.setChannel(oldChannel);
 	}
+
+	public void sendMessage(String string) {
+		ChatMessage message = new ChatMessage(string);
+		sendMessage(message);
+	}
+
+	public void update() {
+		SledgeHammer.instance.updatePlayer(this);
+	}
+
+	public boolean isWithinLocalRange(Player other) {
+		if(isConnected() && other.isConnected()) {
+			IsoPlayer isoOther = other.getIso();
+			return getConnection().ReleventTo(isoOther.x, isoOther.y);
+		}
+		return false;
+	}
 	
 }

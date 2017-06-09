@@ -100,10 +100,11 @@ public class PeriodicMessage {
 				
 				if (isBroadcasted()) {
 					// Broadcast it as a /broadcast message.
-					SledgeHammer.instance.getChatManager().broadcastMessage(content, actualColor);
+					// SledgeHammer.instance.getChatManager().broadcastMessage(content, actualColor);
 				} else {
 					// Send it in-chat.
-					SledgeHammer.instance.getChatManager().messageGlobal("", ChatTags.COLOR_WHITE, getContent(), actualColor, false);
+					ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+					module.sendGlobalMessage(actualColor + " " + getContent());
 				}
 
 				// Mark the current time as last, to reset the delta.

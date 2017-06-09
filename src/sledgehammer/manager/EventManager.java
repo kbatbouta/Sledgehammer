@@ -370,6 +370,12 @@ public class EventManager extends Manager {
 				String command = com.getCommand();
 
 				Player player = com.getPlayer();
+				
+				// If '/help' is fired.
+				if (command.equalsIgnoreCase("help")) {
+					help(c);
+					return c;
+				}
 //				if (player.getUsername().equalsIgnoreCase("admin")) {
 //					if (command.equalsIgnoreCase("emulate")) {
 //						String[] args = com.getArguments();
@@ -394,41 +400,36 @@ public class EventManager extends Manager {
 //					}
 //				}
 
-				// If '/help' is fired.
-				if (command.equalsIgnoreCase("help")) {
-					help(c);
-					return c;
-				}
-
 				// Run through selected command listeners first (Optimization).
-				List<CommandListener> listListeners = mapCommandListeners.get(c.getCommand());
+				List<CommandListener> listListeners = mapCommandListeners.get(c.getCommand().getCommand().toLowerCase());
 
 				if (listListeners != null) {
 					for (CommandListener listener : listListeners) {
 						// If the listener is not null, fire the
 						// CommandListener.
-						if (listener != null)
+						if (listener != null) {							
 							listener.onCommand(c.getCommand(), c.getResponse());
+						}
 
 						// If the listener set the command as handled, break the
 						// loop.
-						if (c.handled())
+						if (c.handled()) {							
 							break;
+						}
 					}
 				}
 				
-				SledgeHammer sledgeHammer = getSledgeHammer();
-
-				// Force Vanilla CommandListener to last for modification
-				// potential.
-				CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
-				if (!c.handled() && vanillaListener != null)
+				// Check native command handlers if the command is not handled.
+				if(!c.isHandled()) {
+					SledgeHammer sledgeHammer = getSledgeHammer();
+					
+					CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
 					vanillaListener.onCommand(c.getCommand(), c.getResponse());
-
-				CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
-
-				if (!c.handled() && coreCommandListener != null) {
-					coreCommandListener.onCommand(c.getCommand(), c.getResponse());
+					
+					if(!c.isHandled()) {						
+						CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
+						coreCommandListener.onCommand(c.getCommand(), c.getResponse());
+					}
 				}
 
 				if (logEvent) {
@@ -436,8 +437,9 @@ public class EventManager extends Manager {
 					if (c.getResponse().getLogMessage() != null) {
 						LogEvent entry = new LogEvent(c);
 						for (LogListener listener : listLogListeners) {
-							if (listener != null)
+							if (listener != null) {
 								listener.onLogEntry(entry);
+							}
 						}
 					}
 				}
@@ -447,6 +449,7 @@ public class EventManager extends Manager {
 				if (c.getCommand().getPlayer().getConnection() == null) {
 					c.getResponse().set(c.getResponse().getResult(), ChatTags.stripTags(c.getResponse().getResponse(), true));
 				}
+				
 			} catch (Exception e) {
 				println("Error handling command " + c + ": " + e.getMessage());
 				for (StackTraceElement o : e.getStackTrace()) {

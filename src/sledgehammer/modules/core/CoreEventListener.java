@@ -30,6 +30,7 @@ import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.util.ChatTags;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -69,9 +70,9 @@ public class CoreEventListener implements EventListener {
 		} else
 		if(event.getID() == ConnectEvent.ID) {
 			Player player = ((ConnectEvent)event).getPlayer();
-			if(player.getProperty("muteglobal").equals("1")) {
-				chat.messagePlayer(player, "[NOTICE]: ", COLOR_LIGHT_GREEN, "Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".", COLOR_LIGHT_GREEN, true, true);
-			}
+//			if(player.getProperty("muteglobal").equals("1")) {
+//				player.sendMessage(ChatTags.COLOR_LIGHT_GREEN + " [NOTICE]: Global chat is currently muted for you. To unmute global chat, type \"/globalmute\".");
+//			}
 		} else
 		if(event.getID() == DisconnectEvent.ID) {
 			
@@ -87,7 +88,7 @@ public class CoreEventListener implements EventListener {
 					return;
 				}
 				mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-				module.messageGlobal(null, null, text, COLOR_RED);
+				module.sendGlobalMessage(ChatTags.COLOR_RED + " " + text);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else 
@@ -107,73 +108,73 @@ public class CoreEventListener implements EventListener {
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-			module.messageGlobal(null, null, text, COLOR_RED);
+			module.sendGlobalMessage(COLOR_RED + " " + text);
 			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
 		}
 	}
 	
 	private void handleChatEvent(ChatEvent event) {
 		
-		Player player = event.getPlayer();
-		String text = event.getText();
-
-		UdpConnection connectionCommander = player.getConnection();
-
-		text = ChatTags.stripTags(text, false);
-		text = text.replaceAll("<", "&lt;");
-		text = text.replaceAll(">", "&gt;");						
-		if(event.isGlobal()) {
-			if(player.getProperty("muteglobal").equals("1")) {
-				module.messagePlayer(player, "[NOTICE]: ", COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", COLOR_LIGHT_GREEN, true, true);
-				return;
-			}
-			
-			for (Player nextPlayer : module.getPlayers()) {
-				module.messagePlayer(nextPlayer, event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, false);
-			}			
-		} else {
-			
-			IsoPlayer isoPlayer = player.getIso();
-
-			int playerID = isoPlayer != null ? isoPlayer.OnlineID : -1;
-			byte sayIt = (byte) (event.sayIt() ? 1 : 0);
-			byte chatType = event.getChatType();
-
-			if(isoPlayer != null && !text.startsWith("[SERVERMSG]")) {
-				if(chatType == 0) {
-					isoPlayer.Say(text);
-				} else if(chatType == 1) {
-					isoPlayer.SayWhisper(text);
-				} else if(chatType == 2) {
-					isoPlayer.SayShout(text);
-				}
-			}
-			
-			for (Player nextPlayer : module.getPlayers()) {
-				try {
-					
-					UdpConnection connection = nextPlayer.getConnection();
-					
-					if (connectionCommander == null 
-					|| (connectionCommander != null && isoPlayer != null && connection.ReleventTo(isoPlayer.x, isoPlayer.y))
-						) {
-						
-						if(connection.getConnectedGUID() != connectionCommander.getConnectedGUID()) {
-							module.localMessage(connection, playerID, text, chatType, sayIt);							
-						}
-						
-						if(ServerOptions.instance.getBoolean("LogLocalChat")) {							
-							module.messagePlayer(nextPlayer, "[Local] " + event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, true);
-						}
-						
-					}
-				} catch(NullPointerException e) {
-					module.stackTrace(e);
-					// This is when a player is checked, but disconnects asynchronously.
-				}
-			}
-			event.setHandled(true);
-		}
+//		Player player = event.getPlayer();
+//		String text = event.getText();
+//
+//		UdpConnection connectionCommander = player.getConnection();
+//
+//		text = ChatTags.stripTags(text, false);
+//		text = text.replaceAll("<", "&lt;");
+//		text = text.replaceAll(">", "&gt;");						
+//		if(event.isGlobal()) {
+////			if(player.getProperty("muteglobal").equals("1")) {
+////				module.messagePlayer(player, "[NOTICE]: ", COLOR_LIGHT_GREEN, "Global chat is currently muted. to unmute global chat, type \"/globalmute\".", COLOR_LIGHT_GREEN, true, true);
+////				return;
+////			}
+//			
+//			for (Player nextPlayer : module.getPlayers()) {
+//				module.messagePlayer(nextPlayer, event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, false);
+//			}			
+//		} else {
+//			
+//			IsoPlayer isoPlayer = player.getIso();
+//
+//			int playerID = isoPlayer != null ? isoPlayer.OnlineID : -1;
+//			byte sayIt = (byte) (event.sayIt() ? 1 : 0);
+//			byte chatType = event.getChatType();
+//
+//			if(isoPlayer != null && !text.startsWith("[SERVERMSG]")) {
+//				if(chatType == 0) {
+//					isoPlayer.Say(text);
+//				} else if(chatType == 1) {
+//					isoPlayer.SayWhisper(text);
+//				} else if(chatType == 2) {
+//					isoPlayer.SayShout(text);
+//				}
+//			}
+//			
+//			for (Player nextPlayer : module.getPlayers()) {
+//				try {
+//					
+//					UdpConnection connection = nextPlayer.getConnection();
+//					
+//					if (connectionCommander == null 
+//					|| (connectionCommander != null && isoPlayer != null && connection.ReleventTo(isoPlayer.x, isoPlayer.y))
+//						) {
+//						
+//						if(connection.getConnectedGUID() != connectionCommander.getConnectedGUID()) {
+//							module.localMessage(connection, playerID, text, chatType, sayIt);							
+//						}
+//						
+//						if(ServerOptions.instance.getBoolean("LogLocalChat")) {							
+//							module.messagePlayer(nextPlayer, "[Local] " + event.getHeader(), event.getHeaderColor(), text, event.getTextColor(), true, true);
+//						}
+//						
+//					}
+//				} catch(NullPointerException e) {
+//					module.stackTrace(e);
+//					// This is when a player is checked, but disconnects asynchronously.
+//				}
+//			}
+//			event.setHandled(true);
+//		}
 	}
 
 	public void update() {

@@ -27,9 +27,11 @@ import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.Broadcast;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
 import sledgehammer.objects.chat.Command;
+import sledgehammer.objects.send.SendBroadcast;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
@@ -53,11 +55,14 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	private Map<String, String> mapContexts;
 	private Map<String, String> mapTooltips;
 	
+	private SendBroadcast sendBroadcast;
+	
 	public static final Command commandProperties = new Command("properties");
 	
 	public CoreCommandListener(ModuleCore module) {
 		this.module = module;
 		
+		 sendBroadcast = new SendBroadcast((Broadcast)null);
 		
 		mapTooltips = new HashMap<>();
 		mapTooltips.put("colors"       , "Displays all supported colors on this server.");
@@ -65,7 +70,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapTooltips.put("warn"         , "Warns a player. ex: /warn \"player\" \"message\"");
 		mapTooltips.put("broadcast"    , "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"");
 		mapTooltips.put("commitsuicide", "End your character's life.");
-		mapTooltips.put("muteglobal"   , "Toggles global chat.");
+		// mapTooltips.put("muteglobal"   , "Toggles global chat.");
 		mapTooltips.put("properties"   , "Lists a player's properties. ex: /properties rj.");
 		mapTooltips.put("ban"          , 
 				"Bans a player. Flags:" + NEW_LINE + 
@@ -85,19 +90,19 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts = new HashMap<>();
 		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
 		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"         );
-		mapContexts.put("muteglobal"   , "sledgehammer.core.basic.muteglobal"     );
+		// mapContexts.put("muteglobal"   , "sledgehammer.core.basic.muteglobal"     );
 		mapContexts.put("commitsuicide", "sledgehammer.core.basic.commitsuicide"  );
 		mapContexts.put("properties"   , "sledgehammer.core.moderation.properties");
 		mapContexts.put("ban"          , "sledgehammer.core.moderation.ban"       );
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
-//		mapContexts.put("purge"        , "sledgehammer.core.moderation.purge"     );
+		// mapContexts.put("purge"        , "sledgehammer.core.moderation.purge"     );
 
 		PermissionsManager managerPermissions = module.getPermissionsManager();
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("pm"           ));
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("colors"       ));
-		managerPermissions.addDefaultPlayerPermission(getPermissionContext("muteglobal"   ));
+		// managerPermissions.addDefaultPlayerPermission(getPermissionContext("muteglobal"   ));
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("commitsuicide"));
 	}
 	
@@ -133,7 +138,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				"properties",
 				"ban",
 				"unban",
-				"muteglobal",
+//				"muteglobal",
 //				"purge"
 		};
 	}
@@ -258,7 +263,11 @@ public class CoreCommandListener extends Printable implements CommandListener {
         		if(args.length > 1) {
         			String color = ChatTags.getColor(args[0]);
         			if(color == null) color = COLOR_LIGHT_RED;
-        			module.broadcastMessage(args[1], color);        		
+        			
+        			Broadcast broadcast = new Broadcast(args[0] + args[1]);
+        			sendBroadcast.setBroadcast(broadcast);
+        			
+        			SledgeHammer.instance.send(sendBroadcast);
         			
         			response = "Broadcast sent.";
         			r.set(Result.SUCCESS, response);
@@ -368,8 +377,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
         		r.deny();
         		return;
         	}
-        } else
-    	if(command.equalsIgnoreCase("muteglobal")) {
+        } 
+		/* else if(command.equalsIgnoreCase("muteglobal")) {
     		if(module.hasPermission(username, getPermissionContext("muteglobal"))) {    			
     			
     			String muted = player.getProperty("muteglobal");
@@ -394,7 +403,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
     			r.deny();
     			return;
     		}
-		}
+		} */
 	}
 	
 	private void ban(Command com, Response r, String[] args) throws SQLException {

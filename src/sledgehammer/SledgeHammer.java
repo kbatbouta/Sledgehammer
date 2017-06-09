@@ -378,7 +378,8 @@ public class SledgeHammer extends Printable {
 	}
 	
 	public void register(CommandListener listener) {
-		for(String command : listener.getCommands()) {			
+		for(String command : listener.getCommands()) {
+			println("Registering command: \"" + command + "\" for listener: " + listener);
 			getEventManager().registerCommandListener(command, listener);
 		}
 	}
@@ -654,5 +655,9 @@ public class SledgeHammer extends Printable {
 			}
 			GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(), player.getConnection());
 		}
+	}
+
+	public void updatePlayer(Player player) {
+		getModuleManager().getCoreModule().updatePlayer(player);
 	}
 }
