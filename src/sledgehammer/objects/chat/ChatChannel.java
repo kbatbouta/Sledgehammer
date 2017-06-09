@@ -54,6 +54,8 @@ public class ChatChannel extends LuaTable  {
 	
 	private ChatChannelComparator comparator;
 	
+	private boolean showHistory = true;
+	
 	private boolean allowChat = true;
 	
 	private boolean isPublic = false;
@@ -80,6 +82,14 @@ public class ChatChannel extends LuaTable  {
 		setChannelName(name);
 		setDescription(desc);
 		setContext(cont);
+	}
+	
+	public boolean showHistory() {
+		return this.showHistory;
+	}
+	
+	public void setShowHistory(boolean flag) {
+		this.showHistory = flag;
 	}
 	
 	/**
@@ -217,6 +227,7 @@ public class ChatChannel extends LuaTable  {
 		set("description", getDescription());
 		set("history", getLastMessages(32));
 		set("public", isPublic());
+		set("showHistory", showHistory());
 	}
 	
 	public boolean isPublic() {

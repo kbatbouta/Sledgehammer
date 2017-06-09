@@ -62,7 +62,9 @@ public class ModuleChat extends SQLModule {
 		ChatChannel local = new ChatChannel("Local");
 		ChatChannel pms = new ChatChannel("PMs");
 		
+		local.setShowHistory(false);
 		global.setPublic(true);
+		local.setPublic(true);
 		
 		addChannel(global);
 		addChannel(local);
