@@ -47,7 +47,7 @@ public class ModuleChat extends SQLModule {
 		Statement statement;
 		try {
 			statement = createStatement();
-			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT, public BOOL);");
+			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT, public BOOL, speak BOOL);");
 			statement.executeUpdate("create table if not exists " + TABLE_MESSAGES 
 					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT, time TEXT, type INTEGER);");
 			statement.close();
@@ -64,7 +64,7 @@ public class ModuleChat extends SQLModule {
 		
 		local.setShowHistory(false);
 		global.setPublic(true);
-		local.setPublic(true);
+		pms.setCanSpeak(false);
 		
 		addChannel(global);
 		addChannel(local);
@@ -91,17 +91,21 @@ public class ModuleChat extends SQLModule {
 				// Grab the stored definitions of the ChatChannel.
 				String _desc = set.getString("description");
 				String _cont = set.getString("context");
+				boolean _public = set.getString("public").equals("true");
+				boolean _canSpeak = set.getString("speak").equals("true");
 				
 				// Apply definitions.
 				channel.setDescription(_desc);
 				channel.setContext(_cont);
+				channel.setPublic(_public);
+				channel.setCanSpeak(_canSpeak);
 				
 				// Grab channel history (If any).
 				getChannelHistory(channel, 32);
 				
 			} else {
 				// No definitions or history for channels being created.
-				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context, public) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\",\"" + channel.isPublic() + "\");");
+				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context, public, speak) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\",\"" + channel.isPublic() + "\",\"" + channel.canSpeak() + "\");");
 			}
 
 			// Close streams.
@@ -139,7 +143,9 @@ public class ModuleChat extends SQLModule {
 			RequestChatChannels request = new RequestChatChannels();
 			
 			for(ChatChannel channel : channels) {
-				request.addChannel(channel);
+				if(channel.canSee(player)) {					
+					request.addChannel(channel);
+				}
 			}
 			
 			event.respond(request);
@@ -194,9 +200,9 @@ public class ModuleChat extends SQLModule {
 					String _origin          = set.getString("origin");
 					int type                = set.getInt("type");
 					long _modifiedTimestamp = set.getLong("modified_timestamp");
-					boolean _edited         = set.getBoolean("edited");
+					boolean _edited         = set.getString("edited").equals("true");
 					int _editorID           = set.getInt("editor_id");
-					boolean _deleted        = set.getBoolean("deleted");
+					boolean _deleted        = set.getString("deleted").equals("true");
 					int _deleterID          = set.getInt("deleter_id");
 					
 					if (type == 1) {
@@ -321,9 +327,11 @@ public class ModuleChat extends SQLModule {
 				String _name = set.getString("name");
 				String _desc = set.getString("description");
 				String _cont = set.getString("context");
-				boolean _pub = set.getBoolean("public");
+				boolean _pub = set.getString("public").equals("true");
+				boolean _spk = set.getString("speak").equals("true");
 				ChatChannel channel = new ChatChannel(_name, _desc, _cont);
 				channel.setPublic(_pub);
+				channel.setCanSpeak(_spk);
 				getManager().addChatChannel(channel);
 			}
 			
@@ -338,6 +346,7 @@ public class ModuleChat extends SQLModule {
 	public String getVersion()    { return VERSION; }
 
 	public void deleteChannel(ChatChannel channel) {
+		println("Removing channel: " + channel.getChannelName());
 		getManager().removeChatChannel(channel);
 		PreparedStatement statement;
 		try {			

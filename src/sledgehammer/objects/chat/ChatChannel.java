@@ -18,6 +18,7 @@ import sledgehammer.objects.send.SendChatChannel;
 import sledgehammer.objects.send.SendChatMessage;
 import sledgehammer.objects.send.SendChatMessagePlayer;
 import sledgehammer.objects.send.SendRemoveChatChannel;
+import sledgehammer.objects.send.SendRenameChatChannel;
 
 /**
  * TODO: Document.
@@ -48,6 +49,8 @@ public class ChatChannel extends LuaTable  {
 	
 	private SendRemoveChatChannel sendRemove;
 	
+	private SendRenameChatChannel sendRename;
+	
 	private SendChatMessage sendMessage;
 	
 	private SendChatMessagePlayer sendMessagePlayer;
@@ -58,7 +61,9 @@ public class ChatChannel extends LuaTable  {
 	
 	private boolean allowChat = true;
 	
-	private boolean isPublic = false;
+	private boolean isPublic = true;
+
+	private boolean canSpeak = true;
 	
 	public ChatChannel(String name) {
 		super("chatChannel");
@@ -67,6 +72,7 @@ public class ChatChannel extends LuaTable  {
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
 		sendRemove = new SendRemoveChatChannel(this);
+		sendRename = new SendRenameChatChannel();
 		
 		sendMessage = new SendChatMessage();
 		sendMessagePlayer = new SendChatMessagePlayer();
@@ -82,45 +88,6 @@ public class ChatChannel extends LuaTable  {
 		setChannelName(name);
 		setDescription(desc);
 		setContext(cont);
-	}
-	
-	public boolean showHistory() {
-		return this.showHistory;
-	}
-	
-	public void setShowHistory(boolean flag) {
-		this.showHistory = flag;
-	}
-	
-	/**
-	 * If the channel has its own context permission, 
-	 * then it is running as white-listed.
-	 * @return
-	 */
-	public boolean isWhitelisted() {
-		return !getContext().equals(DEFAULT_CONTEXT);
-	}
-	
-	public String getDescription() {
-		return this.description;
-	}
-	
-	public void setDescription(String desc) {
-		this.description = desc;
-	}
-
-	public String getContext() {
-		return context;
-	}
-	
-	public void setContext(String context) {
-		if(!context.equals(this.context)) {
-			this.context = context;
-		}
-	}
-
-	private void setChannelName(String name) {
-		this.channelName = name;
 	}
 
 	public void addPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
@@ -194,10 +161,6 @@ public class ChatChannel extends LuaTable  {
 		return listMessages;
 	}
 	
-	public void editMessage() {
-		//TODO: implement
-	}
-	
 	public void deleteMessagesForPlayer(int playerID) {
 		List<ChatMessagePlayer> listMessages = getMessagesForPlayer(playerID);
 		
@@ -212,34 +175,6 @@ public class ChatChannel extends LuaTable  {
 	
 	public String getChannelName() {
 		return this.channelName;
-	}
-
-	@Override
-	public void onLoad(KahluaTable table) {
-		channelName = table.rawget("channelName").toString();
-		// TODO: Future-Implement when clients can create channels.
-	}
-
-	@Override
-	public void onExport() {
-		set("channelName", getChannelName());
-		set("context", getContext());
-		set("description", getDescription());
-		set("history", getLastMessages(32));
-		set("public", isPublic());
-		set("showHistory", showHistory());
-	}
-	
-	public boolean isPublic() {
-		return isPublic;
-	}
-	
-	public void setPublic(boolean flag) {
-		this.isPublic = flag;
-	}
-
-	public LinkedList<ChatMessage> getAllMessages() {
-		return this.listMessages;
 	}
 	
 	public LuaArray<ChatMessage> getLastMessages(int amount) {
@@ -259,72 +194,40 @@ public class ChatChannel extends LuaTable  {
 		return array;
 	}
 
-	public boolean canPlayerSee(Player player) {
-		return player.hasPermission(getContext());
-	}
-
 	public void sendToPlayer(Player player) {
 		if(!mapPlayersSent.containsKey(player.getName())) {
-			if(canPlayerSee(player)) {
+			if(canSee(player)) {
 				SledgeHammer.instance.send(send);
 				mapPlayersSent.put(player.getName(), player);
 			}
 		}
 	}
 	
-	public boolean hasAlreadySentPlayer(Player player) {
-		return mapPlayersSent.get(player.getName()) != null;
-	}
-
-	public void onDisconnect(Player player) {
-		mapPlayersSent.remove(player.getName());
-		
-		// TODO: Broadcast player leaving.
-	}
-
-	public int getID() {
-		return id;
-	}
-	
-	public void setID(int id) {
-		this.id = id;
-	}
-	
-	public Collection<Player> getPlayers() {
-		return mapPlayersSent.values();
-	}
-	
 	public void removeAllPlayers() {
 		
 		for(Player player : SledgeHammer.instance.getPlayers()) {
-			if(this.canPlayerSee(player)) {
+			if(canSee(player)) {
 				SledgeHammer.instance.send(sendRemove, player);
 			}
 		}
 		
-//		for(Player player : mapPlayersSent.values()) {
-//			// Send a command to remove the channel.
-//			SledgeHammer.instance.send(sendRemove, player);
-//		}
-		// Remove all players from the list.
+		for(Player player : mapPlayersSent.values()) {
+			SledgeHammer.instance.send(sendRemove, player);
+		}
+		
 		mapPlayersSent.clear();
 	}
 	
 	public void removePlayer(Player player) {
+
+		// Send a command to remove the channel.
+		SledgeHammer.instance.send(sendRemove, player);
 		
-		// If the player has the channel loaded.
-		if(mapPlayersSent.get(player.getName()) != null) {
-			
-			// Send a command to remove the channel.
-			SledgeHammer.instance.send(sendRemove, player);
-			
-			// Remove the player from the list.
-			mapPlayersSent.remove(player.getName());
-		}
+		// Remove the player from the list.
+		mapPlayersSent.remove(player.getName());
 	}
 	
 	private class ChatChannelComparator implements Comparator<ChatMessage> {
-
 		@Override
 		public int compare(ChatMessage a, ChatMessage b) {
 			int i = 0;
@@ -336,7 +239,96 @@ public class ChatChannel extends LuaTable  {
 			}
 			return i;
 		}
-		
+	}
+	
+	public void rename(String nameNew) {
+		sendRename.set(this, this.getChannelName(), nameNew);
+		this.setChannelName(nameNew);
+		for(Player player : SledgeHammer.instance.getPlayers()) {
+			if(canSee(player)) {				
+				SledgeHammer.instance.send(send, player);
+			}
+		}
+	}
+	
+	public boolean canSee(Player player) {
+		return true;
+	}
+	
+	public boolean hasAlreadySentPlayer(Player player) {
+		return mapPlayersSent.get(player.getName()) != null;
+	}
+	
+	public void onDisconnect(Player player) {
+		mapPlayersSent.remove(player.getName());
+		// TODO: Broadcast player leaving.
+	}
+	
+	public void editMessage() {
+		//TODO: implement
+	}
+	
+	public boolean showHistory() {
+		return this.showHistory;
+	}
+	
+	public void setShowHistory(boolean flag) {
+		this.showHistory = flag;
+	}
+	
+	/**
+	 * If the channel has its own context permission, 
+	 * then it is running as white-listed.
+	 * @return
+	 */
+	public boolean isWhitelisted() {
+		return !getContext().equals(DEFAULT_CONTEXT);
+	}
+	
+	public String getDescription() {
+		return this.description;
+	}
+	
+	public void setDescription(String desc) {
+		this.description = desc;
+	}
+
+	public String getContext() {
+		return context;
+	}
+	
+	public void setContext(String context) {
+		if(!context.equals(this.context)) {
+			this.context = context;
+		}
+	}
+
+	private void setChannelName(String name) {
+		this.channelName = name;
+	}
+	
+	public boolean isPublic() {
+		return isPublic;
+	}
+	
+	public void setPublic(boolean flag) {
+		this.isPublic = flag;
+	}
+
+	public LinkedList<ChatMessage> getAllMessages() {
+		return this.listMessages;
+	}
+	
+	public int getID() {
+		return id;
+	}
+	
+	public void setID(int id) {
+		this.id = id;
+	}
+	
+	public Collection<Player> getPlayers() {
+		return mapPlayersSent.values();
 	}
 	
 	public void setAlllowChat(boolean flag) {
@@ -354,5 +346,29 @@ public class ChatChannel extends LuaTable  {
 	public void setAllMessages(LinkedList<ChatMessage> messages) {
 		this.listMessages = messages;
 	}
+
+	public boolean canSpeak() {
+		return this.canSpeak;
+	}
 	
+	public void setCanSpeak(boolean flag) {
+		this.canSpeak = flag;
+	}
+	
+	@Override
+	public void onLoad(KahluaTable table) {
+		channelName = table.rawget("channelName").toString();
+		// TODO: Future-Implement when clients can create channels.
+	}
+	
+	@Override
+	public void onExport() {
+		set("channelName", getChannelName());
+		set("context"    , getContext());
+		set("description", getDescription());
+		set("history"    , getLastMessages(32));
+		set("public"     , isPublic());
+		set("speak"      , canSpeak());
+		set("showHistory", showHistory());
+	}
 }
