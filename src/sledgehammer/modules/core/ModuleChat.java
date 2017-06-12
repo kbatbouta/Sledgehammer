@@ -4,24 +4,21 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
-import sledgehammer.event.CommandEvent;
 import sledgehammer.event.RequestChannelsEvent;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.module.SQLModule;
 import sledgehammer.objects.Player;
+import sledgehammer.objects.chat.ChannelProperties;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
-import sledgehammer.objects.chat.Command;
 import sledgehammer.requests.RequestChatChannels;
 import zombie.Lua.LuaManager;
 
@@ -47,7 +44,7 @@ public class ModuleChat extends SQLModule {
 		Statement statement;
 		try {
 			statement = createStatement();
-			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT, public BOOL, speak BOOL);");
+			statement.executeUpdate("create table if not exists " + TABLE_CHANNELS + " (name TEXT, description TEXT, context TEXT, public BOOL, speak BOOL, custom BOOL);");
 			statement.executeUpdate("create table if not exists " + TABLE_MESSAGES 
 					+ " (id BIGINT, origin TEXT, channel TEXT, message TEXT, message_original TEXT, edited BOOL, editor_id INTEGER, deleted BOOL, deleter_id INTEGER, modified_timestamp TEXT, player_id INTEGER, player_name TEXT, time TEXT, type INTEGER);");
 			statement.close();
@@ -59,64 +56,78 @@ public class ModuleChat extends SQLModule {
 	public void onStart() {
 		
 		ChatChannel global = new ChatChannel("Global");
-		ChatChannel local = new ChatChannel("Local");
-		ChatChannel pms = new ChatChannel("PMs");
+//		ChatChannel Espanol = new ChatChannel("Español");
+//		ChatChannel Russia = new ChatChannel("\u0440\u0443\u0441\u0441\u043A\u0438\u0439");
+		ChatChannel local  = new ChatChannel("Local");
+		ChatChannel pms    = new ChatChannel("PMs");
 		
-		local.setShowHistory(false);
-		global.setPublic(true);
-		pms.setCanSpeak(false);
+		local.getProperties().streamGlobal(true);
+		pms.getProperties().streamGlobal(true);
+		
+		local.getProperties().setHistory(false);
+		global.getProperties().setPublic(true);
+		pms.getProperties().setSpeak(false);
+		
+		local.getProperties().setPublic(false);
+		pms.getProperties().setPublic(false);
+		
+//		Espanol.getProperties().setPublic(true);
+//		Russia.getProperties().setPublic(true);
 		
 		addChannel(global);
-		addChannel(local);
-		addChannel(pms);
+		addChannel(local );
+//		addChannel(Espanol);
+//		addChannel(Russia);
+		addChannel(pms   );
 	}
 	
 	public void addChannel(ChatChannel channel) {
-		loadChannel(channel);
 		getManager().addChatChannel(channel);
 	}
 	
 	
-	public void loadChannel(ChatChannel channel) {
-		PreparedStatement pStatement;
-		ResultSet set;
-		Statement statement;
-		try {
-			statement = createStatement();
-			statement.executeUpdate("create table if not exists " + "sledgehammer_channel_" + channel.getChannelName() + "_history (message_id INTEGER, time_added BIGINT);");
-			
-			pStatement = prepareStatement("SELECT * from " + TABLE_CHANNELS + " WHERE name = \"" + channel.getChannelName() + "\";");
-			set = pStatement.executeQuery();
-			if(set.next()) {
-				// Grab the stored definitions of the ChatChannel.
-				String _desc = set.getString("description");
-				String _cont = set.getString("context");
-				boolean _public = set.getString("public").equals("true");
-				boolean _canSpeak = set.getString("speak").equals("true");
-				
-				// Apply definitions.
-				channel.setDescription(_desc);
-				channel.setContext(_cont);
-				channel.setPublic(_public);
-				channel.setCanSpeak(_canSpeak);
-				
-				// Grab channel history (If any).
-				getChannelHistory(channel, 32);
-				
-			} else {
-				// No definitions or history for channels being created.
-				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context, public, speak) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getContext() + "\",\"" + channel.isPublic() + "\",\"" + channel.canSpeak() + "\");");
-			}
-
-			// Close streams.
-			set.close();
-			pStatement.close();
-			statement.close();
-			
-		} catch(SQLException e) {
-			e.printStackTrace();
-		}
-	}
+//	public void loadChannel(ChatChannel channel) {
+//		PreparedStatement pStatement;
+//		ResultSet set;
+//		Statement statement;
+//		try {
+//			statement = createStatement();
+//			statement.executeUpdate("create table if not exists " + "sledgehammer_channel_" + channel.getChannelName() + "_history (message_id INTEGER, time_added BIGINT);");
+//			
+//			pStatement = prepareStatement("SELECT * from " + TABLE_CHANNELS + " WHERE name = \"" + channel.getChannelName() + "\";");
+//			set = pStatement.executeQuery();
+//			if(set.next()) {
+//				// Grab the stored definitions of the ChatChannel.
+//				String _desc = set.getString("description");
+//				String _cont = set.getString("context");
+//				boolean _public   = set.getString("public").equals("true");
+//				boolean _canSpeak = set.getString("speak").equals("true");
+//				boolean _custom   = set.getString("custom").equals("true");
+//				
+//				// Apply definitions.
+//				channel.getProperties().setDescription(_desc);
+//				channel.getProperties().setContext(_cont);
+//				channel.getProperties().setPublic(_public);
+//				channel.getProperties().setSpeak(_canSpeak);
+//				channel.getProperties().setCustom(_custom);
+//				
+//				// Grab channel history (If any).
+//				getChannelHistory(channel, 32);
+//				
+//			} else {
+//				// No definitions or history for channels being created.
+//				statement.executeUpdate("INSERT INTO " + TABLE_CHANNELS + " (name, description, context, public, speak) VALUES (\"" + channel.getChannelName() + "\",\"\",\"" + channel.getProperties().getContext() + "\",\"" + channel.getProperties().isPublic() + "\",\"" + channel.getProperties().canSpeak() + "\");");
+//			}
+//
+//			// Close streams.
+//			set.close();
+//			pStatement.close();
+//			statement.close();
+//			
+//		} catch(SQLException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	public ChatManager getManager() {
 		return SledgeHammer.instance.getChatManager();
@@ -132,7 +143,6 @@ public class ModuleChat extends SQLModule {
 
 		if(command.equalsIgnoreCase("getChatChannels")) {
 	
-			
 			Player player = event.getPlayer();
 			
 			// Send request for channels before dispatching.
@@ -282,20 +292,20 @@ public class ModuleChat extends SQLModule {
 				sql = "INSERT INTO " + TABLE_MESSAGES
 						+ " (id, origin, channel, message, message_original, edited, editor_id, deleted, deleter_id, modified_timestamp, player_id, player_name, time, type) "
 						+ "VALUES ("
-							+ "\"" + messageID + "\","
-							+ "\"" + origin + "\","
-							+ "\"" + message.getChannel() + "\","
-							+ "\"" + message.getMessage() + "\","
-							+ "\"" + message.getOriginalMessage() + "\","
-							+ "\"" + message.isEdited() + "\","
-							+ "\"" + message.getEditorID() + "\","
-							+ "\"" + message.isDeleted() + "\","
-							+ "\"" + message.getDeleterID() + "\","
+							+ "\"" + messageID                      + "\","
+							+ "\"" + origin                         + "\","
+							+ "\"" + message.getChannel()           + "\","
+							+ "\"" + message.getMessage()           + "\","
+							+ "\"" + message.getOriginalMessage()   + "\","
+							+ "\"" + message.isEdited()             + "\","
+							+ "\"" + message.getEditorID()          + "\","
+							+ "\"" + message.isDeleted()            + "\","
+							+ "\"" + message.getDeleterID()         + "\","
 							+ "\"" + message.getModifiedTimestamp() + "\","
-							+ "\"" + playerID + "\","
-							+ "\"" + playerName + "\","
-							+ "\"" + message.getTime() + "\","
-							+ "\"" + type + "\""
+							+ "\"" + playerID                       + "\","
+							+ "\"" + playerName                     + "\","
+							+ "\"" + message.getTime()              + "\","
+							+ "\"" + type                           + "\""
 						+ ");";
 			}
 
@@ -330,14 +340,44 @@ public class ModuleChat extends SQLModule {
 				boolean _pub = set.getString("public").equals("true");
 				boolean _spk = set.getString("speak").equals("true");
 				ChatChannel channel = new ChatChannel(_name, _desc, _cont);
-				channel.setPublic(_pub);
-				channel.setCanSpeak(_spk);
+				channel.getProperties().setPublic(_pub);
+				channel.getProperties().setSpeak(_spk);
 				getManager().addChatChannel(channel);
 			}
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public ChannelProperties loadChannelProperties(String name) {
+		ChannelProperties properties = new ChannelProperties();
+		
+		PreparedStatement statement;
+		ResultSet set;
+		try {
+			
+			statement = prepareStatement("SELECT * from " + TABLE_CHANNELS + " WHERE name = \"" + name + "\";");
+			set = statement.executeQuery();
+			
+			while(set.next()) {
+				String _name = set.getString("name");
+				String _desc = set.getString("description");
+				String _cont = set.getString("context");
+				boolean _pub = set.getString("public").equals("true");
+				boolean _spk = set.getString("speak").equals("true");
+				properties.setChannelName(_name);
+				properties.setPublic(_pub);
+				properties.setSpeak(_spk);
+				properties.setDescription(_desc);
+				properties.setContext(_cont);
+			}
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return properties;
 	}
 	
 	public String getID()         { return ID;      }
@@ -368,6 +408,18 @@ public class ModuleChat extends SQLModule {
 			// Removes all players from the channel.
 			channel.removeAllPlayers();
 			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void renameChannelDatabase(ChatChannel chatChannel, String nameOld, String nameNew) {
+		Statement statement;
+		try {
+			statement = createStatement();
+			statement.executeUpdate("UPDATE " + TABLE_CHANNELS + " SET name = \"" + nameNew + "\" WHERE name = \"" + nameOld + "\";");
+			statement.executeUpdate("ALTER TABLE sledgehammer_channel_" + nameOld + "_history RENAME TO sledgehammer_channel_" + nameNew + ";");
+			statement.close();
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}

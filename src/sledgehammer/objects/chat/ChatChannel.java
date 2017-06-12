@@ -11,6 +11,8 @@ import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.manager.ChatManager;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaArray;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
@@ -30,16 +32,10 @@ import sledgehammer.objects.send.SendRenameChatChannel;
 public class ChatChannel extends LuaTable  {
 	
 	public static final int CHANNEL_HISTORY_SIZE = 512;
-	
-	public static final String DEFAULT_CONTEXT = "sledgehammer.chat.channel";
 
 	private int id;
 	
 	private String channelName;
-	
-	private String description = "";
-	
-	private String context = DEFAULT_CONTEXT;
 	
 	private Map<String, Player> mapPlayersSent;
 
@@ -57,17 +53,28 @@ public class ChatChannel extends LuaTable  {
 	
 	private ChatChannelComparator comparator;
 	
-	private boolean showHistory = true;
-	
-	private boolean allowChat = true;
-	
-	private boolean isPublic = true;
-
-	private boolean canSpeak = true;
+	private ChannelProperties properties;
 	
 	public ChatChannel(String name) {
 		super("chatChannel");
 		setChannelName(name);
+		init();
+		properties = new ChannelProperties();
+	}
+	
+	public ChatChannel(KahluaTable table) {
+		super("chatChannel", table);
+	}
+
+	public ChatChannel(String name, String desc, String cont) {
+		super("chatChanel");
+		properties = new ChannelProperties();
+		setChannelName(name);
+		properties.setDescription(desc);
+		properties.setContext(cont);
+	}
+	
+	public void init() {
 		listMessages = new LinkedList<ChatMessage>();
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
@@ -77,17 +84,6 @@ public class ChatChannel extends LuaTable  {
 		sendMessage = new SendChatMessage();
 		sendMessagePlayer = new SendChatMessagePlayer();
 		comparator = new ChatChannelComparator();
-	}
-	
-	public ChatChannel(KahluaTable table) {
-		super("chatChannel", table);
-	}
-
-	public ChatChannel(String name, String desc, String cont) {
-		super("chatChanel");
-		setChannelName(name);
-		setDescription(desc);
-		setContext(cont);
 	}
 
 	public void addPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
@@ -101,7 +97,7 @@ public class ChatChannel extends LuaTable  {
 		}
 		
 		for(Player player : SledgeHammer.instance.getPlayers()) {
-			if(player.hasPermission(getContext())) {				
+			if(player.hasPermission(properties.getContext())) {				
 				sendMessage(chatMessagePlayer, player);
 			}
 		}
@@ -242,15 +238,39 @@ public class ChatChannel extends LuaTable  {
 	}
 	
 	public void rename(String nameNew) {
-		sendRename.set(this, this.getChannelName(), nameNew);
+
+		String nameOld = getChannelName();		
 		this.setChannelName(nameNew);
+		
+		sendRename.set(this, nameOld, nameNew);
+		
 		for(Player player : SledgeHammer.instance.getPlayers()) {
 			if(canSee(player)) {				
-				SledgeHammer.instance.send(send, player);
+				SledgeHammer.instance.send(sendRename, player);
 			}
 		}
+		
+		ModuleChat module = getChatModule();
+		module.renameChannelDatabase(this, nameOld, nameNew);
+		getChatManager().renameChatChannel(this, nameOld, nameNew);
 	}
 	
+	public void setProperties(ChannelProperties properties) {
+		this.properties = properties;
+	}
+	
+	public ChannelProperties getProperties() {
+		return this.properties;
+	}
+	
+	private ChatManager getChatManager() {
+		return SledgeHammer.instance.getChatManager();
+	}
+
+	private ModuleChat getChatModule() {
+		return (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+	}
+
 	public boolean canSee(Player player) {
 		return true;
 	}
@@ -268,53 +288,19 @@ public class ChatChannel extends LuaTable  {
 		//TODO: implement
 	}
 	
-	public boolean showHistory() {
-		return this.showHistory;
-	}
-	
-	public void setShowHistory(boolean flag) {
-		this.showHistory = flag;
-	}
-	
 	/**
 	 * If the channel has its own context permission, 
 	 * then it is running as white-listed.
 	 * @return
 	 */
 	public boolean isWhitelisted() {
-		return !getContext().equals(DEFAULT_CONTEXT);
+		return !getProperties().getContext().equals(ChannelProperties.DEFAULT_CONTEXT);
 	}
 	
-	public String getDescription() {
-		return this.description;
-	}
-	
-	public void setDescription(String desc) {
-		this.description = desc;
-	}
-
-	public String getContext() {
-		return context;
-	}
-	
-	public void setContext(String context) {
-		if(!context.equals(this.context)) {
-			this.context = context;
-		}
-	}
-
 	private void setChannelName(String name) {
 		this.channelName = name;
 	}
 	
-	public boolean isPublic() {
-		return isPublic;
-	}
-	
-	public void setPublic(boolean flag) {
-		this.isPublic = flag;
-	}
-
 	public LinkedList<ChatMessage> getAllMessages() {
 		return this.listMessages;
 	}
@@ -331,14 +317,6 @@ public class ChatChannel extends LuaTable  {
 		return mapPlayersSent.values();
 	}
 	
-	public void setAlllowChat(boolean flag) {
-		this.allowChat = flag;
-	}
-	
-	public boolean allowsChat() {
-		return this.allowChat;
-	}
-
 	public void addMessage(String string) {
 		addMessage(new ChatMessage(string));
 	}
@@ -347,14 +325,6 @@ public class ChatChannel extends LuaTable  {
 		this.listMessages = messages;
 	}
 
-	public boolean canSpeak() {
-		return this.canSpeak;
-	}
-	
-	public void setCanSpeak(boolean flag) {
-		this.canSpeak = flag;
-	}
-	
 	@Override
 	public void onLoad(KahluaTable table) {
 		channelName = table.rawget("channelName").toString();
@@ -364,11 +334,7 @@ public class ChatChannel extends LuaTable  {
 	@Override
 	public void onExport() {
 		set("channelName", getChannelName());
-		set("context"    , getContext());
-		set("description", getDescription());
 		set("history"    , getLastMessages(32));
-		set("public"     , isPublic());
-		set("speak"      , canSpeak());
-		set("showHistory", showHistory());
+		set("properties" , getProperties());
 	}
 }

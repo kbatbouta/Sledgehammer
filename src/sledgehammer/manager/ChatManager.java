@@ -28,12 +28,7 @@ import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
-import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
-import zombie.sledgehammer.PacketHelper;
-
-// Imports chat colors for short-hand.
-import static sledgehammer.util.ChatTags.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -134,7 +129,7 @@ public class ChatManager extends Manager implements EventListener {
 			ChatChannel nextChannel = mapChannels.get(channelName);
 			
 			// Check to make sure the player has access to this channel.
-			if(player.hasPermission(nextChannel.getContext())) {
+			if(player.hasPermission(nextChannel.getProperties().getContext())) {
 				
 				// If so, then add it to the list to return.
 				list.add(nextChannel);
@@ -297,6 +292,11 @@ public class ChatManager extends Manager implements EventListener {
 	public void onStart() {}
 	public void onUpdate() {}
 	public void onShutDown() {}
+
+	public void renameChatChannel(ChatChannel chatChannel, String nameOld, String nameNew) {
+		this.mapChannels.put(nameOld.toLowerCase(), null);
+		this.mapChannels.put(nameNew.toLowerCase(), chatChannel);
+	}
 	
 /*	*//**
 	 * @deprecated LEGACY FORMAT
