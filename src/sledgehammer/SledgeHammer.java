@@ -65,7 +65,7 @@ import zombie.sledgehammer.SledgeHelper;
  */
 public class SledgeHammer extends Printable {
 	
-	public static final String VERSION = "2.05_04";
+	public static final String VERSION = "3.0";
 	
 	/**
 	 * Debug boolean for the SledgeHammer engine. Used for verbose output.

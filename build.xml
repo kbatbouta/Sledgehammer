@@ -22,7 +22,7 @@
 			<zipgroupfileset includes="*.jar" dir="lib"/>
 			<manifest>
 				<attribute name="Premain-Class" value="sledgehammer.Agent"/>
-				<attribute name="Main-Class" value="sledgehammer.JarLoader"/> 
+				<attribute name="Main-Class" value="sledgehammer.SledgeHammer"/> 
 			</manifest>
 		</jar>
 	</target>
