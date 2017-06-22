@@ -70,7 +70,7 @@ public class SledgeHammer extends Printable {
 	/**
 	 * Debug boolean for the SledgeHammer engine. Used for verbose output.
 	 */
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	
 	/**
 	 * Boolean to load SledgeHammer for testing a module, without ProjectZomboid

@@ -22,6 +22,7 @@ public class Agent {
 		new File("saves/").mkdirs();
 		new File("plugins/").mkdirs();
 		new File("settings/").mkdirs();
+		new File("steamapps/").mkdirs();
 		
 		File craftboid = new File("natives/CraftBoid.jar");
 		
@@ -129,8 +130,7 @@ public class Agent {
 				pzDirectory + "/stdlib.lbc",
 				pzDirectory + "/stdlib.lua",
 				pzDirectory + "/serialize.lua",
-				pzDirectory + "/steam_appid.txt",
-				pzDirectory + "/steamapps",
+				pzDirectory + "/steam_appid.txt", 
 				pzDirectory + "/media"
 		};
 		
