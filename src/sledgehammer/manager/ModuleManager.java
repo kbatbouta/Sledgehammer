@@ -142,24 +142,27 @@ public final class ModuleManager extends Manager {
 	 * Loads the modules given from the plug-ins folder.
 	 */
 	void loadModules() {
-
+ 
 		// Ensures a plug-in folder exists.
 		if (!ZUtil.pluginFolder.exists()) ZUtil.pluginFolder.mkdirs();
 		
 		listPluginsRaw = getSledgeHammer().getSettings().getPluginList();
 
-		println("Loading modules.");
+		println("Loading module(s).");
 
-		
-		for (String plugin : listPluginsRaw) {
-			if (plugin != null && !plugin.isEmpty()) {
-				try {
-					Module module = loadPlugin(plugin);
-					registerModule(module);
-				} catch (Exception e) {
-					e.printStackTrace();
+		if(listPluginsRaw != null && listPluginsRaw.length > 0) { 			
+			for (String plugin : listPluginsRaw) {
+				if (plugin != null && !plugin.isEmpty()) {
+					try {
+						Module module = loadPlugin(plugin);
+						registerModule(module);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
+		} else {
+			println("No module(s) to load.");
 		}
 
 		Iterator<Module> modules = listModules.iterator();
@@ -374,8 +377,6 @@ public final class ModuleManager extends Manager {
 			
 			// Loads all classes in the JAR file.
 			for (String clazz : listClasses) loader.loadClass(clazz);
-			
-			if (SledgeHammer.DEBUG) println("Class.forName(" + module + ", true, " + loader + ");");
 			
 			Class<?> classToLoad = Class.forName(module, true, loader);
 			

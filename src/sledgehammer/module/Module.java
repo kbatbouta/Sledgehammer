@@ -186,7 +186,7 @@ public abstract class Module extends Printable {
 
 	public INI getINI() {
 		if (ini == null) {
-			iniFile = new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator
+			iniFile = new File("plugins" + File.separator
 					+ getJarName() + ".ini");
 			ini = new INI(iniFile);
 		}

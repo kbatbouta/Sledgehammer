@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Sledgehammer.makejar" default="makejar" basedir=".">
+	<target name = "makejar" description="Create a jar for Sledgehammer">
+		<mkdir dir="prod"/>
+		<delete file="prod/Sledgehammer.jar"/>
+		
+		<jar jarfile="prod/Sledgehammer.jar" includes="*.class" basedir="">
+			<fileset dir = "bin">
+				<exclude name="**/zombie3709/**"/>
+				<exclude name="**/zombie3710/**"/>
+				<exclude name="**/zombie3711/**"/>
+				<exclude name="**/zombieold/**"/>
+				<exclude name="**/*.zip"/>
+				<exclude name="**/*.rar"/>
+				<exclude name="**/*.7z"/>
+				<exclude name="**/*.java"/>
+			</fileset>
+			<fileset file="gson-2.7.jar"></fileset>
+			<fileset file="serialize.lua"></fileset>
+			<fileset file="stdlib.lua"></fileset>
+			<fileset file="stdlib.lbc"></fileset>
+			<zipgroupfileset includes="*.jar" dir="lib"/>
+			<manifest>
+				<attribute name="Premain-Class" value="sledgehammer.Agent"/>
+				<attribute name="Main-Class" value="sledgehammer.JarLoader"/> 
+			</manifest>
+		</jar>
+	</target>
+</project>

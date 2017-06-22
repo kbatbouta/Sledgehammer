@@ -191,11 +191,9 @@ public class ChatChannel extends LuaTable  {
 	}
 
 	public void sendToPlayer(Player player) {
-		if(!mapPlayersSent.containsKey(player.getName())) {
-			if(canSee(player)) {
-				SledgeHammer.instance.send(send);
-				mapPlayersSent.put(player.getName(), player);
-			}
+		if(canSee(player)) {
+			SledgeHammer.instance.send(send);
+			mapPlayersSent.put(player.getName(), player);
 		}
 	}
 	
@@ -272,7 +270,12 @@ public class ChatChannel extends LuaTable  {
 	}
 
 	public boolean canSee(Player player) {
-		return true;
+		if(getChannelName().equalsIgnoreCase("global") || getChannelName().equalsIgnoreCase("local")) {
+			return true;
+		} else {
+			println("hasRawPermission(" + getProperties().getContext() + ") = " + player.hasRawPermission(getProperties().getContext()));
+			return player.hasRawPermission(getProperties().getContext());
+		}
 	}
 	
 	public boolean hasAlreadySentPlayer(Player player) {

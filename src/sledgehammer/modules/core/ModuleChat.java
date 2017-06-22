@@ -55,8 +55,10 @@ public class ModuleChat extends SQLModule {
 	
 	public void onStart() {
 		
+		getPermissionsManager().addDefaultPlayerPermission(ChannelProperties.DEFAULT_CONTEXT);
+		
 		ChatChannel global = new ChatChannel("Global");
-//		ChatChannel Espanol = new ChatChannel("Español");
+		ChatChannel Espanol = new ChatChannel("Español");
 //		ChatChannel Russia = new ChatChannel("\u0440\u0443\u0441\u0441\u043A\u0438\u0439");
 		ChatChannel local  = new ChatChannel("Local");
 		ChatChannel pms    = new ChatChannel("PMs");
@@ -71,33 +73,36 @@ public class ModuleChat extends SQLModule {
 		local.getProperties().setPublic(false);
 		pms.getProperties().setPublic(false);
 		
-//		Espanol.getProperties().setPublic(true);
+		Espanol.getProperties().setPublic(true);
+		Espanol.getProperties().streamGlobal(false);
+		Espanol.getProperties().setContext("sledgehammer.chat.espanol");
 //		Russia.getProperties().setPublic(true);
 		
 		addChannel(global);
 		addChannel(local );
-//		addChannel(Espanol);
+		addChannel(Espanol);
 //		addChannel(Russia);
 		addChannel(pms   );
 	}
 	
 	public void addChannel(ChatChannel channel) {
+		loadChannel(channel);
 		getManager().addChatChannel(channel);
 	}
 	
 	
-//	public void loadChannel(ChatChannel channel) {
-//		PreparedStatement pStatement;
-//		ResultSet set;
-//		Statement statement;
-//		try {
-//			statement = createStatement();
-//			statement.executeUpdate("create table if not exists " + "sledgehammer_channel_" + channel.getChannelName() + "_history (message_id INTEGER, time_added BIGINT);");
-//			
+	public void loadChannel(ChatChannel channel) {
+		PreparedStatement pStatement;
+		ResultSet set;
+		Statement statement;
+		try {
+			statement = createStatement();
+			statement.executeUpdate("create table if not exists " + "sledgehammer_channel_" + channel.getChannelName() + "_history (message_id INTEGER, time_added BIGINT);");
+			
 //			pStatement = prepareStatement("SELECT * from " + TABLE_CHANNELS + " WHERE name = \"" + channel.getChannelName() + "\";");
 //			set = pStatement.executeQuery();
 //			if(set.next()) {
-//				// Grab the stored definitions of the ChatChannel.
+				// Grab the stored definitions of the ChatChannel.
 //				String _desc = set.getString("description");
 //				String _cont = set.getString("context");
 //				boolean _public   = set.getString("public").equals("true");
@@ -122,12 +127,12 @@ public class ModuleChat extends SQLModule {
 //			// Close streams.
 //			set.close();
 //			pStatement.close();
-//			statement.close();
-//			
-//		} catch(SQLException e) {
-//			e.printStackTrace();
-//		}
-//	}
+			statement.close();
+			
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public ChatManager getManager() {
 		return SledgeHammer.instance.getChatManager();
@@ -136,7 +141,6 @@ public class ModuleChat extends SQLModule {
 	public void onUpdate(long delta) {}
 	public void onStop() {}
 	public void onUnload() {}
-
 
 	public void onClientCommand(ClientEvent event) {
 		String command = event.getCommand();
@@ -149,10 +153,9 @@ public class ModuleChat extends SQLModule {
 			RequestChannelsEvent requestEvent = new RequestChannelsEvent(player);
 			SledgeHammer.instance.handle(requestEvent);
 			
-			List<ChatChannel> channels = SledgeHammer.instance.getChatManager().getChannelsForPlayer(player);
 			RequestChatChannels request = new RequestChatChannels();
 			
-			for(ChatChannel channel : channels) {
+			for(ChatChannel channel : getChatManager().getChannels()) {
 				if(channel.canSee(player)) {					
 					request.addChannel(channel);
 				}
@@ -295,7 +298,7 @@ public class ModuleChat extends SQLModule {
 							+ "\"" + messageID                      + "\","
 							+ "\"" + origin                         + "\","
 							+ "\"" + message.getChannel()           + "\","
-							+ "\"" + message.getMessage()           + "\","
+							+ "\"" + message.getMessage().replace("\"", "\"\"").replace("\'", "\'\'") + "\","
 							+ "\"" + message.getOriginalMessage()   + "\","
 							+ "\"" + message.isEdited()             + "\","
 							+ "\"" + message.getEditorID()          + "\","
@@ -310,6 +313,8 @@ public class ModuleChat extends SQLModule {
 			}
 
 			statement = createStatement();
+			
+			println(sql);
 			statement.executeUpdate(sql);
 			
 			// Update the channel history.
@@ -386,6 +391,10 @@ public class ModuleChat extends SQLModule {
 	public String getVersion()    { return VERSION; }
 
 	public void deleteChannel(ChatChannel channel) {
+		if(channel == null) {
+			errorln("Channel is null!");
+			return;
+		}
 		println("Removing channel: " + channel.getChannelName());
 		getManager().removeChatChannel(channel);
 		PreparedStatement statement;

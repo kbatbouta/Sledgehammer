@@ -83,7 +83,7 @@ public abstract class SQLModule extends Module {
 			finalFileName = finalFileName.split(".")[0];
 		}
 		
-		dbFile = new File(getDBCacheDirectory() + fileName + ".db");
+		dbFile = new File("database" + File.separator + fileName + ".db");
 		
 		if (!dbFile.exists()) {
 			try {

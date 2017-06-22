@@ -28,6 +28,7 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Broadcast;
+import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.ChatMessagePlayer;
 import sledgehammer.objects.chat.Command;
@@ -70,6 +71,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapTooltips.put("warn"         , "Warns a player. ex: /warn \"player\" \"message\"");
 		mapTooltips.put("broadcast"    , "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"");
 		mapTooltips.put("commitsuicide", "End your character's life.");
+		mapTooltips.put("espanol", "Adds you to the Spanish chat channel.");
 		// mapTooltips.put("muteglobal"   , "Toggles global chat.");
 		mapTooltips.put("properties"   , "Lists a player's properties. ex: /properties rj.");
 		mapTooltips.put("ban"          , 
@@ -90,19 +92,18 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts = new HashMap<>();
 		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
 		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"         );
-		// mapContexts.put("muteglobal"   , "sledgehammer.core.basic.muteglobal"     );
+		mapContexts.put("espanol"      , "sledgehammer.core.chat.espanol");
 		mapContexts.put("commitsuicide", "sledgehammer.core.basic.commitsuicide"  );
 		mapContexts.put("properties"   , "sledgehammer.core.moderation.properties");
 		mapContexts.put("ban"          , "sledgehammer.core.moderation.ban"       );
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
-		// mapContexts.put("purge"        , "sledgehammer.core.moderation.purge"     );
 
 		PermissionsManager managerPermissions = module.getPermissionsManager();
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("pm"           ));
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("colors"       ));
-		// managerPermissions.addDefaultPlayerPermission(getPermissionContext("muteglobal"   ));
+		managerPermissions.addDefaultPlayerPermission(getPermissionContext("espanol"));
 		managerPermissions.addDefaultPlayerPermission(getPermissionContext("commitsuicide"));
 	}
 	
@@ -138,7 +139,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				"properties",
 				"ban",
 				"unban",
-//				"muteglobal",
+				"espanol"
 //				"purge"
 		};
 	}
@@ -160,6 +161,21 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		
 		if(DEBUG) println("Command fired by " + username + ": " + com.getRaw());
 		
+		if(command.startsWith("espanol")) {
+			
+			ChatChannel channel = module.getChatManager().getChannel("Español");
+			if(player.hasRawPermission("sledgehammer.chat.espanol")) {
+				player.setPermission(username, "sledgehammer.chat.espanol", false);
+				channel.removePlayer(player);
+				r.set(Result.SUCCESS, "You have been removed from the Español channel.");
+			} else {				
+				player.setPermission(username, "sledgehammer.chat.espanol", true);
+				channel.sendToPlayer(player);
+				r.set(Result.SUCCESS, "You are now added to the Español channel.");
+			}
+			
+			return;
+		}
 		if(command.startsWith("colors")) {
 			if(module.hasPermission(username, getPermissionContext("colors"))) {				
 				r.set(Result.SUCCESS, ChatTags.listColors());

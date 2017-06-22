@@ -1,5 +1,8 @@
 .metadata
 
+# Production builds
+prod/
+
 tmp/
 *.log
 *.tmp

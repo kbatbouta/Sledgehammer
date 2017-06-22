@@ -149,7 +149,7 @@ public class Player extends LuaTable {
 	}
 	
 	public void initProperties() {
-		setProperties(SledgeHammer.instance.getPlayerManager().getProperties(id));
+		setProperties(getProperties(id));
 		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
 		
 		if(getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
@@ -272,7 +272,7 @@ public class Player extends LuaTable {
 	
 	public void setProperty(String property, String content, boolean save) {
 		if(mapProperties == null) {
-			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
+			setProperties(getProperties(getID()));
 		}
 		if(mapProperties == null) {
 			mapProperties = new HashMap<>();
@@ -283,16 +283,16 @@ public class Player extends LuaTable {
 	}
 	
 	public void saveProperties() {
-		SledgeHammer.instance.getPlayerManager().saveProperties(id, mapProperties);
+		saveProperties(id, mapProperties);
 	}
 	
 	public String getProperty(String property) {
 		if(mapProperties == null) {
-			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
+			setProperties(getProperties(getID()));
 		}
 		if(mapProperties == null) {
 			setID(ServerWorldDatabase.instance.resolvePlayerID(getUsername()));
-			setProperties(SledgeHammer.instance.getPlayerManager().getProperties(getID()));
+			setProperties(getProperties(getID()));
 		}
 		if(mapProperties != null) {			
 			return mapProperties.get(property.toLowerCase());
@@ -409,6 +409,29 @@ public class Player extends LuaTable {
 			return getConnection().ReleventTo(isoOther.x, isoOther.y);
 		}
 		return false;
+	}
+
+	public void setPermission(String username, String context, boolean b) {
+		SledgeHammer.instance.getPermissionsManager().setPermission(username, context, b);
+	}
+
+	public boolean hasRawPermission(String context) {
+		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(username, context);
+	}
+	
+	/**
+	 * Returns player properties based on a given player ID.
+	 * 
+	 * @param id
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getProperties(int id) {
+		return SledgeHammer.instance.getModuleManager().getCoreModule().getProperties(id);
+	}
+	
+	public void saveProperties(int id, Map<String, String> mapProperties) {
+		SledgeHammer.instance.getModuleManager().getCoreModule().saveProperties(id, mapProperties);
 	}
 	
 }

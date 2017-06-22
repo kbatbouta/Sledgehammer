@@ -18,7 +18,11 @@ This file is part of Sledgehammer.
 */
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,7 +46,7 @@ public class ZUtil {
 	/**
 	 * The location for plug-ins, as a String. 
 	 */
-	public static String pluginLocation = SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator;
+	public static String pluginLocation = "plugins" + File.separator;
 	
 	/**
 	 * The location for plug-ins, as a File.
@@ -201,6 +205,50 @@ public class ZUtil {
 	
 	public static long currentTimeStamp() {
 		return (System.currentTimeMillis() / 1000);
+	}
+	
+	public static File[] getFiles(File directory, String extension) {
+		
+		List<File> listFiles = new ArrayList<File>();
+		
+		if(directory.exists()) {
+			File[] files = directory.listFiles();
+			
+			for(File file : files) {
+				
+				if(file.isDirectory()) {
+					
+					// Recursive cannot iterate over parent directories.
+					if(file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
+						continue;
+					}
+					
+					// Not a part of PZ.
+					if(file.getName().equalsIgnoreCase("rcon")) {
+						continue;
+					}
+					
+					File[] newFiles = getFiles(file, extension);
+					if(newFiles.length > 0) {
+						for(File newFile : newFiles) {
+							listFiles.add(newFile);
+						}
+					}
+				} else {
+					if(file.getName().endsWith(extension)) {
+						listFiles.add(file);
+					}
+				}
+			}
+		}
+		
+		File[] array = new File[listFiles.size()];
+		
+		for(int index = 0; index < listFiles.size(); index++) {
+			array[index] = listFiles.get(index);
+		}
+		
+		return array;
 	}
 	
 }

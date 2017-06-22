@@ -15,7 +15,7 @@ public class Broadcast extends LuaTable {
 	/**
 	 * Author of the Broadcast. Set to admin by default.
 	 */
-	private Player author = SledgeHammer.instance.getPlayerManager().getAdmin();
+	private Player author = SledgeHammer.getAdmin();
 	
 	/**
 	 * The time of the broadcast.
@@ -75,7 +75,7 @@ public class Broadcast extends LuaTable {
 			if(author instanceof KahluaTable) {
 				KahluaTable author = (KahluaTable) _author;
 				int id = new Double(author.rawget("id").toString()).intValue();
-				setAuthor(SledgeHammer.instance.getPlayerManager().getPlayerByID(id));
+				setAuthor(SledgeHammer.instance.getPlayer(id));
 			}
 		}
 	}

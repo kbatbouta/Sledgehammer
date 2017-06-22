@@ -342,7 +342,7 @@ public class EventManager extends Manager {
 
 		// Create a Player instance.
 		if (connection == null)
-			player = getSledgeHammer().getPlayerManager().getAdmin();
+			player = SledgeHammer.getAdmin();
 		else
 			player = getSledgeHammer().getPlayer(connection.username);
 

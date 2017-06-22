@@ -19,8 +19,10 @@ This file is part of Sledgehammer.
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.event.CommandEvent;
@@ -68,7 +70,7 @@ public class SledgeHammer extends Printable {
 	/**
 	 * Debug boolean for the SledgeHammer engine. Used for verbose output.
 	 */
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 	
 	/**
 	 * Boolean to load SledgeHammer for testing a module, without ProjectZomboid
@@ -114,11 +116,6 @@ public class SledgeHammer extends Printable {
 	private UdpEngine udpEngine;
 	
 	/**
-	 * Settings instance to handle loading, and reading SledgeHammer's settings.
-	 */
-	private Settings settings = null;
-
-	/**
 	 * The name of the server running SledgeHammer.
 	 */
 	private String publicServerName;
@@ -146,7 +143,7 @@ public class SledgeHammer extends Printable {
 	public SledgeHammer() {
 		translator = new CoreContextListener();
 		
-		new File(SledgeHammer.getCacheFolder() + File.separator + "plugins" + File.separator).mkdirs();
+		new File("plugins" + File.separator).mkdirs();
 		loadSettings();
 	}
 
@@ -196,7 +193,7 @@ public class SledgeHammer extends Printable {
 		getPlayerManager().onStart();
 		getChatManager().startChat();
 		
-		for(Player player : getPlayerManager().getPlayers()) {
+		for(Player player : getPlayers()) {
 			PlayerCreatedEvent event = new PlayerCreatedEvent(player);
 			SledgeHammer.instance.handle(event);
 		}
@@ -211,8 +208,7 @@ public class SledgeHammer extends Printable {
 		println("Loading settings..");
 		
 		try {			
-			settings = new Settings(this);
-			settings.readSettings();
+			Settings.getInstance().readSettings();
 		} catch(Exception e) {
 			stackTrace("An Error occured while loading Sledgehammer's settings.", e);
 		}
@@ -349,7 +345,7 @@ public class SledgeHammer extends Printable {
 	 * @return
 	 */
 	public Settings getSettings() {
-		return settings;
+		return Settings.getInstance();
 	}
 	
 	public boolean isStarted() {
@@ -379,7 +375,6 @@ public class SledgeHammer extends Printable {
 	
 	public void register(CommandListener listener) {
 		for(String command : listener.getCommands()) {
-			println("Registering command: \"" + command + "\" for listener: " + listener);
 			getEventManager().registerCommandListener(command, listener);
 		}
 	}
@@ -539,29 +534,29 @@ public class SledgeHammer extends Printable {
 		return SledgeHelper.getIsoPlayerByNicknameDirty(nickname);
 	}
 	
-	public Player getPlayer(int id) {
-		return getPlayerManager().resolve(id);
-	}
-	
-	/**
-	 * Returns a player based on a user's name. If the player is not online, an offline copy will be made.
-	 * 
-	 * @param username
-	 * 
-	 * @return
-	 */
-	public Player getPlayer(String username) {
-		
-		if(username == null) return null;
-		
-		Player player = getPlayerManager().getPlayerByUsername(username, false);
-		
-		if(player == null) {
-			player = getPlayerManager().createOfflinePlayer(username);
-		}
-		
-		return player;
-	}
+//	public Player getPlayer(int id) {
+//		return getPlayerManager().resolve(id);
+//	}
+//	
+//	/**
+//	 * Returns a player based on a user's name. If the player is not online, an offline copy will be made.
+//	 * 
+//	 * @param username
+//	 * 
+//	 * @return
+//	 */
+//	public Player getPlayer(String username) {
+//		
+//		if(username == null) return null;
+//		
+//		Player player = getPlayerManager().getPlayerByUsername(username, false);
+//		
+//		if(player == null) {
+//			player = getPlayerManager().createOfflinePlayer(username);
+//		}
+//		
+//		return player;
+//	}
 	
 	
 	
@@ -581,12 +576,6 @@ public class SledgeHammer extends Printable {
 	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException,
 			IllegalArgumentException, IllegalAccessException {
 		instance = new SledgeHammer();
-		
-		System.setProperty("java.library.path", System.getProperty("user.dir") + File.separator + "natives");
-		Field fieldSysPath = ClassLoader.class.getDeclaredField("sys_paths");
-		fieldSysPath.setAccessible(true);
-		fieldSysPath.set(null, null);
-		
 		GameServer.main(args);
 	}
 
@@ -602,12 +591,37 @@ public class SledgeHammer extends Printable {
 		this.translator = stringModifier;
 	}
 
+	public static List<Player> listPlayers = new ArrayList<>();
+	public static Map<Integer,Player> mapPlayersByID = new HashMap<>();
+	public static Map<String, Player> mapPlayersByUsername = new HashMap<>();
+	
 	public List<Player> getPlayers() {
-		return getPlayerManager().getPlayers();
+		return listPlayers;
 	}
-
-	public Player getPlayerDirty(String name) {
-		return getPlayerManager().getPlayerDirty(name);
+	
+	public Player getPlayer(String username) {
+		return mapPlayersByUsername.get(username.toLowerCase());
+	}
+	
+	public Player getPlayer(int id) {
+		return mapPlayersByID.get(id);
+	}
+	
+	public void addPlayer(Player player) {
+		if(!listPlayers.contains(player)) {			
+			listPlayers.add(player);
+		}
+		if(!mapPlayersByID.containsKey(player.getID())) {			
+			mapPlayersByID.put(player.getID(), player);
+		}
+		
+		if(!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {			
+			mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
+		}
+		
+		if(DEBUG) {			
+			println("Adding player: " + player + ", " + player.getUsername() + ", " + player.getID() + ", " + player.getConnection());
+		}
 	}
 
 	/**
@@ -651,7 +665,7 @@ public class SledgeHammer extends Printable {
 	public void send(Send send, Player player) {
 		if(player.isConnected()) {
 			if(DEBUG) {				
-				println("Sending to player: " + send);
+				println("Sending to player: " + player + ", send=" + send);
 			}
 			GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(), player.getConnection());
 		}
@@ -659,5 +673,59 @@ public class SledgeHammer extends Printable {
 
 	public void updatePlayer(Player player) {
 		getModuleManager().getCoreModule().updatePlayer(player);
+	}
+	
+	public static Player getAdmin() {
+		return Player.admin;
+	}
+	
+	public Player getPlayerByNickname(String nickname) {
+		for(Player player : getPlayers()) {
+			if(player.getNickname().equalsIgnoreCase(nickname)) {
+				return player;
+			}
+		}
+		return null;
+	}
+	
+	public Player getPlayerByUsername(String username) {
+		for(Player player : getPlayers()) {
+			if(player.getUsername().equalsIgnoreCase(username)) {
+				return player;
+			}
+		}
+		return null;
+	}
+
+	public Player getPlayerDirty(String username) {
+		 //Search by username.
+		Player player = getPlayerByUsername(username);
+		
+		// Search by nickname.
+		if(player == null) {			
+			player = getPlayerByNickname(username);
+		}
+		
+		// Search dirty for username.
+		if(player == null) {
+			for(Player nextPlayer : getPlayers()) {
+				if(nextPlayer.getUsername().toLowerCase().contains(username.toLowerCase())) {
+					player = nextPlayer;
+					break;
+				}
+			}
+		}
+		
+		// Search dirty for nickname.
+		if(player == null) {
+			for(Player nextPlayer : getPlayers()) {
+				if(nextPlayer.getNickname().toLowerCase().contains(username.toLowerCase())) {
+					player = nextPlayer;
+					break;
+				}
+			}
+		}
+		
+		return player;
 	}
 }

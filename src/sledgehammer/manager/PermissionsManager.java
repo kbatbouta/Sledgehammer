@@ -124,6 +124,50 @@ public class PermissionsManager extends Manager {
 	
 	/**
 	 * Returns whether or not a user has a allowed permissions context.
+	 * Does not check if the user is an Administrator.
+	 * 
+	 * @param username
+	 * 
+	 * @param context
+	 * 
+	 * @return
+	 */
+	public boolean hasRawPermission(String username, String context) {
+		if(context == null) {
+			println("Plug-in is asking permissions for a null context.");
+			stackTrace();
+		}
+		
+		boolean hasPermissionsHandler = hasPermissionModule();
+		
+		if(hasPermissionsHandler) {			
+			
+			// Loop through each handler and if any returns true, return true.
+			for(PermissionsHandler handler : listPermissionHandlers) {
+				
+				try {				
+					if(handler.hasPermission(username, context)) return true;
+				} catch(Exception e) {
+					stackTrace("Error handling permission check: " + handler.getClass().getName(), e);
+				}
+				
+			}
+			
+		} else {
+			
+			Boolean result = mapDefaultPlayerPermissions.get(context.toLowerCase());
+			
+			if (result != null && result.booleanValue() == true) {
+				return true;
+			}
+		}
+		
+		// If no permissions handler identified as true, return false.
+		return false;
+	}
+	
+	/**
+	 * Returns whether or not a user has a allowed permissions context.
 	 * 
 	 * @param username
 	 * 
@@ -257,5 +301,11 @@ public class PermissionsManager extends Manager {
 
 	@Override
 	public void onShutDown() {}
+
+	public void setPermission(String username, String node, boolean b) {
+		for(PermissionsHandler handler : listPermissionHandlers) {
+			handler.setPermission(username, node, b);
+		}
+	}
 	
 }

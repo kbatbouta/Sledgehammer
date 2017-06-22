@@ -31,17 +31,19 @@ import sledgehammer.util.Printable;
  */
 public class Settings extends Printable {
 
+	private static Settings instance;
+	
+	public static Settings getInstance() {
+		if(instance == null) {
+			instance = new Settings();
+		}
+		return instance;
+	}
 	/**
 	 * INI file for SledgeHammer Settings.
 	 */
 	private INI ini;
 
-	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer;
-	
 	private String[] pluginList;
 
 	private String permissionDeniedMessage = "Permission Denied.";
@@ -51,14 +53,15 @@ public class Settings extends Printable {
 	private short accountIdleExpireTime = 0;
 	private String[] accountIdleExclusion = null;
 	
+	private String pzDirectory;
+	
 
 	/**
 	 * Main constructor.
 	 * 
 	 * @param sledgeHammer
 	 */
-	public Settings(SledgeHammer sledgeHammer) {
-		this.sledgeHammer = sledgeHammer;
+	public Settings() {
 	}
 
 	/**
@@ -66,7 +69,7 @@ public class Settings extends Printable {
 	 */
 	public void readSettings() {
 		// Location of the main configuration file for SledgeHammer.
-		String iniFileLocation = SledgeHammer.getCacheFolder() + File.separator + "SledgeHammer.ini";
+		String iniFileLocation = "Settings.ini";
 
 		File iniFile = new File(iniFileLocation);
 		ini = new INI(iniFile);
@@ -88,6 +91,11 @@ public class Settings extends Printable {
 					}
 				} else {
 					println("MaximumExplosionRadius is not set. Setting to " + this.maximumExplosionRadius + ".");
+				}
+				
+				String s_pzDirectory = ini.getVariableAsString("GENERAL", "pzDirectory");
+				if(s_pzDirectory != null) {
+					this.pzDirectory = s_pzDirectory;
 				}
 				
 				String s_accountIdleExpireTime = ini.getVariableAsString("GENERAL", "accountIdleExpireTime");
@@ -123,6 +131,8 @@ public class Settings extends Printable {
 						SledgeHammer.DEBUG = true;
 					}
 				}
+				
+				
 
 				// If the setting is blank, handle properly.
 				if (listPluginsRaw.isEmpty()) {
@@ -173,6 +183,7 @@ public class Settings extends Printable {
 	private void createSettings(INI ini) {
 		ini.createSection("GENERAL"); {			
 			ini.setVariable("GENERAL", "debug", "false");
+			ini.setVariable("GENERAL", "pzDirectory", "", "The directory for the Project Zomboid Dedicated Server.");
 			ini.setVariable("GENERAL", "plugins", "");
 			ini.setVariable("GENERAL", "helicopter", "true", "Whether or not to enable or disable the helicopter ambient event.");
 			ini.setVariable("GENERAL", "permissiondeniedmessage", "You do not have access to that command.");
@@ -209,10 +220,6 @@ public class Settings extends Printable {
 		return ini;
 	}
 	
-	SledgeHammer getSledgeHammer() {
-		return sledgeHammer;
-	}
-
 	@Override
 	public String getName() { return "Settings"; }
 
@@ -231,6 +238,14 @@ public class Settings extends Printable {
 	
 	public String[] getAccountIdleExclusions() {
 		return this.accountIdleExclusion;
+	}
+	
+	public void setPZDirectory(String pzDirectory) {
+		ini.setVariable("GENERAL", "pzDirectory", pzDirectory);
+	}
+
+	public String getPZDirectory() {
+		return this.pzDirectory;
 	}
 	
 }

@@ -20,4 +20,6 @@ This file is part of Sledgehammer.
 public interface PermissionsHandler {
 	public boolean hasPermission(String username, String context);
 
+	public void setPermission(String username, String node, boolean b);
+
 }
