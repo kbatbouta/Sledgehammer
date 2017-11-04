@@ -9,6 +9,7 @@
 				<exclude name="**/zombie3709/**"/>
 				<exclude name="**/zombie3710/**"/>
 				<exclude name="**/zombie3711/**"/>
+				<exclude name="**/zombie3712/**"/>
 				<exclude name="**/zombieold/**"/>
 				<exclude name="**/*.zip"/>
 				<exclude name="**/*.rar"/>
