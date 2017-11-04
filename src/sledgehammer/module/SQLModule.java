@@ -36,6 +36,7 @@ import java.util.Map;
 import sledgehammer.SledgeHammer;
 import zombie.GameWindow;
 
+@Deprecated
 public abstract class SQLModule extends Module {
 	private Connection connection = null;
 	
