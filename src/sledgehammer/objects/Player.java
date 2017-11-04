@@ -1,7 +1,5 @@
 package sledgehammer.objects;
 
-import java.util.HashMap;
-import java.util.List;
 
 /*
 This file is part of Sledgehammer.
@@ -21,17 +19,18 @@ This file is part of Sledgehammer.
 */
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoPlayer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.manager.ChatManager;
-import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
@@ -39,26 +38,22 @@ import sledgehammer.objects.chat.ChatMessagePlayer;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;
-import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.SledgeHelper;
 
 public class Player extends LuaTable {
 	
 	public static final Player admin = new Player();
 	
-	private IsoPlayer iso;
+	private Map<String, String> mapProperties;
+	private MongoPlayer mongoPlayer;
 	private UdpConnection connection;
+	private IsoPlayer iso;
 	private String username;
 	private String nickname;
-	
 	private Color color;
-	
 	private Vector3f position;
 	private Vector2f metaPosition;
-	
-	private Map<String, String> mapProperties;
 	private long sinceDeath = 0L;
-	private int id = -1;
 	private boolean isNewAccount = false;
 	private boolean isNewCharacter = false;
 	private boolean isAlive = true;	
@@ -72,20 +67,27 @@ public class Player extends LuaTable {
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
 		color = Color.WHITE;
-		
-		if(SledgeHammer.instance.isStarted()) {			
+		if(SledgeHammer.instance.isStarted()) {
 			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
 			SledgeHammer.instance.handle(event);
 		}
 	}
 	
+	public MongoPlayer getMongoPlayer() {
+		return this.mongoPlayer;
+	}
+	
+	public void setMongoPlayer(MongoPlayer mongoPlayer) {
+		this.mongoPlayer = mongoPlayer;
+	}
+
 	/**
 	 * Constructor for 'Console' connections. This includes 3rd-Party console access.
 	 */
 	private Player() {
 		super("Player");
-		username = "admin";	
-		
+		username = "admin";
+		mongoPlayer = SledgeHammer.instance.getDatabase().getMongoPlayer("admin");
 		if(SledgeHammer.instance.isStarted()) {			
 			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
 			SledgeHammer.instance.handle(event);
@@ -101,30 +103,25 @@ public class Player extends LuaTable {
 	 */
 	public Player(String username) {
 		super("Player");
+		if(username == null || username.isEmpty()) {
+			throw new IllegalArgumentException("Username given is null or empty!");
+		}
 		// Set the username of the Player instance to the parameter given.
 		this.username = username;
-
 		// Tries to get a Player instance. Returns null if invalid.
 		this.iso = SledgeHammer.instance.getIsoPlayerDirty(username);
-		
 		// Go through each connection.
 		for(UdpConnection conn : SledgeHammer.instance.getConnections()) {
-			
 			// If the username on the UdpConnection instance matches,
 			if(conn.username != null && conn.username.equalsIgnoreCase(username)) {
-				
 				// Set this connection as the instance of the Player.
 				this.connection = conn;
-				
 				// Break out of the loop to save computation time.
 				break;
 			}
 		}
-		
-		initProperties();
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
-		
 		if(SledgeHammer.instance.isStarted()) {			
 			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
 			SledgeHammer.instance.handle(event);
@@ -132,26 +129,19 @@ public class Player extends LuaTable {
 	}
 	
 	public void init() {
-		
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
-		
 		if(!hasInit) {
 			IsoPlayer player = getIso();
 			if(player   != null) username = getIso().getUsername();
 			if(username == null) username = connection.username;
+			initProperties();
 			hasInit = true;
 		}
 	}
 	
-	public void setID(int id) {
-		this.id = id;
-	}
-	
 	public void initProperties() {
-		setProperties(getProperties(id));
 		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
-		
 		if(getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
 			System.out.println("NewCharacter: " + getUsername());
 			this.isNewCharacter = true;
@@ -159,6 +149,10 @@ public class Player extends LuaTable {
 		}		
 	}
 	
+	/**
+	 * FIXME: Possible condition bug with not setting alive property.
+	 * @param flag
+	 */
 	public void setAlive(boolean flag) {
 		if(isAlive && !flag) {
 			isAlive = false;
@@ -250,10 +244,6 @@ public class Player extends LuaTable {
 		return getIso() == null ? username.equalsIgnoreCase("admin") : getIso().accessLevel.equals("admin");
 	}
 
-	public int getID() {
-		return id;
-	}
-
 	public void setConnection(UdpConnection connection) {
 		this.connection = connection;
 	}
@@ -271,34 +261,15 @@ public class Player extends LuaTable {
 	}
 	
 	public void setProperty(String property, String content, boolean save) {
-		if(mapProperties == null) {
-			setProperties(getProperties(getID()));
-		}
-		if(mapProperties == null) {
-			mapProperties = new HashMap<>();
-		}
-		mapProperties.put(property.toLowerCase(), content);
-
-		if(save) saveProperties();
+		getMongoPlayer().setMetaData(property, content, save);
 	}
 	
 	public void saveProperties() {
-		saveProperties(id, mapProperties);
+		saveProperties();
 	}
 	
 	public String getProperty(String property) {
-		if(mapProperties == null) {
-			setProperties(getProperties(getID()));
-		}
-		if(mapProperties == null) {
-			setID(ServerWorldDatabase.instance.resolvePlayerID(getUsername()));
-			setProperties(getProperties(getID()));
-		}
-		if(mapProperties != null) {			
-			return mapProperties.get(property.toLowerCase());
-		}
-		
-		return null;
+		return getMongoPlayer().getMetaData(property);
 	}
 
 	public void set(IsoPlayer iso) {
@@ -363,7 +334,7 @@ public class Player extends LuaTable {
 
 	@Override
 	public void onExport() {
-		set("id", getID());
+		set("id", getUniqueId().toString());
 		set("username", getUsername());
 		set("nickname", getNickname());
 		set("color", getColor());
@@ -419,19 +390,8 @@ public class Player extends LuaTable {
 		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(username, context);
 	}
 	
-	/**
-	 * Returns player properties based on a given player ID.
-	 * 
-	 * @param id
-	 * 
-	 * @return
-	 */
-	public Map<String, String> getProperties(int id) {
-		return SledgeHammer.instance.getModuleManager().getCoreModule().getProperties(id);
-	}
-	
-	public void saveProperties(int id, Map<String, String> mapProperties) {
-		SledgeHammer.instance.getModuleManager().getCoreModule().saveProperties(id, mapProperties);
+	public UUID getUniqueId() {
+		return getMongoPlayer().getUniqueId();
 	}
 	
 }

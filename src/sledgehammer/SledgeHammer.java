@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.database.SledgehammerDatabase;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.PlayerCreatedEvent;
@@ -82,6 +84,9 @@ public class SledgeHammer extends Printable {
 	 * Singleton instance of the SledgeHammer engine.
 	 */
 	public static SledgeHammer instance;
+	
+	
+	private SledgehammerDatabase database;
 
 	/**
 	 * Manager instance to handle NPC operations.
@@ -181,7 +186,6 @@ public class SledgeHammer extends Printable {
 			if(!TESTMODULE) {
 				managerModule.onLoad();
 			}
-			
 		} catch(Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer.", e);
 		}
@@ -592,7 +596,7 @@ public class SledgeHammer extends Printable {
 	}
 
 	public static List<Player> listPlayers = new ArrayList<>();
-	public static Map<Integer,Player> mapPlayersByID = new HashMap<>();
+	public static Map<UUID, Player> mapPlayersByID = new HashMap<>();
 	public static Map<String, Player> mapPlayersByUsername = new HashMap<>();
 	
 	public List<Player> getPlayers() {
@@ -603,16 +607,16 @@ public class SledgeHammer extends Printable {
 		return mapPlayersByUsername.get(username.toLowerCase());
 	}
 	
-	public Player getPlayer(int id) {
-		return mapPlayersByID.get(id);
+	public Player getPlayer(UUID uniqueId) {
+		return mapPlayersByID.get(uniqueId);
 	}
 	
 	public void addPlayer(Player player) {
 		if(!listPlayers.contains(player)) {			
 			listPlayers.add(player);
 		}
-		if(!mapPlayersByID.containsKey(player.getID())) {			
-			mapPlayersByID.put(player.getID(), player);
+		if(!mapPlayersByID.containsKey(player.getUniqueId())) {			
+			mapPlayersByID.put(player.getUniqueId(), player);
 		}
 		
 		if(!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {			
@@ -620,7 +624,7 @@ public class SledgeHammer extends Printable {
 		}
 		
 		if(DEBUG) {			
-			println("Adding player: " + player + ", " + player.getUsername() + ", " + player.getID() + ", " + player.getConnection());
+			println("Adding player: " + player + ", " + player.getUsername() + ", " + player.getUniqueId().toString() + ", " + player.getConnection());
 		}
 	}
 
@@ -727,5 +731,13 @@ public class SledgeHammer extends Printable {
 		}
 		
 		return player;
+	}
+
+	public SledgehammerDatabase getDatabase() {
+		if(this.database == null) {
+			database = new SledgehammerDatabase();
+			database.connect(getSettings().getDatabaseURL());
+		}
+		return this.database;
 	}
 }

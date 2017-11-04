@@ -1,6 +1,11 @@
 package sledgehammer.objects.chat;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.database.MongoDatabase;
 import sledgehammer.object.LuaTable;
 
 public class ChannelProperties extends LuaTable {
@@ -99,6 +104,34 @@ public class ChannelProperties extends LuaTable {
 		set("history", showHistory());
 		set("custom", isCustom());
 		set("global", streamToGlobal());
+	}
+
+	public void load(DBObject object) {
+		setChannelName(object.get("name").toString());
+		setDescription(object.get("description").toString());
+		setContext(object.get("context").toString());
+		setPublic(object.get("public").toString().equals("1"));
+		setSpeak(object.get("speak").toString().equals("1"));
+	}
+	
+	private void onSave(DBObject object) {
+		object.put("name", getChannelName());
+		object.put("description", getDescription());
+		object.put("context", getContext());
+		object.put("public", isPublic() ? "1" : "0");
+		object.put("speak", canSpeak() ? "1" : "0");
+	}
+
+	public void save(DBCollection collection) {
+		DBObject object = new BasicDBObject();
+		onSave(object);
+		MongoDatabase.upsert(collection, "name", object);
+	}
+
+	public void rename(DBCollection collection, String nameNew) {
+		MongoDatabase.delete(collection, "name", getChannelName());
+		setChannelName(nameNew);
+		save(collection);
 	}
 
 }

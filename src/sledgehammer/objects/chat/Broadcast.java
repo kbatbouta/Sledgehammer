@@ -1,5 +1,7 @@
 package sledgehammer.objects.chat;
 
+import java.util.UUID;
+
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.object.LuaTable;
@@ -74,8 +76,8 @@ public class Broadcast extends LuaTable {
 		if(author != null) {
 			if(author instanceof KahluaTable) {
 				KahluaTable author = (KahluaTable) _author;
-				int id = new Double(author.rawget("id").toString()).intValue();
-				setAuthor(SledgeHammer.instance.getPlayer(id));
+				String id = author.rawget("id").toString();
+				setAuthor(SledgeHammer.instance.getPlayer(UUID.fromString(id)));
 			}
 		}
 	}

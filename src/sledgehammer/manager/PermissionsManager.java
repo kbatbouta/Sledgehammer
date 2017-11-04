@@ -17,8 +17,6 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoPlayer;
 import sledgehammer.interfaces.PermissionsHandler;
-import zombie.core.Core;
-import zombie.network.DataBaseBuffer;
+import sledgehammer.objects.Player;
 
 /**
  * Manager class designed to handle permissions for modules and core functions.
@@ -87,39 +85,18 @@ public class PermissionsManager extends Manager {
 		} else {
 			return false;
 		}
-		
-		String admin = "";
-
-		try {
-			// Create a statement with the vanilla database file, in whitelist where the admin status is stored.
-			PreparedStatement stat = DataBaseBuffer.getDatabaseConnection().prepareStatement("SELECT * FROM whitelist WHERE world = ?");
-			stat.setString(1, Core.GameSaveWorld);
-			
-			// Execute the query, and grab the results.
-			ResultSet rs = stat.executeQuery();
-	
-			// Go through each user entry.
-			while(rs.next()) {
-				
-				// Grab the name and set to lowercase to match.
-				String name = rs.getString("username").toLowerCase().trim();
-				
-				// This is the username. Grab admin status and break.
-				if(name.equalsIgnoreCase(username)) {
-					admin = rs.getString("admin");
-					break;
-				}
-			}
-			
-			// Close the SQLite handlers.
-			rs.close();
-			stat.close();
-		} catch(SQLException e) {
-			stackTrace("Failure to check if user is admin: " + username, e);
+		MongoPlayer mongoPlayer = null;
+		Player player = SledgeHammer.instance.getPlayer(username);
+		if(player != null) {
+			mongoPlayer = player.getMongoPlayer();
 		}
-		
-		// Return whether or not the result is a boolean true.
-		return admin.equalsIgnoreCase("true") || admin.equalsIgnoreCase("1");
+		if(mongoPlayer == null) {
+			mongoPlayer = SledgeHammer.instance.getDatabase().getMongoPlayer(username);
+		}
+		if(mongoPlayer == null) {
+			return false;
+		}
+		return mongoPlayer.isAdministrator();
 	}
 	
 	/**
@@ -137,31 +114,22 @@ public class PermissionsManager extends Manager {
 			println("Plug-in is asking permissions for a null context.");
 			stackTrace();
 		}
-		
 		boolean hasPermissionsHandler = hasPermissionModule();
-		
 		if(hasPermissionsHandler) {			
-			
 			// Loop through each handler and if any returns true, return true.
 			for(PermissionsHandler handler : listPermissionHandlers) {
-				
 				try {				
 					if(handler.hasPermission(username, context)) return true;
 				} catch(Exception e) {
 					stackTrace("Error handling permission check: " + handler.getClass().getName(), e);
 				}
-				
 			}
-			
 		} else {
-			
 			Boolean result = mapDefaultPlayerPermissions.get(context.toLowerCase());
-			
 			if (result != null && result.booleanValue() == true) {
 				return true;
 			}
 		}
-		
 		// If no permissions handler identified as true, return false.
 		return false;
 	}
@@ -176,38 +144,27 @@ public class PermissionsManager extends Manager {
 	 * @return
 	 */
 	public boolean hasPermission(String username, String context) {
-		
 		if(context == null) {
 			println("Plug-in is asking permissions for a null context.");
 			stackTrace();
 		}
-		
 		if(isUserAdmin(username)) return true;
-		
 		boolean hasPermissionsHandler = hasPermissionModule();
-		
 		if(hasPermissionsHandler) {			
-			
 			// Loop through each handler and if any returns true, return true.
 			for(PermissionsHandler handler : listPermissionHandlers) {
-				
 				try {				
 					if(handler.hasPermission(username, context)) return true;
 				} catch(Exception e) {
 					stackTrace("Error handling permission check: " + handler.getClass().getName(), e);
 				}
-				
 			}
-			
 		} else {
-			
 			Boolean result = mapDefaultPlayerPermissions.get(context.toLowerCase());
-			
 			if (result != null && result.booleanValue() == true) {
 				return true;
 			}
 		}
-		
 		// If no permissions handler identified as true, return false.
 		return false;
 	}
@@ -306,6 +263,5 @@ public class PermissionsManager extends Manager {
 		for(PermissionsHandler handler : listPermissionHandlers) {
 			handler.setPermission(username, node, b);
 		}
-	}
-	
+	}	
 }

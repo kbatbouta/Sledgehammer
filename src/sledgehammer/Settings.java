@@ -55,6 +55,13 @@ public class Settings extends Printable {
 	
 	private String pzDirectory;
 	
+	
+	private String url = "localhost";
+	private String port = "27019";
+	private String username = "sledgehammer";
+	private String password = "";
+	private String database = "sledgehammer";
+	
 
 	/**
 	 * Main constructor.
@@ -132,7 +139,30 @@ public class Settings extends Printable {
 					}
 				}
 				
+				String url = ini.getVariableAsString("DATABASE", "url");
+				if(url != null) {
+					this.url = url;
+				}
 				
+				String port = ini.getVariableAsString("DATABASE", "port");
+				if(port != null) {
+					this.port = port;
+				}
+				
+				String username = ini.getVariableAsString("DATABASE", "username");
+				if(username != null) {
+					this.username = username;
+				}
+				
+				String password = ini.getVariableAsString("DATABASE", "password");
+				if(password != null) {
+					this.password = password;
+				}
+				
+				String database = ini.getVariableAsString("DATABASE", "database");
+				if(database != null) {
+					this.database = database;
+				}
 
 				// If the setting is blank, handle properly.
 				if (listPluginsRaw.isEmpty()) {
@@ -192,6 +222,14 @@ public class Settings extends Printable {
 			ini.setVariable("GENERAL", "accountIdleExpireTime", "0", "Expiration time (In days), for accounts to be deleted. If set to 0, this feature is disabled.");
 			ini.setVariable("GENERAL", "accountIdleExclusion", "", "Usernames are put here to exclude from the inactivity expiration.");
 		}
+		
+		ini.createSection("DATABASE"); {
+			ini.setVariable("DATABASE", "url", "localhost", "The URL or IP to connect to.");
+			ini.setVariable("DATABASE", "port", "27019", "The Port to connect to.");
+			ini.setVariable("DATABASE", "username", "sledgehammer", "The username to connect with.");
+			ini.setVariable("DATABASE", "password", "", "The password to connect with.");
+			ini.setVariable("DATABASE", "database", "database", "The database to connect to.");
+		}
 	}
 	
 	public String[] getPluginList() {
@@ -246,6 +284,14 @@ public class Settings extends Printable {
 
 	public String getPZDirectory() {
 		return this.pzDirectory;
+	}
+	
+	public String getDatabaseURL() {
+		return "mongodb://" + username + ":" + password + "@" + url + "/" + database;
+	}
+
+	public String getDatabase() {
+		return this.database;
 	}
 	
 }

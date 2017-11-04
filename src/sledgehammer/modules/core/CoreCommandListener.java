@@ -146,9 +146,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 	
 	public String getPermissionContext(String command) {
 		if(command == null) return null;
-		
 		command = command.toLowerCase().trim();
-		
 		return mapContexts.get(command);
 	}
 
@@ -162,16 +160,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		if(DEBUG) println("Command fired by " + username + ": " + com.getRaw());
 		
 		if(command.startsWith("espanol")) {
-			
-			ChatChannel channel = module.getChatManager().getChannel("Español");
-			if(player.hasRawPermission("sledgehammer.chat.espanol")) {
-				player.setPermission(username, "sledgehammer.chat.espanol", false);
+			ChatChannel channel = module.getChatManager().getChannel("Espanol");
+			String property = player.getProperty("espanol");
+			if(property != null && property.equals("1")) {
+				player.setProperty("espanol", "0");
 				channel.removePlayer(player);
-				r.set(Result.SUCCESS, "You have been removed from the Español channel.");
+				r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
 			} else {				
-				player.setPermission(username, "sledgehammer.chat.espanol", true);
+				player.setProperty("espanol", "1");
 				channel.sendToPlayer(player);
-				r.set(Result.SUCCESS, "You are now added to the Español channel.");
+				r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
 			}
 			
 			return;

@@ -17,7 +17,6 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.SledgeHammer;
 import sledgehammer.util.ChatTags;
 
 /**
@@ -49,11 +48,6 @@ public class PeriodicMessage {
 	private boolean enabled = false;
 
 	/**
-	 * Whether or not to save the message. (This is for third-party plug-ins).
-	 */
-	private boolean save = false;
-
-	/**
 	 * Whether or not to broadcast the message on the screen.
 	 */
 	private boolean broadcast = false;
@@ -64,11 +58,6 @@ public class PeriodicMessage {
 	private int time = 15;
 
 	/**
-	 * Delta used for calculating the time offset.
-	 */
-	private long timeThen = 0L;
-
-	/**
 	 * Main constructor.
 	 * 
 	 * @param name
@@ -77,60 +66,6 @@ public class PeriodicMessage {
 	public PeriodicMessage(String name, String content) {
 		this.name = name;
 		this.content = content;
-	}
-
-	/**
-	 * Updates the periodic message. Handles executing the message, and checking
-	 * the time between executions.
-	 */
-	public void update() {
-		
-		// If the PeriodicMessage is currently active.
-		if (isEnabled()) {
-
-			// Grab the current time.
-			long timeNow = System.currentTimeMillis();
-
-			// If the delta time is larger than the time setting(time * one
-			// minute)
-			if (timeNow - timeThen >= (time * 60000)) {
-
-				String actualColor = ChatTags.getColor(getColor());
-				if(actualColor == null) color = ChatTags.COLOR_WHITE;
-				
-				if (isBroadcasted()) {
-					// Broadcast it as a /broadcast message.
-					// SledgeHammer.instance.getChatManager().broadcastMessage(content, actualColor);
-				} else {
-					// Send it in-chat.
-					ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
-					module.sendGlobalMessage(actualColor + " " + getContent());
-				}
-
-				// Mark the current time as last, to reset the delta.
-				timeThen = timeNow;
-			}
-
-		}
-
-	}
-
-	/**
-	 * Whether or not to save to the database.
-	 * 
-	 * @return
-	 */
-	public boolean shouldSave() {
-		return save;
-	}
-
-	/**
-	 * Returns whether or not this message is saved to the database.
-	 * 
-	 * @param flag
-	 */
-	public void setShouldSave(boolean flag) {
-		save = flag;
 	}
 
 	/**
@@ -212,5 +147,4 @@ public class PeriodicMessage {
 	public void setColor(String color) {
 		this.color = color;
 	}
-
 }

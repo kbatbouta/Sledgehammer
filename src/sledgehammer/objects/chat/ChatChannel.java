@@ -8,9 +8,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoDatabase;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.object.LuaArray;
@@ -67,7 +73,7 @@ public class ChatChannel extends LuaTable  {
 	}
 
 	public ChatChannel(String name, String desc, String cont) {
-		super("chatChanel");
+		super("chatChannel");
 		properties = new ChannelProperties();
 		setChannelName(name);
 		properties.setDescription(desc);
@@ -144,12 +150,12 @@ public class ChatChannel extends LuaTable  {
 	 * @param playerID
 	 * @return
 	 */
-	public List<ChatMessagePlayer> getMessagesForPlayer(int playerID) {
+	public List<ChatMessagePlayer> getMessagesForPlayer(UUID uniqueId) {
 		List<ChatMessagePlayer> listMessages = new LinkedList<>();
 		for(ChatMessage message : this.listMessages) {
 			if(message instanceof ChatMessagePlayer) {
 				ChatMessagePlayer messagePlayer = (ChatMessagePlayer)message;
-				if(messagePlayer.getPlayer().getID() == playerID) {
+				if(messagePlayer.getPlayer().getMongoPlayer().getUniqueId().equals(uniqueId)) {
 					listMessages.add(messagePlayer);
 				}
 			}
@@ -157,8 +163,8 @@ public class ChatChannel extends LuaTable  {
 		return listMessages;
 	}
 	
-	public void deleteMessagesForPlayer(int playerID) {
-		List<ChatMessagePlayer> listMessages = getMessagesForPlayer(playerID);
+	public void deleteMessagesForPlayer(UUID uniqueId) {
+		List<ChatMessagePlayer> listMessages = getMessagesForPlayer(uniqueId);
 		
 		this.listMessages.removeAll(listMessages);
 		
@@ -272,10 +278,14 @@ public class ChatChannel extends LuaTable  {
 	public boolean canSee(Player player) {
 		if(getChannelName().equalsIgnoreCase("global") || getChannelName().equalsIgnoreCase("local")) {
 			return true;
-		} else {
-			println("hasRawPermission(" + getProperties().getContext() + ") = " + player.hasRawPermission(getProperties().getContext()));
-			return player.hasRawPermission(getProperties().getContext());
+		} 
+		if(getChannelName().equalsIgnoreCase("espanol")) {
+			if(player.getProperty("espanol").equals("1")) {
+				return true;
+			}
 		}
+		println("hasRawPermission(" + getProperties().getContext() + ") = " + player.hasRawPermission(getProperties().getContext()));
+		return player.hasRawPermission(getProperties().getContext());
 	}
 	
 	public boolean hasAlreadySentPlayer(Player player) {
@@ -300,7 +310,7 @@ public class ChatChannel extends LuaTable  {
 		return !getProperties().getContext().equals(ChannelProperties.DEFAULT_CONTEXT);
 	}
 	
-	private void setChannelName(String name) {
+	public void setChannelName(String name) {
 		this.channelName = name;
 	}
 	
