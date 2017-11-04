@@ -23,7 +23,7 @@ import java.util.Map;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.module.SQLModule;
+import sledgehammer.module.Module;
 import sledgehammer.npc.behavior.BehaviorSurvive;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Command;
@@ -36,11 +36,10 @@ import zombie.characters.SurvivorDesc;
 import zombie.characters.SurvivorFactory;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
-import zombie.network.DataBaseBuffer;
 import zombie.network.ServerMap;
 import zombie.sledgehammer.npc.NPC;
 
-public class ModuleNPC extends SQLModule {
+public class ModuleNPC extends Module {
 
 	public static final String ID      = "sledgehammer_npc";
 	public static final String NAME    = "NPC-Spawner"     ;
@@ -55,7 +54,7 @@ public class ModuleNPC extends SQLModule {
 	private CommandListener commandListener = null;
 	
 	public ModuleNPC() {
-		super(DataBaseBuffer.getDatabaseConnection());
+		super();
 		module = this;
 	}
 
