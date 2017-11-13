@@ -1,5 +1,22 @@
 package sledgehammer.objects.chat;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -37,10 +54,6 @@ public class ChatMessage extends LuaTable {
 	private boolean edited = false;
 	private boolean deleted = false;
 
-	public ChatMessage(DBObject object) {
-		super("ChatMessage");
-		load(object);
-	}
 
 	/**
 	 * Constructor for creating a new ChatMessage Object.
@@ -56,6 +69,11 @@ public class ChatMessage extends LuaTable {
 		setTime();
 		// If the origin is not set manually, set it to server.
 		setOrigin(ORIGIN_SERVER);
+	}
+
+	public ChatMessage(BasicDBObject object) {
+		super("ChatMessage");
+		load(object);
 	}
 
 	public ChatMessage(long id, String channel, String message, String messageOriginal, boolean edited, String editorID,

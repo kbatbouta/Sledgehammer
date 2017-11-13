@@ -27,6 +27,7 @@ import sledgehammer.util.Response;
  *
  */
 public interface CommandListener {
+	
 	String[] getCommands();
 	
 	public void onCommand(Command command, Response response);

@@ -1,12 +1,28 @@
 package sledgehammer.modules.core;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import java.util.LinkedList;
 import java.util.List;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
@@ -87,6 +103,9 @@ public class ModuleChat extends Module {
 			SledgeHammer.instance.handle(requestEvent);
 			RequestChatChannels request = new RequestChatChannels();
 			for(ChatChannel channel : getChatManager().getChannels()) {
+				request.addChannel(channel);
+			}
+			for(ChatChannel channel : getChatManager().getChannels()) {
 				if(channel.canSee(player)) {					
 					request.addChannel(channel);
 				}
@@ -120,7 +139,7 @@ public class ModuleChat extends Module {
 		int count = 0;
 		DBCursor cursor = collectionMessages.find(new BasicDBObject());
 		while(count < length && cursor.hasNext()) {
-			DBObject object = cursor.next();
+			BasicDBObject object = (BasicDBObject) cursor.next();
 			long messageID = Long.parseLong(object.get("id").toString());
 			ChatMessage message = getManager().getMessageFromCache(messageID);
 			if(message == null) {
@@ -205,7 +224,11 @@ public class ModuleChat extends Module {
 	public void renameChannelDatabase(ChatChannel chatChannel, String nameOld, String nameNew) {
 		chatChannel.getProperties().rename(collectionChannels, nameNew);
 		DBCollection collectionHistory = this.getChannelHistoryCollection(chatChannel);
-		collectionHistory.rename(getChannelHistoryName(nameNew));
+		try {			
+			collectionHistory.rename(getChannelHistoryName(nameNew));
+		} catch(Exception e) {
+			// Collection doesn't exist yet.
+		}
 		chatChannel.setChannelName(nameNew);
 	}
 	
@@ -221,4 +244,12 @@ public class ModuleChat extends Module {
 	public String getName()       { return NAME;    }
 	public String getModuleName() { return MODULE;  }
 	public String getVersion()    { return VERSION; }
+
+	public DBCollection getMessageCollection() {
+		return this.collectionMessages;
+	}
+
+	public DBCollection getChannelCollection() {
+		return this.collectionMessages;
+	}
 }

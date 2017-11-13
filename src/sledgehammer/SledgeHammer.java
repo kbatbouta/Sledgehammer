@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.database.MongoPlayer;
 import sledgehammer.database.SledgehammerDatabase;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
@@ -510,9 +511,7 @@ public class SledgeHammer extends Printable {
 	 */
 	public void setUdpEngine(UdpEngine udpEngine) {
 		this.udpEngine = udpEngine;
-		getChatManager().setUdpEngine(udpEngine);
 	}
-
 	
 	public IsoPlayer getIsoPlayer(String name) {
 		return SledgeHelper.getIsoPlayer(name);
@@ -538,32 +537,6 @@ public class SledgeHammer extends Printable {
 		return SledgeHelper.getIsoPlayerByNicknameDirty(nickname);
 	}
 	
-//	public Player getPlayer(int id) {
-//		return getPlayerManager().resolve(id);
-//	}
-//	
-//	/**
-//	 * Returns a player based on a user's name. If the player is not online, an offline copy will be made.
-//	 * 
-//	 * @param username
-//	 * 
-//	 * @return
-//	 */
-//	public Player getPlayer(String username) {
-//		
-//		if(username == null) return null;
-//		
-//		Player player = getPlayerManager().getPlayerByUsername(username, false);
-//		
-//		if(player == null) {
-//			player = getPlayerManager().createOfflinePlayer(username);
-//		}
-//		
-//		return player;
-//	}
-	
-	
-	
 	/**
 	 * Updates the scoreboard for every player that is online.
 	 */
@@ -573,16 +546,6 @@ public class SledgeHammer extends Printable {
 		}
 	}
 	
-	
-	@Override
-	public String getName() { return "SledgeHammer"; }
-	
-	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException,
-			IllegalArgumentException, IllegalAccessException {
-		instance = new SledgeHammer();
-		GameServer.main(args);
-	}
-
 	public void unregister(EventListener listener) {
 		getEventManager().unregister(listener);
 	}
@@ -740,4 +703,32 @@ public class SledgeHammer extends Printable {
 		}
 		return this.database;
 	}
+
+	public boolean playerExists(UUID playerId) {
+		return getDatabase().playerExists(playerId);
+	}
+
+	/**
+	 * Returns a non-cached <Player> object to represent an Offline player.
+	 * @param usernameInvited The <String> username of the Player.
+	 * @return Returns a <Player> object if the player exists in the database. Returns null if the Player does not exist.
+	 */
+	public Player getOfflinePlayer(String usernameInvited) {
+		Player player = null;
+		MongoPlayer mongoPlayer = getDatabase().getMongoPlayer(usernameInvited);
+		if(mongoPlayer != null) {
+			player = new Player(mongoPlayer);
+		}
+		return player;
+	}
+	
+	@Override
+	public String getName() { return "SledgeHammer"; }
+	
+	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException,
+			IllegalArgumentException, IllegalAccessException {
+		instance = new SledgeHammer();
+		GameServer.main(args);
+	}
+
 }

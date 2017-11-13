@@ -19,9 +19,11 @@ This file is part of Sledgehammer.
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
+import sledgehammer.util.StringUtils;
 
 /**
  * Class designed to handle SledgeHammer's settings interface.
@@ -61,6 +63,8 @@ public class Settings extends Printable {
 	private String username = "sledgehammer";
 	private String password = "";
 	private String database = "sledgehammer";
+
+	private String passwordAdmin;
 	
 
 	/**
@@ -88,6 +92,11 @@ public class Settings extends Printable {
 
 				// Read the settings file.
 				ini.read();
+				
+				String s_administratorPassword = ini.getVariableAsString("GENERAL", "administratorPassword");
+				if(s_administratorPassword != null) {
+					this.passwordAdmin = StringUtils.md5(s_administratorPassword);
+				}
 				
 				String s_maximumExplosionRadius = ini.getVariableAsString("GENERAL", "maximumExplosionRadius");
 				if(s_maximumExplosionRadius != null) {
@@ -178,6 +187,11 @@ public class Settings extends Printable {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
+				if(this.passwordAdmin == null) {					
+					String generatedPassword = ini.getVariableAsString("GENERAL", "administratorPassword");
+					this.passwordAdmin = StringUtils.md5(generatedPassword);
+				}
 
 			} catch (IOException e) {
 				println("Failed to read settings.");
@@ -191,7 +205,10 @@ public class Settings extends Printable {
 				e.printStackTrace();
 			}
 		}
-		permissionDeniedMessage = ini.getVariableAsString("GENERAL", "permissiondeniedmessage");
+		String permissionDeniedMessage = ini.getVariableAsString("GENERAL", "permissiondeniedmessage");
+		if(permissionDeniedMessage != null && !permissionDeniedMessage.isEmpty()) {
+			this.permissionDeniedMessage = permissionDeniedMessage;
+		}
 	}
 	
 	/**
@@ -212,6 +229,7 @@ public class Settings extends Printable {
 	 */
 	private void createSettings(INI ini) {
 		ini.createSection("GENERAL"); {			
+			ini.setVariable("GENERAL", "administratorPassword", StringUtils.md5(UUID.randomUUID().toString()), "false");
 			ini.setVariable("GENERAL", "debug", "false");
 			ini.setVariable("GENERAL", "pzDirectory", "", "The directory for the Project Zomboid Dedicated Server.");
 			ini.setVariable("GENERAL", "plugins", "");
@@ -230,6 +248,7 @@ public class Settings extends Printable {
 			ini.setVariable("DATABASE", "password", "", "The password to connect with.");
 			ini.setVariable("DATABASE", "database", "database", "The database to connect to.");
 		}
+	
 	}
 	
 	public String[] getPluginList() {
@@ -294,4 +313,11 @@ public class Settings extends Printable {
 		return this.database;
 	}
 	
+	public String getDatabasePort() {
+		return this.port;
+	}
+
+	public String getAdministratorPassword() {
+		return this.passwordAdmin;
+	}
 }

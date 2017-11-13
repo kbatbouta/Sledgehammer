@@ -157,4 +157,18 @@ public class ChatTags {
 		}
 		return stripped;
 	}
+
+	public static boolean isValidColor(String colorNew) {
+		return mapColors.containsKey(colorNew.toLowerCase());
+	}
+
+	public static boolean isLightColor(String color) {
+		String test = color.toLowerCase();
+		return test.contains("white") || test.contains("white");
+	}
+	
+	public static boolean isDarkColor(String color) {
+		String test = color.toLowerCase();
+		return test.contains("dark") || test.contains("black") || test.contains("brown");
+	}
 }

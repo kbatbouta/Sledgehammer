@@ -36,11 +36,16 @@ import sledgehammer.manager.ChatManager;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.PermissionsManager;
+import sledgehammer.modules.core.ModuleChat;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
 
+/**
+ * TODO: Document
+ * @author Jab
+ */
 public abstract class Module extends Printable {
 
 	private INI ini;
@@ -273,72 +278,58 @@ public abstract class Module extends Printable {
 	public void register(String command, CommandListener listener) {
 		SledgeHammer.instance.register(command, listener);
 	}
+	
+	public ModuleChat getChatModule() {
+		return (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+	}
 
 	public ChatManager getChatManager() {
 		return SledgeHammer.instance.getChatManager();
+	}
+	
+	/**
+	 * Registers a <ChatChannel> properly.
+	 * 
+	 * @param chatChannel
+	 *            The <ChatChannel> being registered.
+	 */
+	public void registerChatChannel(ChatChannel chatChannel) {
+		if(chatChannel == null) {
+			throw new IllegalArgumentException("ChatChannel given is null!");
+		}
+		// Grab the ChatManager.
+		ChatManager chatManager = getChatManager();
+		// Add the ChatChannel to the ChatManager.
+		chatManager.addChatChannel(chatChannel);
+	}
+	
+	/**
+	 * Unregisters a given <ChatChannel>.
+	 * @param chatChannel The <ChatChannel> being unregistered.
+	 */
+	public void unregisterChatChannel(ChatChannel chatChannel) {
+		if(chatChannel == null) {
+			throw new IllegalArgumentException("ChatChannel given is null!");
+		}
+		ModuleChat moduleChat = getChatModule();
+		moduleChat.deleteChannel(chatChannel);
+	}
+	
+	/**
+	 * @param chatChannelName
+	 *            The <String> name used to retrieve the <ChatChannel>
+	 * @return Returns a <ChatChannel> if one exists with the given <String>
+	 *         chatChannelName. Returns null if no <ChatChannel> exists without the
+	 *         name provided.
+	 */
+	public ChatChannel getChatChannel(String chatChannelName) {
+		return getChatManager().getChannel(chatChannelName);
 	}
 
 	public void sendGlobalMessage(String message) {
 		ChatChannel global = getChatManager().getChannel("global");
 		global.addMessage(message);
 	}
-	
-//	public String warnPlayer(String commander, String username, String text) {
-//		return getChatManager().warnPlayer(commander, username, text);
-//	}
-//
-//	public String messagePlayer(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-//		return getChatManager().messagePlayer(username, header, headerColor, text, textColor, addTimeStamp, bypassMute);
-//	}
-//
-//	public String messagePlayer(Player player, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-//		return getChatManager().messagePlayer(player, header, headerColor, text, textColor, addTimeStamp, bypassMute);
-//	}
-//
-//	public String privateMessage(String commander, String username, String text) {
-//		return getChatManager().privateMessage(commander, username, text);
-//	}
-//
-//	public String privateMessage(String commander, UdpConnection connection, String text) {
-//		return getChatManager().privateMessage(commander, connection, text);
-//	}
-//	
-//	public String warnPlayerDirty(String commander, String username, String text) {
-//		return getChatManager().warnPlayerDirty(commander, username, text);
-//	}
-//
-//	public String messagePlayerDirty(String username, String header, String headerColor, String text, String textColor, boolean addTimeStamp, boolean bypassMute) {
-//		return getChatManager().messagePlayerDirty(username, header, headerColor, text, textColor, addTimeStamp, bypassMute);
-//	}
-//
-//	public String privateMessageDirty(String commander, String username, String text) {
-//		return getChatManager().privateMessageDirty(commander, username, text);
-//	}
-//
-//	public void localMessage(UdpConnection connection, int playerID, String text, byte chatType, byte sayIt) {
-//		getChatManager().localMessage(connection, playerID, text, chatType, sayIt);
-//	}
-//
-//	public void messageGlobal(String message) {
-//		getChatManager().messageGlobal(message);
-//	}
-//
-//	public void messageGlobal(String header, String message) {
-//		getChatManager().messageGlobal(header, message);
-//	}
-//
-//	public void messageGlobal(String header, String headerColor, String message, String messageColor) {
-//		getChatManager().messageGlobal(header, headerColor, message, messageColor);
-//	}
-//
-//	public void messageGlobal(String header, String headerColor, String message, String messageColor,
-//			boolean timeStamp) {
-//		getChatManager().messageGlobal(header, headerColor, message, messageColor, timeStamp);
-//	}
-//
-//	public void broadcastMessage(String message, String messageColor) {
-//		getChatManager().broadcastMessage(message, messageColor);
-//	}
 	
 	public List<Player> getPlayers() {
 		return SledgeHammer.instance.getPlayers();
@@ -356,7 +347,6 @@ public abstract class Module extends Printable {
 	 * @param context
 	 */
 	public void executeCommand(String type, String context) {
-		
 	}
 
 	public abstract void onLoad();
@@ -376,5 +366,4 @@ public abstract class Module extends Printable {
 	public abstract String getModuleName();
 
 	public abstract void onClientCommand(ClientEvent e);
-	
 }

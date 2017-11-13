@@ -1,6 +1,22 @@
 package sledgehammer.database;
 
-import com.mongodb.BasicDBObject;
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -20,7 +36,7 @@ public class MongoPeriodicMessage extends MongoDocument {
 	private boolean save = true;
 	
 	public MongoPeriodicMessage(DBCollection collection, String name, String message, String color, int time, boolean enabled, boolean broadcast) {
-		super(collection);
+		super(collection, "name");
 		setName(name);
 		setMessage(message);
 		setColor(color);
@@ -30,12 +46,12 @@ public class MongoPeriodicMessage extends MongoDocument {
 	}
 	
 	public MongoPeriodicMessage(DBCollection collection, DBObject object) {
-		super(collection);
-		load(object);
+		super(collection, "name");
+		onLoad(object);
 	}
 
 	@Override
-	public void load(DBObject object) {
+	public void onLoad(DBObject object) {
 		Object oName = object.get("name");
 		if(oName != null) {
 			setName(oName.toString());
@@ -63,19 +79,22 @@ public class MongoPeriodicMessage extends MongoDocument {
 	}
 
 	@Override
-	public void save() {
-		if(shouldSave()) {			
+	public void onSave(DBObject object) {
+		if(shouldSave()) {
 			// @formatter:off
-			DBObject object = new BasicDBObject();
 			object.put("name"     , getName()                    );
 			object.put("message"  , getMessage()                 );
 			object.put("color"    , getColor()                   );
 			object.put("time"     , getTime() + ""               );
 			object.put("enabled"  , isEnabled()       ? "1" : "0");
 			object.put("broadcast", shouldBroadcast() ? "1" : "0");
-			MongoDatabase.upsert(getCollection(), "name", object);
 			// @formatter:on
 		}
+	}
+	
+	@Override
+	public Object getFieldValue() {
+		return getName();
 	}
 	
 	/**

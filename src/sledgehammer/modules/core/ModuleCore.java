@@ -32,17 +32,16 @@ import sledgehammer.database.SledgehammerDatabase;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.HandShakeEvent;
-import sledgehammer.module.SQLModule;
+import sledgehammer.module.Module;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
 import sledgehammer.objects.chat.Command;
 import sledgehammer.objects.send.SendPlayer;
 import sledgehammer.requests.RequestInfo;
-import zombie.network.DataBaseBuffer;
 import zombie.network.ServerWorldDatabase;
 
-public class ModuleCore extends SQLModule {
+public class ModuleCore extends Module {
 
 	public static final String ID      = "sledgehammer_core";
 	public static final String NAME    = "Core"             ;
@@ -69,7 +68,7 @@ public class ModuleCore extends SQLModule {
 	private int delayPeriodicMessages   =   60000;
 	
 	public ModuleCore() {
-		super(DataBaseBuffer.getDatabaseConnection());
+		super();
 		sendPlayer = new SendPlayer();
 	}
 	
@@ -193,7 +192,7 @@ public class ModuleCore extends SQLModule {
 		// Cast to proper Event sub-class.
 		ClientEvent event = (ClientEvent) e;
 		// Get event content.
-		String module     = event.getModule();
+//		String module     = event.getModule();
 		String command    = event.getCommand();
 		Player player     = event.getPlayer();
 		if (command.equalsIgnoreCase("handshake")) {

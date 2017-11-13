@@ -1,6 +1,5 @@
 package sledgehammer.objects;
 
-
 /*
 This file is part of Sledgehammer.
 
@@ -42,7 +41,7 @@ import zombie.sledgehammer.SledgeHelper;
 
 public class Player extends LuaTable {
 	
-	public static final Player admin = new Player();
+	public static final Player admin = new Player(SledgeHammer.instance.getSettings().getAdministratorPassword(), false);
 	
 	private Map<String, String> mapProperties;
 	private MongoPlayer mongoPlayer;
@@ -58,6 +57,7 @@ public class Player extends LuaTable {
 	private boolean isNewCharacter = false;
 	private boolean isAlive = true;	
 	private boolean hasInit = false;
+	private boolean created = false;
 		
 	public Player(UdpConnection connection) {
 		super("Player");
@@ -67,10 +67,6 @@ public class Player extends LuaTable {
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
 		color = Color.WHITE;
-		if(SledgeHammer.instance.isStarted()) {
-			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
-			SledgeHammer.instance.handle(event);
-		}
 	}
 	
 	public MongoPlayer getMongoPlayer() {
@@ -79,19 +75,30 @@ public class Player extends LuaTable {
 	
 	public void setMongoPlayer(MongoPlayer mongoPlayer) {
 		this.mongoPlayer = mongoPlayer;
+		if(!created) {
+			if(SledgeHammer.instance.isStarted()) {
+				PlayerCreatedEvent event = new PlayerCreatedEvent(this);
+				SledgeHammer.instance.handle(event);
+				created = true;
+			}
+		}
 	}
 
 	/**
 	 * Constructor for 'Console' connections. This includes 3rd-Party console access.
+	 * @param password
+	 * @param isNotActuallyAParameter
 	 */
-	private Player() {
+	private Player(String password, boolean isNotActuallyAParameter) {
 		super("Player");
 		username = "admin";
 		mongoPlayer = SledgeHammer.instance.getDatabase().getMongoPlayer("admin");
-		if(SledgeHammer.instance.isStarted()) {			
-			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
-			SledgeHammer.instance.handle(event);
+		if(mongoPlayer == null) {
+			mongoPlayer = SledgeHammer.instance.getDatabase().createPlayer("admin", password);
 		}
+		mongoPlayer.setAdministrator(true);
+		mongoPlayer.setEncryptedPassword(password);
+		mongoPlayer.save();
 	}
 	
 	/**
@@ -122,12 +129,20 @@ public class Player extends LuaTable {
 		}
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
-		if(SledgeHammer.instance.isStarted()) {			
-			PlayerCreatedEvent event = new PlayerCreatedEvent(this);
-			SledgeHammer.instance.handle(event);
-		}
 	}
 	
+	/**
+	 * Offline Player constructor.
+	 * 
+	 * @param mongoPlayer
+	 *            The <MongoPlayer> database object.
+	 */
+	public Player(MongoPlayer mongoPlayer) {
+		super("Player");
+		setMongoPlayer(mongoPlayer);
+		username = mongoPlayer.getUsername();
+	}
+
 	public void init() {
 		position = new Vector3f(0,0,0);
 		metaPosition = new Vector2f(0,0);
@@ -392,6 +407,14 @@ public class Player extends LuaTable {
 	
 	public UUID getUniqueId() {
 		return getMongoPlayer().getUniqueId();
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if(other instanceof Player) {
+			return ((Player)other).getUniqueId().equals(getUniqueId());
+		}
+		return false;
 	}
 	
 }

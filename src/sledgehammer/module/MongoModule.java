@@ -1,5 +1,22 @@
 package sledgehammer.module;
 
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import com.mongodb.DB;
 
 import sledgehammer.SledgeHammer;
@@ -59,7 +76,15 @@ public abstract class MongoModule extends Module {
 	 * @return The <DB> database.
 	 */
 	@SuppressWarnings("deprecation")
-	public final DB getDatabase(String databaseName) {
+	public final static DB getDatabase(String databaseName) {
 		return SledgeHammer.instance.getDatabase().getClient().getDB(databaseName);
+	}
+	
+	/**
+	 * @return Returns the default <DB> database.
+	 */
+	@SuppressWarnings("deprecation")
+	public final static DB getDefaultDatabase() {
+		return SledgeHammer.instance.getDatabase().getDatabase();
 	}
 }

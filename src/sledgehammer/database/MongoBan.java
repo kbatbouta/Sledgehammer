@@ -1,6 +1,22 @@
 package sledgehammer.database;
 
-import com.mongodb.BasicDBObject;
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -13,11 +29,11 @@ public class MongoBan extends MongoDocument {
 	boolean banned = true;
 
 	public MongoBan(DBCollection collection) {
-		super(collection);
+		super(collection, "id");
 	}
 	
 	public MongoBan(DBCollection collection, String id, String username, String reason, boolean steam, boolean banned) {
-		super(collection);
+		super(collection, "id");
 		setID(id);
 		setUsername(username);
 		setReason(reason);
@@ -26,7 +42,7 @@ public class MongoBan extends MongoDocument {
 	}
 
 	@Override
-	public void load(DBObject object) {
+	public void onLoad(DBObject object) {
 		Object oSteam = object.get("steam");
 		if (oSteam != null) {
 			setSteam(oSteam.toString().equals("1"));
@@ -50,16 +66,25 @@ public class MongoBan extends MongoDocument {
 	}
 	
 	@Override
-	public void save() {
+	public void onSave(DBObject object) {
 		// @formatter:off
-		DBObject object = new BasicDBObject();
 		object.put("id"      , id                    );
 		object.put("username", getUsername()         );
 		object.put("steam"   , isSteam() ? "1" : "0" );
 		object.put("reason"  , getReason()           );
 		object.put("banned"  , isBanned() ? "1" : "0");
-		MongoDatabase.upsert(getCollection(), "id", object);
 		// @formatter:on
+	}
+	
+	@Override
+	public void delete() {
+		setBanned(false);
+		super.delete();
+	}
+	
+	@Override
+	public Object getFieldValue() {
+		return getID();
 	}
 
 	public boolean isSteam() {
@@ -93,6 +118,15 @@ public class MongoBan extends MongoDocument {
 		}
 		return this.id;
 	}
+	
+	/**
+	 * (Internal Method)
+	 * 
+	 * @return Returns the raw ID of the ban.
+	 */
+	private String getID() {
+		return this.id;
+	}
 
 	/**
 	 * (Internal Method)
@@ -111,14 +145,6 @@ public class MongoBan extends MongoDocument {
 
 	public void setReason(String reason) {
 		this.reason = reason;
-	}
-
-	/**
-	 * Removes the <MongoBan>.
-	 */
-	public void delete() {
-		MongoDatabase.delete(getCollection(), "id", id);
-		banned = false;
 	}
 	
 	public void setBanned(boolean flag) {
