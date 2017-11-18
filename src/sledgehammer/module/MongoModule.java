@@ -83,7 +83,6 @@ public abstract class MongoModule extends Module {
 	/**
 	 * @return Returns the default <DB> database.
 	 */
-	@SuppressWarnings("deprecation")
 	public final static DB getDefaultDatabase() {
 		return SledgeHammer.instance.getDatabase().getDatabase();
 	}
