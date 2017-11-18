@@ -2,7 +2,9 @@ package sledgehammer.database;
 
 import java.util.UUID;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 /**
@@ -25,6 +27,27 @@ public abstract class UniqueMongoDocument extends MongoDocument {
 	public UniqueMongoDocument(DBCollection collection) {
 		super(collection, "id");
 		setUniqueId(UUID.randomUUID());
+	}
+	
+	/**
+	 * New constructor with provided ID.
+	 * 
+	 * @param collection
+	 *            The <DBCOllection> storing the document.
+	 * @param uniqueId
+	 *            The <UUID> being assigned.
+	 */
+	public UniqueMongoDocument(DBCollection collection, UUID uniqueId) {
+		super(collection, "id");
+		DBObject query = new BasicDBObject("id", uniqueId.toString());
+		DBCursor cursor = collection.find(query);
+		if (cursor.hasNext()) {
+			cursor.close();
+			throw new IllegalArgumentException(
+					"New Object in collection contains ID that is already in use: \"" + uniqueId.toString() + "\".");
+		}
+		cursor.close();
+		setUniqueId(uniqueId);
 	}
 
 	/**

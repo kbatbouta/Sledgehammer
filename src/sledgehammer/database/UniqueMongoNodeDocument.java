@@ -2,6 +2,7 @@ package sledgehammer.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -39,6 +40,19 @@ public abstract class UniqueMongoNodeDocument extends UniqueMongoDocument {
 	 */
 	public UniqueMongoNodeDocument(DBCollection collection) {
 		super(collection);
+		listNodes = new ArrayList<>();
+	}
+
+	/**
+	 * New constructor with provided ID.
+	 * 
+	 * @param collection
+	 *            The <DBCOllection> storing the document.
+	 * @param uniqueId
+	 *            The <UUID> being assigned.
+	 */
+	public UniqueMongoNodeDocument(DBCollection collection, UUID uniqueId) {
+		super(collection, uniqueId);
 		listNodes = new ArrayList<>();
 	}
 
