@@ -1,4 +1,4 @@
-package sledgehammer.wrapper;
+package sledgehammer.lua.permissions;
 
 /*
 This file is part of Sledgehammer.
@@ -19,9 +19,15 @@ This file is part of Sledgehammer.
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import sledgehammer.SledgeHammer;
 
+/**
+ * Generic Object to handle generic operations for permission objects.
+ * 
+ * @author Jab
+ */
 public class PermissionObject {
 	
 	/**
@@ -32,7 +38,7 @@ public class PermissionObject {
 	/**
 	 * The ID of the permission object (Used in SQLite).
 	 */
-	private int id;
+	private UUID uniqueId;
 	
 	/**
 	 * The map containing the context permissions.
@@ -42,13 +48,14 @@ public class PermissionObject {
 	/**
 	 * Main constructor.
 	 * @param name
+	 * @param uniqudId
 	 */
-	public PermissionObject(String name, int id) {
-		this.id = id;
+	public PermissionObject(String name, UUID uniqueId) {
+		this.uniqueId = uniqueId;
 		this.name = name;
 		mapPermissions = new HashMap<>();
 		
-		if(SledgeHammer.DEBUG) System.out.println("PermissionObject: " + "CREATE: ID: " + getID() + " NAME: " + getName());
+		if(SledgeHammer.DEBUG) System.out.println("PermissionObject: " + "CREATE: ID: " + getUniqueId().toString() + " NAME: " + getName());
 	}
 	
 	/**
@@ -72,16 +79,11 @@ public class PermissionObject {
 	 * @param context
 	 */
 	public void removePermission(String context) {
-		
 		if(hasPermission(context)) {
-
-			// Force context to lowercase to avoid any inconsistencies.
+			// Force context to lower-case to avoid any inconsistencies.
 			context = context.toLowerCase();
-			
 			mapPermissions.remove(context);
-
 		}
-	
 	}
 	
 	/**
@@ -90,12 +92,9 @@ public class PermissionObject {
 	 * @return
 	 */
 	public boolean hasPermission(String context) {
-		
-		// Force context to lowercase to avoid any inconsistencies.
+		// Force context to lower-case to avoid any inconsistencies.
 		context = context.toLowerCase();
-		
 		return mapPermissions.containsKey(context);
-
 	}
 	
 	/**
@@ -104,28 +103,21 @@ public class PermissionObject {
 	 * @return
 	 */
 	public boolean hasAnyPermission(String contextRoot) {
-		
 		// Clean up the string if any spaces or upper-case is present.
 		contextRoot = contextRoot.toLowerCase().trim();
-		
 		// Grab the group's permissions.
 		Map<String, Boolean> permissions = getPermissions();
-		
 		// Go through each permission context.
 		for(String context : permissions.keySet()) {
-			
 			// If the context given contains the contextRoot,
 			if(context.toLowerCase().contains(contextRoot)) {
-				
 				// And if the context is true, then return true.
 				if(permissions.get(context)) {
 					return true;
 				}
-				
 				// Else, keep looping until there is a true context.
 			}
 		}
-		
 		// If no contexts are present returning true, then return false.
 		return false;
 	}
@@ -138,12 +130,12 @@ public class PermissionObject {
 		return mapPermissions;
 	}
 	
-	public int getID() {
-		return this.id;
+	public UUID getUniqueId() {
+		return this.uniqueId;
 	}
 	
-	public void setID(int id) {
-		this.id = id;
+	public void setUniqueId(UUID uniqueId) {
+		this.uniqueId = uniqueId;
 	}
 	
 	public String getName() {
