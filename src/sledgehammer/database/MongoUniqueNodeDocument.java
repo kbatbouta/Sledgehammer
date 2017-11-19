@@ -14,7 +14,7 @@ import com.mongodb.DBObject;
  * 
  * @author Jab
  */
-public abstract class UniqueMongoNodeDocument extends UniqueMongoDocument {
+public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 
 	/** The List of <String> nodes. */
 	private List<String> listNodes;
@@ -27,7 +27,7 @@ public abstract class UniqueMongoNodeDocument extends UniqueMongoDocument {
 	 * @param object
 	 *            The <DBObject> storing the data.
 	 */
-	public UniqueMongoNodeDocument(DBCollection collection, DBObject object) {
+	public MongoUniqueNodeDocument(DBCollection collection, DBObject object) {
 		super(collection, object);
 		listNodes = new ArrayList<>();
 	}
@@ -38,7 +38,7 @@ public abstract class UniqueMongoNodeDocument extends UniqueMongoDocument {
 	 * @param collection
 	 *            The <DBCOllection> storing the document.
 	 */
-	public UniqueMongoNodeDocument(DBCollection collection) {
+	public MongoUniqueNodeDocument(DBCollection collection) {
 		super(collection);
 		listNodes = new ArrayList<>();
 	}
@@ -51,7 +51,7 @@ public abstract class UniqueMongoNodeDocument extends UniqueMongoDocument {
 	 * @param uniqueId
 	 *            The <UUID> being assigned.
 	 */
-	public UniqueMongoNodeDocument(DBCollection collection, UUID uniqueId) {
+	public MongoUniqueNodeDocument(DBCollection collection, UUID uniqueId) {
 		super(collection, uniqueId);
 		listNodes = new ArrayList<>();
 	}

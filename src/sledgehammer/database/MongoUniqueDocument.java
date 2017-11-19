@@ -13,7 +13,7 @@ import com.mongodb.DBObject;
  * 
  * @author Jab
  */
-public abstract class UniqueMongoDocument extends MongoDocument {
+public abstract class MongoUniqueDocument extends MongoDocument {
 
 	/** The identifier for the document. */
 	private UUID uniqueId;
@@ -24,7 +24,7 @@ public abstract class UniqueMongoDocument extends MongoDocument {
 	 * @param collection
 	 *            The <DBCollection> storing the document.
 	 */
-	public UniqueMongoDocument(DBCollection collection) {
+	public MongoUniqueDocument(DBCollection collection) {
 		super(collection, "id");
 		setUniqueId(UUID.randomUUID());
 	}
@@ -37,7 +37,7 @@ public abstract class UniqueMongoDocument extends MongoDocument {
 	 * @param uniqueId
 	 *            The <UUID> being assigned.
 	 */
-	public UniqueMongoDocument(DBCollection collection, UUID uniqueId) {
+	public MongoUniqueDocument(DBCollection collection, UUID uniqueId) {
 		super(collection, "id");
 		DBObject query = new BasicDBObject("id", uniqueId.toString());
 		DBCursor cursor = collection.find(query);
@@ -58,7 +58,7 @@ public abstract class UniqueMongoDocument extends MongoDocument {
 	 * @param object
 	 *            The <DBObject> storing the data.
 	 */
-	public UniqueMongoDocument(DBCollection collection, DBObject object) {
+	public MongoUniqueDocument(DBCollection collection, DBObject object) {
 		super(collection, "id");
 		// Grab the ID from the object first before loading.
 		setUniqueId(UUID.fromString(object.get("id").toString()));
