@@ -26,7 +26,7 @@ import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.modules.ModuleNPC;
+import sledgehammer.module.npc.ModuleNPC;
 import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
@@ -216,7 +216,7 @@ public class NPCManager extends Manager {
 	public String getName() { return NAME; }
 
 	@Override
-	public void onLoad() {}
+	public void onLoad(boolean debug) {}
 
 	@Override
 	public void onStart() {}
