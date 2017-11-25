@@ -34,5 +34,5 @@ public interface CommandListener {
 	
 	public String onTooltip(Player player, Command command);
 	
-	public String getPermissionContext(String context);
+	public String getPermissionNode(String command);
 }
