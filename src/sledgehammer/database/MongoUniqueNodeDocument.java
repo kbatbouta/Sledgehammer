@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
@@ -17,7 +18,7 @@ import com.mongodb.DBObject;
 public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 
 	/** The List of <String> nodes. */
-	private List<String> listNodes;
+	private List<MongoNode> listMongoNodes;
 
 	/**
 	 * MongoDB constructor.
@@ -29,7 +30,8 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 */
 	public MongoUniqueNodeDocument(DBCollection collection, DBObject object) {
 		super(collection, object);
-		listNodes = new ArrayList<>();
+		listMongoNodes = new ArrayList<>();
+		loadNodes(object);
 	}
 
 	/**
@@ -40,7 +42,7 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 */
 	public MongoUniqueNodeDocument(DBCollection collection) {
 		super(collection);
-		listNodes = new ArrayList<>();
+		listMongoNodes = new ArrayList<>();
 	}
 
 	/**
@@ -53,93 +55,139 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 */
 	public MongoUniqueNodeDocument(DBCollection collection, UUID uniqueId) {
 		super(collection, uniqueId);
-		listNodes = new ArrayList<>();
+		listMongoNodes = new ArrayList<>();
 	}
 
 	/**
-	 * Handles loading nodes.
+	 * Loads the Nodes into the <MongoNodeDocument>
 	 * 
 	 * @param object
-	 *            The <DBObject> storing the node data.
+	 *            The <DBObject> storing the data for the <MongoNodeDocument>.
 	 */
 	public void loadNodes(DBObject object) {
-		listNodes.clear();
-		@SuppressWarnings({ "rawtypes" })
-		List objectList = (List) object.get("nodes");
-		for (Object next : objectList) {
-			String node = (String) next;
-			listNodes.add(node);
+		System.out.print("Loading Nodes");
+		// Grab the list of MongoNodes in DBObject format.
+		@SuppressWarnings("rawtypes")
+		List list = (List) object.get("nodes");
+		System.out.println(". Size: " + list.size());
+		// Go through each DBObject.
+		for (Object oNodeNext : list) {
+			// Cast to the DBObject class.
+			DBObject objectNodeNext = (DBObject) oNodeNext;
+			// Create a new MongoNode linking to the document.
+			MongoNode mongoNodeNext = new MongoNode(this);
+			// Load the MongoNode.
+			mongoNodeNext.onLoad(objectNodeNext);
+			// Add to the list of MongoNodes.
+			this.listMongoNodes.add(mongoNodeNext);
 		}
 	}
 
 	/**
-	 * Handles saving nodes.
+	 * Saves the <MongoNode> <List> to the <DBObject> given.
 	 * 
 	 * @param object
-	 *            The <DBObject> that stores the nodes.
+	 *            The <DBObject> to store the <MongoNode> sub-document <List>.
 	 */
 	public void saveNodes(DBObject object) {
-		object.put("nodes", getNodes());
+		System.out.println("Saving Nodes. Size: " + listMongoNodes.size());
+		// Create a new List to store the DBObjects representing the MongoNodes.
+		List<DBObject> objectNodes = new ArrayList<>();
+		// Go through each assigned MongoNode.
+		for (MongoNode nodeNext : listMongoNodes) {
+			// Create a new DBObject to store the MongoNode data to.
+			DBObject objectNodeNext = new BasicDBObject();
+			// Save the data to the DBObject.
+			nodeNext.onSave(objectNodeNext);
+			// Add the MongoNode's DBObject to the List.
+			objectNodes.add(objectNodeNext);
+		}
+		// Save the MongoNodes into the 'nodes' field.
+		object.put("nodes", objectNodes);
+	}
+
+	@Override
+	public void save() {
+		// Create a new DBObject with the document's identifier.
+		DBObject object = new BasicDBObject(getFieldId(), getFieldValue());
+		// Populate the main document.
+		onSave(object);
+		// Save the entries.
+		saveEntries(object);
+		// Save the nodes.
+		saveNodes(object);
+		// Upsert the document.
+		MongoDatabase.upsert(getCollection(), getFieldId(), object);
 	}
 
 	/**
-	 * Adds a node to the document, if the entry does not exist.
+	 * Adds a <MongoNode> to the document. If the <MongoNode> already exists within
+	 * the document, the flag will be set for the first MongoNode, and then the
+	 * MongoNode will be removed. The given MongoNode will be put into the list
+	 * thereafter.
 	 * 
-	 * (All nodes are stored and compared in lower-case automatically)
-	 * 
-	 * @param node
-	 *            The <String> node being added to the document.
+	 * @param mongoNode
+	 *            The <MongoNode> to add (or override), to the document.
 	 * @param save
-	 *            Flag to save the document after adding the node.
-	 * @return
+	 *            Flag for saving the document after adding the node.
 	 */
-	public boolean addNode(String node, boolean save) {
-		boolean returned = false;
-		if (!hasNode(node)) {
-			node = node.toLowerCase();
-			listNodes.add(node);
-			returned = true;
-			if (save) save();
+	public void addNode(MongoNode mongoNode, boolean save) {
+		// Validate the MongoNode argument.
+		if (mongoNode == null) {
+			throw new IllegalArgumentException("MongoNode given is null.");
 		}
+		// If the node already exists, the one being set needs to replace the instance
+		// entirely.
+		if (listMongoNodes.contains(mongoNode)) {
+			// Grab the previous instance that identifies with the equals operation.
+			MongoNode mongoNodeOther = listMongoNodes.remove(listMongoNodes.indexOf(mongoNode));
+			// In case something is using this instance of the node, set the flag for
+			// reference.
+			mongoNodeOther.setFlag(mongoNode.getFlag(), false);
+			mongoNodeOther.setMongoDocument(null);
+		}
+		mongoNode.setMongoDocument(this);
+		// Add the current instance.
+		listMongoNodes.add(mongoNode);
+		// If the argument to save is true
+		if (save) {
+			// Save the document.
+			save();
+		}
+	}
+
+	/**
+	 * Removes a <MongoNode> from the document.
+	 * 
+	 * @param mongoNode
+	 *            The <MongoNode> being removed.
+	 * @param save
+	 *            Flag for saving the document after removing the node.
+	 * @return Returns true if the <MongoNode> is removed from the document.
+	 */
+	public boolean removeNode(MongoNode mongoNode, boolean save) {
+		boolean returned = false;
+		// Validate the MongoNode argument.
+		if (mongoNode == null) {
+			throw new IllegalArgumentException("MongoNode given is null.");
+		}
+		// Check if the MongoNode is assigned to the document.
+		if (listMongoNodes.contains(mongoNode)) {
+			// Remove from the list.
+			listMongoNodes.remove(mongoNode);
+			// Set the flag to true to return success.
+			returned = true;
+		}
+		// If the flag to save is set to true, save the document.
+		if (save) {
+			save();
+		}
+		// Return the result.
 		return returned;
 	}
 
-	/**
-	 * Removes a node from the document, if the entry exists.
-	 * 
-	 * (All nodes are stored and compared in lower-case automatically)
-	 * 
-	 * @param node
-	 *            The <String> node being removed from the document.
-	 * @param save
-	 *            Flag to save the document after removing the node.
-	 * @return
-	 */
-	public boolean removeNode(String node, boolean save) {
-		boolean returned = false;
-		if (hasNode(node)) {
-			node = node.toLowerCase();
-			listNodes.remove(node);
-			returned = true;
-			if (save) save();
-		}
-		return returned;
+	public List<MongoNode> getMongoNodes() {
+		return this.listMongoNodes;
 	}
 
-	/**
-	 * @param node
-	 *            The <String> node being tested.
-	 * @return Returns true if the document contains the node.
-	 */
-	public boolean hasNode(String node) {
-		node = node.toLowerCase();
-		return listNodes.contains(node);
-	}
-
-	/**
-	 * @return Returns a <List> of the <String> nodes assigned to the document.
-	 */
-	public List<String> getNodes() {
-		return listNodes;
-	}
 }
