@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoNode;
 import sledgehammer.database.permissions.MongoPermissionUser;
 import sledgehammer.lua.Node;
 import sledgehammer.objects.Player;
@@ -13,7 +14,7 @@ import sledgehammer.objects.Player;
  * 
  * @author Jab
  */
-public class PermissionUser extends PermissionObject {
+public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 
 	/** The <MongoDocument> storing the data. */
 	private MongoPermissionUser mongoPermissionUser;
@@ -30,7 +31,7 @@ public class PermissionUser extends PermissionObject {
 	 *            The <MongoDocument> storing the data.
 	 */
 	public PermissionUser(MongoPermissionUser mongoDocument) {
-		super("PermissionUser");
+		super(mongoDocument, "PermissionUser");
 		setMongoDocument(mongoDocument);
 	}
 
@@ -152,7 +153,11 @@ public class PermissionUser extends PermissionObject {
 	 */
 	public void setPermissionGroup(PermissionGroup permissionGroup, boolean save) {
 		this.permissionGroup = permissionGroup;
-		getMongoDocument().setGroupId(permissionGroup.getUniqueId(), save);
+		UUID groupId = null;
+		if (permissionGroup != null) {
+			groupId = permissionGroup.getUniqueId();
+		}
+		getMongoDocument().setGroupId(groupId, save);
 	}
 
 	/**

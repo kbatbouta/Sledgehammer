@@ -13,14 +13,13 @@ import sledgehammer.lua.Node;
  * 
  * @author Jab
  */
-public class PermissionGroup extends PermissionObject {
+public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 
 	/** The <List> of <PermissionUser> members assigned to the group. */
 	private List<PermissionUser> listPermissionUsers;
+
 	/** The <PermissionGroup> parent that the group inherits permissions from. */
 	private PermissionGroup parent;
-	/** The <MongoDocument> storing the data. */
-	private MongoPermissionGroup mongoPermissionGroup;
 
 	/**
 	 * Load constructor.
@@ -28,8 +27,8 @@ public class PermissionGroup extends PermissionObject {
 	 * @param mongoDocument
 	 */
 	public PermissionGroup(MongoPermissionGroup mongoDocument) {
-		super("PermissionGroup");
-		setMongoDocument(mongoDocument);
+		super(mongoDocument, "PermissionGroup");
+		listPermissionUsers = new ArrayList<>();
 	}
 
 	@Override
@@ -90,7 +89,7 @@ public class PermissionGroup extends PermissionObject {
 		// Return the result.
 		return returned;
 	}
-	
+
 	@Override
 	public List<Node> getAllSubPermissionNodes(String superNodeAsString) {
 		// Format the node argument.
@@ -152,10 +151,11 @@ public class PermissionGroup extends PermissionObject {
 	 * 
 	 * @param username
 	 */
-	public void removeMember(PermissionUser member) {
+	public void removeMember(PermissionUser member, boolean save) {
 		if (hasMember(member)) {
 			listPermissionUsers.remove(member);
 		}
+		member.setPermissionGroup(null, save);
 	}
 
 	/**
@@ -171,9 +171,11 @@ public class PermissionGroup extends PermissionObject {
 	 * Sets the parent group for the PermissionGroup instance.
 	 * 
 	 * @param group
+	 * @param save 
 	 */
-	public void setParent(PermissionGroup group) {
+	public void setParent(PermissionGroup group, boolean save) {
 		this.parent = group;
+		getMongoDocument().setParentId(group.getUniqueId(), save);
 	}
 
 	/**
@@ -191,19 +193,18 @@ public class PermissionGroup extends PermissionObject {
 		return this.listPermissionUsers;
 	}
 
-	
-	public MongoPermissionGroup getMongoDocument() {
-		return this.mongoPermissionGroup;
-	}
-
-	private void setMongoDocument(MongoPermissionGroup mongoPermissionGroup) {
-		this.mongoPermissionGroup = mongoPermissionGroup;
-	}
-
 	/**
 	 * @return The <UUID> identifier for the group.
 	 */
 	public UUID getUniqueId() {
 		return getMongoDocument().getUniqueId();
+	}
+
+	public String getGroupName() {
+		return getMongoDocument().getGroupName();
+	}
+	
+	public void setGroupName(String name, boolean save) {
+		getMongoDocument().setGroupName(name, save);
 	}
 }

@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.database.MongoNode;
+import sledgehammer.database.MongoUniqueNodeDocument;
 import sledgehammer.lua.Node;
 import sledgehammer.object.LuaTable;
 
@@ -32,21 +34,47 @@ import sledgehammer.object.LuaTable;
  * 
  * @author Jab
  */
-public abstract class PermissionObject extends LuaTable {
+public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extends LuaTable {
 
-	/**
-	 * The <Map> containing the context permissions.
-	 */
+	/** The <Map> containing the context permissions. */
 	private Map<String, Node> mapPermissionNodes;
+
+	/** The <MongoDocument> storing the data. */
+	private M mongoDocument;
 
 	/**
 	 * Main constructor.
 	 * 
 	 * @param name
 	 */
-	public PermissionObject(String name) {
+	public PermissionObject(M mongoDocument, String name) {
 		super(name);
 		mapPermissionNodes = new HashMap<>();
+		setMongoDocument(mongoDocument);
+	}
+	
+	/**
+	 * Sets a permission <Node> if one exists, or creates a permission <Node> if one
+	 * does not exists.
+	 * 
+	 * @param nodeAsString
+	 *            The node in <String> format.
+	 * @param flag
+	 *            The flag to set for the <Node>.
+	 * @param save
+	 *            Flag to save the <MongoDocument> after setting the node.
+	 * @return Returns the result <Node> with the flag set.
+	 */
+	public Node setPermission(String nodeAsString, boolean flag, boolean save) {
+		Node returned = this.getExplicitPermissionNode(nodeAsString);
+		if (returned == null) {
+			MongoNode mongoNode = new MongoNode(getMongoDocument(), nodeAsString, flag);
+			returned = new Node(mongoNode);
+			addNode(returned, save);
+		} else {
+			returned.setFlag(flag, save);
+		}
+		return returned;
 	}
 
 	/**
@@ -134,25 +162,6 @@ public abstract class PermissionObject extends LuaTable {
 		// Return the result.
 		return returned;
 	}
-
-	/*
-	 * Attempts to grab the closest <PermissionNode> that is defined in the
-	 * embodying Permission entity, and returns the result flag set for it.
-	 * 
-	 * @param node The <String> node being tested.
-	 * 
-	 * @return Returns true if a <PermissionNode> for the <String> node, or a
-	 * <PermissionNode> that is a super-node of that node is defined, and permits
-	 * the node.
-	 */
-	/*
-	 * public boolean hasPermission(String node) { // Flag to return. boolean flag =
-	 * false; // Grab the closest PermissionNode for the one given. Node
-	 * permissionNodeClosest = getPermissionNode(node); // If that node exists. if
-	 * (permissionNodeClosest != null) { // Grab the flag for it. flag =
-	 * permissionNodeClosest.getFlag(); } // Return the result flag if set. return
-	 * flag; }
-	 */
 
 	/**
 	 * Attempts to grab the closest <PermissionNode> that is defined in the
@@ -329,5 +338,119 @@ public abstract class PermissionObject extends LuaTable {
 		}
 		// Return the result flag.
 		return returned;
+	}
+
+	/**
+	 * TODO: Document
+	 * 
+	 * @param node
+	 * @param save
+	 */
+	public void addNode(Node node, boolean save) {
+		// Validate the node argument.
+		if (node == null) {
+			throw new IllegalArgumentException("Node given is null.");
+		}
+		if (mapPermissionNodes.containsKey(node.getNode())) {
+			Node nodePrevious = mapPermissionNodes.get(node.getNode());
+			nodePrevious.getMongoDocument().setMongoDocument(null);
+			nodePrevious.setFlag(node.getFlag(), false);
+		}
+		node.getMongoDocument().setMongoDocument(getMongoDocument());
+		getMongoDocument().addNode(node.getMongoDocument(), false);
+		mapPermissionNodes.put(node.getNode(), node);
+		if (save) {
+			getMongoDocument().save();
+		}
+	}
+
+	/**
+	 * Removes a <Node> if it is assigned to the <PermissionObject>.
+	 * 
+	 * @param node
+	 *            The <Node> to remove.
+	 * @param save
+	 *            Flag for saving the document after removing the node.
+	 * @return
+	 */
+	public void removeNode(Node node, boolean save) {
+		// Validate the node argument.
+		if (node == null) {
+			throw new IllegalArgumentException("Node given is null.");
+		}
+		// Get the node in String format.
+		String nodeAsString = node.getNode();
+		// Validate that the permission given is assigned to the object.
+		if (!mapPermissionNodes.containsKey(nodeAsString)) {
+			throw new IllegalArgumentException("Node given is not assigned to PermissionObject.");
+		}		
+		// If so, remove it from the map first.
+		mapPermissionNodes.remove(nodeAsString);
+		// Remove the node formally on the document layer, and save it if the parameter
+		// flag to save is passed as true.
+		getMongoDocument().removeNode(node.getMongoDocument(), save);
+	}
+
+	/**
+	 * (Internal Method)
+	 * 
+	 * Constructs the <Node> containers from the <MongoUniqueNodeDocument>.
+	 * 
+	 * @param mongoDocument
+	 */
+	public void loadNodes(M mongoDocument) {
+		// Empty the map for the Nodes.
+		mapPermissionNodes.clear();
+		// Go through each node document.
+		println(mongoDocument);
+		for (MongoNode mongoNode : mongoDocument.getMongoNodes()) {
+			// Create a node container.
+			Node node = new Node(mongoNode);
+			// Add it to the node map.
+			mapPermissionNodes.put(node.getNode(), node);
+		}
+	}
+
+	/**
+	 * @return Returns the <MongoUniqueNodeDocument> storing the data for the
+	 *         <PermissionObject>.
+	 */
+	public M getMongoDocument() {
+		return this.mongoDocument;
+	}
+
+	/**
+	 * (Internal Method)
+	 * 
+	 * Sets the <MOngoUniqueNodeDocument> strong the data for the
+	 * <PermissionObject>, and loads the <Node> containers for the <MongoNodes>
+	 * registered to the document.
+	 * 
+	 * @param mongoDocument
+	 *            The <MongoUniqueNodeDocument> to set.
+	 */
+	private void setMongoDocument(M mongoDocument) {
+		// Validate MongoDocument argument.
+		if (mongoDocument == null) {
+			throw new IllegalArgumentException("MongoDocument given is null.");
+		}
+		// Make sure the document is not the exact same already set.
+		if (this.mongoDocument == null || !this.mongoDocument.equals(mongoDocument)) {
+			// Set the new document.
+			this.mongoDocument = mongoDocument;
+			// Load the nodes from the document.
+			loadNodes(this.mongoDocument);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void save() {
+		M mongoDocument = getMongoDocument();
+		if (mongoDocument == null) {
+			throw new IllegalStateException("MongoDocument is not set, and cannot be saved.");
+		}
+		mongoDocument.save();
 	}
 }
