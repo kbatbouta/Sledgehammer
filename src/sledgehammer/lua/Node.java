@@ -159,6 +159,17 @@ public class Node extends LuaTable {
 	}
 
 	/**
+	 * Checks if a given <Node> is a sub-node of this <Node>.
+	 * 
+	 * @param node
+	 *            The <Node> being tested.
+	 * @return Returns true if the given <Node> is a sub-node of this <Node>.
+	 */
+	public boolean isSubNode(Node node) {
+		return isSubNode(node.getNode());
+	}
+
+	/**
 	 * Checks if a given <String> node is a sub-node of the <Node>.
 	 * 
 	 * @param node
