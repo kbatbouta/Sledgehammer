@@ -5,14 +5,14 @@ import java.util.UUID;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-import sledgehammer.database.UniqueMongoNodeDocument;
+import sledgehammer.database.MongoUniqueNodeDocument;
 
 /**
  * MongoDocument class designed to store and process data for <PermissionGroup>.
  * 
  * @author Jab
  */
-public class MongoPermissionGroup extends UniqueMongoNodeDocument {
+public class MongoPermissionGroup extends MongoUniqueNodeDocument {
 
 	/** The parent's unique ID for the group. */
 	private UUID parentId;
@@ -37,23 +37,32 @@ public class MongoPermissionGroup extends UniqueMongoNodeDocument {
 	 * 
 	 * @param collection
 	 *            The <DBCOllection> storing the document.
+	 * @param groupName
+	 *            The <String> name of the group.
 	 */
-	public MongoPermissionGroup(DBCollection collection) {
+	public MongoPermissionGroup(DBCollection collection, String groupName) {
 		super(collection);
+		setGroupName(groupName, false);
 	}
 
 	@Override
 	public void onLoad(DBObject object) {
-		setParentId(object.get("parentId").toString());
+		Object oParentId = object.get("parentId");
+		if (oParentId != null) {
+			setParentId(oParentId.toString());
+		}
 		setGroupName(object.get("name").toString(), false);
-		loadNodes(object);
 	}
 
 	@Override
 	public void onSave(DBObject object) {
 		object.put("name", getGroupName());
-		object.put("parentId", getParentId().toString());
-		saveNodes(object);
+		String parentIdAsString = null;
+		UUID parentId = getParentId();
+		if (parentId != null) {
+			parentIdAsString = parentId.toString();
+		}
+		object.put("parentId", parentIdAsString);
 	}
 
 	/**
@@ -86,7 +95,8 @@ public class MongoPermissionGroup extends UniqueMongoNodeDocument {
 	 */
 	public void setParentId(UUID parentId, boolean save) {
 		this.parentId = parentId;
-		if (save) save();
+		if (save)
+			save();
 	}
 
 	/**
@@ -106,6 +116,7 @@ public class MongoPermissionGroup extends UniqueMongoNodeDocument {
 	 */
 	public void setGroupName(String name, boolean save) {
 		this.name = name;
-		if (save) save();
+		if (save)
+			save();
 	}
 }

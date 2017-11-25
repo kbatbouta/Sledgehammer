@@ -5,14 +5,14 @@ import java.util.UUID;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-import sledgehammer.database.UniqueMongoNodeDocument;
+import sledgehammer.database.MongoUniqueNodeDocument;
 
 /**
  * MongoDocument class to handle loading and storing data for <PermissionUser>.
  * 
  * @author Jab
  */
-public class MongoPermissionUser extends UniqueMongoNodeDocument {
+public class MongoPermissionUser extends MongoUniqueNodeDocument {
 
 	/** The <UUID> of the group the user is in. Null if no group is assigned. */
 	private UUID groupId;
@@ -42,14 +42,19 @@ public class MongoPermissionUser extends UniqueMongoNodeDocument {
 
 	@Override
 	public void onLoad(DBObject object) {
-		setGroupId(object.get("groupId").toString());
-		loadNodes(object);
+		Object oGroupId = object.get("groupId");
+		if (oGroupId != null) {
+			setGroupId(oGroupId.toString());
+		}
 	}
 
 	@Override
 	public void onSave(DBObject object) {
-		object.put("groupId", getGroupId().toString());
-		saveNodes(object);
+		String groupId = null;
+		if (getGroupId() != null) {
+			groupId = getGroupId().toString();
+		}
+		object.put("groupId", groupId);
 	}
 
 	/**
