@@ -29,7 +29,7 @@ public class ContextManager extends Manager {
 	private List<ContextListener> listContextListeners;
 
 	@Override
-	public void onLoad() {
+	public void onLoad(boolean debug) {
 		listContextListeners = new ArrayList<>();
 	}
 

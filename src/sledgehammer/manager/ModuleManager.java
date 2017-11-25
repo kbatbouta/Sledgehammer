@@ -35,10 +35,10 @@ import java.util.jar.JarFile;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.module.Module;
-import sledgehammer.modules.core.ModuleChat;
-import sledgehammer.modules.core.ModuleCore;
-import sledgehammer.modules.core.ModuleTerritories;
-import sledgehammer.modules.vanilla.ModuleVanilla;
+import sledgehammer.module.core.ModuleChat;
+import sledgehammer.module.core.ModuleCore;
+import sledgehammer.module.core.ModuleTerritories;
+import sledgehammer.module.vanilla.ModuleVanilla;
 import sledgehammer.util.ZUtil;
 import zombie.sledgehammer.modules.ModuleMonitor;
 
@@ -51,7 +51,7 @@ import zombie.sledgehammer.modules.ModuleMonitor;
 public final class ModuleManager extends Manager {
 
 	public static final String NAME = "ModuleManager";
-	
+
 	/**
 	 * Debug boolean, used for verbose output.
 	 */
@@ -71,23 +71,23 @@ public final class ModuleManager extends Manager {
 	 * List of Modules, ready to be unloaded in the next update tick.
 	 */
 	private List<Module> listUnloadNext;
-	
+
 	/**
-	 * ModuleVanilla instance to communicate with vanilla commands, and handlers from the original game code.
-	 * NOTE: This module's code is not accessible in respect to the proprietary nature of the game.
+	 * ModuleVanilla instance to communicate with vanilla commands, and handlers
+	 * from the original game code. NOTE: This module's code is not accessible in
+	 * respect to the proprietary nature of the game.
 	 */
 	private ModuleVanilla moduleVanilla;
-	
+
 	/**
 	 * ModuleCore instance to handle core-level components of SledgeHammer.
 	 */
 	private ModuleCore moduleCore;
-	
+
 	private ModuleChat moduleChat;
 
 	/**
-	 * String Array to store the list of the plugins from SledgeHammer.ini
-	 * Settings.
+	 * String Array to store the list of the plugins from SledgeHammer.ini Settings.
 	 */
 	private String[] listPluginsRaw;
 
@@ -100,79 +100,71 @@ public final class ModuleManager extends Manager {
 	 * Main Constructor.
 	 */
 	public ModuleManager() {
-		
+
 		// Initialize the Lists.
 		listModules = new ArrayList<>();
 		listUnloadNext = new ArrayList<>();
-		
+
 		// Initialize the Maps.
 		mapModules = new HashMap<>();
 	}
-	
+
 	/**
 	 * Loads the Core Module services already included in SledgeHammer.
 	 */
 	private void loadDefaultModules() {
-		
 		try {
-			
 			moduleVanilla = new ModuleVanilla();
-			moduleCore    = new ModuleCore()   ;
-			moduleChat    = new ModuleChat()   ;
-			
-			if (DEBUG) registerModule(new ModuleMonitor());
-	
-			registerModule(moduleVanilla);
-			registerModule(moduleCore   );
-			registerModule(moduleChat   );
-			
-			try{
-				registerModule(new ModuleTerritories());
-			} catch(Exception e) {
-				e.printStackTrace();
+			moduleCore = new ModuleCore();
+			moduleChat = new ModuleChat();
+			if (DEBUG) {
+				registerModule(new ModuleMonitor());
 			}
-			
-		} catch(Exception e) {
+			registerModule(moduleVanilla);
+			registerModule(moduleCore);
+			registerModule(moduleChat);
+//			try {
+//				registerModule(new ModuleTerritories());
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+		} catch (Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
-		
+
 	}
 
 	/**
 	 * Loads the modules given from the plug-ins folder.
 	 */
-	void loadModules() {
- 
-		// Ensures a plug-in folder exists.
-		if (!ZUtil.pluginFolder.exists()) ZUtil.pluginFolder.mkdirs();
-		
-		listPluginsRaw = getSledgeHammer().getSettings().getPluginList();
-
-		println("Loading module(s).");
-
-		if(listPluginsRaw != null && listPluginsRaw.length > 0) { 			
-			for (String plugin : listPluginsRaw) {
-				if (plugin != null && !plugin.isEmpty()) {
-					try {
-						Module module = loadPlugin(plugin);
-						registerModule(module);
-					} catch (Exception e) {
-						e.printStackTrace();
+	void loadModules(boolean debug) {
+		if (!debug) {
+			// Ensures a plug-in folder exists.
+			if (!ZUtil.pluginFolder.exists()) {
+				ZUtil.pluginFolder.mkdirs();
+			}
+			listPluginsRaw = getSledgeHammer().getSettings().getPluginList();
+			println("Loading module(s).");
+			if (listPluginsRaw != null && listPluginsRaw.length > 0) {
+				for (String plugin : listPluginsRaw) {
+					if (plugin != null && !plugin.isEmpty()) {
+						try {
+							Module module = loadPlugin(plugin);
+							registerModule(module);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
+			} else {
+				println("No module(s) to load.");
 			}
-		} else {
-			println("No module(s) to load.");
 		}
-
 		Iterator<Module> modules = listModules.iterator();
-		
 		while (modules.hasNext()) {
-		
 			Module module = modules.next();
-			
+			println("Loading module \"" + module.getName() + "\" Version: " + module.getVersion() + ".");
 			if (module != null) {
-			
 				try {
 					module.loadModule();
 				} catch (Exception e) {
@@ -185,16 +177,16 @@ public final class ModuleManager extends Manager {
 	}
 
 	/**
-	 * Attempts to stop all modules currently active. 
+	 * Attempts to stop all modules currently active.
 	 */
 	private void stopModules() {
 
 		Iterator<Module> modules = listModules.iterator();
-		
+
 		while (modules.hasNext()) {
-		
+
 			Module module = modules.next();
-			
+
 			stopModule(module);
 		}
 
@@ -204,17 +196,18 @@ public final class ModuleManager extends Manager {
 	 * Attempts to unload all modules.
 	 */
 	private void unloadModules() {
-		
+
 		Iterator<Module> modules = listModules.iterator();
-		
+
 		while (modules.hasNext()) {
-		
+
 			// Grab the next module in the list.
 			Module module = modules.next();
-			
+
 			// If the module instance is valid, attempt to unload it.
-			if (module != null) unloadModule(module, false);
-			
+			if (module != null)
+				unloadModule(module, false);
+
 			// Removes the Module instance from the List.
 			modules.remove();
 		}
@@ -222,16 +215,19 @@ public final class ModuleManager extends Manager {
 		// Unload the core module last.
 		// unloadModule(moduleCore, false);
 	}
-	
+
 	/**
 	 * Registers a SledgeHammer Module.
 	 * 
 	 * @param module
 	 */
 	public void registerModule(Module module) {
+
+		println("Registering Module: \"" + module.getName() + "\".");
 		
 		synchronized (getSledgeHammer()) {
-			if (module == null) throw new IllegalArgumentException("Module is null!");
+			if (module == null)
+				throw new IllegalArgumentException("Module is null!");
 
 			if (!listModules.contains(module)) {
 				listModules.add(module);
@@ -249,9 +245,10 @@ public final class ModuleManager extends Manager {
 
 		}
 	}
-	
+
 	/**
-	 * Attempts to update a module. If the module stack-traces, the module is unloaded.
+	 * Attempts to update a module. If the module stack-traces, the module is
+	 * unloaded.
 	 * 
 	 * @param module
 	 * 
@@ -274,18 +271,19 @@ public final class ModuleManager extends Manager {
 			unloadModule(module, false);
 		}
 	}
-	
+
 	/**
 	 * Attempts to stop a given module, if active.
+	 * 
 	 * @param module
 	 */
 	private void stopModule(Module module) {
 		try {
-			
+
 			println("Stopping module " + module.getName() + "...");
-			
+
 			module.stopModule();
-		
+
 		} catch (Exception e) {
 
 			stackTrace("Failed to stop module " + module.getName() + ": " + e.getMessage(), e);
@@ -300,20 +298,22 @@ public final class ModuleManager extends Manager {
 	 * @param remove
 	 */
 	public void unloadModule(Module module, boolean remove) {
-		
+
 		// Make sure the Module instance is valid.
-		if (module == null) throw new IllegalArgumentException("Module is null!");
-		
+		if (module == null)
+			throw new IllegalArgumentException("Module is null!");
+
 		try {
-			
+
 			// Attempt to safely unload the module.
 			module.unloadModule();
-			
+
 			// Remove the module if requested by the 'remove' parameter.
-			if(remove) mapModules.remove(module.getID());
-		
+			if (remove)
+				mapModules.remove(module.getID());
+
 		} catch (Exception e) {
-			
+
 			stackTrace("Failed to unload module " + module.getName() + ": " + e.getMessage(), e);
 		}
 	}
@@ -328,26 +328,29 @@ public final class ModuleManager extends Manager {
 	 * @throws Exception
 	 */
 	private Module loadPlugin(String name) throws Exception {
-		
+
 		// The Module instance to return.
 		Module instance = null;
-		
-		if (SledgeHammer.DEBUG) println("Reading plugin: " + name + ".");
-		
+
+		if (SledgeHammer.DEBUG)
+			println("Reading plugin: " + name + ".");
+
 		String pluginName = ZUtil.pluginLocation + name + ".jar";
-		
+
 		File pluginFile = new File(pluginName);
-		
-		if (!pluginFile.exists()) throw new IllegalArgumentException("Jar file not found: " + pluginName);
+
+		if (!pluginFile.exists())
+			throw new IllegalArgumentException("Jar file not found: " + pluginName);
 
 		Map<String, String> pluginSettings = getPluginSettings(pluginName);
-		
+
 		String module = pluginSettings.get("module");
-		
-		if (module == null) throw new IllegalArgumentException("plugin.txt is not valid: " + pluginName);
+
+		if (module == null)
+			throw new IllegalArgumentException("plugin.txt is not valid: " + pluginName);
 
 		URL url = pluginFile.toURI().toURL();
-		
+
 		URL[] urls = { url };
 
 		ClassLoader loader = new URLClassLoader(urls);
@@ -357,39 +360,41 @@ public final class ModuleManager extends Manager {
 		JarFile jarFile = new JarFile(pluginName);
 
 		Enumeration<?> e = jarFile.entries();
-		
+
 		while (e.hasMoreElements()) {
-		
+
 			JarEntry entry = (JarEntry) e.nextElement();
-			
-			if (entry.isDirectory() || !entry.getName().endsWith(".class")) continue;
-			
+
+			if (entry.isDirectory() || !entry.getName().endsWith(".class"))
+				continue;
+
 			String className = entry.getName().substring(0, entry.getName().length() - 6);
-			
+
 			className = className.replace('/', '.');
-			
+
 			listClasses.add(className);
 		}
-		
+
 		jarFile.close();
 
 		try {
-			
+
 			// Loads all classes in the JAR file.
-			for (String clazz : listClasses) loader.loadClass(clazz);
-			
+			for (String clazz : listClasses)
+				loader.loadClass(clazz);
+
 			Class<?> classToLoad = Class.forName(module, true, loader);
-			
+
 			instance = (Module) classToLoad.newInstance();
-			
+
 			instance.setPluginSettings(pluginSettings);
-			
+
 			instance.setJarName(name);
-		
+
 		} catch (Exception exception) {
 			SledgeHammer.instance.stackTrace(exception);
 		}
-		
+
 		return instance;
 	}
 
@@ -403,56 +408,54 @@ public final class ModuleManager extends Manager {
 	 * @return
 	 */
 	private static Map<String, String> getPluginSettings(String fileName) {
-		
+
 		URL url;
 
 		Map<String, String> listSettings = new HashMap<>();
-		
+
 		try {
 			url = new URL("jar:file:" + fileName + "!/plugin.txt");
-		
+
 			InputStream is = url.openStream();
-			
+
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			
+
 			String line;
-			
+
 			while ((line = reader.readLine()) != null) {
-			
+
 				line = line.trim();
-				
+
 				if (line.toLowerCase().startsWith("module:")) {
 					listSettings.put("module", line.split(":")[1]);
 				}
-				
+
 			}
-			
+
 			reader.close();
 			is.close();
 		} catch (Exception e) {
 			SledgeHammer.instance.stackTrace(e);
 		}
-		
+
 		return listSettings;
 	}
-	
+
 	public void handleClientCommand(ClientEvent e) {
-		
-		for(Module module : this.getLoadedModules()) {
+
+		for (Module module : this.getLoadedModules()) {
 
 			if (module.getModuleName().equalsIgnoreCase(e.getModule())) {
 				module.onClientCommand(e);
 			}
 		}
-		
-//		if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
-//			moduleCore.onClientCommand(e);
-//		}
-		
+
+		// if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
+		// moduleCore.onClientCommand(e);
+		// }
+
 	}
 
-
-	
 	/**
 	 * Returns the Core SledgeHammer Module instance.
 	 * 
@@ -462,7 +465,7 @@ public final class ModuleManager extends Manager {
 	public ModuleCore getCoreModule() {
 		return moduleCore;
 	}
-	
+
 	/**
 	 * Returns the Vanilla Module instance.
 	 * 
@@ -471,9 +474,10 @@ public final class ModuleManager extends Manager {
 	public ModuleVanilla getVanillaModule() {
 		return moduleVanilla;
 	}
-	
+
 	/**
 	 * Sets the plug-ins to be loaded from the plug-ins folder.
+	 * 
 	 * @param list
 	 */
 	public void setPluginList(String[] list) {
@@ -488,7 +492,7 @@ public final class ModuleManager extends Manager {
 	public void queueUnloadModule(Module module) {
 		this.listUnloadNext.add(module);
 	}
-	
+
 	/**
 	 * Returns a Module with a given ID.
 	 * 
@@ -507,15 +511,14 @@ public final class ModuleManager extends Manager {
 	public List<Module> getLoadedModules() {
 		return this.listModules;
 	}
-	
+
 	@Override
-	public void onLoad() {
+	public void onLoad(boolean debug) {
 		loadDefaultModules();
-		
 		// Load the modules first.
-		loadModules();
+		loadModules(debug);
 	}
-	
+
 	/**
 	 * Starts all plug-in modules loaded through SledgeHammer.
 	 */
@@ -540,13 +543,13 @@ public final class ModuleManager extends Manager {
 			}
 		}
 	}
-	
+
 	/**
 	 * Updates all active Module instances registered.
 	 */
 	@Override
 	public void onUpdate() {
-		
+
 		// Grab the current time.
 		long timeNow = System.currentTimeMillis();
 
@@ -615,8 +618,10 @@ public final class ModuleManager extends Manager {
 		stopModules();
 		unloadModules();
 	}
-	
+
 	@Override
-	public String getName() { return NAME; }
-	
+	public String getName() {
+		return NAME;
+	}
+
 }

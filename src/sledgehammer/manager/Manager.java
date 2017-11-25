@@ -20,7 +20,7 @@ This file is part of Sledgehammer.
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.modules.core.ModuleCore;
+import sledgehammer.module.core.ModuleCore;
 import sledgehammer.util.Printable;
 import zombie.core.raknet.UdpConnection;
 
@@ -56,8 +56,10 @@ public abstract class Manager extends Printable {
 	 * listeners), should be defined here. It is HIGHLY recommended to use this
 	 * area for declarations, as it is more organized and helps with handling
 	 * unloading and reloading module-tier objects. This is not mandatory.
+	 *
+	 * @param debug Flag for debug testing.
 	 */
-	public abstract void onLoad();
+	public abstract void onLoad(boolean debug);
 
 	/**
 	 * Executed when starting the module. Listeners should be registered here.

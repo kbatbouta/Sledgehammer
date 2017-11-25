@@ -42,7 +42,7 @@ import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
-import sledgehammer.modules.core.CoreContextListener;
+import sledgehammer.module.core.CoreContextListener;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Command;
@@ -144,13 +144,18 @@ public class SledgeHammer extends Printable {
 		
 		// Sets TESTMODULE to true, in order to properly load SledgeHammer without ProjectZomboid.
 		TESTMODULE = true;
+		
+		loadSettings(new File("prod/"));
+		
+//		this.database = new SledgehammerDatabase();
+//		database.connect(getSettings().getDatabaseURL());
 	}
 	
 	public SledgeHammer() {
 		translator = new CoreContextListener();
 		
 		new File("plugins" + File.separator).mkdirs();
-		loadSettings();
+		loadSettings(null);
 	}
 
 	/**
@@ -160,7 +165,7 @@ public class SledgeHammer extends Printable {
 		
 		try {
 			if(!firstLoad) {				
-				loadSettings();
+				loadSettings(null);
 			}
 			firstLoad = false;
 			
@@ -185,7 +190,7 @@ public class SledgeHammer extends Printable {
 			
 			// Then, load the core modules, and start the Modules.
 			if(!TESTMODULE) {
-				managerModule.onLoad();
+				managerModule.onLoad(false);
 			}
 		} catch(Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer.", e);
@@ -197,23 +202,21 @@ public class SledgeHammer extends Printable {
 		getModuleManager().onStart();
 		getPlayerManager().onStart();
 		getChatManager().startChat();
-		
 		for(Player player : getPlayers()) {
 			PlayerCreatedEvent event = new PlayerCreatedEvent(player);
 			SledgeHammer.instance.handle(event);
 		}
-		
 		started = true;
 	}
 
 	/**
 	 * Loads the SledgeHammer.ini settings in the cache folder.
 	 */
-	private void loadSettings() {
+	private void loadSettings(File directory) {
 		println("Loading settings..");
 		
 		try {			
-			Settings.getInstance().readSettings();
+			Settings.getInstance().readSettings(directory);
 		} catch(Exception e) {
 			stackTrace("An Error occured while loading Sledgehammer's settings.", e);
 		}
@@ -710,12 +713,26 @@ public class SledgeHammer extends Printable {
 
 	/**
 	 * Returns a non-cached <Player> object to represent an Offline player.
-	 * @param usernameInvited The <String> username of the Player.
+	 * @param playerId The <UUID> identifier of the Player.
 	 * @return Returns a <Player> object if the player exists in the database. Returns null if the Player does not exist.
 	 */
-	public Player getOfflinePlayer(String usernameInvited) {
+	public Player getOfflinePlayer(UUID playerId) {
 		Player player = null;
-		MongoPlayer mongoPlayer = getDatabase().getMongoPlayer(usernameInvited);
+		MongoPlayer mongoPlayer = getDatabase().getMongoPlayer(playerId);
+		if(mongoPlayer != null) {
+			player = new Player(mongoPlayer);
+		}
+		return player;
+	}
+	
+	/**
+	 * Returns a non-cached <Player> object to represent an Offline player.
+	 * @param username The <String> username of the Player.
+	 * @return Returns a <Player> object if the player exists in the database. Returns null if the Player does not exist.
+	 */
+	public Player getOfflinePlayer(String username) {
+		Player player = null;
+		MongoPlayer mongoPlayer = getDatabase().getMongoPlayer(username);
 		if(mongoPlayer != null) {
 			player = new Player(mongoPlayer);
 		}

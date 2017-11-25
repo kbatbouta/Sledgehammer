@@ -78,11 +78,16 @@ public class Settings extends Printable {
 	/**
 	 * Reads the settings if the file exists, or creates a new settings file.
 	 */
-	public void readSettings() {
+	public void readSettings(File directory) {
 		// Location of the main configuration file for SledgeHammer.
 		String iniFileLocation = "Settings.ini";
 
-		File iniFile = new File(iniFileLocation);
+		File iniFile = null;
+		if(directory != null) {
+			iniFile = new File(directory, iniFileLocation);
+		} else {			
+			iniFile = new File(iniFileLocation);
+		}
 		ini = new INI(iniFile);
 		if (iniFile.exists()) {
 			try {

@@ -23,7 +23,7 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.modules.core.ModuleChat;
+import sledgehammer.module.core.ModuleChat;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;
@@ -209,7 +209,7 @@ public class ChatManager extends Manager implements EventListener {
 	public boolean runSecondary() { return false; }
 	
 	public String getName() { return NAME; }
-	public void onLoad() {}
+	public void onLoad(boolean debug) {}
 	public void onStart() {}
 	public void onUpdate() {}
 	public void onShutDown() {}

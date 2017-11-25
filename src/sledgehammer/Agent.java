@@ -44,7 +44,7 @@ public class Agent {
 		
 		File craftboid = new File("natives/CraftBoid.jar");
 		
-		Settings.getInstance().readSettings();
+		Settings.getInstance().readSettings(null);
 		String pzDirectory = Settings.getInstance().getPZDirectory();
 		
 		

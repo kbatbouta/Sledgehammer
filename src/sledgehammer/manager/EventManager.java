@@ -31,7 +31,7 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
-import sledgehammer.modules.core.CoreCommandListener;
+import sledgehammer.module.core.CoreCommandListener;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ChatTags;
@@ -686,7 +686,7 @@ public class EventManager extends Manager {
 	public String getName() { return NAME; }
 
 	@Override
-	public void onLoad() {}
+	public void onLoad(boolean debug) {}
 
 	@Override
 	public void onStart() {}

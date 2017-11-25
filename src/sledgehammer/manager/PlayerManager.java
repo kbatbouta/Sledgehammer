@@ -25,7 +25,7 @@ public class PlayerManager extends Manager {
 	}
 	
 	@Override
-	public void onLoad() {
+	public void onLoad(boolean debug) {
 		// TODO Auto-generated method stub
 		
 	}
