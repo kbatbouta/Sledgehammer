@@ -177,6 +177,13 @@ public abstract class MongoDocument {
 		DBObject object = new BasicDBObject(getFieldId(), getFieldValue());
 		// Populate the main document.
 		onSave(object);
+		// Save the entries.
+		saveEntries(object);
+		//Upsert the document.
+		MongoDatabase.upsert(getCollection(), getFieldId(), object);
+	}
+	
+	public void saveEntries(DBObject object) {
 		// Go through each entry.
 		for(String key : mapDocumentEntries.keySet()) {
 			// Grab the next entry with the provided key.
@@ -188,8 +195,6 @@ public abstract class MongoDocument {
 			// Set the DBObject with the key into the main object.
 			object.put(key, objectEntry);
 		}
-		//Upsert the document.
-		MongoDatabase.upsert(getCollection(), getFieldId(), object);
 	}
 
 	/**
