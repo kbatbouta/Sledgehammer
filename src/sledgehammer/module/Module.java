@@ -31,12 +31,12 @@ import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
-import sledgehammer.interfaces.PermissionsHandler;
+import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.manager.ChatManager;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.ModuleManager;
 import sledgehammer.manager.PermissionsManager;
-import sledgehammer.modules.core.ModuleChat;
+import sledgehammer.module.core.ModuleChat;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.util.INI;
@@ -170,14 +170,10 @@ public abstract class Module extends Printable {
 		getEventManager().unregister(listener);
 	}
 	
-	public void register(PermissionsHandler handler) {
-		getPermissionsManager().registerPermissionsHandler(handler);
+	public void setPermissionListener(PermissionListener handler) {
+		getPermissionsManager().setPermissionListener(handler);
 	}
 	
-	public void unregister(PermissionsHandler handler) {
-		getPermissionsManager().unregister(handler);
-	}
-
 	public void startModule() {
 		if (!started) {
 			started = true;
@@ -240,10 +236,6 @@ public abstract class Module extends Printable {
 
 	public Module getModuleByID(String ID) {
 		return getModuleManager().getModuleByID(ID);
-	}
-
-	public boolean hasPermission(String username, String context) {
-		return getPermissionsManager().hasPermission(username, context);
 	}
 
 	public PermissionsManager getPermissionsManager() {
