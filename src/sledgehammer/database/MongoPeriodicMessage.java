@@ -21,7 +21,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.modules.core.ModuleChat;
+import sledgehammer.module.core.ModuleChat;
 import sledgehammer.util.ChatTags;
 
 public class MongoPeriodicMessage extends MongoDocument {
