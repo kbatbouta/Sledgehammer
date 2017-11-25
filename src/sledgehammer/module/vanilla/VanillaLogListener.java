@@ -1,4 +1,4 @@
-package sledgehammer.modules.vanilla;
+package sledgehammer.module.vanilla;
 
 /*
 This file is part of Sledgehammer.

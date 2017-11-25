@@ -1,4 +1,4 @@
-package sledgehammer.modules;
+package sledgehammer.module.npc;
 
 /*
 This file is part of Sledgehammer.

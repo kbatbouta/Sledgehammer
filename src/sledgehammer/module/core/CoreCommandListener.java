@@ -1,4 +1,4 @@
-package sledgehammer.modules.core;
+package sledgehammer.module.core;
 
 /*
  This file is part of Sledgehammer.
@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.CommandEvent;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.manager.PermissionsManager;
