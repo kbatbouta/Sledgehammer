@@ -40,9 +40,10 @@ import zombie.network.ServerOptions;
 import zombie.sledgehammer.SledgeHelper;
 
 public class Player extends LuaTable {
-	
-	public static final Player admin = new Player(SledgeHammer.instance.getSettings().getAdministratorPassword(), false);
-	
+
+	public static final Player admin = new Player(SledgeHammer.instance.getSettings().getAdministratorPassword(),
+			false);
+
 	private Map<String, String> mapProperties;
 	private MongoPlayer mongoPlayer;
 	private UdpConnection connection;
@@ -55,28 +56,29 @@ public class Player extends LuaTable {
 	private long sinceDeath = 0L;
 	private boolean isNewAccount = false;
 	private boolean isNewCharacter = false;
-	private boolean isAlive = true;	
+	private boolean isAlive = true;
 	private boolean hasInit = false;
 	private boolean created = false;
-		
+
 	public Player(UdpConnection connection) {
 		super("Player");
-		if(connection == null) throw new IllegalArgumentException("UdpConnection instance given is null!");
+		if (connection == null)
+			throw new IllegalArgumentException("UdpConnection instance given is null!");
 		this.connection = connection;
 		this.iso = SledgeHelper.getIsoPlayer(connection);
-		position = new Vector3f(0,0,0);
-		metaPosition = new Vector2f(0,0);
+		position = new Vector3f(0, 0, 0);
+		metaPosition = new Vector2f(0, 0);
 		color = Color.WHITE;
 	}
-	
+
 	public MongoPlayer getMongoPlayer() {
 		return this.mongoPlayer;
 	}
-	
+
 	public void setMongoPlayer(MongoPlayer mongoPlayer) {
 		this.mongoPlayer = mongoPlayer;
-		if(!created) {
-			if(SledgeHammer.instance.isStarted()) {
+		if (!created) {
+			if (SledgeHammer.instance.isStarted()) {
 				PlayerCreatedEvent event = new PlayerCreatedEvent(this);
 				SledgeHammer.instance.handle(event);
 				created = true;
@@ -85,7 +87,9 @@ public class Player extends LuaTable {
 	}
 
 	/**
-	 * Constructor for 'Console' connections. This includes 3rd-Party console access.
+	 * Constructor for 'Console' connections. This includes 3rd-Party console
+	 * access.
+	 * 
 	 * @param password
 	 * @param isNotActuallyAParameter
 	 */
@@ -93,24 +97,24 @@ public class Player extends LuaTable {
 		super("Player");
 		username = "admin";
 		mongoPlayer = SledgeHammer.instance.getDatabase().getMongoPlayer("admin");
-		if(mongoPlayer == null) {
+		if (mongoPlayer == null) {
 			mongoPlayer = SledgeHammer.instance.getDatabase().createPlayer("admin", password);
 		}
 		mongoPlayer.setAdministrator(true);
 		mongoPlayer.setEncryptedPassword(password);
 		mongoPlayer.save();
 	}
-	
+
 	/**
-	 * Constructor for arbitrarily defining with only a player name. The
-	 * constructor attempts to locate the UdpConnection instance, and the
-	 * IsoPlayer instance, using the username given.
+	 * Constructor for arbitrarily defining with only a player name. The constructor
+	 * attempts to locate the UdpConnection instance, and the IsoPlayer instance,
+	 * using the username given.
 	 * 
 	 * @param username
 	 */
 	public Player(String username) {
 		super("Player");
-		if(username == null || username.isEmpty()) {
+		if (username == null || username.isEmpty()) {
 			throw new IllegalArgumentException("Username given is null or empty!");
 		}
 		// Set the username of the Player instance to the parameter given.
@@ -118,19 +122,19 @@ public class Player extends LuaTable {
 		// Tries to get a Player instance. Returns null if invalid.
 		this.iso = SledgeHammer.instance.getIsoPlayerDirty(username);
 		// Go through each connection.
-		for(UdpConnection conn : SledgeHammer.instance.getConnections()) {
+		for (UdpConnection conn : SledgeHammer.instance.getConnections()) {
 			// If the username on the UdpConnection instance matches,
-			if(conn.username != null && conn.username.equalsIgnoreCase(username)) {
+			if (conn.username != null && conn.username.equalsIgnoreCase(username)) {
 				// Set this connection as the instance of the Player.
 				this.connection = conn;
 				// Break out of the loop to save computation time.
 				break;
 			}
 		}
-		position = new Vector3f(0,0,0);
-		metaPosition = new Vector2f(0,0);
+		position = new Vector3f(0, 0, 0);
+		metaPosition = new Vector2f(0, 0);
 	}
-	
+
 	/**
 	 * Offline Player constructor.
 	 * 
@@ -144,32 +148,36 @@ public class Player extends LuaTable {
 	}
 
 	public void init() {
-		position = new Vector3f(0,0,0);
-		metaPosition = new Vector2f(0,0);
-		if(!hasInit) {
+		position = new Vector3f(0, 0, 0);
+		metaPosition = new Vector2f(0, 0);
+		if (!hasInit) {
 			IsoPlayer player = getIso();
-			if(player   != null) username = getIso().getUsername();
-			if(username == null) username = connection.username;
+			if (player != null)
+				username = getIso().getUsername();
+			if (username == null)
+				username = connection.username;
 			initProperties();
 			hasInit = true;
 		}
 	}
-	
+
 	public void initProperties() {
-		if(getProperty("muteglobal") == null) setProperty("muteglobal", "0");
-		if(getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
+		if (getProperty("muteglobal") == null)
+			setProperty("muteglobal", "0");
+		if (getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
 			System.out.println("NewCharacter: " + getUsername());
 			this.isNewCharacter = true;
 			this.isAlive = false;
-		}		
+		}
 	}
-	
+
 	/**
 	 * FIXME: Possible condition bug with not setting alive property.
+	 * 
 	 * @param flag
 	 */
 	public void setAlive(boolean flag) {
-		if(isAlive && !flag) {
+		if (isAlive && !flag) {
 			isAlive = false;
 			setProperty("alive", "0");
 			DeathEvent event = new DeathEvent(this);
@@ -179,22 +187,22 @@ public class Player extends LuaTable {
 			sinceDeath = System.currentTimeMillis();
 		}
 		// Async protection against flipping between alive and death states.
-		if(!isAlive && flag && (System.currentTimeMillis() - sinceDeath) > 5000L) {
+		if (!isAlive && flag && (System.currentTimeMillis() - sinceDeath) > 5000L) {
 			isAlive = true;
 			setProperty("alive", "1");
 			AliveEvent event = new AliveEvent(this);
 			SledgeHammer.instance.handle(event);
 		}
 	}
-	
+
 	public IsoPlayer getIso() {
 		return iso;
 	}
-	
+
 	public UdpConnection getConnection() {
-		if(connection == null) {
-			for(UdpConnection next : SledgeHammer.instance.getConnections()) {
-				if(next.username.equalsIgnoreCase(getUsername())) {
+		if (connection == null) {
+			for (UdpConnection next : SledgeHammer.instance.getConnections()) {
+				if (next.username.equalsIgnoreCase(getUsername())) {
 					setConnection(connection);
 					break;
 				}
@@ -202,59 +210,59 @@ public class Player extends LuaTable {
 		}
 		return connection;
 	}
-	
+
 	public boolean isConnected() {
 		return connection != null && connection.connected;
 	}
-	
+
 	public boolean isInGame() {
 		return isConnected() && connection.isFullyConnected();
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
-	
+
 	public String getName() {
 		String name = getNickname();
-		if(name == null) {
+		if (name == null) {
 			name = getUsername();
 		}
 		return name;
 	}
-	
+
 	public boolean isOnline() {
-		if(connection == null) {
+		if (connection == null) {
 			return false;
 		} else {
 			return connection.connected;
 		}
 	}
-	
+
 	public boolean isUsername(String username) {
 		return getUsername().equalsIgnoreCase(username);
 	}
-	
+
 	public boolean isUsernameDirty(String username) {
 		return getUsername().contains(username);
 	}
-	
+
 	public boolean isNickname(String nickname) {
 		return getNickname().equalsIgnoreCase(nickname);
 	}
-	
+
 	public boolean isNicknameDirty(String nickname) {
 		return getNickname().equalsIgnoreCase(nickname);
 	}
-	
+
 	public boolean isName(String name) {
 		return isUsername(name) || isNickname(name);
 	}
-	
+
 	public boolean isNameDirty(String name) {
 		return isUsername(name) || isNickname(name) || isUsernameDirty(name) || isNicknameDirty(name);
 	}
-	
+
 	public boolean isAdmin() {
 		return getIso() == null ? username.equalsIgnoreCase("admin") : getIso().accessLevel.equals("admin");
 	}
@@ -262,11 +270,11 @@ public class Player extends LuaTable {
 	public void setConnection(UdpConnection connection) {
 		this.connection = connection;
 	}
-	
+
 	public Map<String, String> getProperties() {
 		return mapProperties;
 	}
-	
+
 	public void setProperties(Map<String, String> mapProperties) {
 		this.mapProperties = mapProperties;
 	}
@@ -274,15 +282,15 @@ public class Player extends LuaTable {
 	public void setProperty(String property, String content) {
 		setProperty(property, content, true);
 	}
-	
+
 	public void setProperty(String property, String content, boolean save) {
 		getMongoPlayer().setMetaData(property, content, save);
 	}
-	
+
 	public void saveProperties() {
 		saveProperties();
 	}
-	
+
 	public String getProperty(String property) {
 		return getMongoPlayer().getMetaData(property);
 	}
@@ -290,21 +298,22 @@ public class Player extends LuaTable {
 	public void set(IsoPlayer iso) {
 		this.iso = iso;
 	}
-	
+
 	@Override
 	public String toString() {
 		return getName();
 	}
 
 	public String getNickname() {
-		if(nickname == null) return username;
+		if (nickname == null)
+			return username;
 		return nickname;
 	}
-	
+
 	public boolean isNewAccount() {
 		return isNewAccount;
 	}
-	
+
 	public void setNewAccount(boolean flag) {
 		this.isNewAccount = flag;
 	}
@@ -316,33 +325,43 @@ public class Player extends LuaTable {
 	public void setNewCharacter(boolean flag) {
 		this.isNewCharacter = flag;
 	}
-	
+
 	public Vector3f getPosition() {
 		return this.position;
 	}
-	
+
 	public Vector2f getMetaPosition() {
 		return this.metaPosition;
 	}
-	
+
 	/**
-	 * Proxy method for asking if the Player has a permission.
-	 * @param context
-	 * @return
+	 * @param node
+	 *            The <String> node that is being tested.
+	 * @return Returns true if the <Player> is granted the given <String> node
+	 *         permission. If the <Player> is an administrator, this method will
+	 *         always return true. To grab the raw permission, use
+	 *         'hasRawPermission(String node)...'.
 	 */
-	public boolean hasPermission(String context) {
-		return SledgeHammer.instance.getPermissionsManager().hasPermission(getUsername(), context);
+	public boolean hasPermission(String node) {
+		if (isAdmin()) {
+			return true;
+		}
+		return hasRawPermission(node);
+	}
+
+	public boolean hasRawPermission(String node) {
+		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(this, node);
 	}
 
 	@Override
 	public void onLoad(KahluaTable table) {
 		// Players will only be authored by the server.
 	}
-	
+
 	public Color getColor() {
 		return this.color;
 	}
-	
+
 	public void setColor(Color color) {
 		this.color = color;
 	}
@@ -361,9 +380,9 @@ public class Player extends LuaTable {
 
 	public void sendMessage(ChatMessage message) {
 		ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(message.getChannel());
-		if(message instanceof ChatMessagePlayer) {
-			channel.sendMessagePlayer((ChatMessagePlayer)message, this);
-		} else {			
+		if (message instanceof ChatMessagePlayer) {
+			channel.sendMessagePlayer((ChatMessagePlayer) message, this);
+		} else {
 			channel.sendMessage(message, this);
 		}
 	}
@@ -372,9 +391,9 @@ public class Player extends LuaTable {
 		String oldChannel = message.getChannel();
 		ChatChannel channel = ChatManager.chatChannelAll;
 		message.setChannel("*");
-		if(message instanceof ChatMessagePlayer) {
-			channel.sendMessagePlayer((ChatMessagePlayer)message, this);
-		} else {			
+		if (message instanceof ChatMessagePlayer) {
+			channel.sendMessagePlayer((ChatMessagePlayer) message, this);
+		} else {
 			channel.sendMessage(message, this);
 		}
 		message.setChannel(oldChannel);
@@ -390,31 +409,27 @@ public class Player extends LuaTable {
 	}
 
 	public boolean isWithinLocalRange(Player other) {
-		if(isConnected() && other.isConnected()) {
+		if (isConnected() && other.isConnected()) {
 			IsoPlayer isoOther = other.getIso();
 			return getConnection().ReleventTo(isoOther.x, isoOther.y);
 		}
 		return false;
 	}
 
-	public void setPermission(String username, String context, boolean b) {
-		SledgeHammer.instance.getPermissionsManager().setPermission(username, context, b);
+	public void setPermission(String username, String node, boolean flag) {
+		SledgeHammer.instance.getPermissionsManager().setRawPermission(this, node, flag);
 	}
 
-	public boolean hasRawPermission(String context) {
-		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(username, context);
-	}
-	
 	public UUID getUniqueId() {
 		return getMongoPlayer().getUniqueId();
 	}
-	
+
 	@Override
 	public boolean equals(Object other) {
-		if(other instanceof Player) {
-			return ((Player)other).getUniqueId().equals(getUniqueId());
+		if (other instanceof Player) {
+			return ((Player) other).getUniqueId().equals(getUniqueId());
 		}
 		return false;
 	}
-	
+
 }
