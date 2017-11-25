@@ -17,251 +17,120 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.MongoPlayer;
-import sledgehammer.interfaces.PermissionsHandler;
+import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.objects.Player;
 
 /**
  * Manager class designed to handle permissions for modules and core functions.
+ * TODO: Document.
  * 
  * @author Jab
- *
  */
 public class PermissionsManager extends Manager {
-	
+
 	public static final String NAME = "PermissionsManager";
-	
-	/**
-	 * Debug boolean, used for verbose output.
-	 */
 	public static boolean DEBUG = false;
+	private PermissionListener permissionListener;
 
-	/**
-	 * Instance of SledgeHammer. While this is statically accessible through the
-	 * singleton, maintaining an OOP hierarchy is a good practice.
-	 */
-	private SledgeHammer sledgeHammer = null;
-	
-	/**
-	 * List of registered PermissionHandler interfaces.
-	 */
-	private List<PermissionsHandler> listPermissionHandlers;
-	
-	/**
-	 * Map of registered default permissions.
-	 */
-	private Map<String, Boolean> mapDefaultPlayerPermissions;
-	
-	/**
-	 * Main constructor.
-	 */
-	public PermissionsManager() {
-		listPermissionHandlers = new ArrayList<>();
-		mapDefaultPlayerPermissions = new HashMap<>();
-		
-	}
-
-	/**
-   	 * Returns whether or not the vanilla white-list has a user set to admin.
-   	 * 
-   	 * @param username
-   	 * 
-   	 * @return
-   	 * 
-   	 * @throws SQLException
-   	 */
-	public boolean isUserAdmin(String username) {
-		if(username != null) {
-			if(username.equalsIgnoreCase("admin")) {
-				return true;
-			}
-		} else {
-			return false;
+	public boolean hasRawPermission(Player player, String node) {
+		// Validate the Player argument.
+		if (player == null) {
+			throw new IllegalArgumentException("Player given is null");
 		}
-		MongoPlayer mongoPlayer = null;
-		Player player = SledgeHammer.instance.getPlayer(username);
-		if(player != null) {
-			mongoPlayer = player.getMongoPlayer();
+		// Validate the node argument.
+		if (node == null || node.isEmpty()) {
+			throw new IllegalArgumentException("Node given is null or empty.");
 		}
-		if(mongoPlayer == null) {
-			mongoPlayer = SledgeHammer.instance.getDatabase().getMongoPlayer(username);
-		}
-		if(mongoPlayer == null) {
-			return false;
-		}
-		return mongoPlayer.isAdministrator();
-	}
-	
-	/**
-	 * Returns whether or not a user has a allowed permissions context.
-	 * Does not check if the user is an Administrator.
-	 * 
-	 * @param username
-	 * 
-	 * @param context
-	 * 
-	 * @return
-	 */
-	public boolean hasRawPermission(String username, String context) {
-		if(context == null) {
-			println("Plug-in is asking permissions for a null context.");
-			stackTrace();
-		}
-		boolean hasPermissionsHandler = hasPermissionModule();
-		if(hasPermissionsHandler) {			
-			// Loop through each handler and if any returns true, return true.
-			for(PermissionsHandler handler : listPermissionHandlers) {
-				try {				
-					if(handler.hasPermission(username, context)) return true;
-				} catch(Exception e) {
-					stackTrace("Error handling permission check: " + handler.getClass().getName(), e);
+		// Format the node.
+		node = node.toLowerCase();
+		// The flag to return.
+		boolean returned = false;
+		if (hasPermissionListener()) {
+			PermissionListener permissionListener = getPermissionListener();
+			try {
+				returned = permissionListener.hasPermission(player, node);
+				if (!returned) {
+					returned = permissionListener.hasDefaultPermission(node);
+				}
+			} catch (Exception e) {
+				errorln("The assigned PermissionListener failed to execute properly.");
+				if (DEBUG) {
+					e.printStackTrace();
 				}
 			}
 		} else {
-			Boolean result = mapDefaultPlayerPermissions.get(context.toLowerCase());
-			if (result != null && result.booleanValue() == true) {
-				return true;
-			}
+			throw new IllegalStateException(
+					"No PermissionHandlers are registered for SledgeHammer, so permissions cannot be tested.");
 		}
 		// If no permissions handler identified as true, return false.
-		return false;
+		return returned;
 	}
-	
-	/**
-	 * Returns whether or not a user has a allowed permissions context.
-	 * 
-	 * @param username
-	 * 
-	 * @param context
-	 * 
-	 * @return
-	 */
-	public boolean hasPermission(String username, String context) {
-		if(context == null) {
-			println("Plug-in is asking permissions for a null context.");
-			stackTrace();
+
+	public void setRawPermission(Player player, String node, boolean flag) {
+		// Validate the Player argument.
+		if (player == null) {
+			throw new IllegalArgumentException("Player given is null");
 		}
-		if(isUserAdmin(username)) return true;
-		boolean hasPermissionsHandler = hasPermissionModule();
-		if(hasPermissionsHandler) {			
-			// Loop through each handler and if any returns true, return true.
-			for(PermissionsHandler handler : listPermissionHandlers) {
-				try {				
-					if(handler.hasPermission(username, context)) return true;
-				} catch(Exception e) {
-					stackTrace("Error handling permission check: " + handler.getClass().getName(), e);
-				}
-			}
+		// Validate the node argument.
+		if (node == null || node.isEmpty()) {
+			throw new IllegalArgumentException("Node given is null or empty.");
+		}
+		// Format the node.
+		node = node.toLowerCase();
+		if (hasPermissionListener()) {
+			getPermissionListener().setPermission(player, node, flag);
 		} else {
-			Boolean result = mapDefaultPlayerPermissions.get(context.toLowerCase());
-			if (result != null && result.booleanValue() == true) {
-				return true;
-			}
-		}
-		// If no permissions handler identified as true, return false.
-		return false;
-	}
-	
-	/**
-	 * Registers a PermissionHandler interface.
-	 * 
-	 * @param handler
-	 */
-	public void registerPermissionsHandler(PermissionsHandler handler) {
-		if(handler != null) {			
-			if(!listPermissionHandlers.contains(handler)) listPermissionHandlers.add(handler);
+			throw new IllegalStateException(
+					"No PermissionHandlers are registered for SledgeHammer, so permissions cannot be set.");
 		}
 	}
-	
-	/**
-	 * Unregisters a PermissionsHandler interface.
-	 * 
-	 * @param handler
-	 */
-	public void unregister(PermissionsHandler handler) {
-		if(handler != null) {
-			listPermissionHandlers.remove(handler);
-		}
+
+	public void setPermissionListener(PermissionListener handler) {
+		this.permissionListener = handler;
 	}
-	
-	/**
-	 * Returns whether or not SledgeHammer has a valid PermissionHandler.
-	 * 
-	 * @return
-	 */
-	public boolean hasPermissionModule() {
-		for(PermissionsHandler handler : listPermissionHandlers) {
-			if(handler != null) return true;
-		}
-		return false;
+
+	public boolean hasPermissionListener() {
+		return getPermissionListener() != null;
 	}
-	
-	/**
-	 * Returns the SledgeHammer settings-defined response when a player is
-	 * denied permission to a context.
-	 * 
-	 * @return
-	 */
+
+	public PermissionListener getPermissionListener() {
+		return this.permissionListener;
+	}
+
 	public String getPermissionDeniedMessage() {
-		return sledgeHammer.getSettings().getPermissionDeniedMessage();
+		return SledgeHammer.instance.getSettings().getPermissionDeniedMessage();
 	}
-	
-	/**
-	 * Sets the global permission-denied message for all Permission queries &
-	 * implementations.
-	 * 
-	 * @param string
-	 */
+
 	public void setPermissionDeniedMessage(String string) {
-		sledgeHammer.getSettings().setPermissionDeniedMessage(string);
+		SledgeHammer.instance.getSettings().setPermissionDeniedMessage(string);
 	}
 
-	/**
-	 * Adds a default permission, that will be permitted to players when no
-	 * Permission implementation is registered.
-	 * 
-	 * @param permissionContext
-	 */
-	public void addDefaultPlayerPermission(String permissionContext) {
-		addDefaultPlayerPermission(permissionContext, true);
+	public void addDefaultPlayerPermission(String node) {
+		addDefaultPlayerPermission(node, true);
 	}
-	
-	/**
-	 * Adds a permission to be referenced when a permissions interface is not present.
-	 * 
-	 * @param permissionContext
-	 * 
-	 * @param flag
-	 */
-	public void addDefaultPlayerPermission(String permissionContext, boolean flag) {
-		this.mapDefaultPlayerPermissions.put(permissionContext, flag);
+
+	public void addDefaultPlayerPermission(String node, boolean flag) {
+		getPermissionListener().addDefaultPermission(node, flag);
 	}
 
 	@Override
-	public String getName() { return NAME; }
+	public void onLoad(boolean debug) {
+	}
 
 	@Override
-	public void onLoad() {}
+	public void onStart() {
+	}
 
 	@Override
-	public void onStart() {}
+	public void onUpdate() {
+	}
 
 	@Override
-	public void onUpdate() {}
+	public void onShutDown() {
+	}
 
-	@Override
-	public void onShutDown() {}
-
-	public void setPermission(String username, String node, boolean b) {
-		for(PermissionsHandler handler : listPermissionHandlers) {
-			handler.setPermission(username, node, b);
-		}
-	}	
+	public String getName() {
+		return NAME;
+	}
 }
