@@ -1,6 +1,5 @@
 package sledgehammer.test;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 import sledgehammer.SledgeHammer;
@@ -20,7 +19,7 @@ public abstract class TestModule<M extends Module> extends Printable {
 
 	/** The <Module> being tested. */
 	private M module;
-	
+
 	private Scanner scanner = new Scanner(System.in);
 
 	/**
@@ -30,10 +29,18 @@ public abstract class TestModule<M extends Module> extends Printable {
 		Core.GameSaveWorld = "servertest";
 		SledgeHammer.instance = new SledgeHammer(true);
 		SledgeHammer.instance.init();
-		setModule(createModule());
-		SledgeHammer.instance.getModuleManager().registerModule(getModule());
+		M module = createModule();
+		if (module != null) {
+			setModule(module);
+			SledgeHammer.instance.getModuleManager().registerModule(getModule());
+		}
 		SledgeHammer.instance.getModuleManager().onLoad(true);
 		SledgeHammer.instance.start();
+	}
+
+	public void runTest() {
+		run();
+		SledgeHammer.instance.stop();
 	}
 
 	/**
@@ -42,14 +49,13 @@ public abstract class TestModule<M extends Module> extends Printable {
 	 */
 	public void pause() {
 		println("Press ENTER to continue the test.");
-		do {				
+		do {
 			try {
 				Thread.sleep(500L);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}
-		while(!scanner.hasNextLine());
+		} while (!scanner.hasNextLine());
 		scanner.nextLine();
 	}
 
@@ -68,7 +74,7 @@ public abstract class TestModule<M extends Module> extends Printable {
 	 * @param module
 	 *            The <Module> to set.
 	 */
-	private void setModule(M module) {
+	protected void setModule(M module) {
 		this.module = module;
 	}
 
