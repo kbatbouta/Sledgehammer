@@ -1,6 +1,6 @@
-package sledgehammer.objects.send;
+package sledgehammer.lua.core;
 
-import sledgehammer.lua.core.Player;
+import sledgehammer.lua.Send;
 
 public class SendPlayer extends Send {
 

@@ -1,4 +1,4 @@
-package sledgehammer.objects.send;
+package sledgehammer.lua.chat;
 
 /*
 This file is part of Sledgehammer.
@@ -17,40 +17,34 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.chat.ChatChannel;
+import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.lua.LuaArray;
+import sledgehammer.lua.LuaTable;
 
-public class SendRenameChatChannel extends Send {
+/**
+ * TODO: Documentation.
+ * @author Jab
+ */
+public class RequestChatChannels extends LuaTable {
 
-	private ChatChannel channel;
-	private String nameOld;
-	private String nameNew;
+	private LuaArray<ChatChannel> channels;
 	
-	public SendRenameChatChannel() {
-		super("core.chat", "sendRenameChatChannel");
+	public RequestChatChannels() {
+		super("RequestChatChannels");
+		channels = new LuaArray<>();
 	}
 	
-	public void set(ChatChannel channel, String nameOld, String nameNew) {
-		this.channel = channel;
-		this.nameOld = nameOld;
-		this.nameNew = nameNew;
+	public void addChannel(ChatChannel channel) {
+		channels.add(channel);
 	}
 	
-	public ChatChannel getChatChannel() {
-		return this.channel;
-	}
-	
-	public String getOldName() {
-		return this.nameOld;
-	}
-	
-	public String getNewName() {
-		return this.nameNew;
+	public void onLoad(KahluaTable table) {
+		channels = new LuaArray<>((KahluaTable) table.rawget("channels"));
 	}
 
-	@Override
 	public void onExport() {
-		set("channel", getChatChannel());
-		set("nameNew", getNewName());
-		set("nameOld", getOldName());
+		set("length", channels.size());
+		set("channels", channels);
 	}
+
 }

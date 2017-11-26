@@ -16,7 +16,7 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.event;
 
-import sledgehammer.objects.chat.ChatMessage;
+import sledgehammer.lua.chat.ChatMessage;
 
 public class ChatMessageEvent extends Event {
 

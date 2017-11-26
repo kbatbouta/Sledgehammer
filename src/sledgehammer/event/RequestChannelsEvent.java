@@ -20,8 +20,8 @@ package sledgehammer.event;
 import java.util.ArrayList;
 import java.util.List;
 
+import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
-import sledgehammer.objects.chat.ChatChannel;
 
 public class RequestChannelsEvent extends PlayerEvent {
 

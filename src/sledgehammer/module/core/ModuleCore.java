@@ -32,13 +32,13 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.HandShakeEvent;
+import sledgehammer.lua.RequestInfo;
+import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.core.SendPlayer;
 import sledgehammer.module.Module;
-import sledgehammer.objects.chat.ChatChannel;
-import sledgehammer.objects.chat.ChatMessage;
-import sledgehammer.objects.chat.Command;
-import sledgehammer.objects.send.SendPlayer;
-import sledgehammer.requests.RequestInfo;
 import zombie.network.ServerWorldDatabase;
 
 public class ModuleCore extends Module {

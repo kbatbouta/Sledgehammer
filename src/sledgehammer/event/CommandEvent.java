@@ -16,7 +16,7 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.event;
 
-import sledgehammer.objects.chat.Command;
+import sledgehammer.lua.chat.Command;
 import sledgehammer.util.Response;
 
 /**

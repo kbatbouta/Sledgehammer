@@ -31,14 +31,14 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.RequestChannelsEvent;
+import sledgehammer.lua.chat.ChannelProperties;
+import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.lua.chat.ChatMessagePlayer;
+import sledgehammer.lua.chat.RequestChatChannels;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.Module;
-import sledgehammer.objects.chat.ChannelProperties;
-import sledgehammer.objects.chat.ChatChannel;
-import sledgehammer.objects.chat.ChatMessage;
-import sledgehammer.objects.chat.ChatMessagePlayer;
-import sledgehammer.requests.RequestChatChannels;
 import zombie.Lua.LuaManager;
 
 public class ModuleChat extends Module {

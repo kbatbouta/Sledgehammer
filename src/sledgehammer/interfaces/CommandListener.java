@@ -1,7 +1,7 @@
 package sledgehammer.interfaces;
 
+import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
-import sledgehammer.objects.chat.Command;
 import sledgehammer.util.Response;
 
 /**

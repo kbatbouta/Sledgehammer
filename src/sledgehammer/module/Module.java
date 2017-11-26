@@ -33,12 +33,12 @@ import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.ChatManager;
 import sledgehammer.manager.core.ModuleManager;
 import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.module.core.ModuleChat;
-import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
 

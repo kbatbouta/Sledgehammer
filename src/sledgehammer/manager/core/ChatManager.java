@@ -23,12 +23,12 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.lua.chat.ChatMessagePlayer;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.core.ModuleChat;
-import sledgehammer.objects.chat.ChatChannel;
-import sledgehammer.objects.chat.ChatMessage;
-import sledgehammer.objects.chat.ChatMessagePlayer;
 
 import java.util.Collection;
 import java.util.HashMap;

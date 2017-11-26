@@ -1,4 +1,4 @@
-package sledgehammer.objects.chat;
+package sledgehammer.lua.chat;
 
 /*
 This file is part of Sledgehammer.
@@ -34,11 +34,6 @@ import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.core.ModuleChat;
-import sledgehammer.objects.send.SendChatChannel;
-import sledgehammer.objects.send.SendChatMessage;
-import sledgehammer.objects.send.SendChatMessagePlayer;
-import sledgehammer.objects.send.SendRemoveChatChannel;
-import sledgehammer.objects.send.SendRenameChatChannel;
 
 /**
  * TODO: Document.

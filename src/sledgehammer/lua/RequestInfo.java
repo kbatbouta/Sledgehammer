@@ -1,4 +1,4 @@
-package sledgehammer.objects.send;
+package sledgehammer.lua;
 
 /*
 This file is part of Sledgehammer.
@@ -17,39 +17,46 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
+import java.util.Map;
+
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.core.Player;
 
-/**
- * TODO: Document.
- * @author Jab
- *
- */
-public abstract class Send extends LuaTable {
+public class RequestInfo extends LuaTable {
 
-	private String module;
-	
-	public Send(String module, String command) {
-		super(command);
-		setModule(module);
-	}
-	
-	private void setModule(String module) {
-		this.module = module;
+	private int playerID = -1;
+	private Player self;
+
+	public RequestInfo() {
+		super("requestInfo");
 	}
 
-	public String getModule() {
-		return this.module;
+	public void setPlayerID(int id) {
+		if (this.playerID != id) {
+			this.playerID = id;
+			set("playerID", this.playerID);
+		}
 	}
-	
-	public String getCommand() {
-		return getName();
+
+	public void construct(Map<Object, Object> definitions) {
+		definitions.put("self", getSelf());
 	}
-	
-	public String toString() {
-		return this.getClass().getSimpleName() + ": Module=" + getModule() + "; Command=" + getCommand() + ";";
+
+	public void onLoad(KahluaTable table) {
+		// Server authored only.
 	}
-	
-	// Server authored only.
-	public void onLoad(KahluaTable table) {}
+
+	public Player getSelf() {
+		return this.self;
+	}
+
+	public void setSelf(Player player) {
+		this.self = player;
+		set("self", getSelf());
+	}
+
+	@Override
+	public void onExport() {
+		set("self", getSelf());
+	}
 }

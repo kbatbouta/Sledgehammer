@@ -1,4 +1,4 @@
-package sledgehammer.objects.chat;
+package sledgehammer.lua.chat;
 
 /*
 This file is part of Sledgehammer.

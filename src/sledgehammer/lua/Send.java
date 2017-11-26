@@ -1,4 +1,4 @@
-package sledgehammer.objects.send;
+package sledgehammer.lua;
 
 /*
 This file is part of Sledgehammer.
@@ -17,28 +17,38 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.chat.ChatChannel;
+import se.krka.kahlua.vm.KahluaTable;
 
 /**
  * TODO: Document.
- * 
  * @author Jab
+ *
  */
-public class SendRemoveChatChannel extends Send {
+public abstract class Send extends LuaTable {
+
+	private String module;
 	
-	private ChatChannel channel;
-	
-	public SendRemoveChatChannel(ChatChannel channel) {
-		super("core.chat", "removeChatChannel");
-		this.channel = channel;
+	public Send(String module, String command) {
+		super(command);
+		setModule(module);
 	}
 	
-	@Override
-	public void onExport() {
-		set("channel", getChatChannel());
+	private void setModule(String module) {
+		this.module = module;
 	}
 
-	public ChatChannel getChatChannel() {
-		return this.channel;
+	public String getModule() {
+		return this.module;
 	}
+	
+	public String getCommand() {
+		return getName();
+	}
+	
+	public String toString() {
+		return this.getClass().getSimpleName() + ": Module=" + getModule() + "; Command=" + getCommand() + ";";
+	}
+	
+	// Server authored only.
+	public void onLoad(KahluaTable table) {}
 }

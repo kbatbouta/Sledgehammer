@@ -1,4 +1,4 @@
-package sledgehammer.objects.chat;
+package sledgehammer.lua.chat;
 
 /*
 This file is part of Sledgehammer.
@@ -28,6 +28,7 @@ import sledgehammer.lua.core.Player;
 
 /**
  * TODO: Document.
+ * 
  * @author Jab
  *
  */
@@ -37,30 +38,23 @@ public class Command extends LuaTable {
 	private String raw = null;
 	private Player player;
 	private String channel;
-	
+
 	public Command(String raw) {
 		super("Command");
 		parse(raw);
 	}
-	
+
 	public Command(String command, String[] args) {
 		super("Command");
 		this.command = command;
-		if(args != null) {			
+		if (args != null) {
 			this.args = args;
 		}
 	}
-	
-	public Player getPlayer() {
-		return this.player;
-	}
-	
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
-	
+
 	/**
 	 * FIXME: Something's wrong with args assignment.
+	 * 
 	 * @param table
 	 */
 	public Command(KahluaTable table) {
@@ -68,69 +62,13 @@ public class Command extends LuaTable {
 		println("Raw: " + getRaw());
 	}
 	
-	public String getCommand() {
-		return command;
-	}
-	
-	public String[] getArguments() {
-		return args;
-	}
-	
-	public String getRaw() {
-		if(raw == null) {
-			raw = "/" + command;
-			for(String arg: args) {
-				if(arg.contains(" ")) {
-					raw += " \"" + arg.trim() + "\"";
-				} else {					
-					raw += " " + arg.trim();
-				}
-			}
-		}
-		return raw;
-	}
-	
-	public void parse(String raw) {
-		command = new String(raw).replace("/", "").replace("!", "").trim().split(" ")[0].toLowerCase();
-		args = tryAgain(raw);
-		this.raw = raw;
-	}
-	
-	public boolean hasArguments() {
-		return this.args != null && this.args.length > 0;
-	}
-	
-	public String getArgumentsAsString() {
-		if(getArguments().length == 0) return null;
-		String raw = getRaw();
-		return raw.substring(command.length() + 2, raw.length());
-	}
-	
-	public void debugPrint() {
-		println("Command: " + getCommand());
-		println("Arguments: " + args.length);
-		for(int index = 0; index < args.length; index++) {
-			String arg = args[index];
-			println("\t[" + index + "]: " + arg);
-		}
-		println("Raw: " + getRaw());
-		println();
-	}
-	
-	public String toString() {
-		return "(" + getPlayer() + ") " + getRaw();
-	}
-	
 	@Override
 	public void onLoad(KahluaTable table) {
 		Object raw = table.rawget("raw");
-		println("Object-raw: " + raw);
-		
 		Object channel = table.rawget("channel");
-		if(channel != null) {
+		if (channel != null) {
 			setChannel(channel.toString());
 		}
-		
 		parse(raw.toString());
 	}
 
@@ -142,6 +80,70 @@ public class Command extends LuaTable {
 		set("player", getPlayer());
 		set("channel", getChannel());
 	}
+
+	@Override
+	public String toString() {
+		return "(" + getPlayer() + ") " + getRaw();
+	}
+
+	public String getRaw() {
+		if (raw == null) {
+			raw = "/" + command;
+			for (String arg : args) {
+				if (arg.contains(" ")) {
+					raw += " \"" + arg.trim() + "\"";
+				} else {
+					raw += " " + arg.trim();
+				}
+			}
+		}
+		return raw;
+	}
+
+	public void parse(String raw) {
+		command = new String(raw).replace("/", "").replace("!", "").trim().split(" ")[0].toLowerCase();
+		args = tryAgain(raw);
+		this.raw = raw;
+	}
+
+	public String getArgumentsAsString() {
+		if (getArguments().length == 0)
+			return null;
+		String raw = getRaw();
+		return raw.substring(command.length() + 2, raw.length());
+	}
+
+	public void debugPrint() {
+		println("Command: " + getCommand());
+		println("Arguments: " + args.length);
+		for (int index = 0; index < args.length; index++) {
+			String arg = args[index];
+			println("\t[" + index + "]: " + arg);
+		}
+		println("Raw: " + getRaw());
+		println();
+	}
+	
+	public boolean hasArguments() {
+		return this.args != null && this.args.length > 0;
+	}
+	
+	public String getCommand() {
+		return command;
+	}
+
+	public String[] getArguments() {
+		return args;
+	}
+	
+	public Player getPlayer() {
+		return this.player;
+	}
+
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+
 	public String getChannel() {
 		return channel;
 	}
@@ -149,30 +151,32 @@ public class Command extends LuaTable {
 	public void setChannel(String channel) {
 		this.channel = channel;
 	}
-	
+
 	public static String[] tryAgain(String input) {
 		char[] chars = input.toCharArray();
 		List<String> args = new LinkedList<>();
 		String arg = "";
 		boolean in = false;
-		for(char c: chars) {
-			// System.out.println("next character: " + c + " : " + (int) c);
-			if(c == ' ')
-				if(!in) {args.add(arg);arg = ""; }
-				else arg += c;
-			else if(c == '\"') in = !in;
-			else arg += c;
+		for (char c : chars) {
+			if (c == ' ')
+				if (!in) {
+					args.add(arg);
+					arg = "";
+				} else
+					arg += c;
+			else if (c == '\"')
+				in = !in;
+			else
+				arg += c;
 		}
-		
-		if(!arg.isEmpty()) args.add(arg);
+		if (!arg.isEmpty())
+			args.add(arg);
 		String[] ret = new String[args.size() - 1];
-		for(int index = 1; index < args.size(); index++) {
-			// System.out.println("arg[" + index + "]: " + args.get(index));
+		for (int index = 1; index < args.size(); index++) {
 			ret[index - 1] = args.get(index);
 		}
 		return ret;
 	}
-	
 
 	public static String[] getArguments(String command, String input) {
 		List<String> argCache = new ArrayList<>();
@@ -181,33 +185,34 @@ public class Command extends LuaTable {
 		boolean inQuotes = false;
 		char quoteType = '"';
 		char[] chars = input.toCharArray();
-		for(int x = 0; x < chars.length; x++) {
+		for (int x = 0; x < chars.length; x++) {
 			char c = chars[x];
-			if(inQuotes) {
-				if(c == quoteType) {
+			if (inQuotes) {
+				if (c == quoteType) {
 					argCache.add(argCurrent);
 					argCurrent = "";
 					inQuotes = false;
 					continue;
-				} else argCurrent += c;
+				} else
+					argCurrent += c;
 			} else {
-				if(c == '\"') {
+				if (c == '\"') {
 					inQuotes = true;
 					continue;
-				} else
-				if(c == ' ') {
-					if(!argCurrent.isEmpty()) {
+				} else if (c == ' ') {
+					if (!argCurrent.isEmpty()) {
 						argCache.add(argCurrent);
 						argCurrent = "";
-						continue;						
+						continue;
 					}
-				} else argCurrent += c;
+				} else
+					argCurrent += c;
 			}
 		}
-		if(!argCurrent.isEmpty()) {
+		if (!argCurrent.isEmpty()) {
 			argCache.add(argCurrent);
 		}
-		if(argCache.size() > 0) {
+		if (argCache.size() > 0) {
 			String firstArg = argCache.get(0).toLowerCase();
 			if (firstArg.contains(command.toLowerCase())) {
 				args = new String[argCache.size() - 1];
@@ -225,28 +230,25 @@ public class Command extends LuaTable {
 		}
 		return args;
 	}
-	
+
 	public static String[] subArguments(String[] args, int i) {
-		
-		if(i < 0 && i < args.length) {
+		if (i < 0 && i < args.length) {
 			throw new IllegalArgumentException("I must be 0 or greater, and less than the argument.length.");
 		}
-		
-		if(args == null || args.length < 1) {
+		if (args == null || args.length < 1) {
 			throw new IllegalArgumentException("Args array is invalid!");
 		}
-		
 		String[] newArgs = new String[args.length - i];
-		for(int x = i; x < args.length; x++) {
+		for (int x = i; x < args.length; x++) {
 			newArgs[x - i] = args[x];
 		}
 		return newArgs;
 	}
-	
+
 	public static void main(String[] args) {
 		new Command("/test1 arg1 arg2").debugPrint();
 		new Command("/test2 arg1 \"args and stuff\"").debugPrint();
 		new Command("test3", null).debugPrint();
-		new Command("test4", new String[] {"arg1", "arg2"}).debugPrint();
+		new Command("test4", new String[] { "arg1", "arg2" }).debugPrint();
 	}
 }
