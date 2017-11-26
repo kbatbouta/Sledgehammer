@@ -1,4 +1,4 @@
-package sledgehammer.script;
+package sledgehammer.lua;
 
 /*
 This file is part of Sledgehammer.
