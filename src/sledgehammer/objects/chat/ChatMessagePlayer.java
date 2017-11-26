@@ -28,7 +28,6 @@ import sledgehammer.objects.Player;
 public class ChatMessagePlayer extends ChatMessage {
 
 	private Player player;
-	private String origin = "in-game";
 	private String playerUsername;
 	private UUID playerUniqueId;
 	

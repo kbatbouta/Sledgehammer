@@ -56,6 +56,14 @@ public class ChatChannelPrivate extends ChatChannel implements EventListener {
 			listPlayerIDs.add(id);
 		}
 	}
+	
+	public boolean hasPlayer(Player player) {
+		return this.listPlayers.contains(player);
+	}
+	
+	public List<Player> getPlayers() {
+		return this.listPlayers;
+	}
 
 	@Override
 	public String[] getTypes() {
