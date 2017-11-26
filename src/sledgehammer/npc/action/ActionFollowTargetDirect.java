@@ -17,7 +17,7 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.modules.ModuleNPC;
+import sledgehammer.module.npc.ModuleNPC;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoObject;
 import zombie.network.GameServer;

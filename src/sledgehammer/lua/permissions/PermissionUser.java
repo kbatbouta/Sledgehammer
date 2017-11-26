@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.MongoNode;
 import sledgehammer.database.permissions.MongoPermissionUser;
 import sledgehammer.lua.Node;
 import sledgehammer.objects.Player;

@@ -24,8 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.database.MongoNode;
-import sledgehammer.database.MongoUniqueNodeDocument;
+import sledgehammer.database.document.node.MongoNode;
+import sledgehammer.database.document.node.MongoUniqueNodeDocument;
 import sledgehammer.lua.Node;
 import sledgehammer.object.LuaTable;
 

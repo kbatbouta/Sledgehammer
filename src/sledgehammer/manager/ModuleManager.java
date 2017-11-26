@@ -37,7 +37,7 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.module.Module;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
-import sledgehammer.module.core.ModuleTerritories;
+import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
 import sledgehammer.util.ZUtil;
 import zombie.sledgehammer.modules.ModuleMonitor;

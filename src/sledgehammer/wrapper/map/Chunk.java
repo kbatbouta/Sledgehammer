@@ -18,5 +18,6 @@ This file is part of Sledgehammer.
 */
 
 public class Chunk {
-	
+	public Chunk() {
+	}
 }
