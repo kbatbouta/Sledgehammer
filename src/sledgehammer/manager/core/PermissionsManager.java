@@ -24,7 +24,7 @@ import sledgehammer.manager.Manager;
 
 /**
  * Manager class designed to handle permissions for modules and core functions.
- * TODO: Document.
+ * TODO: Document. TODO: Complete.
  * 
  * @author Jab
  */
@@ -33,6 +33,17 @@ public class PermissionsManager extends Manager {
 	public static final String NAME = "PermissionsManager";
 	public static boolean DEBUG = false;
 	private PermissionListener permissionListener;
+
+	/**
+	 * Main constructor.
+	 */
+	public PermissionsManager() {
+	}
+
+	@Override
+	public String getName() {
+		return NAME;
+	}
 
 	public boolean hasRawPermission(Player player, String node) {
 		// Validate the Player argument.
@@ -113,25 +124,5 @@ public class PermissionsManager extends Manager {
 
 	public void addDefaultPlayerPermission(String node, boolean flag) {
 		getPermissionListener().addDefaultPermission(node, flag);
-	}
-
-	@Override
-	public void onLoad(boolean debug) {
-	}
-
-	@Override
-	public void onStart() {
-	}
-
-	@Override
-	public void onUpdate() {
-	}
-
-	@Override
-	public void onShutDown() {
-	}
-
-	public String getName() {
-		return NAME;
 	}
 }

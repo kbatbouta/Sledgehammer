@@ -1,5 +1,3 @@
-package sledgehammer.manager;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.manager;
 
 import java.util.List;
 
@@ -35,49 +34,52 @@ import zombie.core.raknet.UdpConnection;
 public abstract class Manager extends Printable {
 
 	/**
+	 * Executed when loading the module. Objects and Permission contexts (from
+	 * listeners), should be defined here. It is HIGHLY recommended to use this area
+	 * for declarations, as it is more organized and helps with handling unloading
+	 * and reloading module-tier objects. This is not mandatory.
+	 *
+	 * @param debug
+	 *            Flag for debug testing.
+	 */
+	public void onLoad(boolean debug) {
+	}
+
+	/**
+	 * Executed when starting the module. Listeners should be registered here.
+	 */
+	public void onStart() {
+	}
+
+	/**
+	 * Executed during every update tick of the server. Update-sensitive code should
+	 * use this method to execute. Event-based code should be handled through
+	 * listeners.
+	 */
+	public void onUpdate() {
+	}
+
+	/**
+	 * Executed when unloading, and shutting down the module. It is HIGHLY
+	 * recommended to nullify module-tier objects at this point. If the module is
+	 * restarted, onLoad() is called again.
+	 */
+	public void onShutDown() {
+	}
+
+	/**
 	 * Returns a list of active connections.
 	 * 
 	 * @return
 	 */
 	public List<UdpConnection> getConnections() {
-		return getSledgeHammer().getConnections();
+		return SledgeHammer.instance.getConnections();
 	}
-	
+
+	/**
+	 * @return Returns the <ModuleCore> instance.
+	 */
 	public ModuleCore getCoreModule() {
-		return getSledgeHammer().getModuleManager().getCoreModule();
+		return SledgeHammer.instance.getModuleManager().getCoreModule();
 	}
-	
-	public SledgeHammer getSledgeHammer() {
-		return SledgeHammer.instance;
-	}
-
-	/**
-	 * Executed when loading the module. Objects and Permission contexts (from
-	 * listeners), should be defined here. It is HIGHLY recommended to use this
-	 * area for declarations, as it is more organized and helps with handling
-	 * unloading and reloading module-tier objects. This is not mandatory.
-	 *
-	 * @param debug Flag for debug testing.
-	 */
-	public abstract void onLoad(boolean debug);
-
-	/**
-	 * Executed when starting the module. Listeners should be registered here.
-	 */
-	public abstract void onStart();
-
-	/**
-	 * Executed during every update tick of the server. Update-sensitive code
-	 * should use this method to execute. Event-based code should be handled
-	 * through listeners.
-	 */
-	public abstract void onUpdate();
-
-	/**
-	 * Executed when unloading, and shutting down the module. It is HIGHLY
-	 * recommended to nullify module-tier objects at this point. If the module
-	 * is restarted, onLoad() is called again.
-	 */
-	public abstract void onShutDown();
-
 }

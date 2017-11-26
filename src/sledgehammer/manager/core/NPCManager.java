@@ -42,6 +42,8 @@ import zombie.sledgehammer.npc.action.ActionFollowTargetPath;
 /**
  * Manager class designed to handle NPC components, as well as update them.
  * 
+ * TODO: Re-implement.
+ * 
  * @author Jab
  */
 public class NPCManager extends Manager {
@@ -74,7 +76,8 @@ public class NPCManager extends Manager {
 	 * Main constructor.
 	 */
 	public NPCManager() {
-
+		/*
+		SledgeHammer sledgeHammer = SledgeHammer.instance;
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
 		
@@ -83,16 +86,17 @@ public class NPCManager extends Manager {
 		
 		// Event Listener for joining.
 		connectionListener = new ConnectionListener(this);
-		getSledgeHammer().register(connectionListener);
+		sledgeHammer.register(connectionListener);
 		
 		moduleNPC = new ModuleNPC();
-		getSledgeHammer().getModuleManager().registerModule(moduleNPC);
+		sledgeHammer.getModuleManager().registerModule(moduleNPC);
+		*/
 	}
 	
 	/**
 	 * Initializes all default Actions for Behavior classes to use for NPCs.
 	 */
-	private void initializeActions() {
+	void initializeActions() {
 		
 		// Initialize the Map.
 		mapActions = new HashMap<>();
@@ -183,7 +187,7 @@ public class NPCManager extends Manager {
 
 		NPCManager npcManager = null;
 		
-		public ConnectionListener(NPCManager engine) {
+		private ConnectionListener(NPCManager engine) {
 			this.npcManager = engine;
 		}
 		

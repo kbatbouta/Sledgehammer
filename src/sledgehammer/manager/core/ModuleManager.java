@@ -46,8 +46,9 @@ import zombie.sledgehammer.modules.ModuleMonitor;
 /**
  * Manager class designed to manage Loading, Unloading, and updating modules.
  * 
+ * TODO: Document
+ * 
  * @author Jab
- *
  */
 public final class ModuleManager extends Manager {
 
@@ -103,13 +104,116 @@ public final class ModuleManager extends Manager {
 	 * Main Constructor.
 	 */
 	public ModuleManager() {
-
 		// Initialize the Lists.
 		listModules = new ArrayList<>();
 		listUnloadNext = new ArrayList<>();
-
 		// Initialize the Maps.
 		mapModules = new HashMap<>();
+	}
+
+	@Override
+	public void onLoad(boolean debug) {
+		loadDefaultModules();
+		// Load the modules first.
+		loadModules(debug);
+	}
+
+	/**
+	 * Starts all plug-in modules loaded through SledgeHammer.
+	 */
+	@Override
+	public void onStart() {
+		Iterator<Module> modules = listModules.iterator();
+		while (modules.hasNext()) {
+			Module module = modules.next();
+			if (module != null) {
+				try {
+					println("Starting module " + module.getName() + " Version: " + module.getVersion() + ".");
+					module.startModule();
+				} catch (Exception e) {
+					println("Error starting module " + module.getName() + ": " + e.getMessage());
+					for (StackTraceElement o : e.getStackTrace()) {
+						println(o);
+					}
+					stopModule(module);
+					unloadModule(module, false);
+					modules.remove();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Updates all active Module instances registered.
+	 */
+	@Override
+	public void onUpdate() {
+		// Grab the current time.
+		long timeNow = System.currentTimeMillis();
+		// Compare it with the last time the method has been called, calculating
+		// the delta.
+		long delta = timeNow - timeThen;
+		// Grab the List of modules as a Iterator to prevent
+		// ConcurrentModificationExceptions.
+		Iterator<Module> modules = listModules.iterator();
+		// Loop until all registered Modules have been accessed.
+		while (modules.hasNext()) {
+			// Grab the next Module.
+			Module module = modules.next();
+			// Make sure the Module instance is valid.
+			if (module != null) {
+				// If the list of Module instances to unload and remove contains
+				// this Module instance, unload it, remove it, and continue to
+				// the next Module instance in the list.
+				if (listUnloadNext.contains(module)) {
+					// Attempt to unload the module.
+					unloadModule(module, false);
+					modules.remove();
+					continue;
+				}
+				// If the module is valid, and not to be removed, update it.
+				updateModule(module, delta);
+			}
+		}
+		// Go through the list of modules to be unloaded.
+		modules = listUnloadNext.iterator();
+		while (modules.hasNext()) {
+			// Grab the next Module instance.
+			Module module = modules.next();
+			// If the Module instance is valid.
+			if (module != null) {
+				// If the Module instance is loaded, unload it.
+				if (module.isLoaded()) {
+					unloadModule(module, false);
+				}
+			}
+			// Remove the Module instance from the list.
+			modules.remove();
+		}
+	}
+
+	/**
+	 * Stops, and unloads all active, and registered Module instances.
+	 */
+	@Override
+	public void onShutDown() {
+		stopModules();
+		unloadModules();
+	}
+
+	@Override
+	public String getName() {
+		return NAME;
+	}
+
+	/**
+	 * Returns the Core SledgeHammer Module instance.
+	 * 
+	 * @return
+	 */
+	@Override
+	public ModuleCore getCoreModule() {
+		return moduleCore;
 	}
 
 	/**
@@ -136,7 +240,6 @@ public final class ModuleManager extends Manager {
 		} catch (Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
-
 	}
 
 	/**
@@ -144,11 +247,12 @@ public final class ModuleManager extends Manager {
 	 */
 	void loadModules(boolean debug) {
 		if (!debug) {
+			SledgeHammer sledgeHammer = SledgeHammer.instance;
 			// Ensures a plug-in folder exists.
 			if (!ZUtil.pluginFolder.exists()) {
 				ZUtil.pluginFolder.mkdirs();
 			}
-			listPluginsRaw = getSledgeHammer().getSettings().getPluginList();
+			listPluginsRaw = sledgeHammer.getSettings().getPluginList();
 			println("Loading module(s).");
 			if (listPluginsRaw != null && listPluginsRaw.length > 0) {
 				for (String plugin : listPluginsRaw) {
@@ -185,38 +289,27 @@ public final class ModuleManager extends Manager {
 	 * Attempts to stop all modules currently active.
 	 */
 	private void stopModules() {
-
 		Iterator<Module> modules = listModules.iterator();
-
 		while (modules.hasNext()) {
-
 			Module module = modules.next();
-
 			stopModule(module);
 		}
-
 	}
 
 	/**
 	 * Attempts to unload all modules.
 	 */
 	private void unloadModules() {
-
 		Iterator<Module> modules = listModules.iterator();
-
 		while (modules.hasNext()) {
-
 			// Grab the next module in the list.
 			Module module = modules.next();
-
 			// If the module instance is valid, attempt to unload it.
 			if (module != null)
 				unloadModule(module, false);
-
 			// Removes the Module instance from the List.
 			modules.remove();
 		}
-
 		// Unload the core module last.
 		// unloadModule(moduleCore, false);
 	}
@@ -227,13 +320,12 @@ public final class ModuleManager extends Manager {
 	 * @param module
 	 */
 	public void registerModule(Module module) {
-
-		synchronized (getSledgeHammer()) {
+		SledgeHammer sledgeHammer = SledgeHammer.instance;
+		synchronized (sledgeHammer) {
 			if (module == null) {
 				throw new IllegalArgumentException("Module is null!");
 			}
 			println("Registering Module: \"" + module.getName() + "\".");
-
 			if (!listModules.contains(module)) {
 				listModules.add(module);
 			}
@@ -247,7 +339,6 @@ public final class ModuleManager extends Manager {
 			} else {
 				mapModules.put(module.getID(), module);
 			}
-
 		}
 	}
 
@@ -260,7 +351,6 @@ public final class ModuleManager extends Manager {
 	 * @param delta
 	 */
 	private void updateModule(Module module, long delta) {
-
 		if (module == null)
 			throw new IllegalArgumentException("module is null!");
 		if (delta < 0)
@@ -284,13 +374,9 @@ public final class ModuleManager extends Manager {
 	 */
 	private void stopModule(Module module) {
 		try {
-
 			println("Stopping module " + module.getName() + "...");
-
 			module.stopModule();
-
 		} catch (Exception e) {
-
 			stackTrace("Failed to stop module " + module.getName() + ": " + e.getMessage(), e);
 		}
 	}
@@ -303,22 +389,17 @@ public final class ModuleManager extends Manager {
 	 * @param remove
 	 */
 	public void unloadModule(Module module, boolean remove) {
-
 		// Make sure the Module instance is valid.
 		if (module == null)
 			throw new IllegalArgumentException("Module is null!");
-
 		try {
-
 			// Attempt to safely unload the module.
 			module.unloadModule();
-
 			// Remove the module if requested by the 'remove' parameter.
-			if (remove)
+			if (remove) {
 				mapModules.remove(module.getID());
-
+			}
 		} catch (Exception e) {
-
 			stackTrace("Failed to unload module " + module.getName() + ": " + e.getMessage(), e);
 		}
 	}
@@ -333,142 +414,61 @@ public final class ModuleManager extends Manager {
 	 * @throws Exception
 	 */
 	private Module loadPlugin(String name) throws Exception {
-
 		// The Module instance to return.
 		Module instance = null;
-
-		if (SledgeHammer.DEBUG)
+		if (SledgeHammer.DEBUG) {
 			println("Reading plugin: " + name + ".");
-
+		}
 		String pluginName = ZUtil.pluginLocation + name + ".jar";
-
 		File pluginFile = new File(pluginName);
-
-		if (!pluginFile.exists())
+		if (!pluginFile.exists()) {
 			throw new IllegalArgumentException("Jar file not found: " + pluginName);
-
+		}
 		Map<String, String> pluginSettings = getPluginSettings(pluginName);
-
 		String module = pluginSettings.get("module");
-
-		if (module == null)
+		if (module == null) {
 			throw new IllegalArgumentException("plugin.txt is not valid: " + pluginName);
-
+		}
 		URL url = pluginFile.toURI().toURL();
-
 		URL[] urls = { url };
-
 		ClassLoader loader = new URLClassLoader(urls);
-
 		List<String> listClasses = new ArrayList<>();
-
 		JarFile jarFile = new JarFile(pluginName);
-
 		Enumeration<?> e = jarFile.entries();
-
 		while (e.hasMoreElements()) {
-
 			JarEntry entry = (JarEntry) e.nextElement();
-
-			if (entry.isDirectory() || !entry.getName().endsWith(".class"))
+			if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
 				continue;
-
+			}
 			String className = entry.getName().substring(0, entry.getName().length() - 6);
-
 			className = className.replace('/', '.');
-
 			listClasses.add(className);
 		}
-
 		jarFile.close();
-
 		try {
-
 			// Loads all classes in the JAR file.
-			for (String clazz : listClasses)
+			for (String clazz : listClasses) {
 				loader.loadClass(clazz);
-
+			}
 			Class<?> classToLoad = Class.forName(module, true, loader);
-
 			instance = (Module) classToLoad.newInstance();
-
 			instance.setPluginSettings(pluginSettings);
-
 			instance.setJarName(name);
-
 		} catch (Exception exception) {
 			SledgeHammer.instance.stackTrace(exception);
 		}
-
 		return instance;
 	}
 
-	/**
-	 * Reads the 'plugin.txt' file from the plug-in JAR file.
-	 * 
-	 * TODO: Move with ClassLoader methods to a utility class.
-	 * 
-	 * @param fileName
-	 *
-	 * @return
-	 */
-	private static Map<String, String> getPluginSettings(String fileName) {
-
-		URL url;
-
-		Map<String, String> listSettings = new HashMap<>();
-
-		try {
-			url = new URL("jar:file:" + fileName + "!/plugin.txt");
-
-			InputStream is = url.openStream();
-
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-
-				line = line.trim();
-
-				if (line.toLowerCase().startsWith("module:")) {
-					listSettings.put("module", line.split(":")[1]);
-				}
-
-			}
-
-			reader.close();
-			is.close();
-		} catch (Exception e) {
-			SledgeHammer.instance.stackTrace(e);
-		}
-
-		return listSettings;
-	}
-
 	public void handleClientCommand(ClientEvent e) {
-
 		for (Module module : this.getLoadedModules()) {
-
 			if (module.getModuleName().equalsIgnoreCase(e.getModule())) {
 				module.onClientCommand(e);
 			}
 		}
-
 		// if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
 		// moduleCore.onClientCommand(e);
 		// }
-
-	}
-
-	/**
-	 * Returns the Core SledgeHammer Module instance.
-	 * 
-	 * @return
-	 */
-	@Override
-	public ModuleCore getCoreModule() {
-		return moduleCore;
 	}
 
 	/**
@@ -517,115 +517,34 @@ public final class ModuleManager extends Manager {
 		return this.listModules;
 	}
 
-	@Override
-	public void onLoad(boolean debug) {
-		loadDefaultModules();
-		// Load the modules first.
-		loadModules(debug);
-	}
-
 	/**
-	 * Starts all plug-in modules loaded through SledgeHammer.
+	 * Reads the 'plugin.txt' file from the plug-in JAR file.
+	 * 
+	 * TODO: Move with ClassLoader methods to a utility class.
+	 * 
+	 * @param fileName
+	 *
+	 * @return
 	 */
-	@Override
-	public void onStart() {
-		Iterator<Module> modules = listModules.iterator();
-		while (modules.hasNext()) {
-			Module module = modules.next();
-			if (module != null) {
-				try {
-					println("Starting module " + module.getName() + " Version: " + module.getVersion() + ".");
-					module.startModule();
-				} catch (Exception e) {
-					println("Error starting module " + module.getName() + ": " + e.getMessage());
-					for (StackTraceElement o : e.getStackTrace()) {
-						println(o);
-					}
-					stopModule(module);
-					unloadModule(module, false);
-					modules.remove();
+	private static Map<String, String> getPluginSettings(String fileName) {
+		URL url;
+		Map<String, String> listSettings = new HashMap<>();
+		try {
+			url = new URL("jar:file:" + fileName + "!/plugin.txt");
+			InputStream is = url.openStream();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.toLowerCase().startsWith("module:")) {
+					listSettings.put("module", line.split(":")[1]);
 				}
 			}
+			reader.close();
+			is.close();
+		} catch (Exception e) {
+			SledgeHammer.instance.stackTrace(e);
 		}
-	}
-
-	/**
-	 * Updates all active Module instances registered.
-	 */
-	@Override
-	public void onUpdate() {
-
-		// Grab the current time.
-		long timeNow = System.currentTimeMillis();
-
-		// Compare it with the last time the method has been called, calculating
-		// the delta.
-		long delta = timeNow - timeThen;
-
-		// Grab the List of modules as a Iterator to prevent
-		// ConcurrentModificationExceptions.
-		Iterator<Module> modules = listModules.iterator();
-
-		// Loop until all registered Modules have been accessed.
-		while (modules.hasNext()) {
-
-			// Grab the next Module.
-			Module module = modules.next();
-
-			// Make sure the Module instance is valid.
-			if (module != null) {
-
-				// If the list of Module instances to unload and remove contains
-				// this Module instance, unload it, remove it, and continue to
-				// the next Module instance in the list.
-				if (listUnloadNext.contains(module)) {
-
-					// Attempt to unload the module.
-					unloadModule(module, false);
-					modules.remove();
-					continue;
-
-				}
-
-				// If the module is valid, and not to be removed, update it.
-				updateModule(module, delta);
-			}
-
-		}
-
-		// Go through the list of modules to be unloaded.
-		modules = listUnloadNext.iterator();
-		while (modules.hasNext()) {
-
-			// Grab the next Module instance.
-			Module module = modules.next();
-
-			// If the Module instance is valid.
-			if (module != null) {
-
-				// If the Module instance is loaded, unload it.
-				if (module.isLoaded()) {
-					unloadModule(module, false);
-				}
-
-			}
-
-			// Remove the Module instance from the list.
-			modules.remove();
-		}
-	}
-
-	/**
-	 * Stops, and unloads all active, and registered Module instances.
-	 */
-	@Override
-	public void onShutDown() {
-		stopModules();
-		unloadModules();
-	}
-
-	@Override
-	public String getName() {
-		return NAME;
+		return listSettings;
 	}
 }

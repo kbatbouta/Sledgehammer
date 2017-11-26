@@ -20,7 +20,8 @@ import sledgehammer.manager.Manager;
 */
 
 /**
- * TODO: Re-Implement.
+ * TODO: Re-implement.
+ * TODO: Document
  * 
  * @author Jab
  */
@@ -28,23 +29,10 @@ public class PlayerManager extends Manager {
 
 	public static final String NAME = "PlayerManager";
 
+	/**
+	 * Main constructor.
+	 */
 	public PlayerManager() {
-	}
-
-	@Override
-	public void onLoad(boolean debug) {
-	}
-
-	@Override
-	public void onStart() {
-	}
-
-	@Override
-	public void onUpdate() {
-	}
-
-	@Override
-	public void onShutDown() {
 	}
 
 	@Override

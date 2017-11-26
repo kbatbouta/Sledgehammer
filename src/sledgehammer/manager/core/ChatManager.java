@@ -40,49 +40,77 @@ import java.util.Map;
 /**
  * Manager class designed to handle chat-packet operations.
  * 
+ * TODO: Document
+ * 
  * @author Jab
- *
  */
 public class ChatManager extends Manager implements EventListener {
 
 	public static final String NAME = "ChatManager";
-	
+
 	public Map<String, ChatChannel> mapChannels;
 	private LinkedHashMap<Long, ChatMessage> mapMessagesByID;
-	
+
 	public static ChatChannel chatChannelAll = new ChatChannel("*");
-	
+
 	public ChatManager(SledgeHammer sledgeHammer) {
 		mapChannels = new HashMap<>();
 		int maxSize = 0x800;
 		mapMessagesByID = new LinkedHashMap<Long, ChatMessage>() {
 			private static final long serialVersionUID = 1L;
+
 			@Override
-	        protected boolean removeEldestEntry(final Map.Entry<Long, ChatMessage> eldest) {
-	            return size() > maxSize;
-	        }
+			protected boolean removeEldestEntry(final Map.Entry<Long, ChatMessage> eldest) {
+				return size() > maxSize;
+			}
 		};
 	}
-	
+
+	@Override
+	public void handleEvent(Event event) {
+		if (event.getID() == ClientEvent.ID) {
+			handleClientEvent((ClientEvent) event);
+		} else if (event.getID() == HandShakeEvent.ID) {
+			handleHandShakeEvent((HandShakeEvent) event);
+		} else if (event.getID() == DisconnectEvent.ID) {
+			handleDisconnectEvent((DisconnectEvent) event);
+		}
+	}
+
+	@Override
+	public boolean runSecondary() {
+		return false;
+	}
+
+	@Override
+	public String getName() {
+		return NAME;
+	}
+
+	@Override
+	public String[] getTypes() {
+		return new String[] { ClientEvent.ID, HandShakeEvent.ID, DisconnectEvent.ID };
+	}
+
 	public void startChat() {
 		SledgeHammer.instance.register(this);
 	}
-	
+
 	public void stopChat() {
 		SledgeHammer.instance.unregister(this);
 	}
-	
+
 	public void addChatChannelNoBroadcast(ChatChannel channel) {
 		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
 		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
 		moduleChat.addChannel(channel);
-		
+
 	}
-	
+
 	public void addChatChannel(ChatChannel channel) {
 		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
 	}
-	
+
 	public ChatChannel addChatChannel(String name) {
 		ChatChannel channel = new ChatChannel(name);
 		addChatChannel(channel);
@@ -96,11 +124,11 @@ public class ChatManager extends Manager implements EventListener {
 	public List<ChatChannel> getChannelsForPlayer(Player player) {
 		List<ChatChannel> list = new LinkedList<>();
 		// Go through each ChatChannel.
-		for(String channelName : mapChannels.keySet()) {
+		for (String channelName : mapChannels.keySet()) {
 			// Grab the next channel in the list.
 			ChatChannel nextChannel = mapChannels.get(channelName);
 			// Check to make sure the player has access to this channel.
-			if(player.hasPermission(nextChannel.getProperties().getContext())) {
+			if (player.hasPermission(nextChannel.getProperties().getContext())) {
 				// If so, then add it to the list to return.
 				list.add(nextChannel);
 			}
@@ -108,20 +136,10 @@ public class ChatManager extends Manager implements EventListener {
 		// Return the result list of channels for the player.
 		return list;
 	}
-	
-	@Override
-	public void handleEvent(Event event) {
-		if(event.getID() == ClientEvent.ID) {
-			handleClientEvent((ClientEvent)event);
-		} else if(event.getID() == HandShakeEvent.ID) {
-			handleHandShakeEvent((HandShakeEvent)event);
-		} else if(event.getID() == DisconnectEvent.ID) {
-			handleDisconnectEvent((DisconnectEvent)event);
-		}
-	}
-	
+
 	/**
 	 * Digests a player's message, sending it to other clients.
+	 * 
 	 * @param chatMessagePlayer
 	 */
 	public void digestPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
@@ -131,9 +149,10 @@ public class ChatManager extends Manager implements EventListener {
 		chatChannel.addPlayerMessage(chatMessagePlayer);
 		mapMessagesByID.put(chatMessagePlayer.getMessageID(), chatMessagePlayer);
 	}
-	
+
 	/**
 	 * Digests a message, sending it to other clients.
+	 * 
 	 * @param chatMessage
 	 */
 	public void digestMessage(ChatMessage chatMessage) {
@@ -146,39 +165,34 @@ public class ChatManager extends Manager implements EventListener {
 
 	private void handleDisconnectEvent(DisconnectEvent event) {
 		Player player = event.getPlayer();
-		for(ChatChannel channel : this.mapChannels.values()) {
+		for (ChatChannel channel : this.mapChannels.values()) {
 			channel.onDisconnect(player);
 		}
 	}
-	
+
 	public void addMessageToCache(ChatMessage message) {
 		ChatMessage msg = mapMessagesByID.get(message.getMessageID());
-		if(msg == null) {
+		if (msg == null) {
 			mapMessagesByID.put(message.getMessageID(), message);
 		}
 	}
-	
+
 	/**
 	 * Attempts to broadcast all channels to a player.
+	 * 
 	 * @param player
 	 */
 	void broadcastChannels(Player player) {
-		for(ChatChannel channel : mapChannels.values()) {
+		for (ChatChannel channel : mapChannels.values()) {
 			channel.sendToPlayer(player);
 		}
 	}
-	
+
 	public void saveMessage(ChatMessage chatMessage) {
 		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
 		moduleChat.saveMessage(chatMessage);
 	}
 
-	@Override
-	public String[] getTypes() {
-		return new String [] {ClientEvent.ID, HandShakeEvent.ID, DisconnectEvent.ID}; 
-	}
-
-	
 	public void renameChatChannel(ChatChannel chatChannel, String nameOld, String nameNew) {
 		this.mapChannels.put(nameOld.toLowerCase(), null);
 		this.mapChannels.put(nameNew.toLowerCase(), chatChannel);
@@ -192,7 +206,7 @@ public class ChatManager extends Manager implements EventListener {
 	public Collection<ChatChannel> getChannels() {
 		return mapChannels.values();
 	}
-	
+
 	public ChatChannel getChannel(String channelName) {
 		return mapChannels.get(channelName.toLowerCase());
 	}
@@ -203,15 +217,7 @@ public class ChatManager extends Manager implements EventListener {
 
 	private void handleHandShakeEvent(HandShakeEvent event) {
 	}
-	
+
 	private void handleClientEvent(ClientEvent event) {
 	}
-
-	public boolean runSecondary() { return false; }
-	
-	public String getName() { return NAME; }
-	public void onLoad(boolean debug) {}
-	public void onStart() {}
-	public void onUpdate() {}
-	public void onShutDown() {}
 }
