@@ -1,5 +1,8 @@
 package sledgehammer.database;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
 This file is part of Sledgehammer.
 
@@ -17,67 +20,91 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
-import com.mongodb.WriteResult;
 
+import sledgehammer.database.transaction.MongoDatabaseTransactionWorker;
+import sledgehammer.database.transaction.MongoDocumentTransaction;
 import sledgehammer.util.Printable;
 
 public abstract class MongoDatabase extends Printable {
 
+	public static boolean DEBUG = true;
+
+	private volatile boolean shutdown = false;
+	
 	private DB db;
 	private MongoClient client = null;
+	private List<MongoDocumentTransaction> listTransactions;
 	
+	private MongoDatabaseTransactionWorker worker;
+
 	public MongoDatabase() {
+		listTransactions = new ArrayList<>();
+		worker = new MongoDatabaseTransactionWorker(this);
 	}
-	
+
 	public DB getDatabase() {
 		return this.db;
 	}
-	
+
 	public void setDatabase(DB db) {
 		this.db = db;
 	}
-	
+
 	public void connect(String url) {
-		if(client == null) {
+		if (client == null) {
 			client = new MongoClient(new MongoClientURI(url));
 			onConnection(client);
+			// Start the worker thread.
+			(new Thread(worker)).start();
 		}
 	}
 
 	public MongoClient getClient() {
 		return this.client;
 	}
-	
-	/**
-	 * Adds a proxy method for upserting into a MongoDB instance.
-	 * 
-	 * @param collection
-	 * @param field
-	 * @param identity
-	 * @param object
-	 * @return
-	 */
-	public static void upsert(final DBCollection collection, final String field, final DBObject object) {
-		(new Thread(new Runnable() {			
+
+	public void addTransaction(MongoDocumentTransaction transaction) {
+		// Run this operation outside of the main thread.
+		(new Thread(new Runnable() {
 			@Override
 			public void run() {
-				BasicDBObject append = new BasicDBObject();				
-				append.append("$set", object);
-				collection.update(new BasicDBObject(field, object.get(field)), append, true, false);
+				synchronized (listTransactions) {
+					listTransactions.add(transaction);
+				}
 			}
 		})).start();
 	}
 	
-	public static WriteResult delete(DBCollection collection, String field, Object value) {
-		return collection.remove(new BasicDBObject(field, value));
+	public int getTransactionQueueSize() {
+		synchronized(listTransactions) {
+			return listTransactions.size();
+		}
 	}
-	
+
+	public MongoCollection createMongoCollection(String name) {
+		return new MongoCollection(this, getDatabase().getCollection(name));
+	}
+
+	public void shutDown() {
+		reset();
+		setShutDown(true);
+	}
+
+	public boolean isShutDown() {
+		return this.shutdown;
+	}
+
+	private void setShutDown(boolean flag) {
+		this.shutdown = flag;
+	}
+
+	public List<MongoDocumentTransaction> getTransactions() {
+		return this.listTransactions;
+	}
+
 	public abstract void reset();
 	public abstract void onConnection(MongoClient client);
 }
