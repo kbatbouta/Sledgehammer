@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.core;
 
 /*
 This file is part of Sledgehammer.
@@ -30,6 +30,8 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.MongoDatabase;
 import sledgehammer.objects.Player;
 import sledgehammer.util.StringUtils;
 import zombie.core.znet.SteamUtils;
@@ -37,20 +39,23 @@ import zombie.core.znet.SteamUtils;
 public class SledgehammerDatabase extends MongoDatabase {
 
 	public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
+
 	private DB dbSledgehammer;
-	private DBCollection collectionPlayers;
-	private DBCollection collectionBans;
-	
+
+	private MongoCollection collectionPlayers;
+	private MongoCollection collectionBans;
+
 	private Map<String, MongoPlayer> mapPlayersByUsername;
 	private Map<UUID, MongoPlayer> mapPlayersByUUID;
 	private Map<Long, MongoPlayer> mapPlayersBySteamID;
 
 	public SledgehammerDatabase() {
 		super();
+		// @formatter: off
 		mapPlayersByUsername = new HashMap<>();
 		mapPlayersByUUID = new HashMap<>();
 		mapPlayersBySteamID = new HashMap<>();
+		// @formatter: on
 	}
 
 	@Override
@@ -58,7 +63,16 @@ public class SledgehammerDatabase extends MongoDatabase {
 		super.connect(url);
 		println("Connected.");
 	}
-	
+
+	@Override
+	@SuppressWarnings("deprecation")
+	public void onConnection(MongoClient client) {
+		dbSledgehammer = client.getDB(SledgeHammer.instance.getSettings().getDatabase());
+		setDatabase(dbSledgehammer);
+		collectionPlayers = createMongoCollection("sledgehammer_players");
+		collectionBans = createMongoCollection("sledgehammer_bans");
+	}
+
 	@Override
 	public void reset() {
 
@@ -77,7 +91,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		boolean returned = false;
 		returned = mapPlayersByUsername.containsKey(username);
-		if(!returned) {			
+		if (!returned) {
 			DBCursor cursor = collectionPlayers.find(new BasicDBObject("username", username));
 			returned = cursor.hasNext();
 			cursor.close();
@@ -99,7 +113,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		boolean returned = false;
 		returned = mapPlayersByUUID.containsKey(uniqueId);
-		if(!returned) {			
+		if (!returned) {
 			DBCursor cursor = collectionPlayers.find(new BasicDBObject("uuid", uniqueId.toString()));
 			returned = cursor.hasNext();
 			cursor.close();
@@ -107,8 +121,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		System.out.println("SledgehammerDatabase->playerExists(" + uniqueId.toString() + ") -> " + returned + ";");
 		return returned;
 	}
-	
-	
+
 	public MongoPlayer getMongoPlayer(UUID uniqueId) {
 		if (uniqueId == null) {
 			throw new IllegalArgumentException("SledgehammerDatabase: uniqueId given is null!");
@@ -116,9 +129,9 @@ public class SledgehammerDatabase extends MongoDatabase {
 		MongoPlayer player = null;
 		System.out.println("SledgehammerDatabase->getMongoPlayer(" + uniqueId.toString() + ");");
 		player = mapPlayersByUUID.get(uniqueId);
-		if(player == null) {			
+		if (player == null) {
 			DBCursor cursor = collectionPlayers.find(new BasicDBObject("uuid", uniqueId.toString()));
-			if(cursor.hasNext()) {
+			if (cursor.hasNext()) {
 				player = new MongoPlayer(collectionPlayers, cursor.next());
 				registerPlayer(player);
 			}
@@ -134,9 +147,9 @@ public class SledgehammerDatabase extends MongoDatabase {
 		MongoPlayer player = null;
 		System.out.println("SledgehammerDatabase->getMongoPlayer(" + username + ");");
 		player = mapPlayersByUsername.get(username);
-		if(player == null) {			
+		if (player == null) {
 			DBCursor cursor = collectionPlayers.find(new BasicDBObject("username", username));
-			if(cursor.hasNext()) {
+			if (cursor.hasNext()) {
 				player = new MongoPlayer(collectionPlayers, cursor.next());
 				registerPlayer(player);
 			}
@@ -144,7 +157,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		return player;
 	}
-	
+
 	public MongoPlayer getMongoPlayer(String username, String password) {
 		if (username == null || username.isEmpty()) {
 			throw new IllegalArgumentException("SledgehammerDatabase: Username given is null or empty!");
@@ -152,12 +165,13 @@ public class SledgehammerDatabase extends MongoDatabase {
 		MongoPlayer player = null;
 		System.out.println("SledgehammerDatabase->getMongoPlayer(" + username + ", " + password + ");");
 		player = mapPlayersByUsername.get(username);
-		if(player != null && !player.passwordsMatch(password)) {
+		if (player != null && !player.passwordsMatch(password)) {
 			player = null;
 		}
-		if(player == null) {			
-			DBCursor cursor = collectionPlayers.find(new BasicDBObject("username", username).append("password", StringUtils.md5(password)));
-			if(cursor.hasNext()) {
+		if (player == null) {
+			DBCursor cursor = collectionPlayers
+					.find(new BasicDBObject("username", username).append("password", StringUtils.md5(password)));
+			if (cursor.hasNext()) {
 				player = new MongoPlayer(collectionPlayers, cursor.next());
 				registerPlayer(player);
 			}
@@ -165,7 +179,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		return player;
 	}
-	
+
 	public MongoPlayer getMongoPlayer(long steamID) {
 		if (steamID == -1L) {
 			throw new IllegalArgumentException("SledgehammerDatabase: Steam ID is invalid: " + steamID);
@@ -173,7 +187,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		MongoPlayer player = null;
 		System.out.println("SledgehammerDatabase->getMongoPlayer(" + steamID + ");");
 		DBCursor cursor = collectionPlayers.find(new BasicDBObject("steamID", "" + steamID));
-		if(cursor.hasNext()) {
+		if (cursor.hasNext()) {
 			player = new MongoPlayer(collectionPlayers, cursor.next());
 			registerPlayer(player);
 		}
@@ -186,15 +200,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			throw new IllegalArgumentException("SledgehammerDatabase: Player is null!");
 		}
 		return getMongoPlayer(player.getUsername());
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public void onConnection(MongoClient client) {
-		dbSledgehammer = client.getDB(SledgeHammer.instance.getSettings().getDatabase());
-		setDatabase(dbSledgehammer);
-		collectionPlayers = dbSledgehammer.getCollection("sledgehammer_players");
-		collectionBans    = dbSledgehammer.getCollection("sledgehammer_bans");
 	}
 
 	@Override
@@ -219,7 +224,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		MongoBan returned = null;
 		DBCursor cursor = collectionBans.find(new BasicDBObject("id", id));
-		if(cursor.hasNext()) {
+		if (cursor.hasNext()) {
 			returned = new MongoBan(collectionBans);
 			returned.onLoad(cursor.next());
 		}
@@ -244,7 +249,9 @@ public class SledgehammerDatabase extends MongoDatabase {
 
 	/**
 	 * Creates an unsaved <MongoBan> document.
-	 * @param id The ID of the Ban.
+	 * 
+	 * @param id
+	 *            The ID of the Ban.
 	 * @param username
 	 * @param reason
 	 * @param steam
@@ -262,7 +269,7 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		UUID returned = null;
 		DBCursor cursor = collectionPlayers.find(new BasicDBObject("username", username));
-		if(cursor.hasNext()) {
+		if (cursor.hasNext()) {
 			DBObject object = cursor.next();
 			returned = UUID.fromString(object.get("uuid").toString());
 		}
@@ -276,31 +283,30 @@ public class SledgehammerDatabase extends MongoDatabase {
 		}
 		return this.getDatabase().getCollection(collectionName);
 	}
-	
+
 	private void registerPlayer(MongoPlayer player) {
 		if (player == null) {
 			throw new IllegalArgumentException("SledgehammerDatabase: Player is null!");
 		}
 		this.mapPlayersByUsername.put(player.getUsername(), player);
 		this.mapPlayersByUUID.put(player.getUniqueId(), player);
-		if(SteamUtils.isSteamModeEnabled()) {
+		if (SteamUtils.isSteamModeEnabled()) {
 			this.mapPlayersBySteamID.put(player.getSteamId(), player);
 		}
 	}
-	
+
 	public Map<String, Long> getAllMongoPlayers() {
 		Map<String, Long> returned = new HashMap<>();
 		DBCursor cursor = collectionPlayers.find();
-		while(cursor.hasNext()) {
+		while (cursor.hasNext()) {
 			DBObject object = cursor.next();
 			String username = object.get("username").toString();
 			long time = Long.parseLong(object.get("timeConnectedLast").toString());
-			if(time > -1L) {
+			if (time > -1L) {
 				returned.put(username, time);
 			}
 		}
 		cursor.close();
 		return returned;
 	}
-
 }
