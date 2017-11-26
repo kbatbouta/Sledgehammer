@@ -23,7 +23,7 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 /**
  * TODO: Document.

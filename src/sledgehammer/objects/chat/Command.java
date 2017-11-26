@@ -24,7 +24,7 @@ import java.util.List;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.lua.LuaArray;
 import sledgehammer.lua.LuaTable;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 /**
  * TODO: Document.
@@ -249,5 +249,4 @@ public class Command extends LuaTable {
 		new Command("test3", null).debugPrint();
 		new Command("test4", new String[] {"arg1", "arg2"}).debugPrint();
 	}
-
 }

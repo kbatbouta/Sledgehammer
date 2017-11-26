@@ -12,10 +12,10 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.database.module.permissions.MongoPermissionGroup;
 import sledgehammer.database.module.permissions.MongoPermissionUser;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
 import sledgehammer.module.MongoModule;
-import sledgehammer.objects.Player;
 
 /**
  * Module class that handles operations for Permissions.

@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.event;
 
 import sledgehammer.objects.chat.ChatMessage;
 
@@ -24,20 +23,24 @@ public class ChatMessageEvent extends Event {
 	public static final String ID = "ChatMessageEvent";
 
 	private ChatMessage message;
-	
+
 	public ChatMessageEvent(ChatMessage message) {
 		this.message = message;
 	}
-	
+
 	public ChatMessage getMessage() {
 		return this.message;
 	}
-	
+
 	public String getChannelName() {
 		return getMessage().getChannel();
 	}
-	
-	public String getLogMessage() { return null; }
-	public String getID() { return ID; }
 
+	public String getLogMessage() {
+		return null;
+	}
+
+	public String getID() {
+		return ID;
+	}
 }

@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -17,31 +15,33 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.Player;
+package sledgehammer.event;
+
+import sledgehammer.lua.core.Player;
 
 public class PVPAttackEvent extends Event {
-	
+
 	public static final String ID = "PVPAttackEvent";
-	
+
 	private Player playerAttacking;
 	private Player playerAttacked;
 	private String weapon;
-	
+
 	public PVPAttackEvent(Player attacking, Player attacked, String weapon) {
 		super();
 		this.playerAttacking = attacking;
 		this.playerAttacked = attacked;
 		this.weapon = weapon;
 	}
-	
+
 	public Player getPlayerAttacking() {
 		return this.playerAttacking;
 	}
-	
+
 	public Player getPlayerAttacked() {
 		return this.playerAttacked;
 	}
-	
+
 	public String getWeapon() {
 		return this.weapon;
 	}

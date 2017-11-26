@@ -19,8 +19,8 @@ This file is part of Sledgehammer.
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
-import sledgehammer.objects.Player;
 
 /**
  * Manager class designed to handle permissions for modules and core functions.

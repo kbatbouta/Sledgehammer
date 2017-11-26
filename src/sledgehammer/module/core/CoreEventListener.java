@@ -25,7 +25,7 @@ import sledgehammer.event.DeathEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
 import zombie.core.raknet.UdpConnection;
 import zombie.sledgehammer.npc.NPC;

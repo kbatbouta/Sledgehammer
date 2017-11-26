@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,14 +13,19 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
+package sledgehammer.event;
+
+/**
+ * TODO: Document
+ * 
+ * @author Jab
+ */
 public class ScriptEvent extends Event {
 
 	public static final String ID = "ScriptEvent";
-
 	private String context = null;
-
 	private Object[] arguments = null;
 
 	public ScriptEvent(String context, Object... arguments) {
@@ -52,9 +55,9 @@ public class ScriptEvent extends Event {
 	}
 
 	public static enum Context {
-		
+
 		// '#' for implemented in the LuaListener class.
-		
+		// @formatter:off
 		OnGameBoot("OnGameBoot"), //#
 		OnPreGameStart("OnPreGameStart"), //#
 		OnTick("OnTick"), //#
@@ -189,18 +192,21 @@ public class ScriptEvent extends Event {
 		// OnCustomUIKey("OnCustomUIKey"),
 		// OnServerCommand("OnServerCommand"),
 		
+		// @formatter:on
+
 		private String context;
-		
+
 		Context(String context) {
 			this.context = context;
 		}
-		
+
 		public String getContext() {
 			return this.context;
 		}
-		
+
 		public boolean equals(String other) {
-			if(other != null) return other.equals(getContext());
+			if (other != null)
+				return other.equals(getContext());
 			return false;
 		}
 	}

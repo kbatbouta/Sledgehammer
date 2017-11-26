@@ -21,7 +21,7 @@ import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.lua.LuaTable;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 public class RequestInfo extends LuaTable {
 

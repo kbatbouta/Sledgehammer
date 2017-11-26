@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -17,12 +15,14 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.Player;
+package sledgehammer.event;
+
+import sledgehammer.lua.core.Player;
 
 public class PostConnectEvent extends PlayerEvent {
 
 	public static final String ID = "PostConnectionEvent";
-	
+
 	public PostConnectEvent(Player player) {
 		super(player);
 	}
@@ -34,6 +34,8 @@ public class PostConnectEvent extends PlayerEvent {
 	}
 
 	@Override
-	public String getID() {return ID; }
+	public String getID() {
+		return ID;
+	}
 
 }

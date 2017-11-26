@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,9 +26,9 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
+import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.core.CoreCommandListener;
-import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Command;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Result;

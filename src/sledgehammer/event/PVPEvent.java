@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -17,13 +15,16 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.Player;
+package sledgehammer.event;
+
+import sledgehammer.lua.core.Player;
 
 public class PVPEvent extends PlayerEvent {
-	
+
 	public static final String ID = "PVPEvent";
-	
+
 	private boolean enabled;
+
 	public PVPEvent(Player player, boolean enabled) {
 		super(player);
 		this.enabled = enabled;
@@ -32,9 +33,9 @@ public class PVPEvent extends PlayerEvent {
 	public boolean isPVPEnabled() {
 		return this.enabled;
 	}
-	
+
 	public String getLogMessage() {
-		return getPlayer().getUsername() + " " + (isPVPEnabled()?"enabled":"disabled") + " PVP.";
+		return getPlayer().getUsername() + " " + (isPVPEnabled() ? "enabled" : "disabled") + " PVP.";
 	}
 
 	public String getID() {

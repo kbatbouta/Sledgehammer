@@ -18,7 +18,7 @@ This file is part of Sledgehammer.
 */
 
 import sledgehammer.interfaces.ContextListener;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 import sledgehammer.util.Printable;
 import zombie.core.Translator;
 

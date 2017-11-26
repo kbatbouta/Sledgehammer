@@ -32,7 +32,7 @@ import com.mongodb.MongoClient;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.MongoDatabase;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 import sledgehammer.util.StringUtils;
 import zombie.core.znet.SteamUtils;
 

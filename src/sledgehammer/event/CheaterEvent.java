@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,15 +13,16 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.event;
 
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 public class CheaterEvent extends PlayerEvent {
-	
+
 	public static final String ID = "CheaterEvent";
 	private String logMessage = null;
-	
+
 	public CheaterEvent(Player player, String logMessage) {
 		super(player);
 		this.logMessage = logMessage;
@@ -35,5 +34,7 @@ public class CheaterEvent extends PlayerEvent {
 	}
 
 	@Override
-	public String getID() {return ID;}
+	public String getID() {
+		return ID;
+	}
 }

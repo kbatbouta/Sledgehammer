@@ -6,7 +6,7 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.module.permissions.MongoPermissionUser;
 import sledgehammer.lua.Node;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 /**
  * Class to store and handle permission information for a <Player>

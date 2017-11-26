@@ -1,6 +1,6 @@
 package sledgehammer.interfaces;
 
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 /*
 This file is part of Sledgehammer.

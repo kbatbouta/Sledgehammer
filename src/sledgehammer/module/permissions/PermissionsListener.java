@@ -1,9 +1,9 @@
 package sledgehammer.module.permissions;
 
 import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
-import sledgehammer.objects.Player;
 
 public class PermissionsListener implements PermissionListener {
 

@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -17,25 +15,27 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.Player;
+package sledgehammer.event;
+
+import sledgehammer.lua.core.Player;
 
 public class PVPKillEvent extends Event {
 
 	public static final String ID = "PVPKillEvent";
-	
+
 	private Player playerKiller;
 	private Player playerKilled;
-	
+
 	public PVPKillEvent(Player killer, Player killed) {
 		super();
 		this.playerKiller = killer;
 		this.playerKilled = killed;
 	}
-	
+
 	public Player getKiller() {
 		return this.playerKiller;
 	}
-	
+
 	public Player getKilled() {
 		return this.playerKilled;
 	}
@@ -44,8 +44,10 @@ public class PVPKillEvent extends Event {
 	public String getLogMessage() {
 		String playerKillerName = "Unknown Player (Null)";
 		String playerKilledName = "Unknown Player (Null)";
-		if(playerKiller != null) playerKillerName = playerKiller.getUsername();
-		if(playerKilled != null) playerKilledName = playerKilled.getUsername();
+		if (playerKiller != null)
+			playerKillerName = playerKiller.getUsername();
+		if (playerKilled != null)
+			playerKilledName = playerKilled.getUsername();
 		return playerKillerName + " killed " + playerKilledName + '.';
 	}
 

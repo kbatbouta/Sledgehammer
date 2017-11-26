@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,32 +13,35 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.event;
 
 public class PreConnectEvent extends Event {
 
 	public static final String ID = "LoginUsernameDefinedEvent";
-	
+
 	private String username;
-	
+
 	public PreConnectEvent(String username) {
 		this.username = username;
 	}
-	
+
 	public String getUsername() {
 		return username;
 	}
-	
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	
+
 	@Override
-	public String getLogMessage() { 
-		return "User attempting to log in with username: \"" + username + "\"."; 
+	public String getLogMessage() {
+		return "User attempting to log in with username: \"" + username + "\".";
 	}
 
 	@Override
-	public String getID() { return ID; }
+	public String getID() {
+		return ID;
+	}
 
 }

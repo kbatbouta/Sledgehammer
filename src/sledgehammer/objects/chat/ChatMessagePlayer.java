@@ -23,7 +23,7 @@ import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.objects.Player;
+import sledgehammer.lua.core.Player;
 
 public class ChatMessagePlayer extends ChatMessage {
 

@@ -1,5 +1,3 @@
-package sledgehammer.event;
-
 /*
 This file is part of Sledgehammer.
 
@@ -17,16 +15,18 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import sledgehammer.objects.Player;
+package sledgehammer.event;
+
+import sledgehammer.lua.core.Player;
 
 public class DeathEvent extends PlayerEvent {
 
 	public static final String ID = "DeathEvent";
-	
+
 	public DeathEvent(Player player) {
 		super(player);
 	}
-	
+
 	@Override
 	public String getLogMessage() {
 		return getPlayer().getUsername() + " has died.";
