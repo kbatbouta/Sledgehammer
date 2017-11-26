@@ -96,6 +96,8 @@ public final class ModuleManager extends Manager {
 	 */
 	private long timeThen = 0L;
 
+	private ModulePermissions modulePermissions;
+
 	/**
 	 * Main Constructor.
 	 */
@@ -114,20 +116,22 @@ public final class ModuleManager extends Manager {
 	 */
 	private void loadDefaultModules() {
 		try {
+			modulePermissions = new ModulePermissions();
 			moduleVanilla = new ModuleVanilla();
 			moduleCore = new ModuleCore();
 			moduleChat = new ModuleChat();
 			if (DEBUG) {
 				registerModule(new ModuleMonitor());
 			}
+			registerModule(modulePermissions);
 			registerModule(moduleVanilla);
 			registerModule(moduleCore);
 			registerModule(moduleChat);
-//			try {
-//				registerModule(new ModuleTerritories());
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			}
+			// try {
+			// registerModule(new ModuleTerritories());
+			// } catch (Exception e) {
+			// e.printStackTrace();
+			// }
 		} catch (Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
@@ -223,11 +227,11 @@ public final class ModuleManager extends Manager {
 	 */
 	public void registerModule(Module module) {
 
-		println("Registering Module: \"" + module.getName() + "\".");
-		
 		synchronized (getSledgeHammer()) {
-			if (module == null)
+			if (module == null) {
 				throw new IllegalArgumentException("Module is null!");
+			}
+			println("Registering Module: \"" + module.getName() + "\".");
 
 			if (!listModules.contains(module)) {
 				listModules.add(module);
@@ -623,5 +627,4 @@ public final class ModuleManager extends Manager {
 	public String getName() {
 		return NAME;
 	}
-
 }
