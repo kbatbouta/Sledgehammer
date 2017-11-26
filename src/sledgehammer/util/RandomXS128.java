@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 /**
- * NOTE: This is an external library, and the source is avaliable. This is under
+ * NOTE: This is an external library, and the source is available. This is under
  * the copyright above, not the license of Sledgehammer. 
  * 
  * Thanks.
