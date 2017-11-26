@@ -276,7 +276,7 @@ public class ChatMessage extends LuaTable {
 	}
 
 	public void save() {
-		ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+		ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModule(ModuleChat.class);
 		module.saveMessage(this);
 	}
 

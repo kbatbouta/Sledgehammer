@@ -20,29 +20,33 @@ This file is part of Sledgehammer.
 import java.util.HashMap;
 import java.util.Map;
 
-import sledgehammer.event.ClientEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.module.Module;
+import sledgehammer.module.ModuleProperties;
 import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
 public class ModuleVanilla extends Module {
 
-	public static final String ID      = "sledgehammer_vanilla_core";
-	public static final String NAME    = "Basic"                    ;
-	public static final String MODULE  = "Basic"                    ;
-	public static final String VERSION = "1.02"                     ;
-	
 	CommandListener commandListener;
-	
+
 	LogListener logListener;
-	
+
 	private Map<String, String> mapContexts;
-	
+
 	public ModuleVanilla() {
-		
-		// Adding contexts to this class for exposure & modification purposes. (This is not in vanilla).
+
+		String name = "Vanilla";
+		String version = "1.03";
+		String moduleLocation = getClass().getName();
+		String description = "Vanilla Module for Sledgehammer, implementing features from the original game.";
+		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
+		setProperties(properties);
+
+		// Adding contexts to this class for exposure & modification purposes. (This is
+		// not in vanilla).
 		// Otherwise, this would be defined in the CommandHandler.
+		// @formatter:off
 		mapContexts = new HashMap<>();
 		mapContexts.put("roll"                   , "base.command.player.rolldice"              );
 		mapContexts.put("changepwd"              , "base.command.player.changepwd"             );
@@ -81,38 +85,31 @@ public class ModuleVanilla extends Module {
 		mapContexts.put("unbanuser"              , "base.command.admin.unbanuser"              );
 		mapContexts.put("banid"                  , "base.command.admin.banid"                  );
 		mapContexts.put("unbanid"                , "base.command.admin.unbanid"                );
+		// @formatter:on
 	}
-	
+
+	@Override
 	public void onLoad() {
 		commandListener = new VanillaCommandListener(this);
 		logListener = new VanillaLogListener();
-		
 		register(logListener);
 	}
-	
+
+	@Override
 	public void onUnload() {
 		unregister(logListener);
 	}
-	
+
 	public CommandListener getCommandListener() {
 		return commandListener;
 	}
-	
+
 	public void setCommandListener(CommandListener listener) {
 		this.commandListener = listener;
 	}
-		
+
 	public Map<String, String> getContexts() {
 		return this.mapContexts;
 	}
-
-	public void onStart() {}
-	public void onUpdate(long delta) {}
-	public void onStop() {}
-	public void onClientCommand(ClientEvent e) {}
-	public String getID()         { return ID      ; }
-	public String getName()       { return NAME    ; }
-	public String getVersion()    { return VERSION ; }
-	public String getModuleName() { return MODULE  ; }
 
 }

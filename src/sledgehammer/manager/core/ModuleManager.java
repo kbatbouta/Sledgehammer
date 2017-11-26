@@ -17,10 +17,8 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -36,6 +34,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.Module;
+import sledgehammer.module.ModuleProperties;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.permissions.ModulePermissions;
@@ -225,18 +224,10 @@ public final class ModuleManager extends Manager {
 			moduleVanilla = new ModuleVanilla();
 			moduleCore = new ModuleCore();
 			moduleChat = new ModuleChat();
-			if (DEBUG) {
-				registerModule(new ModuleMonitor());
-			}
 			registerModule(modulePermissions);
 			registerModule(moduleVanilla);
 			registerModule(moduleCore);
 			registerModule(moduleChat);
-			// try {
-			// registerModule(new ModuleTerritories());
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
 		} catch (Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
@@ -305,8 +296,9 @@ public final class ModuleManager extends Manager {
 			// Grab the next module in the list.
 			Module module = modules.next();
 			// If the module instance is valid, attempt to unload it.
-			if (module != null)
+			if (module != null) {
 				unloadModule(module, false);
+			}
 			// Removes the Module instance from the List.
 			modules.remove();
 		}
@@ -329,7 +321,7 @@ public final class ModuleManager extends Manager {
 			if (!listModules.contains(module)) {
 				listModules.add(module);
 			}
-			Module mappedModule = mapModules.get(module.getID());
+			Module mappedModule = mapModules.get(module.getClass().getName());
 			if (mappedModule != null) {
 				throw new IllegalArgumentException("Module ID for class "
 						+ (module.getClass().getPackage() + "." + module.getClass().getName())
@@ -337,7 +329,7 @@ public final class ModuleManager extends Manager {
 						+ (mappedModule.getClass().getPackage() + "." + mappedModule.getClass().getName())
 						+ ". If you are the author of this mod, you will need to change the ID to be unique. Otherwise, report this to the mod author.");
 			} else {
-				mapModules.put(module.getID(), module);
+				mapModules.put(module.getClass().getName(), module);
 			}
 		}
 	}
@@ -397,7 +389,7 @@ public final class ModuleManager extends Manager {
 			module.unloadModule();
 			// Remove the module if requested by the 'remove' parameter.
 			if (remove) {
-				mapModules.remove(module.getID());
+				mapModules.remove(module.getClass().getName());
 			}
 		} catch (Exception e) {
 			stackTrace("Failed to unload module " + module.getName() + ": " + e.getMessage(), e);
@@ -424,9 +416,9 @@ public final class ModuleManager extends Manager {
 		if (!pluginFile.exists()) {
 			throw new IllegalArgumentException("Jar file not found: " + pluginName);
 		}
-		Map<String, String> pluginSettings = getPluginSettings(pluginName);
-		String module = pluginSettings.get("module");
-		if (module == null) {
+		ModuleProperties moduleProperties = getPluginProperties(pluginName);
+		String moduleLocation = moduleProperties.getModuleLocation();
+		if (moduleLocation.equals("unknown")) {
 			throw new IllegalArgumentException("plugin.txt is not valid: " + pluginName);
 		}
 		URL url = pluginFile.toURI().toURL();
@@ -450,10 +442,9 @@ public final class ModuleManager extends Manager {
 			for (String clazz : listClasses) {
 				loader.loadClass(clazz);
 			}
-			Class<?> classToLoad = Class.forName(module, true, loader);
+			Class<?> classToLoad = Class.forName(moduleLocation, true, loader);
 			instance = (Module) classToLoad.newInstance();
-			instance.setPluginSettings(pluginSettings);
-			instance.setJarName(name);
+			instance.setProperties(moduleProperties);
 		} catch (Exception exception) {
 			SledgeHammer.instance.stackTrace(exception);
 		}
@@ -504,8 +495,8 @@ public final class ModuleManager extends Manager {
 	 * @param ID
 	 * @return
 	 */
-	public Module getModuleByID(String ID) {
-		return mapModules.get(ID);
+	public Module getModule(@SuppressWarnings("rawtypes") Class clazz) {
+		return mapModules.get(clazz.getName());
 	}
 
 	/**
@@ -517,34 +508,18 @@ public final class ModuleManager extends Manager {
 		return this.listModules;
 	}
 
-	/**
-	 * Reads the 'plugin.txt' file from the plug-in JAR file.
-	 * 
-	 * TODO: Move with ClassLoader methods to a utility class.
-	 * 
-	 * @param fileName
-	 *
-	 * @return
-	 */
-	private static Map<String, String> getPluginSettings(String fileName) {
+	
+	private static ModuleProperties getPluginProperties(String pluginName) {
+		ModuleProperties returned = null;
 		URL url;
-		Map<String, String> listSettings = new HashMap<>();
 		try {
-			url = new URL("jar:file:" + fileName + "!/plugin.txt");
+			url = new URL("jar:file:" + pluginName + "!/plugin.yml");
 			InputStream is = url.openStream();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-			String line;
-			while ((line = reader.readLine()) != null) {
-				line = line.trim();
-				if (line.toLowerCase().startsWith("module:")) {
-					listSettings.put("module", line.split(":")[1]);
-				}
-			}
-			reader.close();
+			returned = new ModuleProperties(is);
 			is.close();
 		} catch (Exception e) {
 			SledgeHammer.instance.stackTrace(e);
 		}
-		return listSettings;
+		return returned;
 	}
 }

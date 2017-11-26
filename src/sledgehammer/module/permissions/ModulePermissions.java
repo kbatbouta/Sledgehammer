@@ -15,6 +15,7 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
+import sledgehammer.module.ModuleProperties;
 import sledgehammer.module.MongoModule;
 
 /**
@@ -23,13 +24,6 @@ import sledgehammer.module.MongoModule;
  * @author Jab
  */
 public class ModulePermissions extends MongoModule {
-
-	// @formatter:off
-	public static final String ID      = "ModulePermissions";
-	public static final String NAME    = "Permissions";
-	public static final String MODULE  = "Permissions";
-	public static final String VERSION = "2.0.0";
-	// @formatter:on
 
 	/** The <MongoCollection> storing the <MongoPermissionGroup> documents. */
 	private MongoCollection collectionGroups;
@@ -61,6 +55,13 @@ public class ModulePermissions extends MongoModule {
 	 */
 	public ModulePermissions() {
 		super(getDefaultDatabase());
+		
+		String name = "Permissions";
+		String version = "2.0";
+		String moduleLocation = getClass().getName();
+		String description = "Default Permissions for Sledgehammer.";
+		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
+		setProperties(properties);
 	}
 
 	@Override
@@ -404,11 +405,4 @@ public class ModulePermissions extends MongoModule {
 	public PermissionGroup getPermissionGroup(UUID groupId) {
 		return this.mapPermissionGroups.get(groupId);
 	}
-
-	// @formatter:off
-	public String getID()         { return ID;      }
-	public String getName()       { return NAME;    }
-	public String getVersion()    { return VERSION; }
-	public String getModuleName() { return MODULE;  }
-	// @formatter:on
 }

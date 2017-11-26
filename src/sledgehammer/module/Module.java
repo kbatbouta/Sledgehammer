@@ -19,9 +19,7 @@ This file is part of Sledgehammer.
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
@@ -44,9 +42,12 @@ import sledgehammer.util.Printable;
 
 /**
  * TODO: Document
+ * 
  * @author Jab
  */
 public abstract class Module extends Printable {
+
+	private ModuleProperties properties = new ModuleProperties();
 
 	private INI ini;
 
@@ -58,20 +59,19 @@ public abstract class Module extends Printable {
 
 	private boolean started = false;
 
-	private String jarName = null;
-
-	private Map<String, String> pluginSettings = new HashMap<>();
-
+	@Override
+	public String getName() {
+		return getProperties().getModuleName();
+	}
+	
 	public void loadSettings(ModuleSettingsHandler handler) {
-
-		if (handler == null)
+		if (handler == null) {
 			throw new IllegalArgumentException("Settings Handler given is null!");
-
+		}
 		loadedSettings = false;
-
-		if (ini == null)
+		if (ini == null) {
 			getINI();
-
+		}
 		if (iniFile.exists()) {
 			handler.createSettings(getINI());
 			try {
@@ -94,10 +94,6 @@ public abstract class Module extends Printable {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public void register(CommandListener listener) {
-			SledgeHammer.instance.register(listener);
 	}
 
 	public boolean stopModule() {
@@ -153,27 +149,37 @@ public abstract class Module extends Printable {
 			SledgeHammer.instance.register(type, listener);
 		}
 	}
-	
-	public void unregister(EventListener listener) {
-		getEventManager().unregister(listener);
+
+	/**
+	 * Registers a <ChatChannel> properly.
+	 * 
+	 * @param chatChannel
+	 *            The <ChatChannel> being registered.
+	 */
+	public void registerChatChannel(ChatChannel chatChannel) {
+		if (chatChannel == null) {
+			throw new IllegalArgumentException("ChatChannel given is null!");
+		}
+		// Grab the ChatManager.
+		ChatManager chatManager = getChatManager();
+		// Add the ChatChannel to the ChatManager.
+		chatManager.addChatChannel(chatChannel);
 	}
-	
-	public void unregister(CommandListener listener) {
-		getEventManager().unregister(listener);
+
+	/**
+	 * Unregisters a given <ChatChannel>.
+	 * 
+	 * @param chatChannel
+	 *            The <ChatChannel> being unregistered.
+	 */
+	public void unregisterChatChannel(ChatChannel chatChannel) {
+		if (chatChannel == null) {
+			throw new IllegalArgumentException("ChatChannel given is null!");
+		}
+		ModuleChat moduleChat = getChatModule();
+		moduleChat.deleteChannel(chatChannel);
 	}
-	
-	public void unregister(LogListener listener) {
-		getEventManager().unregister(listener);
-	}
-	
-	public void unregister(ExceptionListener listener) {
-		getEventManager().unregister(listener);
-	}
-	
-	public void setPermissionListener(PermissionListener permissionListener) {
-		getPermissionsManager().setPermissionListener(permissionListener);
-	}
-	
+
 	public void startModule() {
 		if (!started) {
 			started = true;
@@ -185,12 +191,16 @@ public abstract class Module extends Printable {
 
 	public INI getINI() {
 		if (ini == null) {
-			iniFile = new File("plugins" + File.separator
-					+ getJarName() + ".ini");
+			iniFile = new File("plugins" + File.separator + getProperties().getModuleName() + ".ini");
 			ini = new INI(iniFile);
 		}
-
 		return this.ini;
+	}
+
+	public void updateModule(long delta) {
+		if (started) {
+			onUpdate(delta);
+		}
 	}
 
 	public void unload() {
@@ -198,32 +208,45 @@ public abstract class Module extends Printable {
 		getModuleManager().unloadModule(this, true);
 	}
 
+	public void sendGlobalMessage(String message) {
+		ChatChannel global = getChatManager().getChannel("global");
+		global.addMessage(message);
+	}
+
+	public void register(CommandListener listener) {
+		SledgeHammer.instance.register(listener);
+	}
+
+	public void unregister(EventListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	public void unregister(CommandListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	public void unregister(LogListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	public void unregister(ExceptionListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	public void setPermissionListener(PermissionListener permissionListener) {
+		getPermissionsManager().setPermissionListener(permissionListener);
+	}
+
 	public EventManager getEventManager() {
 		return SledgeHammer.instance.getEventManager();
 	}
-	
+
 	public ModuleManager getModuleManager() {
 		return SledgeHammer.instance.getModuleManager();
 	}
 
 	public String getPermissionDeniedMessage() {
 		return SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
-	}
-
-	public Map<String, String> getPluginSettings() {
-		return this.pluginSettings;
-	}
-
-	public void setPluginSettings(Map<String, String> map) {
-		this.pluginSettings = map;
-	}
-
-	public String getJarName() {
-		return this.jarName;
-	}
-
-	public void setJarName(String jarName) {
-		this.jarName = jarName;
 	}
 
 	public void handleEvent(Event event, boolean shouldLog) {
@@ -234,17 +257,12 @@ public abstract class Module extends Printable {
 		SledgeHammer.instance.handle(event);
 	}
 
-	public Module getModuleByID(String ID) {
-		return getModuleManager().getModuleByID(ID);
+	public Module getModule(@SuppressWarnings("rawtypes") Class clazz) {
+		return getModuleManager().getModule(clazz);
 	}
 
 	public PermissionsManager getPermissionsManager() {
 		return SledgeHammer.instance.getPermissionsManager();
-	}
-
-	public void updateModule(long delta) {
-		if (started)
-			onUpdate(delta);
 	}
 
 	public boolean loadedSettings() {
@@ -258,7 +276,7 @@ public abstract class Module extends Printable {
 	public void register(LogListener listener) {
 		SledgeHammer.instance.register(listener);
 	}
-	
+
 	public void register(ExceptionListener listener) {
 		SledgeHammer.instance.register(listener);
 	}
@@ -270,43 +288,15 @@ public abstract class Module extends Printable {
 	public void register(String command, CommandListener listener) {
 		SledgeHammer.instance.register(command, listener);
 	}
-	
+
 	public ModuleChat getChatModule() {
-		return (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+		return (ModuleChat) getModule(ModuleChat.class);
 	}
 
 	public ChatManager getChatManager() {
 		return SledgeHammer.instance.getChatManager();
 	}
-	
-	/**
-	 * Registers a <ChatChannel> properly.
-	 * 
-	 * @param chatChannel
-	 *            The <ChatChannel> being registered.
-	 */
-	public void registerChatChannel(ChatChannel chatChannel) {
-		if(chatChannel == null) {
-			throw new IllegalArgumentException("ChatChannel given is null!");
-		}
-		// Grab the ChatManager.
-		ChatManager chatManager = getChatManager();
-		// Add the ChatChannel to the ChatManager.
-		chatManager.addChatChannel(chatChannel);
-	}
-	
-	/**
-	 * Unregisters a given <ChatChannel>.
-	 * @param chatChannel The <ChatChannel> being unregistered.
-	 */
-	public void unregisterChatChannel(ChatChannel chatChannel) {
-		if(chatChannel == null) {
-			throw new IllegalArgumentException("ChatChannel given is null!");
-		}
-		ModuleChat moduleChat = getChatModule();
-		moduleChat.deleteChannel(chatChannel);
-	}
-	
+
 	/**
 	 * @param chatChannelName
 	 *            The <String> name used to retrieve the <ChatChannel>
@@ -318,11 +308,6 @@ public abstract class Module extends Printable {
 		return getChatManager().getChannel(chatChannelName);
 	}
 
-	public void sendGlobalMessage(String message) {
-		ChatChannel global = getChatManager().getChannel("global");
-		global.addMessage(message);
-	}
-	
 	public List<Player> getPlayers() {
 		return SledgeHammer.instance.getPlayers();
 	}
@@ -332,7 +317,8 @@ public abstract class Module extends Printable {
 	}
 
 	/**
-	 * Used to execute GenericEvent commands. This will be picked up by modules that @override this this.
+	 * Used to execute GenericEvent commands. This will be picked up by modules
+	 * that @override this this.
 	 * 
 	 * @param type
 	 * 
@@ -341,21 +327,82 @@ public abstract class Module extends Printable {
 	public void executeCommand(String type, String context) {
 	}
 
-	public abstract void onLoad();
+	public String getVersion() {
+		return getProperties().getModuleVersion();
+	}
 
-	public abstract void onStart();
+	public ModuleProperties getProperties() {
+		return this.properties;
+	}
 
-	public abstract void onUpdate(long delta);
+	public void setProperties(ModuleProperties properties) {
+		this.properties = properties;
+	}
 
-	public abstract void onStop();
+	/**
+	 * FIXME: A Module's name needs to be defined in the YML.
+	 * 
+	 * @return
+	 */
+	public String getModuleName() {
+		return getProperties().getModuleName();
+	}
 
-	public abstract void onUnload();
+	/**
+	 * Fired when the <Module> is loaded.
+	 * 
+	 * (Override this method if you want to execute code in your module when it
+	 * loads)
+	 */
+	public void onLoad() {
+	}
 
-	public abstract String getID();
+	/**
+	 * Fired when the <Module> is started.
+	 * 
+	 * (Override this method if you want to execute code in your module when it
+	 * starts)
+	 */
+	public void onStart() {
+	}
 
-	public abstract String getVersion();
-	
-	public abstract String getModuleName();
+	/**
+	 * Fired when the <Module> is updated.
+	 * 
+	 * (Override this method if you want to execute code in your module when the
+	 * server updates)
+	 * 
+	 * @param delta
+	 *            The delta in milliseconds since the last update.
+	 */
+	public void onUpdate(long delta) {
+	}
 
-	public abstract void onClientCommand(ClientEvent e);
+	/**
+	 * Fired when the <Module> is stopped.
+	 * 
+	 * (Override this method if you want to execute code in your module when it
+	 * stops)
+	 * 
+	 */
+	public void onStop() {
+	}
+
+	/**
+	 * Fired when the <Module is unloaded.
+	 * 
+	 * (Override this method if you want to execute code in your module when it
+	 * unloads)
+	 */
+	public void onUnload() {
+	}
+
+	/**
+	 * Fired when a ClientCommand is sent from a Player's client.
+	 * 
+	 * @param event
+	 *            the <ClientEvent> container for the event.
+	 */
+	public void onClientCommand(ClientEvent event) {
+	}
 }

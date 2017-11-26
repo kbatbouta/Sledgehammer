@@ -39,20 +39,16 @@ import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.SendPlayer;
 import sledgehammer.module.Module;
+import sledgehammer.module.ModuleProperties;
 import zombie.network.ServerWorldDatabase;
 
 public class ModuleCore extends Module {
 
-	public static final String ID      = "sledgehammer_core";
-	public static final String NAME    = "Core"             ;
-	public static final String MODULE  = "Core"             ;
-	public static final String VERSION = "1.00"             ;
-
 	public static long LONG_SECOND = 1000L;
 	public static long LONG_MINUTE = LONG_SECOND * 60L;
-	public static long LONG_HOUR   = LONG_MINUTE * 60L;
-	public static long LONG_DAY    = LONG_HOUR   * 24L;
-	
+	public static long LONG_HOUR = LONG_MINUTE * 60L;
+	public static long LONG_DAY = LONG_HOUR * 24L;
+
 	private Map<String, MongoPeriodicMessage> mapPeriodicMessages;
 	private List<MongoPeriodicMessage> listPeriodicMessages;
 
@@ -61,77 +57,52 @@ public class ModuleCore extends Module {
 	private CoreEventListener eventListener;
 	private MongoCollection collectionPeriodicMessages;
 	private SendPlayer sendPlayer;
-	
-	private long timeThenPeriodicMessages   = 0L;
+
+	private long timeThenPeriodicMessages = 0L;
 	private long timeThenCheckAccountExpire = 0L;
 	private long delayCheckAccountExpire = LONG_DAY;
-	private int delayPeriodicMessages   =   60000;
-	
+	private int delayPeriodicMessages = 60000;
+
 	public ModuleCore() {
 		super();
+
+		String name = "Core";
+		String version = "1.1";
+		String moduleLocation = getClass().getName();
+		String description = "Core Module for Sledgehammer.";
+		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
+		setProperties(properties);
+
 		sendPlayer = new SendPlayer();
+
 	}
-	
+
 	@Override
 	public void onLoad() {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
-		
-//		 Initialize the listeners.
+
+		// Initialize the listeners.
 		commandListener = new CoreCommandListener(this);
-		eventListener   = new CoreEventListener(this);
-		clientListener  = new CoreClientListener(this);
-		
+		eventListener = new CoreEventListener(this);
+		clientListener = new CoreClientListener(this);
+
 		// Initialize the Lists & Maps.
 		listPeriodicMessages = new ArrayList<>();
-		mapPeriodicMessages  = new HashMap<>();
-		
+		mapPeriodicMessages = new HashMap<>();
+
 		loadPeriodicMessages();
 	}
 
-	/**
-	 * FIXME: Convert to MongoDB.
-	 * @throws SQLException
-	 */
-	private void loadPeriodicMessages() {
-		DBCursor cursor = collectionPeriodicMessages.find();
-		if(cursor.hasNext()) {
-			MongoPeriodicMessage message = new MongoPeriodicMessage(collectionPeriodicMessages, cursor.next());
-			// Add the PeriodicMessage to the collection.
-			addPeriodicMessage(message);
-			if(SledgeHammer.DEBUG) {				
-				println("Periodic Message added: " + message.getName());
-			}
-		}
-		cursor.close();
-	}
-
-	/**
-	 * Adds a PeriodicMessage to the core, which will be displayed peridically
-	 * to all players who have global-chat enabled.
-	 * 
-	 * @param periodicMessage
-	 */
-	private void addPeriodicMessage(MongoPeriodicMessage periodicMessage) {
-		String name = periodicMessage.getName();
-		MongoPeriodicMessage mapCheck = mapPeriodicMessages.get(name);
-		if(mapCheck != null) {
-			throw new IllegalArgumentException("PeriodicMessage already exists: " + name + ".");
-		}
-		mapPeriodicMessages.put(name, periodicMessage);
-		if(!listPeriodicMessages.contains(periodicMessage)) {
-			listPeriodicMessages.add(periodicMessage);
-		}
-	}
-	
+	@Override
 	public void onUpdate(long delta) {
 		eventListener.getPlayerTimeStamps().clear();
 		// Grab the current time.
 		long timeNow = System.currentTimeMillis();
 		// If it has been a minute since the last check.
-		if(timeNow - timeThenPeriodicMessages > delayPeriodicMessages) {
+		if (timeNow - timeThenPeriodicMessages > delayPeriodicMessages) {
 			// Go through each PeriodicMessage instance.
-			for(MongoPeriodicMessage message : listPeriodicMessages) {
+			for (MongoPeriodicMessage message : listPeriodicMessages) {
 				// Update the list.
 				message.update();
 			}
@@ -139,25 +110,26 @@ public class ModuleCore extends Module {
 			timeThenPeriodicMessages = timeNow;
 		}
 		short days = SledgeHammer.instance.getSettings().getAccountIdleExpireTime();
-		if(days > 0) {			
-			if(timeNow - timeThenCheckAccountExpire > delayCheckAccountExpire) {
+		if (days > 0) {
+			if (timeNow - timeThenCheckAccountExpire > delayCheckAccountExpire) {
 				println("Checking for expired accounts (Inactive for over " + days + " days)");
 				String[] exclusions = SledgeHammer.instance.getSettings().getAccountIdleExclusions();
 				Map<String, Long> mapPlayers = SledgeHammer.instance.getDatabase().getAllMongoPlayers();
-				for(String username: mapPlayers.keySet()) {
+				for (String username : mapPlayers.keySet()) {
 					boolean skip = false;
-					if(exclusions != null) {							
-						for(String ex: exclusions) {
-							if(username.equalsIgnoreCase(ex)) {
+					if (exclusions != null) {
+						for (String ex : exclusions) {
+							if (username.equalsIgnoreCase(ex)) {
 								skip = true;
 								break;
 							}
 						}
 					}
-					if(skip) continue;
+					if (skip)
+						continue;
 					long lastConnection = mapPlayers.get(username);
 					long d = timeNow - lastConnection;
-					if(d > (LONG_DAY * days)) {
+					if (d > (LONG_DAY * days)) {
 						// delete account.
 						println("Account: \"" + username + "\" has an expired account. (" + (d / LONG_DAY) + " days)");
 						ServerWorldDatabase.instance.removePlayer(username);
@@ -169,32 +141,27 @@ public class ModuleCore extends Module {
 		}
 	}
 
-	public CoreCommandListener getCommandListener() {
-		return this.commandListener;
-	}
-	
-	public CoreEventListener getEventListener() {
-		return this.eventListener;
-	}
-
-	public void onStart()  {
+	@Override
+	public void onStart() {
 		register(clientListener);
 	}
-	
-	public void onStop()   {
-		for(MongoPeriodicMessage message : listPeriodicMessages) {
+
+	@Override
+	public void onStop() {
+		for (MongoPeriodicMessage message : listPeriodicMessages) {
 			message.save();
 		}
 		unregister(clientListener);
 	}
 
+	@Override
 	public void onClientCommand(ClientEvent e) {
 		// Cast to proper Event sub-class.
 		ClientEvent event = (ClientEvent) e;
 		// Get event content.
-//		String module     = event.getModule();
-		String command    = event.getCommand();
-		Player player     = event.getPlayer();
+		// String module = event.getModule();
+		String command = event.getCommand();
+		Player player = event.getPlayer();
 		if (command.equalsIgnoreCase("handshake")) {
 			// We just want to ping back to the client saying we received the request.
 			event.respond();
@@ -202,11 +169,11 @@ public class ModuleCore extends Module {
 			HandShakeEvent handshakeEvent = new HandShakeEvent(player);
 			// Handle the event.
 			SledgeHammer.instance.handle(handshakeEvent);
-		} else if(command.equalsIgnoreCase("requestInfo")) {
+		} else if (command.equalsIgnoreCase("requestInfo")) {
 			RequestInfo info = new RequestInfo();
 			info.setSelf(player);
 			event.respond(info);
-		} else if(command.equalsIgnoreCase("sendCommand")) {
+		} else if (command.equalsIgnoreCase("sendCommand")) {
 			KahluaTable table = (KahluaTable) e.getTable().rawget("command");
 			String raw = table.rawget("raw").toString();
 			String channelName = table.rawget("channel").toString();
@@ -215,12 +182,12 @@ public class ModuleCore extends Module {
 			_command.setPlayer(e.getPlayer());
 			_command.debugPrint();
 			CommandEvent _event = SledgeHammer.instance.handleCommand(_command);
-			if(_event.isHandled()) {				
+			if (_event.isHandled()) {
 				ChatMessage message = new ChatMessage(_event.getResponse().getResponse());
 				message.setTime();
 				message.setOrigin(ChatMessage.ORIGIN_SERVER);
 				ChatChannel channel = getChatManager().getChannel(channelName);
-				if(channel == null) {
+				if (channel == null) {
 					channelName = "Global";
 				}
 				message.setChannel(channelName);
@@ -232,7 +199,7 @@ public class ModuleCore extends Module {
 				// Checks if the origin Channel is avaliable.
 				// This can sometimes be affected by the command fired.
 				ChatChannel channel = getChatManager().getChannel(channelName);
-				if(channel == null) {
+				if (channel == null) {
 					channelName = "Global";
 				}
 				message.setChannel(channelName);
@@ -241,14 +208,52 @@ public class ModuleCore extends Module {
 		}
 	}
 
+	/**
+	 * FIXME: Convert to MongoDB.
+	 * 
+	 * @throws SQLException
+	 */
+	private void loadPeriodicMessages() {
+		DBCursor cursor = collectionPeriodicMessages.find();
+		if (cursor.hasNext()) {
+			MongoPeriodicMessage message = new MongoPeriodicMessage(collectionPeriodicMessages, cursor.next());
+			// Add the PeriodicMessage to the collection.
+			addPeriodicMessage(message);
+			if (SledgeHammer.DEBUG) {
+				println("Periodic Message added: " + message.getName());
+			}
+		}
+		cursor.close();
+	}
+
+	/**
+	 * Adds a PeriodicMessage to the core, which will be displayed peridically to
+	 * all players who have global-chat enabled.
+	 * 
+	 * @param periodicMessage
+	 */
+	private void addPeriodicMessage(MongoPeriodicMessage periodicMessage) {
+		String name = periodicMessage.getName();
+		MongoPeriodicMessage mapCheck = mapPeriodicMessages.get(name);
+		if (mapCheck != null) {
+			throw new IllegalArgumentException("PeriodicMessage already exists: " + name + ".");
+		}
+		mapPeriodicMessages.put(name, periodicMessage);
+		if (!listPeriodicMessages.contains(periodicMessage)) {
+			listPeriodicMessages.add(periodicMessage);
+		}
+	}
+
 	public void updatePlayer(Player player) {
 		sendPlayer.setPlayer(player);
 		SledgeHammer.instance.send(sendPlayer);
 	}
-	
-	public void onUnload() {}
-	public String getID()         { return ID     ; }
-	public String getName()       { return NAME   ; }
-	public String getModuleName() { return MODULE; }
-	public String getVersion()    { return VERSION; }
+
+	public CoreCommandListener getCommandListener() {
+		return this.commandListener;
+	}
+
+	public CoreEventListener getEventListener() {
+		return this.eventListener;
+	}
 }

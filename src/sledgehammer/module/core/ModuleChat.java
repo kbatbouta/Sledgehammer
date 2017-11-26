@@ -39,26 +39,31 @@ import sledgehammer.lua.chat.RequestChatChannels;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.Module;
+import sledgehammer.module.ModuleProperties;
 import zombie.Lua.LuaManager;
 
 public class ModuleChat extends Module {
 
-	public static final String ID      = "ModuleChat";
-	public static final String NAME    = "Chat";
-	public static final String MODULE  = "core.chat";
-	public static final String VERSION = "1.00";
-	
 	private MongoCollection collectionChannels;
 	private MongoCollection collectionMessages;
 	
-	public ModuleChat() {}
+	public ModuleChat() {
+		String name = "Chat";
+		String version = "1.1";
+		String moduleLocation = getClass().getName();
+		String description = "Chat Module for Sledgehammer.";
+		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
+		setProperties(properties);
+	}
 	
+	@Override
 	public void onLoad() {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		collectionChannels = database.createMongoCollection("sledgehammer_chat_channels");
 		collectionMessages = database.createMongoCollection("sledgehammer_chat_messages");
 	}
 
+	@Override
 	public void onStart() {
 		
 		getPermissionsManager().addDefaultPlayerPermission(ChannelProperties.DEFAULT_CONTEXT);
@@ -90,10 +95,17 @@ public class ModuleChat extends Module {
 		addChannel(pms   );
 	}
 	
-	public void addChannel(ChatChannel channel) {
-		getManager().addChatChannel(channel);
+	@Override
+	public void onStop() {
+		//TODO: Implement stopping services.
 	}
 	
+	@Override
+	public void onUnload() {
+		//TODO: Implement cleanup
+	}
+	
+	@Override
 	public void onClientCommand(ClientEvent event) {
 		String command = event.getCommand();
 		Player player = event.getPlayer();
@@ -132,6 +144,10 @@ public class ModuleChat extends Module {
 			ChatMessageEvent e = new ChatMessageEvent(message);
 			SledgeHammer.instance.handle(e);
 		}
+	}
+	
+	public void addChannel(ChatChannel channel) {
+		getManager().addChatChannel(channel);
 	}
 	
 	public void getChannelHistory(ChatChannel channel, int length) {
@@ -243,14 +259,4 @@ public class ModuleChat extends Module {
 	public ChatManager getManager() {
 		return SledgeHammer.instance.getChatManager();
 	}
-
-	public void onUpdate(long delta) {}
-	public void onStop() {}
-	public void onUnload() {}
-
-	public String getID()         { return ID;      }
-	public String getName()       { return NAME;    }
-	public String getModuleName() { return MODULE;  }
-	public String getVersion()    { return VERSION; }
-
 }
