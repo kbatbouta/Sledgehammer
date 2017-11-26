@@ -22,7 +22,7 @@ import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.MongoCollection;
-import sledgehammer.object.LuaTable;
+import sledgehammer.lua.LuaTable;
 
 public class ChannelProperties extends LuaTable {
 	

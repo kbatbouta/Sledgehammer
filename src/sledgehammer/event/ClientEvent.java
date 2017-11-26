@@ -18,7 +18,7 @@ This file is part of Sledgehammer.
 */
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.object.LuaTable;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.objects.Player;
 import zombie.network.GameServer;
 

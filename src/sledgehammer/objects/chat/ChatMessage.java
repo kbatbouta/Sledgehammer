@@ -23,8 +23,8 @@ import com.mongodb.DBObject;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.module.core.ModuleChat;
-import sledgehammer.object.LuaTable;
 import zombie.Lua.LuaManager;
 
 /**

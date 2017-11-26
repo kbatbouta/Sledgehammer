@@ -26,8 +26,8 @@ import java.util.Map;
 
 import sledgehammer.database.document.MongoNode;
 import sledgehammer.database.document.MongoUniqueNodeDocument;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Node;
-import sledgehammer.object.LuaTable;
 
 /**
  * Generic Object to handle generic operations for permission objects.

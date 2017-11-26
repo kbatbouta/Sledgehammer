@@ -1,4 +1,4 @@
-package sledgehammer.object;
+package sledgehammer.lua;
 
 /*
 This file is part of Sledgehammer.

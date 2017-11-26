@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.object.LuaTable;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.objects.Player;
 
 /**

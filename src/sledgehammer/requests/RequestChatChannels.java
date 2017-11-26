@@ -18,8 +18,8 @@ This file is part of Sledgehammer.
 */
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.object.LuaArray;
-import sledgehammer.object.LuaTable;
+import sledgehammer.lua.LuaArray;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.objects.chat.ChatChannel;
 
 /**

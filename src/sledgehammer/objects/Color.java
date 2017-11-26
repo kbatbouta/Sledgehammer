@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.object.LuaTable;
+import sledgehammer.lua.LuaTable;
 
 /**
  * Color Lua class for SledgeHammer Lua.

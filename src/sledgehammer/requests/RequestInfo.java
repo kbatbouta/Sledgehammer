@@ -20,7 +20,7 @@ This file is part of Sledgehammer.
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.object.LuaTable;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.objects.Player;
 
 public class RequestInfo extends LuaTable {
