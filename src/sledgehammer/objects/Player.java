@@ -25,7 +25,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.core.MongoPlayer;
+import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import sledgehammer.event.PlayerCreatedEvent;

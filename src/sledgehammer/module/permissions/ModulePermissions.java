@@ -8,9 +8,9 @@ import com.mongodb.DBCursor;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.core.SledgehammerDatabase;
-import sledgehammer.database.permissions.MongoPermissionGroup;
-import sledgehammer.database.permissions.MongoPermissionUser;
+import sledgehammer.database.module.core.SledgehammerDatabase;
+import sledgehammer.database.module.permissions.MongoPermissionGroup;
+import sledgehammer.database.module.permissions.MongoPermissionUser;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;

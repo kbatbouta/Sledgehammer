@@ -1,4 +1,4 @@
-package sledgehammer.database.core;
+package sledgehammer.database.module.core;
 
 /*
 This file is part of Sledgehammer.

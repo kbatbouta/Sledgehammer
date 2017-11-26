@@ -1,4 +1,4 @@
-package sledgehammer.database.document.node;
+package sledgehammer.database.document;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +10,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.document.MongoDocument;
 
 public abstract class MongoNodeDocument extends MongoDocument {
 

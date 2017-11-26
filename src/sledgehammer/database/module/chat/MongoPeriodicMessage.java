@@ -1,4 +1,4 @@
-package sledgehammer.database.chat;
+package sledgehammer.database.module.chat;
 
 /*
 This file is part of Sledgehammer.

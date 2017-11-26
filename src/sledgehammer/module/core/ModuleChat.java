@@ -27,7 +27,7 @@ import com.mongodb.DBCursor;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.core.SledgehammerDatabase;
+import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.RequestChannelsEvent;

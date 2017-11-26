@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.database.permissions.MongoPermissionGroup;
+import sledgehammer.database.module.permissions.MongoPermissionGroup;
 import sledgehammer.lua.Node;
 
 /**

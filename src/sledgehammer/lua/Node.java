@@ -1,7 +1,7 @@
 package sledgehammer.lua;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.database.document.node.MongoNode;
+import sledgehammer.database.document.MongoNode;
 import sledgehammer.object.LuaTable;
 
 /**

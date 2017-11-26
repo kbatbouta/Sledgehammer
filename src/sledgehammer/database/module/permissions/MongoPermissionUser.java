@@ -1,11 +1,11 @@
-package sledgehammer.database.permissions;
+package sledgehammer.database.module.permissions;
 
 import java.util.UUID;
 
 import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.document.node.MongoUniqueNodeDocument;
+import sledgehammer.database.document.MongoUniqueNodeDocument;
 
 /**
  * MongoDocument class to handle loading and storing data for <PermissionUser>.

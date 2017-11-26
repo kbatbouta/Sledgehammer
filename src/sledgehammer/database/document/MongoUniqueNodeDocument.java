@@ -1,4 +1,4 @@
-package sledgehammer.database.document.node;
+package sledgehammer.database.document;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.document.MongoUniqueDocument;
 
 /**
  * Class to handle <String> node operations for <UniqueMongoDocument> documents.
