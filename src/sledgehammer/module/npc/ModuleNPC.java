@@ -49,13 +49,11 @@ public class ModuleNPC extends Module {
 	
 	private Map<NPC, IsoGameCharacter> mapSpawners;
 	
-	private ModuleNPC module = null;
 	
 	private CommandListener commandListener = null;
 	
 	public ModuleNPC() {
-		super();
-		module = this;
+
 	}
 
 	public void onLoad() {
@@ -72,9 +70,8 @@ public class ModuleNPC extends Module {
 				String command = c.getCommand();
 				String[] args = c.getArguments();
 				Player commander = c.getPlayer();
-				String commanderName = commander.getUsername();
 				if(command.equalsIgnoreCase("addnpc")) {
-					if(module.hasPermission(commanderName, getPermissionContext("addnpc"))) {						
+					if(commander.hasPermission(getPermissionNode("addnpc"))) {						
 						if(args.length == 1) {
 							IsoPlayer player = c.getPlayer().getIso();
 							IsoGridSquare square = null;
@@ -126,7 +123,7 @@ public class ModuleNPC extends Module {
 						return;
 					}
 				} else if(command.equalsIgnoreCase("destroynpcs")) {
-					if(module.hasPermission(commanderName, getPermissionContext("destroynpcs"))) {						
+					if(commander.hasPermission(getPermissionNode("destroynpcs"))) {						
 						SledgeHammer.instance.getNPCManager().destroyNPCs();
 						r.set(Result.SUCCESS, "NPCs destroyed.");
 					} else {
@@ -137,7 +134,7 @@ public class ModuleNPC extends Module {
 			}
 
 			public String onTooltip(Player player, Command command) {
-				if(module.hasPermission(player.getUsername(), getPermissionContext(command.getCommand()))) {
+				if(player.hasPermission(getPermissionNode(command.getCommand()))) {
 					if(command.getCommand().equalsIgnoreCase("addnpc")) {
 						return "Adds a fake player at current location. ex: /addnpc \"name\"";
 					} else 
@@ -148,7 +145,7 @@ public class ModuleNPC extends Module {
 				return null;
 			}
 
-			public String getPermissionContext(String command) {
+			public String getPermissionNode(String command) {
 				if(command.equalsIgnoreCase("addnpc")) {
 					return "sledgehammer.npc.add";
 				} else 

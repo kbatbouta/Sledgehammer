@@ -369,8 +369,6 @@ public class EventManager extends Manager {
 				Command com = c.getCommand();
 				String command = com.getCommand();
 
-				Player player = com.getPlayer();
-				
 				// If '/help' is fired.
 				if (command.equalsIgnoreCase("help")) {
 					help(c);
