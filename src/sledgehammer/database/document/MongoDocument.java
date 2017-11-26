@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.document;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,8 +21,10 @@ This file is part of Sledgehammer.
 */
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.MongoDatabase;
 /**
  * A class designed to handle common operations of Mongo DBObjects that act as
  * documents in a <DBCollection>.
@@ -35,7 +37,7 @@ public abstract class MongoDocument {
 	private Map<String, MongoDocumentEntry> mapDocumentEntries;
 
 	/** The <DBCollection> storing the document. */
-	private DBCollection collection;
+	private MongoCollection collection;
 
 	/** The <String> identifier for the document. */
 	private String fieldId;
@@ -44,11 +46,11 @@ public abstract class MongoDocument {
 	 * Main constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param fieldId
 	 *            The <String> identifier for the document.
 	 */
-	public MongoDocument(DBCollection collection, String fieldId) {
+	public MongoDocument(MongoCollection collection, String fieldId) {
 		setCollection(collection);
 		setFieldId(fieldId);
 		mapDocumentEntries = new HashMap<>();
@@ -114,7 +116,7 @@ public abstract class MongoDocument {
 				}
 			}
 			//Upsert the document.
-			MongoDatabase.upsert(getCollection(), getFieldId(), object);
+			getCollection().upsert(object, getFieldId(), this);
 		}
 		// If the entry is not in the document at the time of attempting to remove it, then this is an illegal situation. Throw the error.
 		else {
@@ -153,14 +155,14 @@ public abstract class MongoDocument {
 	 * @param collection
 	 *            The <DBCollection> to set.
 	 */
-	private void setCollection(DBCollection collection) {
+	private void setCollection(MongoCollection collection) {
 		this.collection = collection;
 	}
 
 	/**
 	 * @return Returns the <DBCollection> that stores the document if saved.
 	 */
-	public DBCollection getCollection() {
+	public MongoCollection getCollection() {
 		return this.collection;
 	}
 
@@ -180,7 +182,7 @@ public abstract class MongoDocument {
 		// Save the entries.
 		saveEntries(object);
 		//Upsert the document.
-		MongoDatabase.upsert(getCollection(), getFieldId(), object);
+		getCollection().upsert(object, getFieldId(), this);
 	}
 	
 	public void saveEntries(DBObject object) {
@@ -201,7 +203,10 @@ public abstract class MongoDocument {
 	 * Deletes the document from the assigned <DBCollection>.
 	 */
 	public void delete() {
-		MongoDatabase.delete(getCollection(), getFieldId(), getFieldValue());
+		if(MongoDatabase.DEBUG) {			
+			System.out.println("DELETING MongoDocument: \"" + this.getClass().getName() + "\".");
+		}
+		getCollection().delete(getFieldId(), getFieldValue());
 	}
 
 	/**

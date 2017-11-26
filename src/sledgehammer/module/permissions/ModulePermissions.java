@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
+import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.core.SledgehammerDatabase;
 import sledgehammer.database.permissions.MongoPermissionGroup;
 import sledgehammer.database.permissions.MongoPermissionUser;
 import sledgehammer.event.ClientEvent;
@@ -30,10 +31,10 @@ public class ModulePermissions extends MongoModule {
 	public static final String VERSION = "2.0.0";
 	// @formatter:on
 
-	/** The <DBCollection> storing the <MongoPermissionGroup> documents. */
-	private DBCollection collectionGroups;
-	/** The <DBCollection> storing the <MongoPermissionUser> documents. */
-	private DBCollection collectionUsers;
+	/** The <MongoCollection> storing the <MongoPermissionGroup> documents. */
+	private MongoCollection collectionGroups;
+	/** The <MongoCollection> storing the <MongoPermissionUser> documents. */
+	private MongoCollection collectionUsers;
 	/** The <Map> storing the <MongoPermissionGroup> documents. */
 	private Map<UUID, MongoPermissionGroup> mapMongoPermissionGroups;
 	/** The <Map> storing the <MongoPermissionUser> documents. */
@@ -65,19 +66,50 @@ public class ModulePermissions extends MongoModule {
 	@Override
 	public void onLoad() {
 		// Grab the database we are using to store permission data.
-		DB database = getDatabase();
+		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		// Grab the collection for permission groups.
-		collectionGroups = database.getCollection("sledgehammer_permission_groups");
+		collectionGroups = database.createMongoCollection("sledgehammer_permission_groups");
 		// Grab the collection for permission users.
-		collectionUsers = database.getCollection("sledgehammer_permission_users");
+		collectionUsers = database.createMongoCollection("sledgehammer_permission_users");
 		// Load the Permission groups first.
 		loadPermissionGroups();
 		// Load the Permission users next.
 		loadPermissionUsers();
 		// Connect the data from groups to users.
 		assignObjects();
+		
+		permissionsListener = new PermissionsListener(this);
+		setPermissionListener(permissionsListener);
 	}
 
+	@Override
+	public void onStart() {
+	}
+
+	@Override
+	public void onUpdate(long delta) {
+	}
+
+	@Override
+	public void onStop() {
+	}
+
+	@Override
+	public void onUnload() {
+		mapMongoPermissionGroups.clear();
+		mapMongoPermissionUsers.clear();
+		mapPermissionGroups.clear();
+		mapPermissionUsers.clear();
+		collectionGroups = null;
+		collectionUsers = null;
+		setPermissionListener(null);
+	}
+
+	@Override
+	public void onClientCommand(ClientEvent e) {
+
+	}
+	
 	/**
 	 * (Internal Method)
 	 * 
@@ -170,33 +202,6 @@ public class ModulePermissions extends MongoModule {
 				group.addMember(permissionUser, false);
 			}
 		}
-	}
-
-	@Override
-	public void onStart() {
-	}
-
-	@Override
-	public void onUpdate(long delta) {
-	}
-
-	@Override
-	public void onStop() {
-	}
-
-	@Override
-	public void onUnload() {
-		mapMongoPermissionGroups.clear();
-		mapMongoPermissionUsers.clear();
-		mapPermissionGroups.clear();
-		mapPermissionUsers.clear();
-		collectionGroups = null;
-		collectionUsers = null;
-	}
-
-	@Override
-	public void onClientCommand(ClientEvent e) {
-
 	}
 
 	/**

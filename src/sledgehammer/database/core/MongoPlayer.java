@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.core;
 
 /*
 This file is part of Sledgehammer.
@@ -22,10 +22,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.MongoDocument;
 import sledgehammer.util.StringUtils;
 
 /**
@@ -54,58 +55,60 @@ public class MongoPlayer extends MongoDocument {
 	 * Empty constructor for lookups. (Steam IDs)
 	 * 
 	 * @param collection
-	 *            The Collection storing the player.
+	 *            The <MongoCollection> storing the document.
 	 */
-	public MongoPlayer(DBCollection collection) {
+	public MongoPlayer(MongoCollection collection) {
 		super(collection, "id");
 		reset();
 	}
-	
+
 	/**
 	 * Main constructor.
 	 * 
 	 * @param collection
-	 *            The Collection storing the player.
+	 *            The <MongoCollection> storing the document.
+	 * @param username
+	 *            The <String> name of the <Player>.
 	 */
-	public MongoPlayer(DBCollection collection, String username) {
-		
+	public MongoPlayer(MongoCollection collection, String username) {
+
 		super(collection, "id");
 		System.out.println("New MongoPlayer(collection, " + username + ");");
-		
+
 		// Reset all fields to a new player.
 		reset();
 		// Set the username given.
 		setUsername(username);
 		// Check if the player exists. If the player exists, load.
-		DBCursor cursor = collection.find(new BasicDBObject("username", username));
+		DBCursor cursor = collection.getDBCollection().find(new BasicDBObject("username", username));
 		if (cursor.hasNext()) {
 			onLoad(cursor.next());
 		}
 		cursor.close();
 	}
-	
-	public MongoPlayer(DBCollection collection, DBObject object) {
+
+	public MongoPlayer(MongoCollection collection, DBObject object) {
 		super(collection, "id");
 		System.out.println("New MongoPlayer(collection, DBObject);");
 		reset();
 		onLoad(object);
 	}
 
-	public MongoPlayer(DBCollection collection, UUID uuid) {
+	public MongoPlayer(MongoCollection collection, UUID uuid) {
 		super(collection, "id");
 		System.out.println("New MongoPlayer(collection, UUID: " + uuid.toString() + ");");
-		
+
 		reset();
 		setUniqueId(uuid);
 
-		DBCursor cursor = collection.find(new BasicDBObject(getFieldId(), getFieldValue()));
+		DBCursor cursor = collection.getDBCollection().find(new BasicDBObject(getFieldId(), getFieldValue()));
 		if (cursor.hasNext()) {
 			onLoad(cursor.next());
 		}
 		cursor.close();
 	}
 
-	public MongoPlayer(DBCollection collection, String username, String password) {
+	public MongoPlayer(MongoCollection collection, String username, String password) {
 		super(collection, "id");
 		System.out.println("New MongoPlayer(collection, " + username + ", " + password + ");");
 		// Reset all fields to a new player.
@@ -192,12 +195,12 @@ public class MongoPlayer extends MongoDocument {
 		object.put("metadata"         , createMetadataDocument()     );
 		// @formatter:on
 	}
-	
+
 	@Override
 	public Object getFieldValue() {
 		return getUniqueId().toString();
 	}
-	
+
 	private void reset() {
 		setUniqueId(UUID.randomUUID());
 		setNewAccount(true);
@@ -211,7 +214,7 @@ public class MongoPlayer extends MongoDocument {
 		this.admin = false;
 		this.banned = false;
 	}
-	
+
 	public boolean passwordsMatch(String passwordGiven) {
 		boolean returned = false;
 		String passwordEncrypted = getEncryptedPassword();
@@ -243,7 +246,7 @@ public class MongoPlayer extends MongoDocument {
 		}
 		return metadata;
 	}
-	
+
 	private void loadMetadata(DBObject object) {
 		Map<String, String> mapMetadata = new HashMap<>();
 		Object oMetadata = object.get("metadata");
@@ -259,9 +262,9 @@ public class MongoPlayer extends MongoDocument {
 	private void saveMetadata() {
 		DBObject object = new BasicDBObject(getFieldId(), getFieldValue());
 		object.put("metadata", createMetadataDocument());
-		MongoDatabase.upsert(getCollection(), getFieldId(), object);
+		getCollection().upsert(object, getFieldId(), this);
 	}
-	
+
 	private String getNickname() {
 		return this.nickname;
 	}
@@ -444,13 +447,6 @@ public class MongoPlayer extends MongoDocument {
 	 */
 	private void setUniqueId(UUID uniqueId) {
 		this.uniqueId = uniqueId;
-	}
-
-	/**
-	 * Deletes the <MongoPlayer> from the database.
-	 */
-	public void delete() {
-		MongoDatabase.delete(getCollection(), "id", getUniqueId().toString());
 	}
 
 	public boolean hasPassword() {

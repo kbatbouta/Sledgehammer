@@ -22,13 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.MongoPeriodicMessage;
-import sledgehammer.database.SledgehammerDatabase;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.chat.MongoPeriodicMessage;
+import sledgehammer.database.core.SledgehammerDatabase;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.HandShakeEvent;
@@ -59,7 +59,7 @@ public class ModuleCore extends Module {
 	private CoreClientListener clientListener;
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
-	private DBCollection collectionPeriodicMessages;
+	private MongoCollection collectionPeriodicMessages;
 	private SendPlayer sendPlayer;
 	
 	private long timeThenPeriodicMessages   = 0L;
@@ -75,7 +75,7 @@ public class ModuleCore extends Module {
 	@Override
 	public void onLoad() {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
-		collectionPeriodicMessages = database.getCollection("sledgehammer_periodic_messages");
+		collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
 		
 //		 Initialize the listeners.
 		commandListener = new CoreCommandListener(this);

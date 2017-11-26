@@ -1,12 +1,14 @@
-package sledgehammer.database;
+package sledgehammer.database.document.node;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.MongoUniqueDocument;
 
 /**
  * Class to handle <String> node operations for <UniqueMongoDocument> documents.
@@ -24,11 +26,11 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 * MongoDB constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param object
 	 *            The <DBObject> storing the data.
 	 */
-	public MongoUniqueNodeDocument(DBCollection collection, DBObject object) {
+	public MongoUniqueNodeDocument(MongoCollection collection, DBObject object) {
 		super(collection, object);
 		listMongoNodes = new ArrayList<>();
 		loadNodes(object);
@@ -38,9 +40,9 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 * New constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCOllection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 */
-	public MongoUniqueNodeDocument(DBCollection collection) {
+	public MongoUniqueNodeDocument(MongoCollection collection) {
 		super(collection);
 		listMongoNodes = new ArrayList<>();
 	}
@@ -49,11 +51,11 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 * New constructor with provided ID.
 	 * 
 	 * @param collection
-	 *            The <DBCOllection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param uniqueId
 	 *            The <UUID> being assigned.
 	 */
-	public MongoUniqueNodeDocument(DBCollection collection, UUID uniqueId) {
+	public MongoUniqueNodeDocument(MongoCollection collection, UUID uniqueId) {
 		super(collection, uniqueId);
 		listMongoNodes = new ArrayList<>();
 	}
@@ -117,7 +119,7 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 		// Save the nodes.
 		saveNodes(object);
 		// Upsert the document.
-		MongoDatabase.upsert(getCollection(), getFieldId(), object);
+		getCollection().upsert(object, getFieldId(), this);
 	}
 
 	/**
@@ -189,5 +191,4 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	public List<MongoNode> getMongoNodes() {
 		return this.listMongoNodes;
 	}
-
 }

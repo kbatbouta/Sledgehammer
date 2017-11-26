@@ -1,6 +1,9 @@
-package sledgehammer.database;
+package sledgehammer.database.document.node;
 
 import com.mongodb.DBObject;
+
+import sledgehammer.database.document.MongoDocument;
+import sledgehammer.database.document.MongoDocumentEntry;
 
 /**
  * Class designed to handle Nodes as entries for the <MongoUniqueNodeDocument>

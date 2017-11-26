@@ -2,6 +2,7 @@ package sledgehammer.test;
 
 import java.util.UUID;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.lua.Node;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
@@ -21,17 +22,19 @@ public class TestPermissions extends TestModule<ModulePermissions> {
 
 	public TestPermissions() {
 		initializeSledgehammer();
+		setModule((ModulePermissions)SledgeHammer.instance.getModuleManager().getModuleByID(ModulePermissions.ID));
 	}
 
 	@Override
 	public ModulePermissions createModule() {
-		return new ModulePermissions();
+		return null;
 	}
 
 	@Override
 	public void run() {
 		pause();
 		println("Running Tests..");
+		/*
 		test1();
 		pause();
 		test2();
@@ -41,6 +44,9 @@ public class TestPermissions extends TestModule<ModulePermissions> {
 		test4();
 		pause();
 		test5();
+		pause();
+		*/
+		test6();
 		println("Tests completed. Cleaning up...");
 		cleanUp();
 	}
@@ -192,6 +198,7 @@ public class TestPermissions extends TestModule<ModulePermissions> {
 			pause();
 			println("Deleting PermissionUser...");
 			deleteUser1();
+			println("Test 5 completed.");
 		} catch (Exception e) {
 			println("Test 5 failed.");
 			cleanUp();
@@ -200,8 +207,23 @@ public class TestPermissions extends TestModule<ModulePermissions> {
 	}
 
 	private void test6() {
+		boolean flag = false;
 		try {
 			println("Running Test 6: ");
+			createGroup1();
+			pause();
+			createUser1();
+			pause();
+			group1.addMember(user1, true);
+			pause();
+			group1.setPermission(node1String, true, true);
+			pause();
+			flag = user1.hasPermission(node1String);
+			println("User -> hasPermission(\"" + node1String + "\") = " + flag);
+			pause();
+			deleteGroup1();
+			deleteUser1();
+			println("Test 6 completed.");
 		} catch (Exception e) {
 			println("Test 6 failed.");
 			cleanUp();
@@ -252,7 +274,7 @@ public class TestPermissions extends TestModule<ModulePermissions> {
 	}
 
 	public static void main(String[] args) {
-		new TestPermissions().run();
+		new TestPermissions().runTest();
 	}
 
 	@Override

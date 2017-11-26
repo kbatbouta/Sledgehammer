@@ -18,11 +18,10 @@ This file is part of Sledgehammer.
 */
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.database.MongoDatabase;
+import sledgehammer.database.MongoCollection;
 import sledgehammer.object.LuaTable;
 
 public class ChannelProperties extends LuaTable {
@@ -139,16 +138,15 @@ public class ChannelProperties extends LuaTable {
 		object.put("speak", canSpeak() ? "1" : "0");
 	}
 
-	public void save(DBCollection collection) {
+	public void save(MongoCollection collection) {
 		DBObject object = new BasicDBObject();
 		onSave(object);
-		MongoDatabase.upsert(collection, "name", object);
+		collection.upsert(object, "name", this);
 	}
 
-	public void rename(DBCollection collection, String nameNew) {
-		MongoDatabase.delete(collection, "name", getChannelName());
+	public void rename(MongoCollection collection, String nameNew) {
+		collection.delete("name", getChannelName());
 		setChannelName(nameNew);
 		save(collection);
 	}
-
 }

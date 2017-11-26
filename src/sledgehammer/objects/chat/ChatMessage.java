@@ -18,12 +18,11 @@ This file is part of Sledgehammer.
 */
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.MongoDatabase;
+import sledgehammer.database.MongoCollection;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.object.LuaTable;
 import zombie.Lua.LuaManager;
@@ -136,10 +135,10 @@ public class ChatMessage extends LuaTable {
 		setDeleted(object.get("deleted").toString().equals("1"));
 	}
 
-	public void save(DBCollection collection) {
+	public void save(MongoCollection collection) {
 		DBObject object = new BasicDBObject();
 		onSave(object);
-		MongoDatabase.upsert(collection, "id", object);
+		collection.upsert(object, "id", this);
 	}
 
 	public void onSave(DBObject object) {

@@ -2,10 +2,10 @@ package sledgehammer.database.permissions;
 
 import java.util.UUID;
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-import sledgehammer.database.MongoUniqueNodeDocument;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.node.MongoUniqueNodeDocument;
 
 /**
  * MongoDocument class designed to store and process data for <PermissionGroup>.
@@ -23,11 +23,11 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
 	 * MongoDB constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param object
 	 *            The <DBObject> storing the data.
 	 */
-	public MongoPermissionGroup(DBCollection collection, DBObject object) {
+	public MongoPermissionGroup(MongoCollection collection, DBObject object) {
 		super(collection, object);
 		onLoad(object);
 	}
@@ -36,11 +36,11 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
 	 * New constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCOllection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param groupName
 	 *            The <String> name of the group.
 	 */
-	public MongoPermissionGroup(DBCollection collection, String groupName) {
+	public MongoPermissionGroup(MongoCollection collection, String groupName) {
 		super(collection);
 		setGroupName(groupName, false);
 	}

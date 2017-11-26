@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.document;
 
 import com.mongodb.DBObject;
 

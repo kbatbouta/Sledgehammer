@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.core;
 
 /*
 This file is part of Sledgehammer.
@@ -17,9 +17,16 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.MongoDocument;
+
+/**
+ * TODO: Document
+ * 
+ * @author Jab
+ */
 public class MongoBan extends MongoDocument {
 
 	private String id;
@@ -28,11 +35,12 @@ public class MongoBan extends MongoDocument {
 	boolean steam = false;
 	boolean banned = true;
 
-	public MongoBan(DBCollection collection) {
+	public MongoBan(MongoCollection collection) {
 		super(collection, "id");
 	}
-	
-	public MongoBan(DBCollection collection, String id, String username, String reason, boolean steam, boolean banned) {
+
+	public MongoBan(MongoCollection collection, String id, String username, String reason, boolean steam,
+			boolean banned) {
 		super(collection, "id");
 		setID(id);
 		setUsername(username);
@@ -64,7 +72,7 @@ public class MongoBan extends MongoDocument {
 			setBanned(object.toString().equals("1"));
 		}
 	}
-	
+
 	@Override
 	public void onSave(DBObject object) {
 		// @formatter:off
@@ -75,13 +83,13 @@ public class MongoBan extends MongoDocument {
 		object.put("banned"  , isBanned() ? "1" : "0");
 		// @formatter:on
 	}
-	
+
 	@Override
 	public void delete() {
 		setBanned(false);
 		super.delete();
 	}
-	
+
 	@Override
 	public Object getFieldValue() {
 		return getID();
@@ -118,7 +126,7 @@ public class MongoBan extends MongoDocument {
 		}
 		return this.id;
 	}
-	
+
 	/**
 	 * (Internal Method)
 	 * 
@@ -146,18 +154,18 @@ public class MongoBan extends MongoDocument {
 	public void setReason(String reason) {
 		this.reason = reason;
 	}
-	
+
 	public void setBanned(boolean flag) {
-		if(flag != this.banned) {			
+		if (flag != this.banned) {
 			this.banned = flag;
 			save();
 		}
 	}
-	
+
 	public boolean isBanned() {
 		return this.banned;
 	}
-	
+
 	public String getUsername() {
 		return this.username;
 	}

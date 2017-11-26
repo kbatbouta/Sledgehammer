@@ -2,10 +2,10 @@ package sledgehammer.database.permissions;
 
 import java.util.UUID;
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
-import sledgehammer.database.MongoUniqueNodeDocument;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.node.MongoUniqueNodeDocument;
 
 /**
  * MongoDocument class to handle loading and storing data for <PermissionUser>.
@@ -21,11 +21,11 @@ public class MongoPermissionUser extends MongoUniqueNodeDocument {
 	 * MongoDB constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param object
 	 *            The <DBObject> storing the data.
 	 */
-	public MongoPermissionUser(DBCollection collection, DBObject object) {
+	public MongoPermissionUser(MongoCollection collection, DBObject object) {
 		super(collection, object);
 		onLoad(object);
 	}
@@ -34,9 +34,9 @@ public class MongoPermissionUser extends MongoUniqueNodeDocument {
 	 * New constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCOllection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 */
-	public MongoPermissionUser(DBCollection collection, UUID playerId) {
+	public MongoPermissionUser(MongoCollection collection, UUID playerId) {
 		super(collection, playerId);
 	}
 

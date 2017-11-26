@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.chat;
 
 /*
 This file is part of Sledgehammer.
@@ -17,10 +17,11 @@ This file is part of Sledgehammer.
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.MongoDocument;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.util.ChatTags;
 
@@ -35,7 +36,7 @@ public class MongoPeriodicMessage extends MongoDocument {
 	private boolean broadcast;
 	private boolean save = true;
 	
-	public MongoPeriodicMessage(DBCollection collection, String name, String message, String color, int time, boolean enabled, boolean broadcast) {
+	public MongoPeriodicMessage(MongoCollection collection, String name, String message, String color, int time, boolean enabled, boolean broadcast) {
 		super(collection, "name");
 		setName(name);
 		setMessage(message);
@@ -45,7 +46,7 @@ public class MongoPeriodicMessage extends MongoDocument {
 		setBroadcast(broadcast);
 	}
 	
-	public MongoPeriodicMessage(DBCollection collection, DBObject object) {
+	public MongoPeriodicMessage(MongoCollection collection, DBObject object) {
 		super(collection, "name");
 		onLoad(object);
 	}

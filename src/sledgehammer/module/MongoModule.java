@@ -20,7 +20,7 @@ This file is part of Sledgehammer.
 import com.mongodb.DB;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.SledgehammerDatabase;
+import sledgehammer.database.core.SledgehammerDatabase;
 
 /**
  * Module class designed to package simple MongoDB operations.

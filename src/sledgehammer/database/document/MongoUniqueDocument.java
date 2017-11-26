@@ -1,11 +1,12 @@
-package sledgehammer.database;
+package sledgehammer.database.document;
 
 import java.util.UUID;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+
+import sledgehammer.database.MongoCollection;
 
 /**
  * A <MongoDocument> implementation that handles documents with a <UUID> unique
@@ -22,22 +23,22 @@ public abstract class MongoUniqueDocument extends MongoDocument {
 	 * New constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 */
-	public MongoUniqueDocument(DBCollection collection) {
+	public MongoUniqueDocument(MongoCollection collection) {
 		super(collection, "id");
 		setUniqueId(UUID.randomUUID());
 	}
-	
+
 	/**
 	 * New constructor with provided ID.
 	 * 
 	 * @param collection
-	 *            The <DBCOllection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param uniqueId
 	 *            The <UUID> being assigned.
 	 */
-	public MongoUniqueDocument(DBCollection collection, UUID uniqueId) {
+	public MongoUniqueDocument(MongoCollection collection, UUID uniqueId) {
 		super(collection, "id");
 		DBObject query = new BasicDBObject("id", uniqueId.toString());
 		DBCursor cursor = collection.find(query);
@@ -54,11 +55,11 @@ public abstract class MongoUniqueDocument extends MongoDocument {
 	 * MongoDB constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param object
 	 *            The <DBObject> storing the data.
 	 */
-	public MongoUniqueDocument(DBCollection collection, DBObject object) {
+	public MongoUniqueDocument(MongoCollection collection, DBObject object) {
 		super(collection, "id");
 		// Grab the ID from the object first before loading.
 		setUniqueId(UUID.fromString(object.get("id").toString()));

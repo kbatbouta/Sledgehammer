@@ -26,8 +26,8 @@ import com.mongodb.DBCursor;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.database.MongoDatabase;
-import sledgehammer.database.SledgehammerDatabase;
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.core.SledgehammerDatabase;
 import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.RequestChannelsEvent;
@@ -48,15 +48,15 @@ public class ModuleChat extends Module {
 	public static final String MODULE  = "core.chat";
 	public static final String VERSION = "1.00";
 	
-	private DBCollection collectionChannels;
-	private DBCollection collectionMessages;
+	private MongoCollection collectionChannels;
+	private MongoCollection collectionMessages;
 	
 	public ModuleChat() {}
 	
 	public void onLoad() {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
-		collectionChannels = database.getCollection("sledgehammer_chat_channels");
-		collectionMessages = database.getCollection("sledgehammer_chat_messages");
+		collectionChannels = database.createMongoCollection("sledgehammer_chat_channels");
+		collectionMessages = database.createMongoCollection("sledgehammer_chat_messages");
 	}
 
 	public void onStart() {
@@ -168,20 +168,20 @@ public class ModuleChat extends Module {
 		return "sledgehammer_channel_history_" + channelName;
 	}
 	
-	public DBCollection getChannelHistoryCollection(ChatChannel channel) {
+	public MongoCollection getChannelHistoryCollection(ChatChannel channel) {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		String collectionName = getChannelHistoryName(channel);
-		DBCollection collectionHistory = database.getCollection(collectionName);
+		MongoCollection collectionHistory = database.createMongoCollection(collectionName);
 		return collectionHistory;
 	}
 	
 	public void saveMessageHistory(ChatChannel channel, ChatMessage message) {
 		// Save the message to the channel's history collection.
-		DBCollection collectionHistory = getChannelHistoryCollection(channel);
+		MongoCollection collectionHistory = getChannelHistoryCollection(channel);
 		BasicDBObject object = new BasicDBObject();
 		object.put("messageID", message.getMessageID());
 		object.put("timeAdded", message.getTime());
-		MongoDatabase.upsert(collectionHistory, "messageID", object);
+		collectionHistory.upsert(object, "messageID", channel);
 	}
 	
 	public void saveMessage(ChatMessage message) {
@@ -214,8 +214,8 @@ public class ModuleChat extends Module {
 		}
 		println("Removing channel: " + channel.getChannelName());
 		getManager().removeChatChannel(channel);
-		MongoDatabase.delete(collectionChannels, "name", channel.getChannelName());
-		MongoDatabase.delete(collectionMessages, "channel", channel.getChannelName());
+		collectionChannels.delete("name", channel.getChannelName());
+		collectionMessages.delete("channel", channel.getChannelName());
 		DBCollection collection = SledgeHammer.instance.getDatabase().getCollection(this.getChannelHistoryName(channel));
 		collection.drop();
 		channel.removeAllPlayers();
@@ -223,7 +223,7 @@ public class ModuleChat extends Module {
 	
 	public void renameChannelDatabase(ChatChannel chatChannel, String nameOld, String nameNew) {
 		chatChannel.getProperties().rename(collectionChannels, nameNew);
-		DBCollection collectionHistory = this.getChannelHistoryCollection(chatChannel);
+		MongoCollection collectionHistory = getChannelHistoryCollection(chatChannel);
 		try {			
 			collectionHistory.rename(getChannelHistoryName(nameNew));
 		} catch(Exception e) {
@@ -231,11 +231,19 @@ public class ModuleChat extends Module {
 		}
 		chatChannel.setChannelName(nameNew);
 	}
+
+	public MongoCollection getMessageCollection() {
+		return this.collectionMessages;
+	}
+	
+	public MongoCollection getChannelCollection() {
+		return this.collectionChannels;
+	}
 	
 	public ChatManager getManager() {
 		return SledgeHammer.instance.getChatManager();
 	}
-	
+
 	public void onUpdate(long delta) {}
 	public void onStop() {}
 	public void onUnload() {}
@@ -245,11 +253,4 @@ public class ModuleChat extends Module {
 	public String getModuleName() { return MODULE;  }
 	public String getVersion()    { return VERSION; }
 
-	public DBCollection getMessageCollection() {
-		return this.collectionMessages;
-	}
-
-	public DBCollection getChannelCollection() {
-		return this.collectionMessages;
-	}
 }

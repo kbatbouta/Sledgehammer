@@ -1,4 +1,4 @@
-package sledgehammer.database;
+package sledgehammer.database.document.node;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+
+import sledgehammer.database.MongoCollection;
+import sledgehammer.database.document.MongoDocument;
 
 public abstract class MongoNodeDocument extends MongoDocument {
 
@@ -19,11 +21,11 @@ public abstract class MongoNodeDocument extends MongoDocument {
 	 * Main constructor.
 	 * 
 	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 *            The <MongoCollection> storing the document.
 	 * @param fieldId
 	 *            The <String> identifier for the document.
 	 */
-	public MongoNodeDocument(DBCollection collection, String fieldId) {
+	public MongoNodeDocument(MongoCollection collection, String fieldId) {
 		super(collection, fieldId);
 		mapNodes = new HashMap<>();
 	}
