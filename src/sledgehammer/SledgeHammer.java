@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.database.MongoPlayer;
-import sledgehammer.database.SledgehammerDatabase;
+import sledgehammer.database.core.MongoPlayer;
+import sledgehammer.database.core.SledgehammerDatabase;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.PlayerCreatedEvent;
@@ -247,6 +247,7 @@ public class SledgeHammer extends Printable {
 				managerModule.onShutDown();
 				managerPlayer.onShutDown();
 				getChatManager().stopChat();
+				getDatabase().shutDown();
 			}
 			
 		} catch(Exception e) {
