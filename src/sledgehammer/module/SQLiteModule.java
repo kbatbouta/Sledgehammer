@@ -37,7 +37,7 @@ import sledgehammer.SledgeHammer;
 import zombie.GameWindow;
 
 @Deprecated
-public abstract class SQLModule extends Module {
+public abstract class SQLiteModule extends Module {
 	private Connection connection = null;
 	
 	public static final String SQL_STORAGE_CLASS_NULL    = "NULL"   ;
@@ -52,22 +52,22 @@ public abstract class SQLModule extends Module {
 	public static final String SQL_AFFINITY_TYPE_REAL    = "REAL"   ;
 	public static final String SQL_STORAGE_CLASS_NONE    = "NONE"   ;
 	
-	public SQLModule(Connection connection) {
+	public SQLiteModule(Connection connection) {
 		this.connection = connection;
 	}
 	
 	File dbFile;
 	
-	public SQLModule() {
+	public SQLiteModule() {
 		super();
 	}
 	
-	public SQLModule(String fileName) {
+	public SQLiteModule(String fileName) {
 		super();
 		establishConnection(fileName);
 	}
 	
-	public SQLModule(File file) {
+	public SQLiteModule(File file) {
 		if(file == null) throw new IllegalArgumentException("File is null!");
 		
 		dbFile = file;
