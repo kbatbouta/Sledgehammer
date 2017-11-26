@@ -170,8 +170,8 @@ public abstract class Module extends Printable {
 		getEventManager().unregister(listener);
 	}
 	
-	public void setPermissionListener(PermissionListener handler) {
-		getPermissionsManager().setPermissionListener(handler);
+	public void setPermissionListener(PermissionListener permissionListener) {
+		getPermissionsManager().setPermissionListener(permissionListener);
 	}
 	
 	public void startModule() {
