@@ -31,7 +31,7 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.ChatMessageEvent;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.RequestChannelsEvent;
-import sledgehammer.manager.ChatManager;
+import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.Module;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChannelProperties;

@@ -1,4 +1,6 @@
-package sledgehammer.manager;
+package sledgehammer.manager.core;
+
+import sledgehammer.manager.Manager;
 
 /*
    This file is part of Sledgehammer.

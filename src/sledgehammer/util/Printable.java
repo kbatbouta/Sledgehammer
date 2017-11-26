@@ -18,7 +18,7 @@ This file is part of Sledgehammer.
 */
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.manager.EventManager;
+import sledgehammer.event.EventManager;
 
 public abstract class Printable {
 

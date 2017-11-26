@@ -29,7 +29,7 @@ import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import sledgehammer.event.PlayerCreatedEvent;
-import sledgehammer.manager.ChatManager;
+import sledgehammer.manager.core.ChatManager;
 import sledgehammer.object.LuaTable;
 import sledgehammer.objects.chat.ChatChannel;
 import sledgehammer.objects.chat.ChatMessage;

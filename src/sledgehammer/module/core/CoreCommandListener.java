@@ -24,7 +24,7 @@ import java.util.Map;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.manager.PermissionsManager;
+import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Broadcast;
 import sledgehammer.objects.chat.ChatChannel;

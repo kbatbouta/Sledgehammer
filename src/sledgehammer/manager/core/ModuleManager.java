@@ -1,4 +1,4 @@
-package sledgehammer.manager;
+package sledgehammer.manager.core;
 
 /*
 This file is part of Sledgehammer.
@@ -34,6 +34,7 @@ import java.util.jar.JarFile;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.manager.Manager;
 import sledgehammer.module.Module;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.module.core.ModuleCore;

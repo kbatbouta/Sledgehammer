@@ -1,4 +1,4 @@
-package sledgehammer.manager;
+package sledgehammer.manager.core;
 
 /*
 This file is part of Sledgehammer.
@@ -23,6 +23,7 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
+import sledgehammer.manager.Manager;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.ChatChannel;

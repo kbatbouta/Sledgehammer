@@ -29,7 +29,7 @@ import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
-import sledgehammer.manager.ChatManager;
+import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.object.LuaArray;
 import sledgehammer.object.LuaTable;

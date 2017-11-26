@@ -1,4 +1,4 @@
-package sledgehammer.manager;
+package sledgehammer.manager.core;
 
 /*
 This file is part of Sledgehammer.
@@ -19,6 +19,7 @@ This file is part of Sledgehammer.
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.manager.Manager;
 import sledgehammer.objects.Player;
 
 /**

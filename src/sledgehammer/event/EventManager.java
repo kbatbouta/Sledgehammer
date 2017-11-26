@@ -1,4 +1,4 @@
-package sledgehammer.manager;
+package sledgehammer.event;
 
 /*
 This file is part of Sledgehammer.
@@ -23,14 +23,11 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.ChatEvent;
-import sledgehammer.event.CommandEvent;
-import sledgehammer.event.Event;
-import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
+import sledgehammer.manager.Manager;
 import sledgehammer.module.core.CoreCommandListener;
 import sledgehammer.objects.Player;
 import sledgehammer.objects.chat.Command;
