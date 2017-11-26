@@ -17,33 +17,34 @@ package sledgehammer.manager;
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ * TODO: Re-Implement.
+ * 
+ * @author Jab
+ */
 public class PlayerManager extends Manager {
 
 	public static final String NAME = "PlayerManager";
 
 	public PlayerManager() {
 	}
-	
+
 	@Override
 	public void onLoad(boolean debug) {
-		// TODO Auto-generated method stub
-		
 	}
+
 	@Override
 	public void onStart() {
-		// TODO Auto-generated method stub
-		
 	}
+
 	@Override
 	public void onUpdate() {
-		// TODO Auto-generated method stub
-		
 	}
+
 	@Override
 	public void onShutDown() {
-		// TODO Auto-generated method stub
-		
 	}
+
 	@Override
 	public String getName() {
 		return NAME;
