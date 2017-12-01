@@ -40,7 +40,6 @@ import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
 import sledgehammer.util.ZUtil;
-import zombie.sledgehammer.modules.ModuleMonitor;
 
 /**
  * Manager class designed to manage Loading, Unloading, and updating modules.

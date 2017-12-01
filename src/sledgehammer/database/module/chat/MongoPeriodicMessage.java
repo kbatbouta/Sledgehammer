@@ -117,7 +117,7 @@ public class MongoPeriodicMessage extends MongoDocument {
 					// SledgeHammer.instance.getChatManager().broadcastMessage(content, actualColor);
 				} else {
 					// Send it in-chat.
-					ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModuleByID(ModuleChat.ID);
+					ModuleChat module = (ModuleChat) SledgeHammer.instance.getModuleManager().getModule(ModuleChat.class);
 					module.sendGlobalMessage(actualColor + " " + getMessage());
 				}
 				// Mark the current time as last, to reset the delta.

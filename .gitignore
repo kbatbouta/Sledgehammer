@@ -145,3 +145,4 @@ src/sledgehammer/terminus
 /vstdlib_s64.dll
 /vstdlib_s.dll
 src/zombie3712/
+*.zip
