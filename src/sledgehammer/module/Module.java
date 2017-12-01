@@ -59,11 +59,14 @@ public abstract class Module extends Printable {
 
 	private boolean started = false;
 
+	/** The <File> directory for data to be placed. */
+	private File directory = null;
+
 	@Override
 	public String getName() {
 		return getProperties().getModuleName();
 	}
-	
+
 	public void loadSettings(ModuleSettingsHandler handler) {
 		if (handler == null) {
 			throw new IllegalArgumentException("Settings Handler given is null!");
@@ -404,5 +407,19 @@ public abstract class Module extends Printable {
 	 *            the <ClientEvent> container for the event.
 	 */
 	public void onClientCommand(ClientEvent event) {
+	}
+
+	/**
+	 * @return Returns the <File> directory for the <Module> to store data.
+	 */
+	public File getModuleDirectory() {
+		ModuleManager managerModule = getModuleManager();
+		if (directory == null) {
+			directory = new File(managerModule.getModulesDirectory(), getProperties().getModuleName());
+			if (!directory.exists()) {
+				directory.mkdirs();
+			}
+		}
+		return directory;
 	}
 }

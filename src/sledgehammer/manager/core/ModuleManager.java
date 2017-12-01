@@ -39,7 +39,6 @@ import sledgehammer.module.core.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
-import sledgehammer.util.ZUtil;
 
 /**
  * Manager class designed to manage Loading, Unloading, and updating modules.
@@ -57,51 +56,41 @@ public final class ModuleManager extends Manager {
 	 */
 	public static boolean DEBUG = false;
 
-	/**
-	 * Map for modules, organized by their associated IDs.
-	 */
+	/** Stores the list of plug-ins from SledgeHammer.ini Settings. */
+	private String[] listPluginsRaw;
+	/** Map for modules, organized by their associated IDs. */
 	private Map<String, Module> mapModules;
-
-	/**
-	 * List for modules.
-	 */
+	/** List for modules. */
 	private List<Module> listModules;
-
-	/**
-	 * List of Modules, ready to be unloaded in the next update tick.
-	 */
+	/** List of Modules, ready to be unloaded in the next update tick. */
 	private List<Module> listUnloadNext;
-
 	/**
 	 * ModuleVanilla instance to communicate with vanilla commands, and handlers
 	 * from the original game code. NOTE: This module's code is not accessible in
 	 * respect to the proprietary nature of the game.
 	 */
 	private ModuleVanilla moduleVanilla;
-
-	/**
-	 * ModuleCore instance to handle core-level components of SledgeHammer.
-	 */
+	/** Handles core-level components of SledgeHammer. */
 	private ModuleCore moduleCore;
-
+	/** ModuleChat instance to handle chat operations for SledgeHammer. */
 	private ModuleChat moduleChat;
 
-	/**
-	 * String Array to store the list of the plugins from SledgeHammer.ini Settings.
-	 */
-	private String[] listPluginsRaw;
-
-	/**
-	 * Delta calculation variable for the update process.
-	 */
-	private long timeThen = 0L;
-
 	private ModulePermissions modulePermissions;
+
+	private File directoryModules;
+
+	/** Delta calculation variable for the update process. */
+	private long timeThen = 0L;
 
 	/**
 	 * Main Constructor.
 	 */
 	public ModuleManager() {
+		// Create the directory object, then make sure the folder is available to use.
+		directoryModules = new File("plugins" + File.separator);
+		if (!directoryModules.exists()) {
+			directoryModules.mkdirs();
+		}
 		// Initialize the Lists.
 		listModules = new ArrayList<>();
 		listUnloadNext = new ArrayList<>();
@@ -238,10 +227,6 @@ public final class ModuleManager extends Manager {
 	void loadModules(boolean debug) {
 		if (!debug) {
 			SledgeHammer sledgeHammer = SledgeHammer.instance;
-			// Ensures a plug-in folder exists.
-			if (!ZUtil.pluginFolder.exists()) {
-				ZUtil.pluginFolder.mkdirs();
-			}
 			listPluginsRaw = sledgeHammer.getSettings().getPluginList();
 			println("Loading module(s).");
 			if (listPluginsRaw != null && listPluginsRaw.length > 0) {
@@ -410,7 +395,7 @@ public final class ModuleManager extends Manager {
 		if (SledgeHammer.DEBUG) {
 			println("Reading plugin: " + name + ".");
 		}
-		String pluginName = ZUtil.pluginLocation + name + ".jar";
+		String pluginName = directoryModules.getAbsolutePath() + File.separator + name + ".jar";
 		File pluginFile = new File(pluginName);
 		if (!pluginFile.exists()) {
 			throw new IllegalArgumentException("Jar file not found: " + pluginName);
@@ -450,15 +435,26 @@ public final class ModuleManager extends Manager {
 		return instance;
 	}
 
+	private static ModuleProperties getPluginProperties(String pluginName) {
+		ModuleProperties returned = null;
+		URL url;
+		try {
+			url = new URL("jar:file:" + pluginName + "!/plugin.yml");
+			InputStream is = url.openStream();
+			returned = new ModuleProperties(is);
+			is.close();
+		} catch (Exception e) {
+			SledgeHammer.instance.stackTrace(e);
+		}
+		return returned;
+	}
+
 	public void handleClientCommand(ClientEvent e) {
 		for (Module module : this.getLoadedModules()) {
 			if (module.getModuleName().equalsIgnoreCase(e.getModule())) {
 				module.onClientCommand(e);
 			}
 		}
-		// if (moduleCore.getModuleName().equalsIgnoreCase(e.getModule())) {
-		// moduleCore.onClientCommand(e);
-		// }
 	}
 
 	/**
@@ -507,18 +503,10 @@ public final class ModuleManager extends Manager {
 		return this.listModules;
 	}
 
-	
-	private static ModuleProperties getPluginProperties(String pluginName) {
-		ModuleProperties returned = null;
-		URL url;
-		try {
-			url = new URL("jar:file:" + pluginName + "!/plugin.yml");
-			InputStream is = url.openStream();
-			returned = new ModuleProperties(is);
-			is.close();
-		} catch (Exception e) {
-			SledgeHammer.instance.stackTrace(e);
-		}
-		return returned;
+	/**
+	 * @return Returns the <File> directory for Modules..
+	 */
+	public File getModulesDirectory() {
+		return directoryModules;
 	}
 }
