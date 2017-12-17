@@ -96,6 +96,18 @@ public class ModuleProperties {
 	}
 
 	/**
+	 * Debug constructor.
+	 * @param name
+	 */
+	public ModuleProperties(String name) {
+		// Set default variables
+		setModuleName(name);
+		setModuleVersion("DEBUG-TEST");
+		setModuleDescription("No description.");
+		setModuleLocation("unknown");
+	}
+
+	/**
 	 * Default constructor. Sets default values.
 	 */
 	public ModuleProperties() {
