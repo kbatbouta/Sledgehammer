@@ -48,15 +48,10 @@ import sledgehammer.util.Printable;
 public abstract class Module extends Printable {
 
 	private ModuleProperties properties = new ModuleProperties();
-
 	private INI ini;
-
 	private File iniFile;
-
 	public boolean loadedSettings = false;
-
 	private boolean loaded = false;
-
 	private boolean started = false;
 
 	/** The <File> directory for data to be placed. */

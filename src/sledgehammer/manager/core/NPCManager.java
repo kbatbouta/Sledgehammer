@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.SledgeHammer;
 import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
