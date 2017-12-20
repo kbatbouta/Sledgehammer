@@ -37,6 +37,7 @@ import sledgehammer.module.Module;
 import sledgehammer.module.ModuleProperties;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
+import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
 
@@ -64,21 +65,27 @@ public final class ModuleManager extends Manager {
 	private List<Module> listModules;
 	/** List of Modules, ready to be unloaded in the next update tick. */
 	private List<Module> listUnloadNext;
+	/** Handles core-level components of SledgeHammer. */
+	private ModuleCore moduleCore;
 	/**
 	 * ModuleVanilla instance to communicate with vanilla commands, and handlers
 	 * from the original game code. NOTE: This module's code is not accessible in
 	 * respect to the proprietary nature of the game.
 	 */
 	private ModuleVanilla moduleVanilla;
-	/** Handles core-level components of SledgeHammer. */
-	private ModuleCore moduleCore;
 	/** ModuleChat instance to handle chat operations for SledgeHammer. */
-	private ModuleChat moduleChat;
-
 	private ModulePermissions modulePermissions;
+	private ModuleChat moduleChat;
+	private ModuleFactions moduleFactions;
+
+	private ModuleProperties modulePropertiesCore;
+	private ModuleProperties modulePropertiesVanilla;
+	private ModuleProperties modulePropertiesPermissions;
+	private ModuleProperties modulePropertiesChat;
+	private ModuleProperties modulePropertiesFactions;
 
 	private File directoryModules;
-
+	
 	/** Delta calculation variable for the update process. */
 	private long timeThen = 0L;
 
@@ -208,14 +215,61 @@ public final class ModuleManager extends Manager {
 	 */
 	private void loadDefaultModules() {
 		try {
+			// Instantiate the default Modules. @formatter:off
 			modulePermissions = new ModulePermissions();
-			moduleVanilla = new ModuleVanilla();
-			moduleCore = new ModuleCore();
-			moduleChat = new ModuleChat();
+			moduleCore        = new ModuleCore();
+			moduleVanilla     = new ModuleVanilla();
+			moduleChat        = new ModuleChat();
+			moduleFactions    = new ModuleFactions();
+			// Create the ModuleProperties objects for each default module.
+			modulePropertiesPermissions = new ModuleProperties(
+					modulePermissions,
+					"Permissions",
+					"2.0_0",
+					modulePermissions.getClass().getCanonicalName(),
+					"Default permissions plug-in for Sledgehammer."
+			);
+			modulePropertiesCore = new ModuleProperties(
+					moduleCore,
+					"Core",
+					"2.0_0",
+					moduleCore.getClass().getCanonicalName(),
+					"Core plug-in for Sledgehammer."
+			);
+			modulePropertiesVanilla = new ModuleProperties(
+					moduleVanilla,
+					"Vanilla",
+					"1.3_0",
+					moduleVanilla.getClass().getCanonicalName(),
+					"Vanilla core plug-in for Sledgehammer."
+			);
+			modulePropertiesChat = new ModuleProperties(
+					moduleChat,
+					"Chat",
+					"2.0_0",
+					moduleChat.getClass().getCanonicalName(),
+					"Chat plug-in for Sledgehammer."
+			);
+			modulePropertiesFactions = new ModuleProperties(
+					moduleFactions,
+					"Factions",
+					"3.0_0",
+					moduleFactions.getClass().getCanonicalName(),
+					"Faction plug-in for Sledgehammer."
+			);
+			// Assign properties to each default module.
+			modulePermissions.setProperties(modulePropertiesPermissions);
+			moduleCore.setProperties(modulePropertiesCore);
+			moduleVanilla.setProperties(modulePropertiesVanilla);
+			moduleChat.setProperties(modulePropertiesChat);
+			moduleFactions.setProperties(modulePropertiesFactions);
+			// Register The default module.
 			registerModule(modulePermissions);
-			registerModule(moduleVanilla);
-			registerModule(moduleCore);
-			registerModule(moduleChat);
+			registerModule(moduleCore       );
+			registerModule(moduleVanilla    );
+			registerModule(moduleChat       );
+			registerModule(moduleFactions   );
+			// @formatter:on
 		} catch (Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer's core modules.", e);
 		}
