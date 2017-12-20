@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
@@ -76,15 +77,15 @@ public class NPCManager extends Manager {
 	 * Main constructor.
 	 */
 	public NPCManager() {
-		/*
-		SledgeHammer sledgeHammer = SledgeHammer.instance;
+	
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
 		
-		// Initializes the NPC Core Actions.
+		/*// Initializes the NPC Core Actions.
 		initializeActions();
 		
 		// Event Listener for joining.
+		SledgeHammer sledgeHammer = SledgeHammer.instance;
 		connectionListener = new ConnectionListener(this);
 		sledgeHammer.register(connectionListener);
 		

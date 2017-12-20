@@ -16,11 +16,12 @@
 				<exclude name="**/*.7z"/>
 				<exclude name="**/*.java"/>
 			</fileset>
-			<fileset file="gson-2.7.jar"></fileset>
+			<zipgroupfileset includes="*.jar" dir="lib"/>
+			<!--
 			<fileset file="serialize.lua"></fileset>
 			<fileset file="stdlib.lua"></fileset>
-			<fileset file="stdlib.lbc"></fileset>
-			<zipgroupfileset includes="*.jar" dir="lib"/>
+			<fileset file="stdlib.lbc"></fileset> 
+			-->
 			<manifest>
 				<attribute name="Premain-Class" value="sledgehammer.Agent"/>
 				<attribute name="Main-Class" value="sledgehammer.SledgeHammer"/> 

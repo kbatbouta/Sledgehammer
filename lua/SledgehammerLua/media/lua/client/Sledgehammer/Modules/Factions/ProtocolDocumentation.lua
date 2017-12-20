@@ -1,0 +1,97 @@
+-- # Server Commands:
+----
+---- faction:receive_info {
+----     factions: Faction[],			# List of Faction objects and their data.
+----     faction_id: Integer			# The ID of the faction on the client. (-1 for no Faction)
+---- }
+---- 
+---- faction:relationship_request {
+----     relationship: Relationship 	# The relationship being requested.
+---- }
+----
+---- faction:kicked {
+----     reason: String 				# The reason for being kicked from the faction.
+---- }
+----
+---- faction:invite_accepted {
+----     id: Integer,					# ID of the Faction
+----     rank: Byte 					# Rank of the player.
+---- }
+----
+---- faction:faction_changed {
+----     ID: Integer,					# ID of the changed Faction.
+----     flag: Byte 					# flag for the change. (0 = name, 1 = tag, 2 = color, 3 = member(s),
+----  	 							      4 = relationship, 5 = disband, 6 = merge)
+----     data: {
+----         -- if flag == 0 then nil
+----         -- if flag == 1 then nil
+----         -- if flag == 2 then nil
+----         -- if flag == 3 then
+----             members: {
+----                 id: Integer,
+----                 name: String,
+----                 flag: Byte			# (0 = join, 1 = leave, 2 = kicked, 3 = invited)
+----         -- if flag == 4 then
+----             relationships: {
+----                  id: Integer,
+----                  name: String,
+----                  flag: Byte 		# (0 = changed status, 1 = changed message, 2 = changed both, 
+----                                       3 = removed)
+----             }
+----          -- if flag == 5 then nil
+----          -- if flag == 6 then
+----          idOther: Integer,
+----          nameOther: String
+----          -- end
+----         }
+----     }
+---- }
+----
+---- faction:create_faction {
+----     error: Boolean 				# (0 = success, 1 = failure)
+----     message: String 				# Result message to display.
+---- }
+----
+---- faction:disband {
+----     error: Boolean 				# (0 = success, 1 = failure)
+----     message: String 				# Result message to display.
+---- }
+----
+---- faction:send_invite {
+----     error: Boolean 				# (0 = success, 1 = failure)
+----     message: String 				# Result message to display.
+---- }
+----
+---- faction:cancel_invite {
+----     error: Boolean 				# (0 = success, 1 = failure)
+----     message: String 				# Result message to display.
+---- }
+----
+---- faction:change {
+----     error: Boolean 				# (0 = success, 1 = failure)
+----     message: String 				# Result message to display.
+---- }
+
+-- # Client Commands:
+----
+---- faction:create_faction {
+----     name: String,
+----     tag: String,
+----     color: String	
+---- }
+----
+---- faction:disband {}
+---- 
+---- faction:send_invite {
+----     name: String,
+----     message: String
+---- }
+----
+---- faction:cancel_invite {
+----     name: String
+---- }
+----
+---- faction:change {
+----     flag: Byte						# (0 = name, 1 = tag, 2 = color)
+----     data: String 					# String data associated with flag.					
+---- }

@@ -96,8 +96,8 @@ public class Agent {
 			new File(_nativeDir + "/ZNetJNI64.dll"),
 			new File(_nativeDir + "/ZNetNoSteam32.dll"),
 			new File(_nativeDir + "/ZNetNoSteam64.dll"),
-			new File(pzDirectory + "/steam_api.dll"),
-			new File(pzDirectory + "/steam_api64.dll"),
+			new File(_nativeDir + "/steam_api.dll"),
+			new File(_nativeDir + "/steam_api64.dll"),
 			new File(pzDirectory + "/steamclient.dll"),
 			new File(pzDirectory + "/steamclient64.dll"),
 			new File(pzDirectory + "/tier0_s.dll"),
@@ -110,7 +110,10 @@ public class Agent {
 			new File(_classDir + "/lwjgl.jar"),
 			new File(_classDir + "/lwjgl_util.jar"),
 			new File(_classDir + "/sqlite-jdbc-3.8.10.1.jar"),
-			new File(_classDir + "/uncommons-maths-1.2.3.jar")
+			new File(_classDir + "/uncommons-maths-1.2.3.jar"),
+			new File(pzDirectory + "/stdlib.lbc"),
+			new File(pzDirectory + "/stdlib.lua"),
+			new File(pzDirectory + "/serialize.lua"),
 		};
 		
 		if(!craftboid.exists()) {			
@@ -146,9 +149,6 @@ public class Agent {
 		File from, dest;
 		
 		String[] filesToCopy = new String[] {
-				pzDirectory + "/stdlib.lbc",
-				pzDirectory + "/stdlib.lua",
-				pzDirectory + "/serialize.lua",
 				pzDirectory + "/steam_appid.txt", 
 				pzDirectory + "/media"
 		};
