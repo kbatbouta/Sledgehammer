@@ -18,7 +18,11 @@ This file is part of Sledgehammer.
 */
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
@@ -416,5 +420,47 @@ public abstract class Module extends Printable {
 			}
 		}
 		return directory;
+	}
+
+	public void saveResource(String path) {
+		saveResource(path, false);
+	}
+
+	public void saveResource(String path, boolean overwrite) {
+		File file = new File(getModuleDirectory(), path);
+		if (!overwrite && file.exists()) {
+			return;
+		}
+		write("jar:file:" + properties.getJarLocation() + "!/" + path, file);
+	}
+
+	public void saveResourceAs(String jarPath, String destPath) {
+		saveResourceAs(jarPath, destPath, false);
+	}
+
+	public void saveResourceAs(String jarPath, String destPath, boolean overwrite) {
+		File file = new File(getModuleDirectory(), destPath);
+		if (!overwrite && file.exists()) {
+			return;
+		}
+		write("jar:file:" + properties.getJarLocation() + "!/" + jarPath, file);
+	}
+
+	private static void write(String urlString, File file) {
+		try {
+			URL url = new URL(urlString);
+			InputStream is = url.openStream();
+			OutputStream os = new FileOutputStream(file);
+			byte[] buffer = new byte[102400];
+			int bytesRead;
+			while ((bytesRead = is.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}
+			is.close();
+			os.flush();
+			os.close();
+		} catch (Exception e) {
+			SledgeHammer.instance.stackTrace(e);
+		}
 	}
 }

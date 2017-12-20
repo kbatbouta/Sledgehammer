@@ -86,7 +86,7 @@ public final class ModuleManager extends Manager {
 	private ModuleProperties modulePropertiesFactions;
 
 	private File directoryModules;
-	
+
 	/** Delta calculation variable for the update process. */
 	private long timeThen = 0L;
 
@@ -461,6 +461,7 @@ public final class ModuleManager extends Manager {
 		if (moduleLocation.equals("unknown")) {
 			throw new IllegalArgumentException("plugin.yml is not valid: " + pluginName);
 		}
+		moduleProperties.setJarLocation(pluginName);
 		URL url = pluginFile.toURI().toURL();
 		URL[] urls = { url };
 		ClassLoader loader = new URLClassLoader(urls);
@@ -477,40 +478,40 @@ public final class ModuleManager extends Manager {
 			listClasses.add(className);
 		}
 		jarFile.close();
-		
+
 		// Loads all classes in the JAR file.
 		for (String clazz : listClasses) {
 			try {
 				loader.loadClass(clazz);
-			} catch(NoClassDefFoundError error) {
-				if(DEBUG) {
+			} catch (NoClassDefFoundError error) {
+				if (DEBUG) {
 					errorln("Jar->Class not found: " + clazz);
 				}
 				try {
 					ClassLoader.getSystemClassLoader().loadClass(clazz);
-				} catch(NoClassDefFoundError error2) {
-					if(DEBUG) {
+				} catch (NoClassDefFoundError error2) {
+					if (DEBUG) {
 						errorln("System->Class not found: " + clazz);
-					}						
-				} catch(ClassNotFoundException exception2) {
-					if(DEBUG) {
+					}
+				} catch (ClassNotFoundException exception2) {
+					if (DEBUG) {
 						errorln("System->Class not found: " + clazz);
-					}						
+					}
 				}
-			} catch(ClassNotFoundException exception) {
-				if(DEBUG) {
+			} catch (ClassNotFoundException exception) {
+				if (DEBUG) {
 					errorln("Jar->Class not found: " + clazz);
 				}
 				try {
 					ClassLoader.getSystemClassLoader().loadClass(clazz);
-				} catch(NoClassDefFoundError error2) {
-					if(DEBUG) {
+				} catch (NoClassDefFoundError error2) {
+					if (DEBUG) {
 						errorln("System->Class not found: " + clazz);
-					}						
-				} catch(ClassNotFoundException exception2) {
-					if(DEBUG) {
+					}
+				} catch (ClassNotFoundException exception2) {
+					if (DEBUG) {
 						errorln("System->Class not found: " + clazz);
-					}						
+					}
 				}
 			}
 		}
@@ -532,7 +533,7 @@ public final class ModuleManager extends Manager {
 		} catch (Exception e) {
 			SledgeHammer.instance.stackTrace(e);
 		}
-		if(is != null) {			
+		if (is != null) {
 			try {
 				is.close();
 			} catch (IOException e) {

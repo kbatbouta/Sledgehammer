@@ -24,7 +24,7 @@ public class ModuleProperties {
 	private String moduleLocation;
 	/** The <String> description of the <Module>. */
 	private String description;
-	
+	private String locationJar = "Sledgehammer.jar";
 
 	/**
 	 * Load constructor.
@@ -217,5 +217,13 @@ public class ModuleProperties {
 	 */
 	public void setModule(Module module) {
 		this.module = module;
+	}
+
+	public String getJarLocation() {
+		return this.locationJar;
+	}
+
+	public void setJarLocation(String string) {
+		this.locationJar = string;
 	}
 }

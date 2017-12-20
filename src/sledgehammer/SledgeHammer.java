@@ -19,6 +19,7 @@ This file is part of Sledgehammer.
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -738,6 +739,20 @@ public class SledgeHammer extends Printable {
 			player = new Player(mongoPlayer);
 		}
 		return player;
+	}
+	
+	public static String getJarFileLocation() {
+		String location = null;
+		try {
+			location = SledgeHammer.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return location;
+	}
+	
+	public static File getJarFile() {
+		return new File(getJarFileLocation());
 	}
 	
 	@Override
