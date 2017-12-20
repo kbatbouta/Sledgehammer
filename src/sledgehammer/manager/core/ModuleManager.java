@@ -18,6 +18,7 @@ This file is part of Sledgehammer.
 */
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -55,7 +56,7 @@ public final class ModuleManager extends Manager {
 	/**
 	 * Debug boolean, used for verbose output.
 	 */
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
 
 	/** Stores the list of plug-ins from SledgeHammer.ini Settings. */
 	private String[] listPluginsRaw;
@@ -456,8 +457,9 @@ public final class ModuleManager extends Manager {
 		}
 		ModuleProperties moduleProperties = getPluginProperties(pluginName);
 		String moduleLocation = moduleProperties.getModuleLocation();
+		println("ModuleLocation: " + moduleLocation);
 		if (moduleLocation.equals("unknown")) {
-			throw new IllegalArgumentException("plugin.txt is not valid: " + pluginName);
+			throw new IllegalArgumentException("plugin.yml is not valid: " + pluginName);
 		}
 		URL url = pluginFile.toURI().toURL();
 		URL[] urls = { url };
@@ -475,30 +477,67 @@ public final class ModuleManager extends Manager {
 			listClasses.add(className);
 		}
 		jarFile.close();
-		try {
-			// Loads all classes in the JAR file.
-			for (String clazz : listClasses) {
+		
+		// Loads all classes in the JAR file.
+		for (String clazz : listClasses) {
+			try {
 				loader.loadClass(clazz);
+			} catch(NoClassDefFoundError error) {
+				if(DEBUG) {
+					errorln("Jar->Class not found: " + clazz);
+				}
+				try {
+					ClassLoader.getSystemClassLoader().loadClass(clazz);
+				} catch(NoClassDefFoundError error2) {
+					if(DEBUG) {
+						errorln("System->Class not found: " + clazz);
+					}						
+				} catch(ClassNotFoundException exception2) {
+					if(DEBUG) {
+						errorln("System->Class not found: " + clazz);
+					}						
+				}
+			} catch(ClassNotFoundException exception) {
+				if(DEBUG) {
+					errorln("Jar->Class not found: " + clazz);
+				}
+				try {
+					ClassLoader.getSystemClassLoader().loadClass(clazz);
+				} catch(NoClassDefFoundError error2) {
+					if(DEBUG) {
+						errorln("System->Class not found: " + clazz);
+					}						
+				} catch(ClassNotFoundException exception2) {
+					if(DEBUG) {
+						errorln("System->Class not found: " + clazz);
+					}						
+				}
 			}
-			Class<?> classToLoad = Class.forName(moduleLocation, true, loader);
-			instance = (Module) classToLoad.newInstance();
-			instance.setProperties(moduleProperties);
-		} catch (Exception exception) {
-			SledgeHammer.instance.stackTrace(exception);
 		}
+		Class<?> classToLoad = Class.forName(moduleLocation, true, loader);
+		instance = (Module) classToLoad.newInstance();
+		instance.setProperties(moduleProperties);
+
 		return instance;
 	}
 
 	private static ModuleProperties getPluginProperties(String pluginName) {
 		ModuleProperties returned = null;
 		URL url;
+		InputStream is = null;
 		try {
 			url = new URL("jar:file:" + pluginName + "!/plugin.yml");
-			InputStream is = url.openStream();
+			is = url.openStream();
 			returned = new ModuleProperties(is);
-			is.close();
 		} catch (Exception e) {
 			SledgeHammer.instance.stackTrace(e);
+		}
+		if(is != null) {			
+			try {
+				is.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		return returned;
 	}

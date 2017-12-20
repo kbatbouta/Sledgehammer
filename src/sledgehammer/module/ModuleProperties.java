@@ -12,6 +12,8 @@ import sledgehammer.util.YamlUtil;
  */
 public class ModuleProperties {
 
+	private static boolean DEBUG = true;
+
 	/** The <Module> using the properties. */
 	private Module module;
 	/** The <String> name of the <Module>. */
@@ -22,6 +24,7 @@ public class ModuleProperties {
 	private String moduleLocation;
 	/** The <String> description of the <Module>. */
 	private String description;
+	
 
 	/**
 	 * Load constructor.
@@ -35,9 +38,15 @@ public class ModuleProperties {
 		String version = "1.0";
 		String description = "No description.";
 		String moduleLocation = "unknown";
+		if(DEBUG) {			
+			System.out.println("Loading YAML.");
+		}
 		// Load the YAML into a map.
 		@SuppressWarnings("rawtypes")
 		Map map = YamlUtil.getYaml().load(yamlStream);
+		if(DEBUG) {			
+			System.out.println(YamlUtil.getYaml().dump(map));
+		}
 		// Grab the name.
 		Object oName = map.get("name");
 		// If it exists, set it.
@@ -52,15 +61,21 @@ public class ModuleProperties {
 		}
 		// Grab the description.
 		Object oDescription = map.get("description");
-		// If it exists, set it.
+        // If it exists, set it.
 		if (oDescription != null) {
 			description = oDescription.toString();
 		}
 		// Grab the module-location.
-		Object oModuleLocation = map.get("module-location");
+		Object oModuleLocation = map.get("module");
 		// If it exists, set it.
 		if (oModuleLocation != null) {
 			moduleLocation = oModuleLocation.toString();
+		}
+		if(DEBUG) {			
+			System.out.println("Name: "        + name);
+			System.out.println("Version: "     + version);
+			System.out.println("Location: "    + moduleLocation);
+			System.out.println("Description: " + description);
 		}
 		// Set the result properties.
 		setModuleName(name);
