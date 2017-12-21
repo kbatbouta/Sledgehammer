@@ -2,6 +2,8 @@ package sledgehammer.database;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
 This file is part of Sledgehammer.
@@ -54,6 +56,8 @@ public abstract class MongoDatabase extends Printable {
 	}
 
 	public void connect(String url) {
+		Logger mongoLogger = Logger.getLogger("org.mongodb.driver");
+		mongoLogger.setLevel(Level.SEVERE);
 		if (client == null) {
 			client = new MongoClient(new MongoClientURI(url));
 			onConnection(client);

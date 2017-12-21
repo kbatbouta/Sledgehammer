@@ -23,7 +23,6 @@ import java.util.Map;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.module.Module;
-import sledgehammer.module.ModuleProperties;
 import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
 public class ModuleVanilla extends Module {
@@ -35,14 +34,6 @@ public class ModuleVanilla extends Module {
 	private Map<String, String> mapContexts;
 
 	public ModuleVanilla() {
-
-		String name = "Vanilla";
-		String version = "1.03";
-		String moduleLocation = getClass().getName();
-		String description = "Vanilla Module for Sledgehammer, implementing features from the original game.";
-		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
-		setProperties(properties);
-
 		// Adding contexts to this class for exposure & modification purposes. (This is
 		// not in vanilla).
 		// Otherwise, this would be defined in the CommandHandler.

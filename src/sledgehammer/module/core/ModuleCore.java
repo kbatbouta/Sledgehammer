@@ -39,7 +39,6 @@ import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.SendPlayer;
 import sledgehammer.module.Module;
-import sledgehammer.module.ModuleProperties;
 import zombie.network.ServerWorldDatabase;
 
 public class ModuleCore extends Module {
@@ -63,22 +62,9 @@ public class ModuleCore extends Module {
 	private long delayCheckAccountExpire = LONG_DAY;
 	private int delayPeriodicMessages = 60000;
 
-	public ModuleCore() {
-		super();
-
-		String name = "Core";
-		String version = "1.1";
-		String moduleLocation = getClass().getName();
-		String description = "Core Module for Sledgehammer.";
-		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
-		setProperties(properties);
-
-		sendPlayer = new SendPlayer();
-
-	}
-
 	@Override
 	public void onLoad() {
+		sendPlayer = new SendPlayer();
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
 

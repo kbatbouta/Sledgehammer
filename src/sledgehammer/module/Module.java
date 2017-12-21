@@ -18,17 +18,13 @@ This file is part of Sledgehammer.
 */
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
 import java.util.List;
 
+import sledgehammer.Plugin;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.EventManager;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
@@ -36,10 +32,12 @@ import sledgehammer.interfaces.LogListener;
 import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.core.ModuleProperties;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.ChatManager;
-import sledgehammer.manager.core.ModuleManager;
+import sledgehammer.manager.core.EventManager;
 import sledgehammer.manager.core.PermissionsManager;
+import sledgehammer.manager.core.PluginManager;
 import sledgehammer.module.core.ModuleChat;
 import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
@@ -51,6 +49,7 @@ import sledgehammer.util.Printable;
  */
 public abstract class Module extends Printable {
 
+	private Plugin plugin;
 	private ModuleProperties properties = new ModuleProperties();
 	private INI ini;
 	private File iniFile;
@@ -207,7 +206,47 @@ public abstract class Module extends Printable {
 
 	public void unload() {
 		started = false;
-		getModuleManager().unloadModule(this, true);
+		getPlugin().unloadModule(this);
+	}
+
+	/**
+	 * @return Returns the <File> directory for the <Module> to store data.
+	 */
+	public File getModuleDirectory() {
+		PluginManager managerPlugin = getModuleManager();
+		if (directory == null) {
+			directory = new File(managerPlugin.getDirectory(), getModuleName());
+			if (!directory.exists()) {
+				directory.mkdirs();
+			}
+		}
+		return directory;
+	}
+
+	public void saveResource(String path) {
+		saveResource(path, false);
+	}
+
+	public void saveResource(String path, boolean overwrite) {
+		File file = new File(getModuleDirectory(), path);
+		if (!overwrite && file.exists()) {
+			return;
+		}
+		Plugin plugin = getPlugin();
+		plugin.saveResourceAs(path, file);
+	}
+
+	public void saveResourceAs(String jarPath, String destPath) {
+		saveResourceAs(jarPath, destPath, false);
+	}
+
+	public void saveResourceAs(String jarPath, String destPath, boolean overwrite) {
+		File file = new File(getModuleDirectory(), destPath);
+		if (!overwrite && file.exists()) {
+			return;
+		}
+		Plugin plugin = getPlugin();
+		plugin.saveResourceAs(jarPath, file);
 	}
 
 	public void sendGlobalMessage(String message) {
@@ -243,8 +282,8 @@ public abstract class Module extends Printable {
 		return SledgeHammer.instance.getEventManager();
 	}
 
-	public ModuleManager getModuleManager() {
-		return SledgeHammer.instance.getModuleManager();
+	public PluginManager getModuleManager() {
+		return SledgeHammer.instance.getPluginManager();
 	}
 
 	public String getPermissionDeniedMessage() {
@@ -259,8 +298,8 @@ public abstract class Module extends Printable {
 		SledgeHammer.instance.handle(event);
 	}
 
-	public Module getModule(@SuppressWarnings("rawtypes") Class clazz) {
-		return getModuleManager().getModule(clazz);
+	public Module getModule(Class<? extends Module> clazz) {
+		return getPluginManager().getModule(clazz);
 	}
 
 	public PermissionsManager getPermissionsManager() {
@@ -292,11 +331,19 @@ public abstract class Module extends Printable {
 	}
 
 	public ModuleChat getChatModule() {
-		return (ModuleChat) getModule(ModuleChat.class);
+		return getPluginManager().getChatModule();
 	}
 
 	public ChatManager getChatManager() {
 		return SledgeHammer.instance.getChatManager();
+	}
+
+	public Plugin getPlugin() {
+		return this.plugin;
+	}
+
+	public void setPlugin(Plugin plugin) {
+		this.plugin = plugin;
 	}
 
 	/**
@@ -312,6 +359,10 @@ public abstract class Module extends Printable {
 
 	public List<Player> getPlayers() {
 		return SledgeHammer.instance.getPlayers();
+	}
+
+	private PluginManager getPluginManager() {
+		return SledgeHammer.instance.getPluginManager();
 	}
 
 	public boolean isLoaded() {
@@ -348,6 +399,10 @@ public abstract class Module extends Printable {
 	 */
 	public String getModuleName() {
 		return getProperties().getModuleName();
+	}
+
+	public boolean isStarted() {
+		return this.started;
 	}
 
 	/**
@@ -406,61 +461,5 @@ public abstract class Module extends Printable {
 	 *            the <ClientEvent> container for the event.
 	 */
 	public void onClientCommand(ClientEvent event) {
-	}
-
-	/**
-	 * @return Returns the <File> directory for the <Module> to store data.
-	 */
-	public File getModuleDirectory() {
-		ModuleManager managerModule = getModuleManager();
-		if (directory == null) {
-			directory = new File(managerModule.getModulesDirectory(), getProperties().getModuleName());
-			if (!directory.exists()) {
-				directory.mkdirs();
-			}
-		}
-		return directory;
-	}
-
-	public void saveResource(String path) {
-		saveResource(path, false);
-	}
-
-	public void saveResource(String path, boolean overwrite) {
-		File file = new File(getModuleDirectory(), path);
-		if (!overwrite && file.exists()) {
-			return;
-		}
-		write("jar:file:" + properties.getJarLocation() + "!/" + path, file);
-	}
-
-	public void saveResourceAs(String jarPath, String destPath) {
-		saveResourceAs(jarPath, destPath, false);
-	}
-
-	public void saveResourceAs(String jarPath, String destPath, boolean overwrite) {
-		File file = new File(getModuleDirectory(), destPath);
-		if (!overwrite && file.exists()) {
-			return;
-		}
-		write("jar:file:" + properties.getJarLocation() + "!/" + jarPath, file);
-	}
-
-	private static void write(String urlString, File file) {
-		try {
-			URL url = new URL(urlString);
-			InputStream is = url.openStream();
-			OutputStream os = new FileOutputStream(file);
-			byte[] buffer = new byte[102400];
-			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				os.write(buffer, 0, bytesRead);
-			}
-			is.close();
-			os.flush();
-			os.close();
-		} catch (Exception e) {
-			SledgeHammer.instance.stackTrace(e);
-		}
 	}
 }

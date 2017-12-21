@@ -25,7 +25,7 @@ public class ClientEvent extends PlayerEvent {
 
 	public static final String ID = "ClientCommandEvent";
 
-	private String module;
+	private String moduleName;
 	private String moduleRaw;
 	private String command;
 	private boolean request = false;
@@ -42,11 +42,11 @@ public class ClientEvent extends PlayerEvent {
 
 		if (moduleRaw.contains("sledgehammer.module.") || moduleRaw.startsWith("request:sledgehammer.module.")) {
 			String[] split = module.split("sledgehammer.module.");
-			setModule(split[1]);
+			setModuleName(split[1]);
 		} else if (moduleRaw.startsWith("request:")) {
-			setModule(moduleRaw.split("request:")[1]);
+			setModuleName(moduleRaw.split("request:")[1]);
 		} else {
-			setModule(module);
+			setModuleName(module);
 		}
 		setCommand(command);
 		setTable(table);
@@ -76,16 +76,16 @@ public class ClientEvent extends PlayerEvent {
 		return this.request;
 	}
 
-	public String getModule() {
-		return this.module;
+	public String getModuleName() {
+		return this.moduleName;
 	}
 
 	private String getModuleRaw() {
 		return moduleRaw;
 	}
 
-	private void setModule(String module) {
-		this.module = module;
+	private void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
 	}
 
 	public String getCommand() {

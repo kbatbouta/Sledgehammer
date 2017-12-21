@@ -15,7 +15,6 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
-import sledgehammer.module.ModuleProperties;
 import sledgehammer.module.MongoModule;
 
 /**
@@ -55,13 +54,6 @@ public class ModulePermissions extends MongoModule {
 	 */
 	public ModulePermissions() {
 		super(getDefaultDatabase());
-		
-		String name = "Permissions";
-		String version = "2.0";
-		String moduleLocation = getClass().getName();
-		String description = "Default Permissions for Sledgehammer.";
-		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
-		setProperties(properties);
 	}
 
 	@Override

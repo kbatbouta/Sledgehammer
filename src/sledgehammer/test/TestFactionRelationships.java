@@ -45,7 +45,7 @@ public class TestFactionRelationships extends Printable {
 	
 	public void run() {
 		module = new ModuleFactions();
-		SledgeHammer.instance.getModuleManager().registerModule(module);
+		SledgeHammer.instance.getPluginManager().registerModule(module);
 		module.onLoad();
 		module.onStart();
 		

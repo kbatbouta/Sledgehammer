@@ -108,7 +108,7 @@ public class FactionMember extends LuaTable {
 	 * Removes the <FactionMember> from the <Faction>.
 	 */
 	public void leaveFaction() {
-		ModuleFactions moduleFactions = (ModuleFactions) SledgeHammer.instance.getModuleManager().getModule(ModuleFactions.class);
+		ModuleFactions moduleFactions = (ModuleFactions) SledgeHammer.instance.getPluginManager().getModule(ModuleFactions.class);
 		moduleFactions.removeFactionMember(this);
 	}
 

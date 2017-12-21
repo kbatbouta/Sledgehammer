@@ -102,7 +102,7 @@ public class ChatManager extends Manager implements EventListener {
 
 	public void addChatChannelNoBroadcast(ChatChannel channel) {
 		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
-		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getModuleManager().getModule(ModuleChat.class);
+		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
 		moduleChat.addChannel(channel);
 
 	}
@@ -189,7 +189,7 @@ public class ChatManager extends Manager implements EventListener {
 	}
 
 	public void saveMessage(ChatMessage chatMessage) {
-		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getModuleManager().getModule(ModuleChat.class);
+		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
 		moduleChat.saveMessage(chatMessage);
 	}
 

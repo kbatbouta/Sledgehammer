@@ -39,22 +39,12 @@ import sledgehammer.lua.chat.RequestChatChannels;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.Module;
-import sledgehammer.module.ModuleProperties;
 import zombie.Lua.LuaManager;
 
 public class ModuleChat extends Module {
 
 	private MongoCollection collectionChannels;
 	private MongoCollection collectionMessages;
-	
-	public ModuleChat() {
-		String name = "Chat";
-		String version = "1.1";
-		String moduleLocation = getClass().getName();
-		String description = "Chat Module for Sledgehammer.";
-		ModuleProperties properties = new ModuleProperties(this, name, version, moduleLocation, description);
-		setProperties(properties);
-	}
 	
 	@Override
 	public void onLoad() {

@@ -14,7 +14,7 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.event;
+package sledgehammer.manager.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.event.ChatEvent;
+import sledgehammer.event.CommandEvent;
+import sledgehammer.event.Event;
+import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
@@ -119,7 +123,7 @@ public class EventManager extends Manager {
 				}
 			}
 		}
-		CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule().getCommandListener();
+		CoreCommandListener coreCommandListener = sledgeHammer.getPluginManager().getCoreModule().getCommandListener();
 		if (coreCommandListener != null) {
 			String[] commands = coreCommandListener.getCommands();
 			if (commands != null) {
@@ -135,7 +139,7 @@ public class EventManager extends Manager {
 				}
 			}
 		}
-		CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule().getCommandListener();
+		CommandListener vanillaListener = sledgeHammer.getPluginManager().getVanillaModule().getCommandListener();
 		if (vanillaListener != null) {
 			String[] commands = vanillaListener.getCommands();
 			if (commands != null) {
@@ -188,7 +192,7 @@ public class EventManager extends Manager {
 			if (event.getID() == CommandEvent.ID) {
 				return (handleCommand((CommandEvent) event, logEvent));
 			}
-			EventListener coreEventListener = sledgeHammer.getModuleManager().getCoreModule().getEventListener();
+			EventListener coreEventListener = sledgeHammer.getPluginManager().getCoreModule().getEventListener();
 			List<EventListener> listEventListeners = mapEventListeners.get(event.getID());
 			if (listEventListeners != null) {
 				for (EventListener listener : listEventListeners) {
@@ -380,11 +384,11 @@ public class EventManager extends Manager {
 				// Check native command handlers if the command is not handled.
 				if (!c.isHandled()) {
 					SledgeHammer sledgeHammer = SledgeHammer.instance;
-					CommandListener vanillaListener = sledgeHammer.getModuleManager().getVanillaModule()
+					CommandListener vanillaListener = sledgeHammer.getPluginManager().getVanillaModule()
 							.getCommandListener();
 					vanillaListener.onCommand(c.getCommand(), c.getResponse());
 					if (!c.isHandled()) {
-						CoreCommandListener coreCommandListener = sledgeHammer.getModuleManager().getCoreModule()
+						CoreCommandListener coreCommandListener = sledgeHammer.getPluginManager().getCoreModule()
 								.getCommandListener();
 						coreCommandListener.onCommand(c.getCommand(), c.getResponse());
 					}

@@ -32,9 +32,9 @@ public abstract class TestModule<M extends Module> extends Printable {
 		M module = createModule();
 		if (module != null) {
 			setModule(module);
-			SledgeHammer.instance.getModuleManager().registerModule(getModule());
+			SledgeHammer.instance.getPluginManager().registerModule(getModule());
 		}
-		SledgeHammer.instance.getModuleManager().onLoad(true);
+		SledgeHammer.instance.getPluginManager().onLoad(true);
 		SledgeHammer.instance.start();
 	}
 

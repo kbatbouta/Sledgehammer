@@ -308,7 +308,7 @@ public class ChatChannel extends LuaTable  {
 	 * @return Returns the <ModuleChat> instance for Sledgehammer.
 	 */
 	public ModuleChat getChatModule() {
-		return (ModuleChat) SledgeHammer.instance.getModuleManager().getModule(ModuleChat.class);
+		return (ModuleChat) SledgeHammer.instance.getPluginManager().getChatModule();
 	}
 
 	/**

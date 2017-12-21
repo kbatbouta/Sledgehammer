@@ -1,0 +1,29 @@
+#   _____ _       _         _                             _____ _____ _____ _____ 
+#  |   __| |___ _| |___ ___| |_ ___ _____ _____ ___ ___  |     |     | __  |   __|
+#  |__   | | -_| . | . | -_|   | .'|     |     | -_|  _|_|   --|  |  |    -|   __|
+#  |_____|_|___|___|_  |___|_|_|__,|_|_|_|_|_|_|___|_| |_|_____|_____|__|__|_____|
+#                  |___|                                                          
+name: Core
+version: "2.0_0"
+description: "Core plug-in for Sledgehammer."
+modules:
+  Permissions:
+    version: "2.0_0"
+    description: "Default permissions plug-in for Sledgehammer."
+    class: "sledgehammer.module.permissions.ModulePermissions"
+  Core:
+    version: "2.0_0"
+    description: "Core module for Sledgehammer."
+    class: "sledgehammer.module.core.ModuleCore"
+  Vanilla:
+    version: "1.3_0"
+    description: "Vanilla module for Sledgehammer."
+    class: "sledgehammer.module.vanilla.ModuleVanilla"
+  Chat:
+    version: "2.0_0"
+    description: "Chat module for Sledgehammer."
+    class: "sledgehammer.module.core.ModuleChat"
+  Factions:
+    version: "3.0_0"
+    description: "Factions module for Sledgehammer."
+    class: "sledgehammer.module.faction.ModuleFactions"

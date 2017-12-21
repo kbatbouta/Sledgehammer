@@ -31,7 +31,6 @@ import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.EventManager;
 import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
@@ -41,11 +40,13 @@ import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
+import sledgehammer.manager.Manager;
 import sledgehammer.manager.core.ChatManager;
-import sledgehammer.manager.core.ModuleManager;
+import sledgehammer.manager.core.EventManager;
 import sledgehammer.manager.core.NPCManager;
 import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.manager.core.PlayerManager;
+import sledgehammer.manager.core.PluginManager;
 import sledgehammer.interfaces.ContextListener;
 import sledgehammer.module.core.CoreContextListener;
 import sledgehammer.util.Printable;
@@ -87,6 +88,7 @@ public class SledgeHammer extends Printable {
 	 */
 	public static SledgeHammer instance;
 	
+	private static Plugin plugin;
 	
 	private SledgehammerDatabase database;
 
@@ -96,9 +98,9 @@ public class SledgeHammer extends Printable {
 	private NPCManager managerNPC;
 	
 	/**
-	 * Manager instance to handle Module operations.
+	 * Manager instance to handle Plugin operations.
 	 */
-	private ModuleManager managerModule;
+	private PluginManager managerPlugin;
 	
 	/**
 	 * Manager instance to handle Permissions operations.
@@ -181,8 +183,7 @@ public class SledgeHammer extends Printable {
 			
 			managerPermissions = new PermissionsManager();
 			
-			// Initialize the ModuleManager.
-			managerModule = new ModuleManager();
+			managerPlugin = new PluginManager();
 
 			managerPlayer = new PlayerManager();
 			
@@ -191,7 +192,7 @@ public class SledgeHammer extends Printable {
 			
 			// Then, load the core modules, and start the Modules.
 			if(!TESTMODULE) {
-				managerModule.onLoad(false);
+				managerPlugin.onLoad(false);
 			}
 		} catch(Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer.", e);
@@ -200,7 +201,7 @@ public class SledgeHammer extends Printable {
 	}
 	
 	public void start() {
-		getModuleManager().onStart();
+		getPluginManager().onStart();
 		getPlayerManager().onStart();
 		getChatManager().startChat();
 		for(Player player : getPlayers()) {
@@ -208,6 +209,10 @@ public class SledgeHammer extends Printable {
 			SledgeHammer.instance.handle(event);
 		}
 		started = true;
+	}
+
+	public PluginManager getPluginManager() {
+		return this.managerPlugin;
 	}
 
 	/**
@@ -230,7 +235,7 @@ public class SledgeHammer extends Printable {
 	public void update() {
 		try {
 			synchronized (this) {
-				managerModule.onUpdate();
+				managerPlugin.onUpdate();
 				managerNPC.onUpdate();
 			}
 		} catch(Exception e) {
@@ -243,19 +248,15 @@ public class SledgeHammer extends Printable {
 	 */
 	public void stop() {
 		try {			
-			
 			synchronized (this) {
-				managerModule.onShutDown();
+				managerPlugin.onShutDown();
 				managerPlayer.onShutDown();
 				getChatManager().stopChat();
 				getDatabase().shutDown();
 			}
-			
 		} catch(Exception e) {
-			
 			stackTrace("An Error occured while stopping Sledgehammer.", e);
 		}
-		
 		started = false;
 	}
 
@@ -283,15 +284,6 @@ public class SledgeHammer extends Printable {
 	 */
 	public NPCManager getNPCManager() {
 		return this.managerNPC;
-	}
-	
-	/**
-	 * Returns the ModuleManager instance.
-	 * 
-	 * @return
-	 */
-	public ModuleManager getModuleManager() {
-		return managerModule;
 	}
 	
 	/**
@@ -644,7 +636,7 @@ public class SledgeHammer extends Printable {
 	}
 
 	public void updatePlayer(Player player) {
-		getModuleManager().getCoreModule().updatePlayer(player);
+		getPluginManager().getCoreModule().updatePlayer(player);
 	}
 	
 	public static Player getAdmin() {
@@ -757,6 +749,13 @@ public class SledgeHammer extends Printable {
 	
 	@Override
 	public String getName() { return "SledgeHammer"; }
+	
+	public static Plugin getCorePlugin() {
+		if(plugin == null) {
+			plugin = new Plugin(getJarFile());
+		}
+		return plugin;
+	}
 	
 	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException,
 			IllegalArgumentException, IllegalAccessException {

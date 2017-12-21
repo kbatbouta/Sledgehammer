@@ -22,7 +22,7 @@ public class TestPermissions extends TestModule<ModulePermissions> {
 
 	public TestPermissions() {
 		initializeSledgehammer();
-		setModule((ModulePermissions)SledgeHammer.instance.getModuleManager().getModule(ModulePermissions.class));
+		setModule((ModulePermissions)SledgeHammer.instance.getPluginManager().getModule(ModulePermissions.class));
 	}
 
 	@Override

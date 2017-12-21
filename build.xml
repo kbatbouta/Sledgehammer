@@ -17,11 +17,7 @@
 				<exclude name="**/*.java"/>
 			</fileset>
 			<zipgroupfileset includes="*.jar" dir="lib"/>
-			<!--
-			<fileset file="serialize.lua"></fileset>
-			<fileset file="stdlib.lua"></fileset>
-			<fileset file="stdlib.lbc"></fileset> 
-			-->
+			<fileset file="plugin.yml"></fileset>
 			<manifest>
 				<attribute name="Premain-Class" value="sledgehammer.Agent"/>
 				<attribute name="Main-Class" value="sledgehammer.SledgeHammer"/> 
