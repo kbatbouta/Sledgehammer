@@ -79,7 +79,7 @@ public class Faction extends LuaTable {
 			if (player != null) {
 				getChatChannel().sendToPlayer(player);
 			} else {
-				println("addMember() -> Player is null.");
+				errorln("addMember() -> Player is null.");
 			}
 		}
 		return returned;

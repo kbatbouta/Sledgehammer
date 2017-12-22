@@ -281,9 +281,9 @@ public class EventManager extends Manager {
 				LoggerManager.getLogger(log).write(logEvent.getLogMessage());
 			}
 		} catch (Exception e) {
-			println("Error logging event " + logEvent.getEvent() + ": " + e.getMessage());
+			errorln("Error logging event " + logEvent.getEvent() + ": " + e.getMessage());
 			for (StackTraceElement o : e.getStackTrace()) {
-				println(o);
+				errorln(o);
 			}
 		}
 	}
@@ -411,9 +411,9 @@ public class EventManager extends Manager {
 							ChatTags.stripTags(c.getResponse().getResponse(), true));
 				}
 			} catch (Exception e) {
-				println("Error handling command " + c + ": " + e.getMessage());
+				errorln("Error handling command " + c + ": " + e.getMessage());
 				for (StackTraceElement o : e.getStackTrace()) {
-					println(o);
+					errorln(o);
 				}
 			}
 		}

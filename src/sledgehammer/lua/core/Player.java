@@ -165,7 +165,6 @@ public class Player extends LuaTable {
 		if (getProperty("muteglobal") == null)
 			setProperty("muteglobal", "0");
 		if (getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
-			System.out.println("NewCharacter: " + getUsername());
 			this.isNewCharacter = true;
 			this.isAlive = false;
 		}

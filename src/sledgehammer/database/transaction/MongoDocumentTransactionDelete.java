@@ -20,12 +20,6 @@ public class MongoDocumentTransactionDelete extends MongoDocumentTransaction {
 	public void run() {
 		String field = getField();
 		Object value = getValue();
-
-		if (MongoDatabase.DEBUG) {
-			System.out.println("===> Deleting document in Collection: \""
-					+ getMongoCollection().getDBCollection().getName() + "\".");
-			System.out.println("Document ID: " + field + " Value: " + value);
-		}
 		getMongoCollection().getDBCollection().remove(new BasicDBObject(field, value));
 	}
 

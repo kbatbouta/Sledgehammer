@@ -198,9 +198,9 @@ public abstract class Behavior extends Printable {
 	}
 
 	public void updateBehavior() {
-		// if(ModuleNPC.DEBUG) println("Behavior: Update");
-		if (isActive())
+		if (isActive()) {			
 			update();
+		}
 	}
 
 	public boolean hasArrived() {

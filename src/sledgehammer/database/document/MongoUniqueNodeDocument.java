@@ -66,11 +66,9 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 *            The <DBObject> storing the data for the <MongoNodeDocument>.
 	 */
 	public void loadNodes(DBObject object) {
-		System.out.print("Loading Nodes");
 		// Grab the list of MongoNodes in DBObject format.
 		@SuppressWarnings("rawtypes")
 		List list = (List) object.get("nodes");
-		System.out.println(". Size: " + list.size());
 		// Go through each DBObject.
 		for (Object oNodeNext : list) {
 			// Cast to the DBObject class.
@@ -91,7 +89,6 @@ public abstract class MongoUniqueNodeDocument extends MongoUniqueDocument {
 	 *            The <DBObject> to store the <MongoNode> sub-document <List>.
 	 */
 	public void saveNodes(DBObject object) {
-		System.out.println("Saving Nodes. Size: " + listMongoNodes.size());
 		// Create a new List to store the DBObjects representing the MongoNodes.
 		List<DBObject> objectNodes = new ArrayList<>();
 		// Go through each assigned MongoNode.

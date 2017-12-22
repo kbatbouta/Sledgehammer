@@ -55,7 +55,6 @@ public class MongoDatabaseTransactionWorker implements Runnable {
 			if (listToTransact.size() > 0) {
 				// Go through each transaction.
 				for (MongoDocumentTransaction transaction : listToTransact) {
-					System.out.println(transaction);
 					// Dispatch the transaction method to handle the operation.
 					transaction.run();
 				}

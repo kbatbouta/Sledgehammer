@@ -148,9 +148,9 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		String[] args = com.getArguments();
 		String response = null;
 
-		if (DEBUG)
+		if (DEBUG) {
 			println("Command fired by " + username + ": " + com.getRaw());
-
+		}
 		if (command.startsWith("espanol")) {
 			ChatChannel channel = module.getChatManager().getChannel("Espanol");
 			String property = player.getProperty("espanol");
@@ -179,22 +179,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			if (player.hasPermission(getPermissionNode("pm"))) {
 				if (args.length >= 2) {
 					String playerName = args[0];
-					println("playerName: " + playerName);
-
 					IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
-
 					String commanderName = player.getNickname();
 					if (commanderName == null) {
 						commanderName = player.getUsername();
 					}
-
 					if (playerPM == null) {
 						r.set(Result.FAILURE, "Could not find player: " + playerName);
 						return;
 					}
-
 					String msg = com.getRaw().split(args[0])[1].trim();
-
 					Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
 					if (playerDirty != null) {
 						// FIXME: Add database entry for PMs.
@@ -346,13 +340,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		} else if (command.equalsIgnoreCase("ban")) {
 			if (player.hasPermission(getPermissionNode("ban"))) {
 				if (args.length > 0) {
-					try {
-						ban(com, r, args);
-						return;
-					} catch (SQLException e) {
-						println("SQL Error on command: Ban");
-						e.printStackTrace();
-					}
+					ban(com, r, args);
+					return;
 				} else {
 					response = onTooltip(com.getPlayer(), com);
 					r.set(Result.FAILURE, response);
@@ -369,7 +358,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						unban(com, r, args);
 						return;
 					} catch (SQLException e) {
-						println("SQL Error on command: Unban");
+						errorln("Database Error on command: Unban");
 						e.printStackTrace();
 					}
 				} else {
@@ -402,7 +391,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		 */
 	}
 
-	private void ban(Command com, Response r, String[] args) throws SQLException {
+	private void ban(Command com, Response r, String[] args) {
 		String response = null;
 		String commander = com.getPlayer().getUsername();
 
@@ -489,8 +478,12 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				if (reason == null)
 					reason = "Banned. (IP)";
 
-				ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? "NULL" : username,
-						reason, true);
+				try {
+					ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? "NULL" : username,
+							reason, true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				response = "Banned IP." + username != null ? ""
 						: " You must use /unban -I \"" + IP + "\" in order to unban this IP.";
 				kickUser(connectionBanned, reason);
@@ -506,18 +499,20 @@ public class CoreCommandListener extends Printable implements CommandListener {
 					r.set(Result.FAILURE, response);
 					return;
 				}
-
 				if (!SteamUtils.isValidSteamID(SteamID)) {
 					response = "Invalid SteamID: \"" + SteamID + "\".";
 					r.set(Result.FAILURE, response);
 					return;
 				}
-
-				if (reason == null)
+				if (reason == null) {
 					reason = "Banned. (Steam)";
-
-				ServerWorldDatabase.instance.banSteamID(SteamID,
-						username == null || username.isEmpty() ? "NULL" : username, reason, true);
+				}
+				try {
+					ServerWorldDatabase.instance.banSteamID(SteamID,
+							username == null || username.isEmpty() ? "NULL" : username, reason, true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				response = "Steam-Banned Player.";
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
@@ -525,13 +520,11 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			}
-
 			if (!bUsername) {
 				response = "Must have -u \"username\" to use this command!";
 				r.set(Result.FAILURE, response);
 				return;
 			}
-
 			// Implied. Requires -U
 			if (bIP) {
 				if (SteamUtils.isSteamModeEnabled()) {
@@ -547,10 +540,14 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				}
 				IP = connectionBanned.ip;
 
-				if (reason == null)
+				if (reason == null) {
 					reason = "Banned. (IP)";
-
-				ServerWorldDatabase.instance.banIp(IP, username, reason, true);
+				}
+				try {
+					ServerWorldDatabase.instance.banIp(IP, username, reason, true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				kickUser(connectionBanned, reason);
 				response = "IP-Banned Player.";
 				r.set(Result.SUCCESS, response);
@@ -578,20 +575,28 @@ public class CoreCommandListener extends Printable implements CommandListener {
 					r.set(Result.FAILURE, response);
 					return;
 				}
-
-				if (reason == null)
+				if (reason == null) {
 					reason = "Banned. (Steam)";
-
-				response = ServerWorldDatabase.instance.banSteamID(SteamID, username, reason, true);
+				}
+				try {
+					response = ServerWorldDatabase.instance.banSteamID(SteamID, username, reason, true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);
 				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			} else {
-				if (reason == null)
+				if (reason == null) {					
 					reason = "Banned.";
-				response = ServerWorldDatabase.instance.banUser(username, true);
+				}
+				try {
+					response = ServerWorldDatabase.instance.banUser(username, true);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);

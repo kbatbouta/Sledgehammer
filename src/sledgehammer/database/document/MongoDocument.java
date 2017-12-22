@@ -206,9 +206,6 @@ public abstract class MongoDocument {
 	 * Deletes the document from the assigned <DBCollection>.
 	 */
 	public void delete() {
-		if (MongoDatabase.DEBUG) {
-			System.out.println("DELETING MongoDocument: \"" + this.getClass().getName() + "\".");
-		}
 		getCollection().delete(getFieldId(), getFieldValue());
 	}
 

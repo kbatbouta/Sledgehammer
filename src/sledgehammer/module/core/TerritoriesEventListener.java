@@ -43,8 +43,6 @@ public class TerritoriesEventListener implements EventListener {
 	}
 
 	private void handlePlayerInfoEvent(PlayerInfoEvent event) {
-		// module.println(event.getPosition());
-		// module.println(event.getMetaPosition());
 	}
 
 	@Override

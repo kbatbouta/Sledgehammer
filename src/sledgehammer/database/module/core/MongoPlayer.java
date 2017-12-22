@@ -71,10 +71,7 @@ public class MongoPlayer extends MongoDocument {
 	 *            The <String> name of the <Player>.
 	 */
 	public MongoPlayer(MongoCollection collection, String username) {
-
 		super(collection, "id");
-		System.out.println("New MongoPlayer(collection, " + username + ");");
-
 		// Reset all fields to a new player.
 		reset();
 		// Set the username given.
@@ -89,18 +86,14 @@ public class MongoPlayer extends MongoDocument {
 
 	public MongoPlayer(MongoCollection collection, DBObject object) {
 		super(collection, "id");
-		System.out.println("New MongoPlayer(collection, DBObject);");
 		reset();
 		onLoad(object);
 	}
 
 	public MongoPlayer(MongoCollection collection, UUID uuid) {
 		super(collection, "id");
-		System.out.println("New MongoPlayer(collection, UUID: " + uuid.toString() + ");");
-
 		reset();
 		setUniqueId(uuid);
-
 		DBCursor cursor = collection.getDBCollection().find(new BasicDBObject(getFieldId(), getFieldValue()));
 		if (cursor.hasNext()) {
 			onLoad(cursor.next());
@@ -110,13 +103,10 @@ public class MongoPlayer extends MongoDocument {
 
 	public MongoPlayer(MongoCollection collection, String username, String password) {
 		super(collection, "id");
-		System.out.println("New MongoPlayer(collection, " + username + ", " + password + ");");
 		// Reset all fields to a new player.
 		reset();
-
 		// Set the username given.
 		setUsername(username);
-
 		if (password != null && !password.isEmpty()) {
 			setPassword(password);
 		}
@@ -124,7 +114,6 @@ public class MongoPlayer extends MongoDocument {
 
 	@Override
 	public void onLoad(DBObject object) {
-		System.out.println("MongoPlayer->Loading...");
 		// We are loading an existing account. This is now false.
 		setNewAccount(false);
 		// Load the uuid for the player.

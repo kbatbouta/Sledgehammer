@@ -402,7 +402,6 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		// Empty the map for the Nodes.
 		mapPermissionNodes.clear();
 		// Go through each node document.
-		println(mongoDocument);
 		for (MongoNode mongoNode : mongoDocument.getMongoNodes()) {
 			// Create a node container.
 			Node node = new Node(mongoNode);

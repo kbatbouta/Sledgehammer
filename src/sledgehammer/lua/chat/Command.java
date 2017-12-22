@@ -59,7 +59,6 @@ public class Command extends LuaTable {
 	 */
 	public Command(KahluaTable table) {
 		super("Command", table);
-		println("Raw: " + getRaw());
 	}
 
 	@Override

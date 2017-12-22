@@ -124,7 +124,6 @@ public class ModuleChat extends Module {
 			message.setTime(LuaManager.getHourMinuteJava());
 			saveMessage(message);
 			String channelName = (String) tableMessage.rawget("channel");
-			println("ChannelName: " + channelName);
 			ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(channelName);
 			if (channel == null) {
 				errorln("Channel does not exist: \"" + channelName + "\".");
@@ -219,7 +218,6 @@ public class ModuleChat extends Module {
 			errorln("Channel is null!");
 			return;
 		}
-		println("Removing channel: " + channel.getChannelName());
 		getManager().removeChatChannel(channel);
 		collectionChannels.delete("name", channel.getChannelName());
 		collectionMessages.delete("channel", channel.getChannelName());

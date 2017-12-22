@@ -61,14 +61,11 @@ public class SledgehammerDatabase extends MongoDatabase {
 	@Override
 	public void connect(String url) {
 		super.connect(url);
-		println("Connected.");
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
 	public void onConnection(MongoClient client) {
-		String url = getConnectionURL();
-		println("URL: " + url);
 		dbSledgehammer = client.getDB(Settings.getInstance().getDatabaseDatabase());
 		setDatabase(dbSledgehammer);
 		collectionPlayers = createMongoCollection("sledgehammer_players");
@@ -98,7 +95,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			returned = cursor.hasNext();
 			cursor.close();
 		}
-		System.out.println("SledgehammerDatabase->playerExists(" + username + ") -> " + returned + ";");
 		return returned;
 	}
 
@@ -120,7 +116,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			returned = cursor.hasNext();
 			cursor.close();
 		}
-		System.out.println("SledgehammerDatabase->playerExists(" + uniqueId.toString() + ") -> " + returned + ";");
 		return returned;
 	}
 
@@ -129,7 +124,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			throw new IllegalArgumentException("SledgehammerDatabase: uniqueId given is null!");
 		}
 		MongoPlayer player = null;
-		System.out.println("SledgehammerDatabase->getMongoPlayer(" + uniqueId.toString() + ");");
 		player = mapPlayersByUUID.get(uniqueId);
 		if (player == null) {
 			DBCursor cursor = collectionPlayers.find(new BasicDBObject("uuid", uniqueId.toString()));
@@ -147,7 +141,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			throw new IllegalArgumentException("SledgehammerDatabase: Username given is null or empty!");
 		}
 		MongoPlayer player = null;
-		System.out.println("SledgehammerDatabase->getMongoPlayer(" + username + ");");
 		player = mapPlayersByUsername.get(username);
 		if (player == null) {
 			DBCursor cursor = collectionPlayers.find(new BasicDBObject("username", username));
@@ -165,7 +158,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			throw new IllegalArgumentException("SledgehammerDatabase: Username given is null or empty!");
 		}
 		MongoPlayer player = null;
-		System.out.println("SledgehammerDatabase->getMongoPlayer(" + username + ", " + password + ");");
 		player = mapPlayersByUsername.get(username);
 		if (player != null && !player.passwordsMatch(password)) {
 			player = null;
@@ -187,7 +179,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 			throw new IllegalArgumentException("SledgehammerDatabase: Steam ID is invalid: " + steamID);
 		}
 		MongoPlayer player = null;
-		System.out.println("SledgehammerDatabase->getMongoPlayer(" + steamID + ");");
 		DBCursor cursor = collectionPlayers.find(new BasicDBObject("steamID", "" + steamID));
 		if (cursor.hasNext()) {
 			player = new MongoPlayer(collectionPlayers, cursor.next());
@@ -213,7 +204,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 		if (user == null || user.isEmpty()) {
 			throw new IllegalArgumentException("SledgehammerDatabase: Username is null or empty!");
 		}
-		System.out.println("SledgehammerDatabase->createPlayer(\"" + user + "\", \"" + StringUtils.md5(pass) + "\");");
 		MongoPlayer player = new MongoPlayer(collectionPlayers, user, pass);
 		player.save();
 		registerPlayer(player);
@@ -319,7 +309,6 @@ public class SledgehammerDatabase extends MongoDatabase {
 		String url = settings.getDatabaseURL();
 		int port = settings.getDatabasePort();
 		String returned = "mongodb://" + username + ":" + password + "@" + url + ":" + port;
-		System.out.println("MongoDB URL: " + returned);
 		return returned;
 	}
 }
