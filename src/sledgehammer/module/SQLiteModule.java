@@ -1,5 +1,3 @@
-package sledgehammer.module;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,12 +13,11 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -33,10 +30,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.SledgeHammer;
 import zombie.GameWindow;
 
-@Deprecated
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public abstract class SQLiteModule extends Module {
 	private Connection connection = null;
 
@@ -56,11 +56,7 @@ public abstract class SQLiteModule extends Module {
 		this.connection = connection;
 	}
 
-	File dbFile;
-
-	public SQLiteModule() {
-		super();
-	}
+	private File dbFile;
 
 	public SQLiteModule(String fileName) {
 		super();
@@ -68,25 +64,21 @@ public abstract class SQLiteModule extends Module {
 	}
 
 	public SQLiteModule(File file) {
-		if (file == null)
+		if (file == null) {
 			throw new IllegalArgumentException("File is null!");
-
+		}
 		dbFile = file;
-
 	}
 
 	public void establishConnection(String fileName) {
 		if (fileName == null || fileName.isEmpty()) {
 			throw new IllegalArgumentException("Database File name is null or empty!");
 		}
-
 		String finalFileName = fileName;
 		if (fileName.contains(".")) {
 			finalFileName = finalFileName.split(".")[0];
 		}
-
 		dbFile = new File("database" + File.separator + fileName + ".db");
-
 		if (!dbFile.exists()) {
 			try {
 				dbFile.createNewFile();
@@ -94,7 +86,6 @@ public abstract class SQLiteModule extends Module {
 				e.printStackTrace();
 			}
 		}
-
 		establishConnection();
 	}
 
@@ -104,9 +95,7 @@ public abstract class SQLiteModule extends Module {
 		dbFile.setReadable(true, false);
 		dbFile.setExecutable(true, false);
 		dbFile.setWritable(true, false);
-
 		Connection connection = null;
-
 		try {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
@@ -115,7 +104,6 @@ public abstract class SQLiteModule extends Module {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
 		setConnection(connection);
 	}
 
@@ -191,7 +179,6 @@ public abstract class SQLiteModule extends Module {
 	public void renameTableColumn(String tableName, String fieldName, String fieldNameNew) throws SQLException {
 		String[][] table = getTableDefinitions(tableName);
 		String tableNameBackup = tableName + "_backup";
-
 		String columnString = "(";
 		String columnString2 = "";
 		String columnString3 = "(";
@@ -199,25 +186,22 @@ public abstract class SQLiteModule extends Module {
 		for (String[] field : table) {
 			columnString += field[0] + " " + field[1] + ",";
 			columnString2 += field[0] + ",";
-
 			String name = field[0];
-			if (name.equalsIgnoreCase(fieldName))
+			if (name.equalsIgnoreCase(fieldName)) {
 				name = fieldNameNew;
+			}
 			columnString3 += name + " " + field[1] + ",";
 			columnString4 += name + ",";
 		}
 		columnString = columnString.substring(0, columnString.length() - 1) + ")";
 		columnString2 = columnString2.substring(0, columnString2.length() - 1);
-
 		columnString3 = columnString3.substring(0, columnString3.length() - 1) + ")";
 		columnString4 = columnString4.substring(0, columnString4.length() - 1);
-
 		String query1 = "ALTER TABLE " + tableName + " RENAME TO " + tableNameBackup + ";";
 		String query2 = "CREATE TABLE " + tableName + columnString3 + ";";
 		String query3 = "INSERT INTO " + tableName + "(" + columnString4 + ") SELECT " + columnString2 + " FROM "
 				+ tableNameBackup + ";";
 		String query4 = "DROP TABLE " + tableNameBackup + ";";
-
 		PreparedStatement statement;
 		connection.setAutoCommit(false); // BEGIN TRANSACTION;
 		statement = prepareStatement(query1);
@@ -240,7 +224,6 @@ public abstract class SQLiteModule extends Module {
 		try {
 			statement = prepareStatement("PRAGMA table_info(" + tableName + ")");
 			ResultSet result = statement.executeQuery();
-
 			result.next();
 			do {
 				String[] field = new String[2];
@@ -248,7 +231,6 @@ public abstract class SQLiteModule extends Module {
 				field[1] = result.getString("type");
 				arrayBuilder.add(field);
 			} while (result.next());
-
 			String[][] table = new String[arrayBuilder.size()][2];
 			for (int x = 0; x < arrayBuilder.size(); x++) {
 				table[x] = arrayBuilder.get(x);
@@ -267,7 +249,6 @@ public abstract class SQLiteModule extends Module {
 			e.printStackTrace();
 			return null;
 		}
-
 	}
 
 	public List<String> getAll(String tableName, String targetName) throws SQLException {
@@ -275,41 +256,35 @@ public abstract class SQLiteModule extends Module {
 		List<String> list = new ArrayList<>();
 		statement = prepareStatement("SELECT * FROM " + tableName);
 		ResultSet result = statement.executeQuery();
-		while (result.next())
+		while (result.next()) {
 			list.add(result.getString(targetName));
+		}
 		result.close();
 		statement.close();
 		return list;
 	}
 
 	public Map<String, List<String>> getAll(String tableName, String[] targetNames) throws SQLException {
-
 		// Create a Map to store each field respectively in lists.
 		Map<String, List<String>> map = new HashMap<>();
-
 		// Create a List for each field.
 		for (String field : targetNames) {
 			List<String> listField = new ArrayList<>();
 			map.put(field, listField);
 		}
-
 		// Create a statement retrieving matched rows.
 		PreparedStatement statement;
 		statement = prepareStatement("SELECT * FROM " + tableName);
-
 		// Execute and fetch iterator for returned rows.
 		ResultSet result = statement.executeQuery();
-
 		// Go through each row.
 		while (result.next()) {
-
 			// For each row, we go through the field(s) desired, and store their values in
 			// the same order.
 			for (String field : targetNames) {
 				List<String> listField = map.get(field);
 				listField.add(result.getString(field));
 			}
-
 		}
 		// Close SQL handlers, and return the map.
 		result.close();
@@ -332,27 +307,21 @@ public abstract class SQLiteModule extends Module {
 	 */
 	public Map<String, String> getRow(String tableName, String matchName, String matchValue) throws SQLException {
 		Map<String, String> map = new HashMap<>();
-
 		// Create a statement retrieving matched rows.
 		PreparedStatement statement;
 		statement = prepareStatement(
 				"SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
-
 		// Execute and fetch iterator for returned rows.
 		ResultSet result = statement.executeQuery();
-
 		// Go through the first matched row.
 		if (result.next()) {
-
 			ResultSetMetaData meta = result.getMetaData();
-
 			// Go through each column.
 			for (int index = 0; index < meta.getColumnCount(); index++) {
 				String columnName = meta.getColumnName(index);
 				String value = result.getString(index);
 				map.put(columnName, value);
 			}
-
 		}
 		// Close SQL handlers, and return the map.
 		result.close();
@@ -364,43 +333,32 @@ public abstract class SQLiteModule extends Module {
 	 * Returns a map of the first matched row of a given table.
 	 * 
 	 * @param tableName
-	 * 
 	 * @param matchName
-	 * 
 	 * @param matchValue
-	 * 
 	 * @return
-	 * 
 	 * @throws SQLException
 	 */
 	public Map<String, String> getRow(String tableName, String[] matchNames, String[] matchValues) throws SQLException {
 		Map<String, String> map = new HashMap<>();
-
 		// Create a statement retrieving matched rows.
 		PreparedStatement statement;
 		String s = "SELECT * FROM " + tableName + " WHERE ";
 		for (int index = 0; index < matchNames.length; index++) {
 			s += matchNames[index] + " = \"" + matchValues[index] + "\" AND ";
 		}
-
 		s = s.substring(0, s.length() - 5) + ";";
 		statement = prepareStatement(s);
-
 		// Execute and fetch iterator for returned rows.
 		ResultSet result = statement.executeQuery();
-
 		// Go through the first matched row.
 		if (result.next()) {
-
 			ResultSetMetaData meta = result.getMetaData();
-
 			// Go through each column.
 			for (int index = 0; index < meta.getColumnCount(); index++) {
 				String columnName = meta.getColumnName(index);
 				String value = result.getString(index);
 				map.put(columnName, value);
 			}
-
 		}
 		// Close SQL handlers, and return the map.
 		result.close();
@@ -410,38 +368,28 @@ public abstract class SQLiteModule extends Module {
 
 	public Map<String, List<String>> getAll(String tableName, String matchName, String matchValue, String[] targetNames)
 			throws SQLException {
-
 		// Create a Map to store each field respectively in lists.
 		Map<String, List<String>> map = new HashMap<>();
-
-		// List<String> listMatches = new ArrayList<>();
-
 		// Create a List for each field.
 		for (String field : targetNames) {
 			List<String> listField = new ArrayList<>();
 			map.put(field, listField);
 		}
-
 		// Create a statement retrieving matched rows.
 		PreparedStatement statement;
 		statement = prepareStatement(
 				"SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
-
 		// Execute and fetch iterator for returned rows.
 		ResultSet result = statement.executeQuery();
-
 		// Go through each row.
 		while (result.next()) {
-
 			// listMatches.add(result.getString(matchName));
-
 			// For each row, we go through the field(s) desired, and store their values in
 			// the same order.
 			for (String field : targetNames) {
 				List<String> listField = map.get(field);
 				listField.add(result.getString(field));
 			}
-
 		}
 		// Close SQL handlers, and return the map.
 		result.close();
@@ -456,8 +404,9 @@ public abstract class SQLiteModule extends Module {
 		statement = prepareStatement(
 				"SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
 		ResultSet result = statement.executeQuery();
-		while (result.next())
+		while (result.next()) {
 			list.add(result.getString(targetName));
+		}
 		result.close();
 		statement.close();
 		return list;
@@ -481,11 +430,11 @@ public abstract class SQLiteModule extends Module {
 
 	public boolean hasIgnoreCase(String tableName, String matchName, String matchValue) throws SQLException {
 		PreparedStatement statement;
-		if (matchValue == null)
+		if (matchValue == null) {
 			matchValue = "NULL";
+		}
 		statement = prepareStatement("SELECT * FROM " + tableName);
 		ResultSet result = statement.executeQuery();
-
 		while (result.next()) {
 			String matchedValue = result.getString(matchName);
 			if (matchedValue.equalsIgnoreCase(matchValue)) {
@@ -494,7 +443,6 @@ public abstract class SQLiteModule extends Module {
 				return true;
 			}
 		}
-
 		result.close();
 		statement.close();
 		return false;
@@ -502,8 +450,9 @@ public abstract class SQLiteModule extends Module {
 
 	public boolean has(String tableName, String matchName, String matchValue) throws SQLException {
 		PreparedStatement statement;
-		if (matchValue == null)
+		if (matchValue == null) {
 			matchValue = "NULL";
+		}
 		statement = prepareStatement(
 				"SELECT * FROM " + tableName + " WHERE " + matchName + " = \"" + matchValue + "\"");
 		ResultSet result = statement.executeQuery();
@@ -519,21 +468,22 @@ public abstract class SQLiteModule extends Module {
 
 	public boolean has(String tableName, String[] matchNames, String[] matchValues) throws SQLException {
 		PreparedStatement statement;
-		if (matchNames == null)
+		if (matchNames == null) {
 			throw new IllegalArgumentException("Match names array is null!");
-		if (matchValues == null)
+		}
+		if (matchValues == null) {
 			throw new IllegalArgumentException("Match values array is null!");
-		if (matchNames.length != matchValues.length)
+		}
+		if (matchNames.length != matchValues.length) {
 			throw new IllegalArgumentException("Match name array and match field array are different sizes!");
-
+		}
 		String statementString = "SELECT * FROM " + tableName + " WHERE ";
-
 		for (int x = 0; x < matchNames.length; x++) {
-			if (x > 0)
+			if (x > 0) {
 				statementString += " AND ";
+			}
 			statementString += "\"" + matchNames[x] + "\" = \"" + matchValues[x] + "\"";
 		}
-
 		statement = prepareStatement(statementString);
 		ResultSet result = statement.executeQuery();
 		if (result.next()) {
@@ -566,19 +516,14 @@ public abstract class SQLiteModule extends Module {
 
 	private void update(String table, String identifierField, String identifierValue, String[] fields,
 			String[] values) {
-
 		String setString = "";
-
 		for (int index = 0; index < fields.length; index++) {
 			setString += fields[index] + " = \"" + values[index] + "\",";
 		}
 		setString = setString.substring(0, setString.length() - 1);
-
 		String query = "UPDATE " + table + " SET " + setString + " WHERE " + identifierField.length() + " = \""
 				+ identifierValue.length() + ";";
-
 		PreparedStatement statement = null;
-
 		try {
 			statement = prepareStatement(query);
 			statement.executeQuery().close();
@@ -596,9 +541,7 @@ public abstract class SQLiteModule extends Module {
 
 	public void update(String table, String matchName, String matchValue, String targetName, String targetValue)
 			throws SQLException {
-
 		String stringStatement = "UPDATE " + table + " SET " + targetName + " = ? WHERE " + matchName + " = ?";
-
 		PreparedStatement statement = prepareStatement(stringStatement);
 		statement.setString(1, targetValue);
 		statement.setString(2, matchValue);
@@ -612,20 +555,16 @@ public abstract class SQLiteModule extends Module {
 			nameBuild += name + ",";
 		}
 		nameBuild = nameBuild.substring(0, nameBuild.length() - 1) + ")";
-
 		String valueBuild = "(";
 		for (@SuppressWarnings("unused")
 		String value : values) {
 			valueBuild += "?,";
 		}
 		valueBuild = valueBuild.substring(0, valueBuild.length() - 1) + ")";
-
 		PreparedStatement statement = prepareStatement("INSERT INTO " + table + nameBuild + " VALUES " + valueBuild);
-
 		for (int index = 0; index < values.length; index++) {
 			statement.setString(index + 1, values[index]);
 		}
-
 		statement.executeUpdate();
 		statement.close();
 	}
@@ -648,36 +587,5 @@ public abstract class SQLiteModule extends Module {
 
 	public Statement createStatement() throws SQLException {
 		return getConnection().createStatement();
-	}
-
-	/**
-	 * @deprecated (static method is in ZUtils.java now)
-	 * @param previousPwd
-	 * @return
-	 */
-	public String encrypt(String previousPwd) {
-		if (previousPwd == null || previousPwd.isEmpty()) {
-			return "";
-		} else {
-			byte[] crypted = null;
-
-			try {
-				crypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
-			} catch (NoSuchAlgorithmException e) {
-				SledgeHammer.instance.println("Can\'t encrypt password");
-				e.printStackTrace();
-			}
-			StringBuilder hashString = new StringBuilder();
-			for (int i = 0; i < crypted.length; ++i) {
-				String hex = Integer.toHexString(crypted[i]);
-				if (hex.length() == 1) {
-					hashString.append('0');
-					hashString.append(hex.charAt(hex.length() - 1));
-				} else {
-					hashString.append(hex.substring(hex.length() - 2));
-				}
-			}
-			return hashString.toString();
-		}
 	}
 }
