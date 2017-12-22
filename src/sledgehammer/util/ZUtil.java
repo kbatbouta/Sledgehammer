@@ -1,5 +1,3 @@
-package sledgehammer.util;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,21 +36,23 @@ import com.google.gson.Gson;
 
 import sledgehammer.SledgeHammer;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ZUtil {
 
 	/**
 	 * The location for plug-ins, as a String.
 	 */
 	public static String pluginLocation = "plugins" + File.separator;
-
 	/**
 	 * The location for plug-ins, as a File.
 	 */
 	public static File pluginFolder = new File(ZUtil.pluginLocation);
-
-	private static Gson gson = new Gson();
-
 	public static Random random = new RandomXS128();
+	private static Gson gson = new Gson();
 
 	public static boolean isClass(String className) {
 		try {
@@ -93,10 +94,8 @@ public class ZUtil {
 	public static void compactList(List list) {
 		List<Integer> listIndexesToRemove = new ArrayList<>();
 		Map<Object, Boolean> cacheMap = new HashMap<>();
-
 		for (int index = 0; index < list.size(); index++) {
 			Object o = list.get(index);
-
 			Boolean cached = cacheMap.get(o);
 			if (cached == null) {
 				cacheMap.put(o, Boolean.valueOf(true));
@@ -104,7 +103,6 @@ public class ZUtil {
 				listIndexesToRemove.add(index);
 			}
 		}
-
 		synchronized (list) {
 			try {
 				for (int index : listIndexesToRemove)
@@ -129,11 +127,9 @@ public class ZUtil {
 	 */
 	public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) throws IllegalArgumentException,
 			IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
-
 		// Not sure if needed. JDK8
 		// Preconditions.checkArgument(toBeDestroyed.isDirect(), "toBeDestroyed
 		// isn't direct!");
-
 		Method cleanerMethod = toBeDestroyed.getClass().getMethod("cleaner");
 		cleanerMethod.setAccessible(true);
 		Object cleaner = cleanerMethod.invoke(toBeDestroyed);
@@ -173,12 +169,15 @@ public class ZUtil {
 		return (new Date()).getTime() / 1000L;
 	}
 
+	public static long currentTimeStamp() {
+		return (System.currentTimeMillis() / 1000);
+	}
+
 	public static String encrypt(String previousPwd) {
 		if (previousPwd == null || previousPwd.isEmpty()) {
 			return "";
 		} else {
 			byte[] crypted = null;
-
 			try {
 				crypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
 			} catch (NoSuchAlgorithmException e) {
@@ -199,31 +198,21 @@ public class ZUtil {
 		}
 	}
 
-	public static long currentTimeStamp() {
-		return (System.currentTimeMillis() / 1000);
-	}
 
 	public static File[] getFiles(File directory, String extension) {
-
 		List<File> listFiles = new ArrayList<File>();
-
 		if (directory.exists()) {
 			File[] files = directory.listFiles();
-
 			for (File file : files) {
-
 				if (file.isDirectory()) {
-
 					// Recursive cannot iterate over parent directories.
 					if (file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
 						continue;
 					}
-
 					// Not a part of PZ.
 					if (file.getName().equalsIgnoreCase("rcon")) {
 						continue;
 					}
-
 					File[] newFiles = getFiles(file, extension);
 					if (newFiles.length > 0) {
 						for (File newFile : newFiles) {
@@ -237,14 +226,10 @@ public class ZUtil {
 				}
 			}
 		}
-
 		File[] array = new File[listFiles.size()];
-
 		for (int index = 0; index < listFiles.size(); index++) {
 			array[index] = listFiles.get(index);
 		}
-
 		return array;
 	}
-
 }

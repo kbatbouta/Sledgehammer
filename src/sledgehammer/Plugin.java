@@ -1,3 +1,19 @@
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ */
 package sledgehammer;
 
 import java.io.File;
@@ -11,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -21,48 +38,47 @@ import sledgehammer.lua.core.PluginProperties;
 import sledgehammer.module.Module;
 import sledgehammer.util.Printable;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class Plugin extends Printable {
 
 	private static final boolean DEBUG = false;
 
-	private boolean loadClasses = true;
-
-	private File file;
-
-	private PluginProperties properties;
-
-	List<Module> listModulesToLoad;
-	List<Module> listModulesLoaded;
-	List<Module> listModulesToStart;
-	List<Module> listModulesStarted;
-	List<Module> listModulesStoppped;
-
 	private Map<String, Module> mapModules;
-
-	List<Module> listModulesStopped = new ArrayList<>();
-	List<Module> listModulesUnloaded = new ArrayList<>();
-
+	private List<Module> listModulesToLoad;
+	private List<Module> listModulesLoaded;
+	private List<Module> listModulesToStart;
+	private List<Module> listModulesStarted;
+	private List<Module> listModulesStopped;
+	private List<Module> listModulesUnloaded;
+	private File jarFile;
 	private ClassLoader classLoader;
+	private PluginProperties properties;
+	private boolean loadClasses = true;
 
 	public Plugin(File file) {
 		setJarFile(file);
 		mapModules = new HashMap<>();
-		listModulesToLoad = new ArrayList<>();
-		listModulesLoaded = new ArrayList<>();
-		listModulesToStart = new ArrayList<>();
-		listModulesStarted = new ArrayList<>();
-		listModulesStopped = new ArrayList<>();
+		listModulesToLoad = new LinkedList<>();
+		listModulesLoaded = new LinkedList<>();
+		listModulesToStart = new LinkedList<>();
+		listModulesStarted = new LinkedList<>();
+		listModulesStopped = new LinkedList<>();
+		listModulesUnloaded = new LinkedList<>();
 	}
 
 	public Plugin(File file, PluginProperties properties) {
 		setJarFile(file);
 		setProperties(properties);
 		mapModules = new HashMap<>();
-		listModulesToLoad = new ArrayList<>();
-		listModulesLoaded = new ArrayList<>();
-		listModulesToStart = new ArrayList<>();
-		listModulesStarted = new ArrayList<>();
-		listModulesStopped = new ArrayList<>();
+		listModulesToLoad = new LinkedList<>();
+		listModulesLoaded = new LinkedList<>();
+		listModulesToStart = new LinkedList<>();
+		listModulesStarted = new LinkedList<>();
+		listModulesStopped = new LinkedList<>();
 	}
 
 	@Override
@@ -341,10 +357,6 @@ public class Plugin extends Printable {
 		listModulesToLoad.add(module);
 	}
 
-	public static String getClassLiteral(Class<?> clazz) {
-		return clazz.getPackage().getName() + "." + clazz.getSimpleName();
-	}
-
 	public boolean removeModule(Module module) {
 		return mapModules.remove(module.getModuleName(), module);
 	}
@@ -372,6 +384,13 @@ public class Plugin extends Printable {
 		return (T) returned;
 	}
 
+	public void setLoadClasses(boolean flag) {
+		loadClasses = flag;
+		if (!loadClasses) {
+			classLoader = ClassLoader.getSystemClassLoader();
+		}
+	}
+
 	public Collection<Module> getModules() {
 		return this.mapModules.values();
 	}
@@ -393,11 +412,11 @@ public class Plugin extends Printable {
 	}
 
 	public File getJarFile() {
-		return this.file;
+		return this.jarFile;
 	}
 
 	private void setJarFile(File file) {
-		this.file = file;
+		this.jarFile = file;
 	}
 
 	private ClassLoader getClassLoader() {
@@ -428,15 +447,12 @@ public class Plugin extends Printable {
 		return listModulesStarted;
 	}
 
-	public void setLoadClasses(boolean flag) {
-		loadClasses = flag;
-		if (!loadClasses) {
-			classLoader = ClassLoader.getSystemClassLoader();
-		}
-	}
-
 	public boolean loadClasses() {
 		return this.loadClasses;
+	}
+
+	public static String getClassLiteral(Class<?> clazz) {
+		return clazz.getPackage().getName() + "." + clazz.getSimpleName();
 	}
 
 	private static InputStream getStream(File jar, String source) throws IOException {
@@ -515,4 +531,5 @@ public class Plugin extends Printable {
 		}
 		return loader;
 	}
+
 }

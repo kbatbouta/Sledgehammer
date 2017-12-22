@@ -1,5 +1,3 @@
-package sledgehammer.lua.faction;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.faction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,5 +270,4 @@ public class Faction extends LuaTable {
 	public String getFactionRawColor() {
 		return getMongoDocument().getFactionRawColor();
 	}
-
 }

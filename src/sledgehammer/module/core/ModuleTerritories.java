@@ -1,5 +1,3 @@
-package sledgehammer.module.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,24 +13,25 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.core;
 
-import sledgehammer.event.ClientEvent;
 import sledgehammer.module.Module;
 
+/**
+ * TODO: Implement
+ * 
+ * TODO: Document
+ * 
+ * @author Jab
+ */
 public class ModuleTerritories extends Module {
-
-	public static final String ID = "ModuleTerritories";
-	public static final String NAME = "Territories";
-	public static final String MODULE = "Territories";
-	public static final String VERSION = "1.00";
 
 	private TerritoriesEventListener eventListener;
 
 	@Override
 	public void onLoad() {
 		eventListener = new TerritoriesEventListener(this);
-
 	}
 
 	@Override
@@ -43,7 +42,6 @@ public class ModuleTerritories extends Module {
 	@Override
 	public void onUpdate(long delta) {
 		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -54,24 +52,5 @@ public class ModuleTerritories extends Module {
 	@Override
 	public void onUnload() {
 		eventListener = null;
-	}
-
-	public String getID() {
-		return ID;
-	}
-
-	public String getName() {
-		return NAME;
-	}
-
-	public String getModuleName() {
-		return MODULE;
-	}
-
-	public String getVersion() {
-		return VERSION;
-	}
-
-	public void onClientCommand(ClientEvent e) {
 	}
 }

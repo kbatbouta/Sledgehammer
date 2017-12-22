@@ -1,5 +1,3 @@
-package sledgehammer.module.faction;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.faction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,8 +38,9 @@ import static sledgehammer.util.ChatTags.*;
 /**
  * Class designed to handle commands from players for the Factions Module.
  * 
+ * TODO: Document.
+ * 
  * @author Jab
- *
  */
 public class FactionsCommandListener extends Printable implements CommandListener {
 

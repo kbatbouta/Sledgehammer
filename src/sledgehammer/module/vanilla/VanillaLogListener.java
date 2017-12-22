@@ -1,5 +1,3 @@
-package sledgehammer.module.vanilla;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,13 +13,19 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.vanilla;
 
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.util.Printable;
 import zombie.core.logger.LoggerManager;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class VanillaLogListener extends Printable implements LogListener {
 
 	public static final String NAME = "VanillaLogListener";
@@ -29,7 +33,6 @@ public class VanillaLogListener extends Printable implements LogListener {
 	@Override
 	public void onLogEntry(LogEvent logEntry) {
 		String message = logEntry.getLogMessage();
-
 		boolean important = logEntry.isImportant();
 		if (important) {
 			LoggerManager.getLogger("admin").write(message, "IMPORTANT");

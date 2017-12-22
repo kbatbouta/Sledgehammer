@@ -1,5 +1,3 @@
-package sledgehammer.manager.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.manager.core;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.PermissionListener;
@@ -24,7 +23,10 @@ import sledgehammer.manager.Manager;
 
 /**
  * Manager class designed to handle permissions for modules and core functions.
- * TODO: Document. TODO: Complete.
+ * 
+ * TODO: Implement.
+ * 
+ * TODO: Document.
  * 
  * @author Jab
  */

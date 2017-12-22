@@ -1,5 +1,3 @@
-package sledgehammer.module.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +32,11 @@ import zombie.sledgehammer.npc.NPC;
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class CoreEventListener implements EventListener {
 
 	private ModuleCore module;

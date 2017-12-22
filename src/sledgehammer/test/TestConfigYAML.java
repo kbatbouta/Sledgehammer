@@ -1,3 +1,5 @@
+package sledgehammer.test;
+
 /*
 This file is part of Sledgehammer.
 
@@ -13,31 +15,35 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
-package sledgehammer.event;
-
-import sledgehammer.lua.core.Player;
+ */
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Map;
+import sledgehammer.util.YamlUtil;
 
 /**
- * TODO: Document.
+ * This is a test class for verifying the YAML for the config.yml file.
  * 
  * @author Jab
- *
  */
-public class HandShakeEvent extends PlayerEvent {
+@SuppressWarnings("rawtypes")
+public class TestConfigYAML {
 
-	public static final String ID = "HandShakeEvent";
+	Map data;
 
-	public HandShakeEvent(Player player) {
-		super(player);
+	public void run() {
+		try {
+			FileInputStream fis;
+			fis = new FileInputStream(new File("config.yml"));
+			data = YamlUtil.getYaml().load(fis);
+			System.out.println(data);
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	public String getLogMessage() {
-		return null;
+	public static void main(String[] args) {
+		new TestConfigYAML().run();
 	}
-
-	public String getID() {
-		return ID;
-	}
-
 }

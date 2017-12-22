@@ -1,5 +1,3 @@
-package sledgehammer.lua.faction;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.faction;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
@@ -49,6 +48,11 @@ public class FactionChatChannel extends ChatChannel {
 		setProperties(loadChannelProperties());
 	}
 
+	@Override
+	public boolean canSee(Player player) {
+		return super.canSee(player);
+	}
+
 	/**
 	 * Main constructor.
 	 * 
@@ -63,16 +67,10 @@ public class FactionChatChannel extends ChatChannel {
 		super(name, description, context);
 	}
 
-	@Override
-	public boolean canSee(Player player) {
-		return super.canSee(player);
-	}
-
 	/**
 	 * @return Returns the loaded <ModuleFactions> instance.
 	 */
 	public ModuleFactions getModule() {
 		return (ModuleFactions) SledgeHammer.instance.getPluginManager().getModule(ModuleFactions.class);
 	}
-
 }

@@ -1,5 +1,3 @@
-package sledgehammer.util;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,11 +13,17 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.util;
 
 import java.util.zip.*;
 import java.io.*;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ZlibUtil {
 
 	public static void compressFile(File uncompressed, File compressed) throws IOException {

@@ -1,5 +1,3 @@
-package sledgehammer.lua.chat;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.chat;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -24,6 +23,11 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.lua.LuaTable;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ChannelProperties extends LuaTable {
 
 	public static final String DEFAULT_CONTEXT = "sledgehammer.chat.channel";

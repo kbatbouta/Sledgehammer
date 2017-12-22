@@ -1,5 +1,3 @@
-package sledgehammer.lua.faction;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.faction;
 
 import java.util.UUID;
 
@@ -27,6 +26,11 @@ import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
 import sledgehammer.module.faction.ModuleFactions;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class FactionMember extends LuaTable {
 
 	private MongoFactionMember mongoFactionMember;

@@ -1,5 +1,3 @@
-package sledgehammer.npc.action;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.npc.action;
 
 import sledgehammer.module.npc.ModuleNPC;
 import zombie.characters.IsoPlayer;
@@ -23,6 +22,11 @@ import zombie.iso.IsoObject;
 import zombie.network.GameServer;
 import zombie.sledgehammer.npc.NPC;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ActionFollowTargetDirect extends Action {
 
 	public static final String NAME = "Action->FollowTargetDirect";

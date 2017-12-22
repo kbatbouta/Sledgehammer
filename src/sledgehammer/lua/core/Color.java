@@ -1,5 +1,3 @@
-package sledgehammer.lua.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.core;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +24,10 @@ import sledgehammer.lua.LuaTable;
 
 /**
  * Color Lua class for SledgeHammer Lua.
+ *
+ * TODO: Document
  * 
  * @author Jab
- *
  */
 public class Color extends LuaTable implements Comparable<Color> {
 
@@ -149,7 +149,6 @@ public class Color extends LuaTable implements Comparable<Color> {
 	 * @param alpha
 	 */
 	public void set(float red, float green, float blue, float alpha) {
-
 		// Set all color values.
 		setRed(red);
 		setGreen(green);
@@ -165,7 +164,6 @@ public class Color extends LuaTable implements Comparable<Color> {
 	 * @param blue
 	 */
 	public void set(float red, float green, float blue) {
-
 		// Set all color values.
 		setRed(red);
 		setGreen(green);
@@ -294,33 +292,30 @@ public class Color extends LuaTable implements Comparable<Color> {
 	 * the colors match, however the alpha do not.
 	 */
 	public int compareTo(Color other) {
-
 		// Variables
 		float r, g, b, a, or, og, ob, oa;
-
 		// This color.
 		r = getRed();
 		g = getGreen();
 		b = getBlue();
 		a = getAlpha();
-
 		// Other color
 		or = other.getRed();
 		og = other.getGreen();
 		ob = other.getBlue();
 		oa = other.getAlpha();
-
 		// Matching.
-		if (r == or && g == og && b == ob && a == oa)
+		if (r == or && g == og && b == ob && a == oa) {
 			return 0;
-
+		}
 		// Matching color, but not alpha.
-		else if (r == or && g == og && b == ob && a == oa)
+		else if (r == or && g == og && b == ob && a == oa) {
 			return 2;
-
+		}
 		// Not matching.
-		else
+		else {
 			return 1;
+		}
 	}
 
 	@Override

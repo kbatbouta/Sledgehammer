@@ -1,5 +1,3 @@
-package sledgehammer.lua;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,13 +13,19 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua;
 
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.lua.core.Player;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class RequestInfo extends LuaTable {
 
 	private int playerID = -1;

@@ -19,6 +19,7 @@ package sledgehammer.manager;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.module.core.ModuleCore;
 import sledgehammer.util.Printable;
 import zombie.core.raknet.UdpConnection;
 
@@ -28,7 +29,6 @@ import zombie.core.raknet.UdpConnection;
  * handle any redundant methods required in multiple managers.
  * 
  * @author Jab
- *
  */
 public abstract class Manager extends Printable {
 
@@ -77,8 +77,9 @@ public abstract class Manager extends Printable {
 
 	/**
 	 * @return Returns the <ModuleCore> instance.
-	 *//*
-		 * public ModuleCore getCoreModule() { return
-		 * SledgeHammer.instance.getModuleManager().getCoreModule(); }
-		 */
+	 */
+	public ModuleCore getCoreModule() {
+		return SledgeHammer.instance.getPluginManager().getCoreModule();
+	}
+
 }

@@ -1,5 +1,3 @@
-package sledgehammer.lua;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua;
 
 import se.krka.kahlua.vm.KahluaTable;
 
@@ -23,7 +22,6 @@ import se.krka.kahlua.vm.KahluaTable;
  * TODO: Document.
  * 
  * @author Jab
- *
  */
 public abstract class Send extends LuaTable {
 

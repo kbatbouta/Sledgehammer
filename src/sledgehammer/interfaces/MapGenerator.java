@@ -1,5 +1,3 @@
-package sledgehammer.interfaces;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,8 +13,14 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.interfaces;
 
+/**
+ * TODO: Implement
+ * 
+ * @author Jab
+ */
 public interface MapGenerator {
 	// public Chunk generateChunk(int x, int y);
 	// public Cell generateCell(int wx, int wy);

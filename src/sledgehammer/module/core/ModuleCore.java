@@ -1,5 +1,3 @@
-package sledgehammer.module.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +40,11 @@ import sledgehammer.lua.core.SendPlayer;
 import sledgehammer.module.Module;
 import zombie.network.ServerWorldDatabase;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ModuleCore extends Module {
 
 	public static long LONG_SECOND = 1000L;

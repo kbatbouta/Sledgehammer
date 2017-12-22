@@ -1,5 +1,3 @@
-package sledgehammer.module.vanilla;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.vanilla;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,13 +24,16 @@ import sledgehammer.interfaces.LogListener;
 import sledgehammer.module.Module;
 import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ModuleVanilla extends Module {
 
-	CommandListener commandListener;
-
-	LogListener logListener;
-
 	private Map<String, String> mapContexts;
+	private CommandListener commandListener;
+	private LogListener logListener;
 
 	public ModuleVanilla() {
 		// Adding contexts to this class for exposure & modification purposes. (This is
@@ -102,5 +104,4 @@ public class ModuleVanilla extends Module {
 	public Map<String, String> getContexts() {
 		return this.mapContexts;
 	}
-
 }

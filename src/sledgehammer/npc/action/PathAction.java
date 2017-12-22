@@ -1,5 +1,3 @@
-package sledgehammer.npc.action;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,19 +13,23 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.npc.action;
 
 import zombie.ai.astar.Mover;
 import zombie.ai.astar.Path;
 import zombie.sledgehammer.npc.NPC;
 
+/**
+ * TODO: Implement.
+ * 
+ * @author Jab
+ */
 public abstract class PathAction extends Action {
 
 	public void onPathSuccess(NPC npc, Mover mover, Path path) {
-
 	}
 
 	public void onPathFailure(NPC npc, Mover mover) {
-
 	}
 }

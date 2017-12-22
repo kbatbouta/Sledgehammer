@@ -1,5 +1,3 @@
-package sledgehammer.lua.chat;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.chat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,8 +35,9 @@ import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.core.ModuleChat;
 
 /**
- * TODO: Document. Class designed to store and manage all chat messages for a
- * channel (tab).
+ * Class designed to store and manage all chat messages for a channel (tab).
+ * 
+ * TODO: Document.
  * 
  * @author Jab
  */

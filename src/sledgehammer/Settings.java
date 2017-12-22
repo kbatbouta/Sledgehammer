@@ -1,3 +1,19 @@
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ */
 package sledgehammer;
 
 import java.io.BufferedReader;
@@ -27,13 +43,13 @@ import zombie.sledgehammer.util.MD5;
 public class Settings extends Printable {
 
 	private static final String NEW_LINE = System.getProperty("line.separator");
-
 	private static Settings instance;
 
-	private File fileConfig;
 	private Map map;
-
 	private List<String> listAccountsExcluded;
+	private File fileConfig;
+	private String pzServerDirectory;
+	private String permissionDeniedMessage;
 	private String fileConfigName = "config.yml";
 	private String administratorPassword;
 	private String databaseURL;
@@ -45,11 +61,6 @@ public class Settings extends Printable {
 	private int databasePORT;
 	private boolean debug = false;
 	private boolean allowRCON = false;
-
-	private String pzServerDirectory;
-
-	private String permissionDeniedMessage;
-
 	private boolean allowHelicopters;
 
 	public Settings() {
@@ -119,12 +130,12 @@ public class Settings extends Printable {
 		} else {
 			requestPZDedicatedServerDirectory();
 		}
-		// (String> general.permission_message_denied
+		// (String) general.permission_message_denied
 		Object oPermissionMessageDenied = general.get("permission_message_denied");
 		if (oPermissionMessageDenied != null) {
 			setPermissionMessageDenied(oPermissionMessageDenied.toString(), false);
 		}
-
+		// (String) general.account_idle_expire_time
 		Object oAccountIdleExpireTime = general.get("account_idle_expire_time");
 		if (oAccountIdleExpireTime != null) {
 			String s = oAccountIdleExpireTime.toString();
@@ -147,6 +158,7 @@ public class Settings extends Printable {
 			}
 		}
 		listAccountsExcluded = new LinkedList<>();
+		// (List) genera.account_idle_exclusions
 		Object oAccountIdleExclusions = general.get("account_idle_exclusions");
 		if (oAccountIdleExclusions != null && oAccountIdleExclusions instanceof List) {
 			List list = (List) oAccountIdleExclusions;
@@ -154,7 +166,7 @@ public class Settings extends Printable {
 				listAccountsExcluded.add(o.toString());
 			}
 		}
-
+		// (Boolean) general.allow_helicopters
 		Object oAllowHelicopters = general.get("allow_helicopters");
 		if (oAllowHelicopters != null) {
 			setAllowHelicopters(getBoolean(oAllowHelicopters.toString()), false);

@@ -1,5 +1,3 @@
-package sledgehammer.interfaces;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,10 +13,16 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.interfaces;
 
 import sledgehammer.util.INI;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public interface ModuleSettingsHandler {
 	void createSettings(INI ini);
 }

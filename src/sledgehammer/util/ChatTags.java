@@ -1,5 +1,3 @@
-package sledgehammer.util;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,10 +13,16 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.util;
 
 import java.util.HashMap;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ChatTags {
 
 	public static HashMap<String, String> mapColors;
@@ -115,13 +119,12 @@ public class ChatTags {
 	}
 
 	public static String stripTags(String text, boolean newLine) {
-		if (text == null)
+		if (text == null) {
 			return null;
+		}
 		String stripped = "";
 		char[] textArray = text.toCharArray();
-
 		boolean inCode = false;
-
 		for (int index = 0; index < text.length(); index++) {
 			char c = textArray[index];
 			if (inCode) {

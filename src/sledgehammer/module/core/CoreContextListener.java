@@ -1,5 +1,3 @@
-package sledgehammer.module.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,13 +13,19 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.core;
 
 import sledgehammer.interfaces.ContextListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.Printable;
 import zombie.core.Translator;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class CoreContextListener extends Printable implements ContextListener {
 
 	@Override

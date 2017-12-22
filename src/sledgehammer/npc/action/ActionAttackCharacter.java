@@ -1,5 +1,3 @@
-package sledgehammer.npc.action;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,35 +13,34 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.npc.action;
 
 import zombie.characters.IsoGameCharacter;
 import zombie.inventory.types.HandWeapon;
 import zombie.sledgehammer.PacketHelper;
 import zombie.sledgehammer.npc.NPC;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ActionAttackCharacter extends Action {
 
 	public static final String NAME = "Action->AttackCharacter";
 
 	@Override
 	public boolean act(NPC npc) {
-
 		IsoGameCharacter target = npc.getAttackTarget();
-
 		HandWeapon weapon = npc.getPrimaryWeapon();
-
 		npc.faceDirection(target);
-
 		if (weapon != null && npc.CanAttack()) {
 			PacketHelper.hitCharacter(npc, target, weapon);
 		}
-
 		// Make sure target is valid.
 		if (target != null) {
-
 		}
-
 		return false;
 	}
 

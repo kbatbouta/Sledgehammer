@@ -1,5 +1,3 @@
-package sledgehammer.module.npc;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,13 +13,13 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.npc;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.ClientEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
@@ -39,21 +37,19 @@ import zombie.iso.IsoGridSquare;
 import zombie.network.ServerMap;
 import zombie.sledgehammer.npc.NPC;
 
+/**
+ * TODO: Implement.
+ * 
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class ModuleNPC extends Module {
 
-	public static final String ID = "sledgehammer_npc";
-	public static final String NAME = "NPC-Spawner";
-	public static final String MODULE = "NPC";
-	public static final String VERSION = "1.00";
 	public static final boolean DEBUG = true;
 
 	private Map<NPC, IsoGameCharacter> mapSpawners;
-
 	private CommandListener commandListener = null;
-
-	public ModuleNPC() {
-
-	}
 
 	public void onLoad() {
 		mapSpawners = new HashMap<>();
@@ -159,12 +155,6 @@ public class ModuleNPC extends Module {
 		register(commandListener);
 	}
 
-	public void onStart() {
-	}
-
-	public void onStop() {
-	}
-
 	public void onUnload() {
 		unregister(commandListener);
 	}
@@ -174,30 +164,6 @@ public class ModuleNPC extends Module {
 		System.out.println("SurvivorDesc ID: " + desc.getID());
 		NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
 		return SledgeHammer.instance.getNPCManager().addNPC(npc);
-	}
-
-	public void onUpdate(long delta) {
-	}
-
-	public String getID() {
-		return ID;
-	}
-
-	public String getName() {
-		return NAME;
-	}
-
-	public String getModuleName() {
-		return MODULE;
-	}
-
-	public String getVersion() {
-		return VERSION;
-	}
-
-	public void onClientCommand(ClientEvent e) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

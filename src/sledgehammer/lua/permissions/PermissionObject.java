@@ -1,3 +1,19 @@
+/*
+This file is part of Sledgehammer.
+
+   Sledgehammer is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+
+   Sledgehammer is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public License
+   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ */
 package sledgehammer.lua.permissions;
 
 import java.util.ArrayList;
@@ -268,13 +284,6 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		return this.mapPermissionNodes.get(node);
 	}
 
-	public Map<String, Node> getPermissionMap() {
-		return this.mapPermissionNodes;
-	}
-
-	public Collection<Node> getPermissionNodes() {
-		return getPermissionMap().values();
-	}
 
 	/**
 	 * @param nodes
@@ -410,13 +419,6 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		}
 	}
 
-	/**
-	 * @return Returns the <MongoUniqueNodeDocument> storing the data for the
-	 *         <PermissionObject>.
-	 */
-	public M getMongoDocument() {
-		return this.mongoDocument;
-	}
 
 	/**
 	 * (Internal Method)
@@ -451,5 +453,21 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 			throw new IllegalStateException("MongoDocument is not set, and cannot be saved.");
 		}
 		mongoDocument.save();
+	}
+
+	public Map<String, Node> getPermissionMap() {
+		return this.mapPermissionNodes;
+	}
+	
+	public Collection<Node> getPermissionNodes() {
+		return getPermissionMap().values();
+	}
+
+	/**
+	 * @return Returns the <MongoUniqueNodeDocument> storing the data for the
+	 *         <PermissionObject>.
+	 */
+	public M getMongoDocument() {
+		return this.mongoDocument;
 	}
 }

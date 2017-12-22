@@ -1,15 +1,3 @@
-package sledgehammer.manager.core;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import sledgehammer.SledgeHammer;
-import sledgehammer.lua.core.Player;
-import sledgehammer.manager.Manager;
-
 /*
    This file is part of Sledgehammer.
 
@@ -25,10 +13,23 @@ import sledgehammer.manager.Manager;
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.manager.core;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import sledgehammer.SledgeHammer;
+import sledgehammer.lua.core.Player;
+import sledgehammer.manager.Manager;
 
 /**
- * TODO: Re-implement. TODO: Document
+ * TODO: Re-implement.
+ * 
+ * TODO: Document
  * 
  * @author Jab
  */
@@ -39,19 +40,19 @@ public class PlayerManager extends Manager {
 	public Map<UUID, Player> mapPlayersByID = new HashMap<>();
 	public Map<String, Player> mapPlayersByUsername = new HashMap<>();
 	public List<Player> listPlayers = new ArrayList<>();
-	
+
 	/**
 	 * Main constructor.
 	 */
 	public PlayerManager() {
-		
+
 	}
 
 	@Override
 	public String getName() {
 		return NAME;
 	}
-	
+
 	public List<Player> getPlayers() {
 		return listPlayers;
 	}

@@ -1,5 +1,3 @@
-package sledgehammer.lua.chat;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.chat;
 
 import java.util.List;
 
@@ -29,7 +28,6 @@ import sledgehammer.lua.core.Player;
  * TODO: Document.
  * 
  * @author Jab
- *
  */
 public class ChatChannelPrivate extends ChatChannel implements EventListener {
 

@@ -1,5 +1,3 @@
-package sledgehammer.module.core;
-
 /*
  This file is part of Sledgehammer.
 
@@ -16,6 +14,7 @@ package sledgehammer.module.core;
     You should have received a copy of the GNU Lesser General Public License
     along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
+package sledgehammer.module.core;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -45,18 +44,20 @@ import zombie.sledgehammer.PacketHelper;
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class CoreCommandListener extends Printable implements CommandListener {
 
 	private static final boolean DEBUG = true;
-
-	private ModuleCore module;
+	public static final Command commandProperties = new Command("properties");
 
 	private Map<String, String> mapContexts;
 	private Map<String, String> mapTooltips;
-
+	private ModuleCore module;
 	private SendBroadcast sendBroadcast;
-
-	public static final Command commandProperties = new Command("properties");
 
 	public CoreCommandListener(ModuleCore module) {
 		this.module = module;
@@ -80,9 +81,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				+ NEW_LINE + " -U: Username flag (Required!) ex: /unban -U \"username\""
 				+ NEW_LINE + " -S: SteamID flag (ID required!) ex: /unban -S \"11330\""
 				+ NEW_LINE + " -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
-		// mapTooltips.put("muteglobal" , "Toggles global chat.");
-		// mapTooltips.put("purge", "Purges zombies that are dead and not removed from
-		// the list.");
 		mapContexts = new HashMap<>();
 		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
 		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"         );
@@ -117,6 +115,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		return null;
 	}
 
+	@Override
 	public String[] getCommands() {
 		// @formatter:off
 		return new String[] { 
@@ -134,6 +133,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		// @formatter:on
 	}
 
+	@Override
 	public String getPermissionNode(String command) {
 		if (command == null)
 			return null;
@@ -141,6 +141,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		return mapContexts.get(command);
 	}
 
+	@Override
 	public void onCommand(Command com, Response r) {
 		Player player = com.getPlayer();
 		String username = player.getUsername();
@@ -371,24 +372,11 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		}
-		/*
-		 * else if(command.equalsIgnoreCase("muteglobal")) {
-		 * if(module.hasPermission(username, getPermissionContext("muteglobal"))) {
-		 * 
-		 * String muted = player.getProperty("muteglobal");
-		 * 
-		 * if(muted.equals("1")) { muted = "0"; response = "Global mute disabled."; }
-		 * else { muted = "1"; response =
-		 * "Global mute enabled. To disable it, type \"/muteglobal\""; }
-		 * 
-		 * player.setProperty("muteglobal", muted);
-		 * 
-		 * String toggle = "on"; if(muted.equals("0")) toggle = "off";
-		 * 
-		 * r.set(Result.SUCCESS, response); r.log(LogEvent.LogType.INFO, username +
-		 * " turned " + toggle + " global chat."); return; } else { r.deny(); return; }
-		 * }
-		 */
+	}
+
+	@Override
+	public String getName() {
+		return "Core";
 	}
 
 	private void ban(Command com, Response r, String[] args) {
@@ -589,7 +577,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			} else {
-				if (reason == null) {					
+				if (reason == null) {
 					reason = "Banned.";
 				}
 				try {
@@ -611,23 +599,16 @@ public class CoreCommandListener extends Printable implements CommandListener {
 
 	}
 
-	private void kickUser(UdpConnection connection, String reason) {
-		PacketHelper.kickUser(connection, reason);
-	}
 
 	private void unban(Command com, Response r, String[] args) throws SQLException {
-
 		boolean bUsername = false;
 		boolean bIP = false;
 		boolean bSteamID = false;
-
 		String response = null;
 		String commander = com.getPlayer().getUsername();
-
 		String username = null;
 		String IP = null;
 		String SteamID = null;
-
 		for (int x = 0; x < args.length; x++) {
 			String arg = args[x];
 			String argN = (x + 1) < args.length ? args[x + 1] : null;
@@ -649,38 +630,32 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		}
-
 		if (!bIP && !bSteamID && !bUsername) {
 			response = onTooltip(com.getPlayer(), com);
 			r.set(Result.FAILURE, response);
 			return;
 		}
-
 		if (bSteamID) {
 			ServerWorldDatabase.instance.banSteamID(SteamID, username == null || username.isEmpty() ? null : username,
 					false);
 			response = "SteamID unbanned.";
 		}
-
 		if (bIP) {
 			ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? null : username,
 					(String) null, false);
 			response = "IP unbanned.";
 		}
-
 		if (bUsername) {
 			ServerWorldDatabase.instance.banUser(username, false);
 			response = "Player unbanned.";
 		}
-
 		r.set(Result.SUCCESS, response);
 		r.setLoggedImportant(true);
 		r.log(LogEvent.LogType.STAFF, commander + " unbanned " + username + ".");
 		return;
 	}
 
-	@Override
-	public String getName() {
-		return "Core";
+	private void kickUser(UdpConnection connection, String reason) {
+		PacketHelper.kickUser(connection, reason);
 	}
 }

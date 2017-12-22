@@ -1,5 +1,3 @@
-package sledgehammer.module.faction;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.module.faction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +32,11 @@ import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionInvite;
 import sledgehammer.lua.faction.FactionMember;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class FactionsEventHandler implements EventListener {
 
 	/** The Module using the listener. */

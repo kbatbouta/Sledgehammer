@@ -1,5 +1,3 @@
-package sledgehammer.lua.core;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.lua.core;
 
 import java.util.Map;
 import java.util.UUID;
@@ -39,6 +38,11 @@ import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;
 import zombie.sledgehammer.SledgeHelper;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public class Player extends LuaTable {
 
 	public static final Player admin = new Player(SledgeHammer.instance.getSettings().getAdministratorPassword(),
@@ -430,5 +434,4 @@ public class Player extends LuaTable {
 		}
 		return false;
 	}
-
 }

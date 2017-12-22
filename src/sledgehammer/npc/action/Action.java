@@ -1,5 +1,3 @@
-package sledgehammer.npc.action;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,11 +13,17 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.npc.action;
 
 import sledgehammer.util.Printable;
 import zombie.sledgehammer.npc.NPC;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public abstract class Action extends Printable {
 	public abstract boolean act(NPC npc);
 

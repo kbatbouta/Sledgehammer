@@ -1,5 +1,3 @@
-package sledgehammer.npc.behavior;
-
 /*
 This file is part of Sledgehammer.
 
@@ -15,7 +13,8 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.npc.behavior;
 
 import java.util.List;
 
@@ -31,6 +30,11 @@ import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.sledgehammer.npc.NPC;
 import zombie.iso.IsoMovingObject;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public abstract class Behavior extends Printable {
 
 	NPC npc = null;
@@ -198,7 +202,7 @@ public abstract class Behavior extends Printable {
 	}
 
 	public void updateBehavior() {
-		if (isActive()) {			
+		if (isActive()) {
 			update();
 		}
 	}
