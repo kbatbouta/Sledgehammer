@@ -220,9 +220,8 @@ public class SledgeHammer extends Printable {
 	 */
 	private void loadSettings(File directory) {
 		println("Loading settings..");
-		
 		try {			
-			Settings.getInstance().readSettings(directory);
+			Settings.getInstance();
 		} catch(Exception e) {
 			stackTrace("An Error occured while loading Sledgehammer's settings.", e);
 		}
@@ -696,7 +695,7 @@ public class SledgeHammer extends Printable {
 	public SledgehammerDatabase getDatabase() {
 		if(this.database == null) {
 			database = new SledgehammerDatabase();
-			database.connect(getSettings().getDatabaseURL());
+			database.connect(SledgehammerDatabase.getConnectionURL());
 		}
 		return this.database;
 	}

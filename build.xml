@@ -18,6 +18,7 @@
 			</fileset>
 			<zipgroupfileset includes="*.jar" dir="lib"/>
 			<fileset file="plugin.yml"></fileset>
+			<fileset file="config.yml"></fileset>
 			<manifest>
 				<attribute name="Premain-Class" value="sledgehammer.Agent"/>
 				<attribute name="Main-Class" value="sledgehammer.SledgeHammer"/> 

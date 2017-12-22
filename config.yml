@@ -1,0 +1,58 @@
+#   _____ _       _         _
+#  |   __| |___ _| |___ ___| |_ ___ _____ _____ ___ ___ 
+#  |__   | | -_| . | . | -_|   | .'|     |     | -_|  _|
+#  |_____|_|___|___|_  |___|_|_|__,|_|_|_|_|_|_|___|_| 
+#                  |___|
+#
+# General settings for Sledgehammer.
+general:
+  # This flag is for any verbose Sledgehammer operations. This is use for 
+  #   development purposes.
+  debug: false
+  # Directory for the "ProjectZomboid Dedicated Server" installation. You can
+  #   install the server and not have to use the steam version. This is to 
+  #   build CraftBoid and keep things clean.
+  pz_server_directory: null
+  # The message to display when a player is denied an action that is checked
+  #   with a permission node.
+  permission_message_denied: "You do not have permission."
+  # The amount of days to expire accounts that have not logged in.
+  #   (0 = disable this feature)
+  account_idle_expire_time: 0
+  # The players to be excluded from the expire check. (This is a Scalar List)
+  account_idle_exclusions:
+  - "admin"
+  - "Jab"
+  # Whether or not to enable helicopter events.
+  allow_helicopters: true
+
+# Security settings. If you don't know what to put for these settings, don't
+#   change them.
+security:
+  # The password for the administrator 'admin' account. Change this to protect
+  #   the administrator account. (Note: This will be randomly generated when
+  #   the config.yml is first saved)
+  administrator_password: null
+  # The maximum radius in IsoGridSquares for explosions. Any explosion larger
+  #   than the explosion radius set here will be cancelled, and a CheaterEvent
+  #   is triggered.
+  maximum_explosion_radius: 12
+  # RCON (Remote Console) is provided by default in the vanilla server for 
+  #   ProjectZomboid, and with poor setting can allow back-door access to 
+  #   the console. Take consideration when enabling this feature.
+  allow_rcon: false
+
+# MongoDB database settings for Sledgehammer.
+mongo_db:
+  # The URL to connect to. (Use 'localhost' if you are hosting the database 
+  #   on the same computer)
+  url: null
+  # The PORT to connect to. (Use '27017' if you are running the default 
+  #   mongod installation)
+  port: null
+  # The username of the account for MongoDB.
+  username: null
+  # The password for the account for MongoDB.
+  password: null
+  # The database to store Sledgehammer's core data in.
+  database: null

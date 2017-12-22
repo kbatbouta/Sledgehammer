@@ -442,7 +442,7 @@ public class Plugin extends Printable {
 		return new URL("jar:file:" + jar.getAbsolutePath() + "!/" + source).openStream();
 	}
 
-	private static void write(File jar, String source, File destination) {
+	public static void write(File jar, String source, File destination) {
 		try {
 			InputStream is = getStream(jar, source);
 			OutputStream os = new FileOutputStream(destination);

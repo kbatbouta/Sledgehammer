@@ -70,7 +70,7 @@ public class ModulePermissions extends MongoModule {
 		loadPermissionUsers();
 		// Connect the data from groups to users.
 		assignObjects();
-		
+
 		permissionsListener = new PermissionsListener(this);
 		setPermissionListener(permissionsListener);
 	}
@@ -102,7 +102,7 @@ public class ModulePermissions extends MongoModule {
 	public void onClientCommand(ClientEvent e) {
 
 	}
-	
+
 	/**
 	 * (Internal Method)
 	 * 
@@ -299,7 +299,8 @@ public class ModulePermissions extends MongoModule {
 	 * deleted. If the group does not have a parent, then the children groups will
 	 * be unassigned and have no parent.
 	 * 
-	 * @param permissionGroup The <PermissionGroup> being deleted.
+	 * @param permissionGroup
+	 *            The <PermissionGroup> being deleted.
 	 */
 	public void deletePermissionGroup(PermissionGroup permissionGroup) {
 		// Validate the PermissionGroup argument.

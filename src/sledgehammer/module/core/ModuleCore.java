@@ -95,11 +95,11 @@ public class ModuleCore extends Module {
 			// Set the time to reset the delta.
 			timeThenPeriodicMessages = timeNow;
 		}
-		short days = SledgeHammer.instance.getSettings().getAccountIdleExpireTime();
+		int days = SledgeHammer.instance.getSettings().getAccountIdleExpireTime();
 		if (days > 0) {
 			if (timeNow - timeThenCheckAccountExpire > delayCheckAccountExpire) {
 				println("Checking for expired accounts (Inactive for over " + days + " days)");
-				String[] exclusions = SledgeHammer.instance.getSettings().getAccountIdleExclusions();
+				List<String> exclusions = SledgeHammer.instance.getSettings().getExcludedIdleAccounts();
 				Map<String, Long> mapPlayers = SledgeHammer.instance.getDatabase().getAllMongoPlayers();
 				for (String username : mapPlayers.keySet()) {
 					boolean skip = false;

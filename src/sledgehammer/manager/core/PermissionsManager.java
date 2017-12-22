@@ -114,10 +114,6 @@ public class PermissionsManager extends Manager {
 		return SledgeHammer.instance.getSettings().getPermissionDeniedMessage();
 	}
 
-	public void setPermissionDeniedMessage(String string) {
-		SledgeHammer.instance.getSettings().setPermissionDeniedMessage(string);
-	}
-
 	public void addDefaultPlayerPermission(String node) {
 		addDefaultPlayerPermission(node, true);
 	}

@@ -29,7 +29,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
-import sledgehammer.SledgeHammer;
+import sledgehammer.Settings;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.MongoDatabase;
 import sledgehammer.lua.core.Player;
@@ -67,7 +67,9 @@ public class SledgehammerDatabase extends MongoDatabase {
 	@Override
 	@SuppressWarnings("deprecation")
 	public void onConnection(MongoClient client) {
-		dbSledgehammer = client.getDB(SledgeHammer.instance.getSettings().getDatabase());
+		String url = getConnectionURL();
+		println("URL: " + url);
+		dbSledgehammer = client.getDB(Settings.getInstance().getDatabaseDatabase());
 		setDatabase(dbSledgehammer);
 		collectionPlayers = createMongoCollection("sledgehammer_players");
 		collectionBans = createMongoCollection("sledgehammer_bans");
@@ -307,6 +309,17 @@ public class SledgehammerDatabase extends MongoDatabase {
 			}
 		}
 		cursor.close();
+		return returned;
+	}
+
+	public static String getConnectionURL() {
+		Settings settings = Settings.getInstance();
+		String username = settings.getDatabaseUsername();
+		String password = settings.getDatabasePassword();
+		String url = settings.getDatabaseURL();
+		int port = settings.getDatabasePort();
+		String returned = "mongodb://" + username + ":" + password + "@" + url + ":" + port;
+		System.out.println("MongoDB URL: " + returned);
 		return returned;
 	}
 }
