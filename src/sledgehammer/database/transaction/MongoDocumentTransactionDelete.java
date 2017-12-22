@@ -3,7 +3,6 @@ package sledgehammer.database.transaction;
 import com.mongodb.BasicDBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.MongoDatabase;
 
 public class MongoDocumentTransactionDelete extends MongoDocumentTransaction {
 

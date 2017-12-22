@@ -22,7 +22,6 @@ import zombie.core.Core;
 import zombie.core.znet.SteamUtils;
 import zombie.network.ServerWorldDatabase;
 import sledgehammer.SledgeHammer;
-import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.util.Printable;
 
 /**
@@ -37,7 +36,7 @@ public class TestFactionRelationships extends Printable {
 	public String faction1Name = "Developer";
 	public String faction2Name = "Gonder";
 
-	private ModuleFactions module;
+//	private ModuleFactions module;
 
 	public TestFactionRelationships() {
 

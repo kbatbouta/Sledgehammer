@@ -1,8 +1,3 @@
-package sledgehammer.database.document;
-
-import java.util.HashMap;
-import java.util.Map;
-
 /*
 This file is part of Sledgehammer.
 
@@ -18,13 +13,16 @@ This file is part of Sledgehammer.
 
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
+package sledgehammer.database.document;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.MongoDatabase;
 
 /**
  * A class designed to handle common operations of Mongo DBObjects that act as

@@ -32,6 +32,7 @@ import se.krka.kahlua.vm.LuaClosure;
 import se.krka.kahlua.vm.Platform;
 import zombie.core.Collections.NonBlockingHashMap;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class J2SEPlatform implements Platform {
 	private static J2SEPlatform INSTANCE = new J2SEPlatform();
 

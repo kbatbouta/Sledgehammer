@@ -4,7 +4,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.MongoDatabase;
 
 public class MongoDocumentTransactionUpsert extends MongoDocumentTransaction {
 

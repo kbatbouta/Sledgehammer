@@ -32,6 +32,7 @@ import zombie.core.textures.Texture;
 import zombie.debug.DebugLog;
 import zombie.ui.UIManager;
 
+@SuppressWarnings({"unused"})
 public class KahluaUtil {
 	private static final Object WORKER_THREAD_KEY = new Object();
 	private static final String TYPE_NIL = "nil";
