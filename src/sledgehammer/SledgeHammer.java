@@ -20,10 +20,7 @@ This file is part of Sledgehammer.
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
@@ -90,49 +87,37 @@ public class SledgeHammer extends Printable {
 	private static Plugin plugin;
 
 	private SledgehammerDatabase database;
-
 	/**
 	 * Manager instance to handle NPC operations.
 	 */
 	private NPCManager managerNPC;
-
 	/**
 	 * Manager instance to handle Plugin operations.
 	 */
 	private PluginManager managerPlugin;
-
 	/**
 	 * Manager instance to handle Permissions operations.
 	 */
 	private PermissionsManager managerPermissions;
-
 	/**
 	 * Manager to handle Events.
 	 */
 	private EventManager managerEvent;
-
 	/**
 	 * Chat instance for working with chat packets and chat filtering.
 	 */
 	private ChatManager chat;
-
 	private PlayerManager managerPlayer;
-
 	/**
 	 * UdpEngine pointer for the Project Zomboid GameServer UdpEngine instance, to
 	 * communicate with connections.
 	 */
 	private UdpEngine udpEngine;
-
 	/**
 	 * The name of the server running SledgeHammer.
 	 */
 	private String publicServerName;
-
 	private ContextListener translator;
-
-	private boolean firstLoad = true;
-
 	private boolean started = false;
 
 	/**
@@ -141,56 +126,40 @@ public class SledgeHammer extends Printable {
 	 * @param debug
 	 */
 	public SledgeHammer(boolean debug) {
-
 		// Sets verbose debug mode.
 		DEBUG = debug;
-
 		// Sets TESTMODULE to true, in order to properly load SledgeHammer without
 		// ProjectZomboid.
 		TESTMODULE = true;
-
-		loadSettings(new File("prod/"));
-
-		// this.database = new SledgehammerDatabase();
-		// database.connect(getSettings().getDatabaseURL());
+		Settings.getInstance();
 	}
 
 	public SledgeHammer() {
 		translator = new CoreContextListener();
-
 		new File("plugins" + File.separator).mkdirs();
-		loadSettings(null);
+		Settings.getInstance();
+	}
+
+	@Override
+	public String getName() {
+		return "SledgeHammer";
 	}
 
 	/**
 	 * Initializes the SledgeHammer engine.
 	 */
 	public void init() {
-
 		try {
-			if (!firstLoad) {
-				loadSettings(null);
-			}
-			firstLoad = false;
-
 			translator = new CoreContextListener();
-
 			publicServerName = ServerOptions.instance.getOption("PublicName");
-
 			// Initialize the Chat Engine.
 			chat = new ChatManager(this);
-
 			managerEvent = new EventManager();
-
 			managerPermissions = new PermissionsManager();
-
 			managerPlugin = new PluginManager();
-
 			managerPlayer = new PlayerManager();
-
 			// Initialize the NPC Engine.
 			managerNPC = new NPCManager();
-
 			// Then, load the core modules, and start the Modules.
 			if (!TESTMODULE) {
 				managerPlugin.onLoad(false);
@@ -198,7 +167,6 @@ public class SledgeHammer extends Printable {
 		} catch (Exception e) {
 			stackTrace("An Error occured while initializing Sledgehammer.", e);
 		}
-
 	}
 
 	public void start() {
@@ -214,19 +182,6 @@ public class SledgeHammer extends Printable {
 
 	public PluginManager getPluginManager() {
 		return this.managerPlugin;
-	}
-
-	/**
-	 * Loads the SledgeHammer.ini settings in the cache folder.
-	 */
-	private void loadSettings(File directory) {
-		println("Loading settings..");
-		try {
-			Settings.getInstance();
-		} catch (Exception e) {
-			stackTrace("An Error occured while loading Sledgehammer's settings.", e);
-		}
-
 	}
 
 	/**
@@ -555,40 +510,6 @@ public class SledgeHammer extends Printable {
 		this.translator = stringModifier;
 	}
 
-	public static List<Player> listPlayers = new ArrayList<>();
-	public static Map<UUID, Player> mapPlayersByID = new HashMap<>();
-	public static Map<String, Player> mapPlayersByUsername = new HashMap<>();
-
-	public List<Player> getPlayers() {
-		return listPlayers;
-	}
-
-	public Player getPlayer(String username) {
-		return mapPlayersByUsername.get(username.toLowerCase());
-	}
-
-	public Player getPlayer(UUID uniqueId) {
-		return mapPlayersByID.get(uniqueId);
-	}
-
-	public void addPlayer(Player player) {
-		if (!listPlayers.contains(player)) {
-			listPlayers.add(player);
-		}
-		if (!mapPlayersByID.containsKey(player.getUniqueId())) {
-			mapPlayersByID.put(player.getUniqueId(), player);
-		}
-
-		if (!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
-			mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
-		}
-
-		if (DEBUG) {
-			println("Adding player: " + player + ", " + player.getUsername() + ", " + player.getUniqueId().toString()
-					+ ", " + player.getConnection());
-		}
-	}
-
 	/**
 	 * Sends a Lua ServerCommand to a given Player.
 	 * 
@@ -670,12 +591,10 @@ public class SledgeHammer extends Printable {
 	public Player getPlayerDirty(String username) {
 		// Search by username.
 		Player player = getPlayerByUsername(username);
-
 		// Search by nickname.
 		if (player == null) {
 			player = getPlayerByNickname(username);
 		}
-
 		// Search dirty for username.
 		if (player == null) {
 			for (Player nextPlayer : getPlayers()) {
@@ -685,7 +604,6 @@ public class SledgeHammer extends Printable {
 				}
 			}
 		}
-
 		// Search dirty for nickname.
 		if (player == null) {
 			for (Player nextPlayer : getPlayers()) {
@@ -695,7 +613,6 @@ public class SledgeHammer extends Printable {
 				}
 			}
 		}
-
 		return player;
 	}
 
@@ -759,9 +676,20 @@ public class SledgeHammer extends Printable {
 		return new File(getJarFileLocation());
 	}
 
-	@Override
-	public String getName() {
-		return "SledgeHammer";
+	public void addPlayer(Player player) {
+		getPlayerManager().addPlayer(player);
+	}
+
+	public List<Player> getPlayers() {
+		return getPlayerManager().getPlayers();
+	}
+
+	public Player getPlayer(String username) {
+		return getPlayerManager().getPlayer(username);
+	}
+
+	public Player getPlayer(UUID uniqueId) {
+		return getPlayerManager().getPlayer(uniqueId);
 	}
 
 	public static Plugin getCorePlugin() {

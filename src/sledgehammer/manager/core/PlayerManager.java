@@ -1,5 +1,13 @@
 package sledgehammer.manager.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import sledgehammer.SledgeHammer;
+import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
 
 /*
@@ -28,14 +36,47 @@ public class PlayerManager extends Manager {
 
 	public static final String NAME = "PlayerManager";
 
+	public Map<UUID, Player> mapPlayersByID = new HashMap<>();
+	public Map<String, Player> mapPlayersByUsername = new HashMap<>();
+	public List<Player> listPlayers = new ArrayList<>();
+	
 	/**
 	 * Main constructor.
 	 */
 	public PlayerManager() {
+		
 	}
 
 	@Override
 	public String getName() {
 		return NAME;
+	}
+	
+	public List<Player> getPlayers() {
+		return listPlayers;
+	}
+
+	public Player getPlayer(String username) {
+		return mapPlayersByUsername.get(username.toLowerCase());
+	}
+
+	public Player getPlayer(UUID uniqueId) {
+		return mapPlayersByID.get(uniqueId);
+	}
+
+	public void addPlayer(Player player) {
+		if (!listPlayers.contains(player)) {
+			listPlayers.add(player);
+		}
+		if (!mapPlayersByID.containsKey(player.getUniqueId())) {
+			mapPlayersByID.put(player.getUniqueId(), player);
+		}
+		if (!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
+			mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
+		}
+		if (SledgeHammer.DEBUG) {
+			println("Adding player: " + player + ", " + player.getUsername() + ", " + player.getUniqueId().toString()
+					+ ", " + player.getConnection());
+		}
 	}
 }
