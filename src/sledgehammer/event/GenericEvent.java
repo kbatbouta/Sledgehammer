@@ -34,29 +34,31 @@ public class GenericEvent extends Event {
 	 * The ID of the Event.
 	 */
 	public static final String ID = "GENERIC_EVENT";
-	
+
 	/**
 	 * The module that created this Event.
 	 */
 	private Module moduleSent;
-	
+
 	/**
 	 * The context of the Event. Usually carrying data or a simple string.
 	 */
 	private String context = null;
-	
+
 	/**
-	 * The type. Used to clarify in a module-like way what the event is, or what group of events this is.
+	 * The type. Used to clarify in a module-like way what the event is, or what
+	 * group of events this is.
 	 */
 	private String type = null;
 
 	/**
-	 * The logger message. If not null, will be logged, depending on the logger implementation.
+	 * The logger message. If not null, will be logged, depending on the logger
+	 * implementation.
 	 */
 	private String logMessage = null;
-	
+
 	private Map<String, String> mapVariables;
-	
+
 	/**
 	 * Main constructor.
 	 * 
@@ -67,33 +69,35 @@ public class GenericEvent extends Event {
 	 * @param context
 	 */
 	public GenericEvent(Module module, String type, String context) {
-		
+
 		// Set the variables to those given.
-		this.moduleSent = module ;
-		this.type       = type   ;
-		this.context    = context;
-		
+		this.moduleSent = module;
+		this.type = type;
+		this.context = context;
+
 		mapVariables = new HashMap<>();
 	}
-	
+
 	/**
-	 * Returns the type of this <GenericEvent>. This is used to clarify in a module-like way what the event is, or what group of events this is.
+	 * Returns the type of this <GenericEvent>. This is used to clarify in a
+	 * module-like way what the event is, or what group of events this is.
 	 *
 	 * @return
 	 */
 	public String getType() {
 		return type;
 	}
-	
+
 	/**
-	 * Returns the context of this <GenericEvent>. This usually carries data, or a simple string.
+	 * Returns the context of this <GenericEvent>. This usually carries data, or a
+	 * simple string.
 	 * 
 	 * @return
 	 */
 	public String getContext() {
 		return context;
 	}
-	
+
 	/**
 	 * Returns the <Module> that authored this <GenericEvent>.
 	 *
@@ -102,7 +106,7 @@ public class GenericEvent extends Event {
 	public Module getModule() {
 		return moduleSent;
 	}
-	
+
 	/**
 	 * Sets a generic variable with a value.
 	 * 
@@ -113,7 +117,7 @@ public class GenericEvent extends Event {
 	public void setVariable(String key, String value) {
 		mapVariables.put(key, value);
 	}
-	
+
 	/**
 	 * Returns a generic variable, with a given key.
 	 * 
@@ -124,7 +128,7 @@ public class GenericEvent extends Event {
 	public String getVariable(String key) {
 		return mapVariables.get(key);
 	}
-	
+
 	/**
 	 * Returns a <Map> of generic variables.
 	 * 
@@ -133,12 +137,12 @@ public class GenericEvent extends Event {
 	public Map<String, String> getVariables() {
 		return mapVariables;
 	}
-	
+
 	@Override
 	public String getLogMessage() {
 		return logMessage;
 	}
-	
+
 	/**
 	 * Executes a command on the module that send this <GenericEvent>.
 	 * 
@@ -148,13 +152,14 @@ public class GenericEvent extends Event {
 	 */
 	public void executeCommand(String type, String context) {
 		Module module = getModule();
-		if(module != null) {
+		if (module != null) {
 			module.executeCommand(type, context);
 		}
 	}
 
 	/**
-	 * Sets the logged message for this <GenericEvent>. If null, the event will not be logged.
+	 * Sets the logged message for this <GenericEvent>. If null, the event will not
+	 * be logged.
 	 * 
 	 * @param message
 	 */
@@ -166,6 +171,5 @@ public class GenericEvent extends Event {
 	public String getID() {
 		return ID;
 	}
-	
-	
+
 }

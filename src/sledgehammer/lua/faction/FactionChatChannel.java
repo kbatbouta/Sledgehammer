@@ -32,6 +32,7 @@ public class FactionChatChannel extends ChatChannel {
 
 	/**
 	 * Lua Load constructor.
+	 * 
 	 * @param table
 	 */
 	public FactionChatChannel(KahluaTable table) {
@@ -40,6 +41,7 @@ public class FactionChatChannel extends ChatChannel {
 
 	/**
 	 * MongoDB Load constructor.
+	 * 
 	 * @param name
 	 */
 	public FactionChatChannel(String name) {

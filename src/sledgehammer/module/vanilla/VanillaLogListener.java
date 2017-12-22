@@ -39,5 +39,7 @@ public class VanillaLogListener extends Printable implements LogListener {
 	}
 
 	@Override
-	public String getName() { return NAME; }
+	public String getName() {
+		return NAME;
+	}
 }

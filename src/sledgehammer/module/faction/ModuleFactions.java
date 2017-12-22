@@ -51,7 +51,7 @@ import sledgehammer.util.Result;
  * @author Jab
  */
 public class ModuleFactions extends MongoModule {
-	
+
 	private FactionsCommandListener factionsConnectionListener;
 	private FactionsEventHandler factionsEventHandler;
 	private Map<UUID, MongoFaction> mapMongoFactions;
@@ -72,7 +72,7 @@ public class ModuleFactions extends MongoModule {
 	private long timeUpdate = 300000L;
 	/** 3 Days */
 	private long timeToLiveInvites = 360000L * 24L * 3L;
-	
+
 	private int tagCharactersMinimum = 2;
 	private int tagCharactersMaximum = 16;
 	private int nameCharactersMinimum = 3;
@@ -112,11 +112,11 @@ public class ModuleFactions extends MongoModule {
 
 	@Override
 	public void onUpdate(long delta) {
-		if(!isLoaded()) {
+		if (!isLoaded()) {
 			return;
 		}
 		// If it is time for another update check.
-		if(System.currentTimeMillis() - timeUpdatedLast > timeUpdate) {
+		if (System.currentTimeMillis() - timeUpdatedLast > timeUpdate) {
 			// Process the invites.
 			removeExpiredInvites();
 			// Set the last time we updated to now.
@@ -139,7 +139,7 @@ public class ModuleFactions extends MongoModule {
 	public void onClientCommand(ClientEvent e) {
 
 	}
-	
+
 	/**
 	 * (Internal Method)
 	 * 
@@ -175,7 +175,7 @@ public class ModuleFactions extends MongoModule {
 			// Grab the ChatChannel for the Faction.
 			ChatChannel chatChannel = getChatChannel(faction);
 			// If the ChatChannel does not exist, create it.
-			if(chatChannel == null) {
+			if (chatChannel == null) {
 				chatChannel = createChatChannel(faction);
 			}
 			// Set the ChatChannel in the Faction container.
@@ -248,7 +248,7 @@ public class ModuleFactions extends MongoModule {
 		int size = mapMongoFactionMembers.size();
 		println("Loaded " + (size == 0 ? "no" : size + "") + " Faction Member" + (size == 1 ? "" : "s") + ".");
 	}
-	
+
 	/**
 	 * (Internal Method)
 	 * 
@@ -273,7 +273,7 @@ public class ModuleFactions extends MongoModule {
 		int size = mapMongoFactionInvites.size();
 		println("Loaded " + (size == 0 ? "no" : size + "") + " Faction Invite" + (size == 1 ? "" : "s") + ".");
 	}
-	
+
 	/**
 	 * (Internal Method)
 	 * 
@@ -289,7 +289,7 @@ public class ModuleFactions extends MongoModule {
 		mapFactionMembersByUniqueId.clear();
 		mapFactionInvites.clear();
 	}
-	
+
 	/**
 	 * Checks & removes expired <FactionInvites>.
 	 */
@@ -298,9 +298,9 @@ public class ModuleFactions extends MongoModule {
 		int count = 0;
 		println("Removing expired invite(s)...");
 		// Go through each invite.
-		for(FactionInvite factionInvite : mapFactionInvites.values()) {
+		for (FactionInvite factionInvite : mapFactionInvites.values()) {
 			// Check if the invite is expired.
-			if(factionInvite.isExpired(timeToLiveInvites)) {
+			if (factionInvite.isExpired(timeToLiveInvites)) {
 				// Delete the invite.
 				deleteInvite(factionInvite);
 				count++;
@@ -310,7 +310,7 @@ public class ModuleFactions extends MongoModule {
 		String plural = count != 1 ? "s" : "";
 		println("Removed " + count + " expired invite" + plural + ".");
 	}
-	
+
 	/**
 	 * Creates a <Faction> with given parameters, along with a new <FactionMember>,
 	 * if one for the owner does not exist.
@@ -397,7 +397,7 @@ public class ModuleFactions extends MongoModule {
 		removeChatChannel(faction);
 		return true;
 	}
-	
+
 	/**
 	 * @param tag
 	 *            The <String> <Faction> tag being validated.
@@ -405,7 +405,8 @@ public class ModuleFactions extends MongoModule {
 	 *         success, response.getResult() should return Result.SUCCESS.
 	 */
 	public Response validateFactionTag(String tag) {
-		// Create the valid Response. All subsequent checks will return a Result.FAILURE if the tag fails a validation check.
+		// Create the valid Response. All subsequent checks will return a Result.FAILURE
+		// if the tag fails a validation check.
 		Response response = new Response("Success!", "", Result.SUCCESS);
 		// Check and see if the tag is null or is a blank entry.
 		if (tag == null || tag.isEmpty()) {
@@ -421,12 +422,13 @@ public class ModuleFactions extends MongoModule {
 		// If the Tag is too small or too large, prompt the user with the current limits
 		// set.
 		if (lengthTag < charsMin || lengthTag > charsMax) {
-			return new Response("Faction tags need to be between " + charsMin + " and " + charsMax + " characters long.",
-					"", Result.FAILURE);
+			return new Response(
+					"Faction tags need to be between " + charsMin + " and " + charsMax + " characters long.", "",
+					Result.FAILURE);
 		}
-		// All tags are forced upper-case. 
+		// All tags are forced upper-case.
 		tag = tag.toUpperCase();
-		
+
 		// Check to see if the tag is already being used by another Faction.
 		if (tagExists(tag)) {
 			return new Response("Faction tag is already taken: " + tag, "", Result.FAILURE);
@@ -450,14 +452,16 @@ public class ModuleFactions extends MongoModule {
 		// Place the faction back into the tag map with the nww tag.
 		mapFactionsByTag.put(faction.getFactionTag(), faction);
 	}
-	
+
 	/**
-	 * @param name The <String> <Faction> name being validated.
+	 * @param name
+	 *            The <String> <Faction> name being validated.
 	 * @return Returns a <Response> that is never null. If the validation is a
 	 *         success, response.getResult() should return Result.SUCCESS.
 	 */
 	public Response validateFactionName(String name) {
-		// Create the valid Response. All subsequent checks will return a Result.FAILURE if the tag fails a validation check.
+		// Create the valid Response. All subsequent checks will return a Result.FAILURE
+		// if the tag fails a validation check.
 		Response response = new Response("Success!", "", Result.SUCCESS);
 		// Check and see if the tag is null or is a blank entry.
 		if (name == null || name.isEmpty()) {
@@ -473,8 +477,9 @@ public class ModuleFactions extends MongoModule {
 		// If the Tag is too small or too large, prompt the user with the current limits
 		// set.
 		if (lengthTag < charsMin || lengthTag > charsMax) {
-			return new Response("Faction names need to be between " + charsMin + " and " + charsMax + " characters long.",
-					"", Result.FAILURE);
+			return new Response(
+					"Faction names need to be between " + charsMin + " and " + charsMax + " characters long.", "",
+					Result.FAILURE);
 		}
 		// Check to see if the tag is already being used by another Faction.
 		if (factionNameExists(name)) {
@@ -525,7 +530,7 @@ public class ModuleFactions extends MongoModule {
 		}
 		return response;
 	}
-	
+
 	/**
 	 * @param playerId
 	 *            The <UUID> ID of the <Player> being checked.
@@ -535,21 +540,22 @@ public class ModuleFactions extends MongoModule {
 		boolean returned = false;
 		// Grab the member using the ID.
 		FactionMember member = getFactionMember(playerId);
-		// If the member container is null, the Player is currently not in a Faction, and thus not an owner.
-		if(member != null) {			
+		// If the member container is null, the Player is currently not in a Faction,
+		// and thus not an owner.
+		if (member != null) {
 			// Grab the Faction.
 			Faction faction = member.getFaction();
 			// Data consistency check.
 			if (faction == null) {
 				throw new IllegalStateException("FactionMember exists for player ID: \"" + playerId.toString()
-				+ "\", yet the Faction representing the member is null.");
+						+ "\", yet the Faction representing the member is null.");
 			}
 			// Check if the OwnerID is the member's ID.
 			returned = faction.getOwnerId().equals(member.getPlayerId());
 		}
 		return returned;
 	}
-	
+
 	/**
 	 * Properly removes a <FactionMember> from a <Faction>, and removes references.
 	 * 
@@ -570,7 +576,7 @@ public class ModuleFactions extends MongoModule {
 		// Remove the Member from the map.
 		mapFactionMembersByUniqueId.remove(factionMember.getPlayerId());
 	}
-	
+
 	/**
 	 * Creates a <FactionMember> container for the given <Player>, and adds this to
 	 * the <Faction> provided.
@@ -584,7 +590,7 @@ public class ModuleFactions extends MongoModule {
 	public FactionMember createFactionMember(Player player, Faction faction) {
 		return createFactionMember(player.getUniqueId(), faction);
 	}
-	
+
 	/**
 	 * Creates a <FactionMember> container for the given <Player>, and adds this to
 	 * the <Faction> provided.
@@ -608,7 +614,7 @@ public class ModuleFactions extends MongoModule {
 		mapFactionMembersByUniqueId.put(factionMember.getPlayerId(), factionMember);
 		return factionMember;
 	}
-	
+
 	/**
 	 * @param tag
 	 *            The <String> tag of the <Faction>.
@@ -628,16 +634,17 @@ public class ModuleFactions extends MongoModule {
 	 *         if the <Player> is not a member of a <Faction>.
 	 */
 	public FactionMember getFactionMember(UUID playerId) {
-		if(playerId == null) {
+		if (playerId == null) {
 			throw new IllegalArgumentException("Unique ID given is null!");
 		}
 		return mapFactionMembersByUniqueId.get(playerId);
 	}
 
 	/**
-	 * @param player The <Player> being looked up.
-	 * @return Returns a <FactionMember> with a given <Player>. Returns null
-	 *         if the <Player> is not a member of a <Faction>
+	 * @param player
+	 *            The <Player> being looked up.
+	 * @return Returns a <FactionMember> with a given <Player>. Returns null if the
+	 *         <Player> is not a member of a <Faction>
 	 */
 	public FactionMember getFactionMember(Player player) {
 		return getFactionMember(player.getUniqueId());
@@ -683,6 +690,7 @@ public class ModuleFactions extends MongoModule {
 
 	/**
 	 * TODO: Document.
+	 * 
 	 * @param factionName
 	 * @return
 	 */
@@ -700,7 +708,7 @@ public class ModuleFactions extends MongoModule {
 	public boolean tagExists(String tag) {
 		return getFactionByTag(tag) != null;
 	}
-	
+
 	/**
 	 * @param name
 	 *            The <String> name to be tested.
@@ -709,15 +717,16 @@ public class ModuleFactions extends MongoModule {
 	private boolean factionNameExists(String name) {
 		return getFactionByName(name) != null;
 	}
-	
+
 	/**
-	 * @param name The <String> name of the <Faction>.
+	 * @param name
+	 *            The <String> name of the <Faction>.
 	 * @return Returns a <Faction>, if one uses this name.
 	 */
 	public Faction getFactionByName(String name) {
 		return this.mapFactionsByName.get(name.toLowerCase());
 	}
-	
+
 	@Override
 	public String getName() {
 		return "ModuleFactions";
@@ -726,7 +735,7 @@ public class ModuleFactions extends MongoModule {
 	public FactionActions getActions() {
 		return this.actions;
 	}
-	
+
 	public List<FactionInvite> getInvitesForPlayer(Player player) {
 		return getInvitesForPlayer(player.getUniqueId());
 	}
@@ -779,20 +788,22 @@ public class ModuleFactions extends MongoModule {
 	}
 
 	/**
-	 * @param factionInvite The <FactionInvite> being accepted.
-	 * @return Returns a <Response>. If the accept is successful, the <Result> included will be SUCCESS.
+	 * @param factionInvite
+	 *            The <FactionInvite> being accepted.
+	 * @return Returns a <Response>. If the accept is successful, the <Result>
+	 *         included will be SUCCESS.
 	 */
 	public Response acceptInvite(FactionInvite factionInvite) {
-		
+
 		UUID playerId = factionInvite.getInvitedId();
 		// Check to make sure the Player still exists.
 		boolean exists = SledgeHammer.instance.playerExists(playerId);
-		if(!exists) {
+		if (!exists) {
 			deleteInvite(factionInvite);
 		}
 		// Grab the Faction representing the invite.
 		Faction faction = this.getFaction(factionInvite.getFactionId());
-		if(faction == null) {
+		if (faction == null) {
 			// The Faction probably does not exist anymore. Remove the invite.
 			deleteInvite(factionInvite);
 			// Return this response.
@@ -800,7 +811,7 @@ public class ModuleFactions extends MongoModule {
 		}
 		// Attempt to grab a player container.
 		FactionMember factionMember = getFactionMember(playerId);
-		if(factionMember != null) {
+		if (factionMember != null) {
 			factionMember.setFaction(faction, true);
 		} else {
 			createFactionMember(playerId, faction);
@@ -830,6 +841,7 @@ public class ModuleFactions extends MongoModule {
 
 	/**
 	 * Sets a <Faction>'s name.
+	 * 
 	 * @param faction
 	 * @param nameNew
 	 */
@@ -837,7 +849,7 @@ public class ModuleFactions extends MongoModule {
 		this.mapFactionsByName.remove(faction.getFactionName().toLowerCase());
 		faction.setFactionName(nameNew, true);
 	}
-	
+
 	/**
 	 * @param faction
 	 *            The <Faction> that is using the <ChatChannel>
@@ -846,7 +858,7 @@ public class ModuleFactions extends MongoModule {
 	public ChatChannel getChatChannel(Faction faction) {
 		return getChatChannel("Faction_" + faction.getFactionName());
 	}
-	
+
 	/**
 	 * Creates a new <ChatChannel> for a given <Faction>.
 	 * 

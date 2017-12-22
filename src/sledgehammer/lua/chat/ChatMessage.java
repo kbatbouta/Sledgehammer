@@ -53,7 +53,6 @@ public class ChatMessage extends LuaTable {
 	private boolean edited = false;
 	private boolean deleted = false;
 
-
 	/**
 	 * Constructor for creating a new ChatMessage Object.
 	 */

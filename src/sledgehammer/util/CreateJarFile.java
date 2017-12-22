@@ -38,25 +38,24 @@ public class CreateJarFile {
 			FileOutputStream stream = new FileOutputStream(archiveFile);
 			JarOutputStream out = new JarOutputStream(stream, new Manifest());
 
-			for(File directory : directories) {				
+			for (File directory : directories) {
 				File[] files = getFiles(directory, ".class");
-				
+
 				String split = directory.getName();
-				
-				for(File file : files) {
+
+				for (File file : files) {
 					String path = getJarPath(file, split);
 					System.out.println("CraftBoid: Copied " + file.getName());
-					
-					
-//				 Add archive entry
+
+					// Add archive entry
 					JarEntry jarAdd = new JarEntry(split + "/" + path);
 					jarAdd.setTime(file.lastModified());
-					try {					
+					try {
 						out.putNextEntry(jarAdd);
-					} catch(ZipException e) {
+					} catch (ZipException e) {
 						continue;
 					}
-					
+
 					// Write file to archive
 					FileInputStream in = new FileInputStream(file);
 					while (true) {
@@ -68,18 +67,18 @@ public class CreateJarFile {
 					in.close();
 				}
 			}
-			
-			for(File file : additionalFiles) {
+
+			for (File file : additionalFiles) {
 				String path = file.getName();
-				
+
 				JarEntry jarAdd = new JarEntry(path);
 				jarAdd.setTime(file.lastModified());
-				try {					
+				try {
 					out.putNextEntry(jarAdd);
-				} catch(ZipException e) {
+				} catch (ZipException e) {
 					continue;
 				}
-				
+
 				// Write file to archive
 				FileInputStream in = new FileInputStream(file);
 				while (true) {
@@ -98,28 +97,28 @@ public class CreateJarFile {
 			System.out.println("Error: " + ex.getMessage());
 		}
 	}
-	
+
 	private static String getJarPath(File file, String directory) {
-		
+
 		String ext = file.getAbsolutePath();
 		String[] split = ext.replace("\\", "/").split("/");
-    	
-    	int positionBegin = 0;
-    	
-    	for(int index = 0; index < split.length; index++) {
-    		if(split[index].equalsIgnoreCase(directory)) {
-    			positionBegin = index + 1;
-    			break;
-    		}
-    	}
-    	String classPath = "";
-   
-    	for(int index = positionBegin; index < split.length; index++) {
-    		classPath += split[index] + "/";
-    	}
-    	
-    	classPath = classPath.substring(0, classPath.length() - 1);
-    	return classPath;
+
+		int positionBegin = 0;
+
+		for (int index = 0; index < split.length; index++) {
+			if (split[index].equalsIgnoreCase(directory)) {
+				positionBegin = index + 1;
+				break;
+			}
+		}
+		String classPath = "";
+
+		for (int index = positionBegin; index < split.length; index++) {
+			classPath += split[index] + "/";
+		}
+
+		classPath = classPath.substring(0, classPath.length() - 1);
+		return classPath;
 	}
 
 	private static File[] getFiles(File directory, String extension) {

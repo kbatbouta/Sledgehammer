@@ -17,5 +17,5 @@ This file is part of Sledgehammer.
 package sledgehammer.event;
 
 public abstract class CoOpEvent extends Event {
-	
+
 }

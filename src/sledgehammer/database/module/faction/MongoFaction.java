@@ -40,7 +40,7 @@ public class MongoFaction extends MongoDocument {
 	private String colorCache = ChatTags.getColor(color);
 	private String password;
 	private UUID ownerId;
-	
+
 	/**
 	 * Loading constructor.
 	 * 
@@ -70,7 +70,8 @@ public class MongoFaction extends MongoDocument {
 	 * @param password
 	 *            The un-encrypted password of the faction.
 	 */
-	public MongoFaction(MongoCollection collection, String name, String tag, String color, UUID ownerId, String password) {
+	public MongoFaction(MongoCollection collection, String name, String tag, String color, UUID ownerId,
+			String password) {
 		super(collection, "id");
 		setUniqueId(UUID.randomUUID(), false);
 		setFactionName(name, false);
@@ -86,14 +87,14 @@ public class MongoFaction extends MongoDocument {
 		setFactionName(object.get("name").toString(), false);
 		setFactionTag(object.get("tag").toString(), false);
 		setOwnerId(object.get("ownerId").toString(), false);
-		
+
 		Object oColor = object.get("color");
-		if(oColor != null) {
+		if (oColor != null) {
 			setFactionColorString(oColor.toString(), true);
 		}
-		
+
 		Object oPassword = object.get("password");
-		if(oPassword != null) {			
+		if (oPassword != null) {
 			setEncryptedPassword(oPassword.toString(), false);
 		}
 	}
@@ -109,7 +110,7 @@ public class MongoFaction extends MongoDocument {
 		object.put("password", getEncryptedPassword());
 		// @formatter:on
 	}
-	
+
 	@Override
 	public Object getFieldValue() {
 		return getUniqueId().toString();
@@ -118,66 +119,72 @@ public class MongoFaction extends MongoDocument {
 	public void setPassword(String password, boolean save) {
 		setEncryptedPassword(StringUtils.md5(password), save);
 	}
-	
+
 	public String getEncryptedPassword() {
 		return this.password;
 	}
 
 	private void setEncryptedPassword(String password, boolean save) {
 		this.password = password;
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	public String getFactionColor() {
 		return this.colorCache;
 	}
-	
+
 	public void setFactionColorString(String color, boolean save) {
 		this.color = color;
 		this.colorCache = ChatTags.getColor(color);
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	public String getFactionTag() {
 		return this.tag;
 	}
-	
+
 	public void setFactionTag(String tag, boolean save) {
 		this.tag = tag.toUpperCase();
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	public String getFactionName() {
 		return this.name;
 	}
-	
+
 	public void setFactionName(String name, boolean save) {
 		this.name = name;
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	public UUID getOwnerId() {
 		return this.ownerId;
 	}
-	
+
 	public void setOwnerId(UUID uniqueId, boolean save) {
 		this.ownerId = uniqueId;
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	private void setOwnerId(String uniqueId, boolean save) {
 		setOwnerId(UUID.fromString(uniqueId), save);
 	}
-	
+
 	public UUID getUniqueId() {
 		return this.uniqueId;
 	}
-	
+
 	public void setUniqueId(UUID uniqueId, boolean save) {
 		this.uniqueId = uniqueId;
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	public void setUniqueId(String uniqueId, boolean save) {
 		setUniqueId(UUID.fromString(uniqueId), save);
 	}

@@ -25,6 +25,7 @@ import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.MongoDatabase;
+
 /**
  * A class designed to handle common operations of Mongo DBObjects that act as
  * documents in a <DBCollection>.
@@ -91,22 +92,22 @@ public abstract class MongoDocument {
 	public boolean removeEntry(String entryName) {
 		boolean result = this.mapDocumentEntries.remove(entryName) != null;
 		// If the entry is contained, then process a save.
-		if(result) {
+		if (result) {
 			// Create a new DBObject with the document's identifier.
 			DBObject object = new BasicDBObject(getFieldId(), getFieldValue());
 			// Populate the main document.
 			onSave(object);
 			// Go through each entry.
-			for(String key : mapDocumentEntries.keySet()) {
+			for (String key : mapDocumentEntries.keySet()) {
 				// Grab the next entry with the provided key.
 				MongoDocumentEntry entry = mapDocumentEntries.get(key);
 				// If the entry is the one we are removing.
-				if(entry.getEntryName().equals(entryName)) {
+				if (entry.getEntryName().equals(entryName)) {
 					// Set the field explicitly to null.
 					object.put(entryName, null);
-				} 
+				}
 				// Else, Save it as normal.
-				else {				
+				else {
 					// Create a new DBObject to populate with the entry data.
 					DBObject objectEntry = new BasicDBObject();
 					// Populate the DBObject.
@@ -115,12 +116,14 @@ public abstract class MongoDocument {
 					object.put(key, objectEntry);
 				}
 			}
-			//Upsert the document.
+			// Upsert the document.
 			getCollection().upsert(object, getFieldId(), this);
 		}
-		// If the entry is not in the document at the time of attempting to remove it, then this is an illegal situation. Throw the error.
+		// If the entry is not in the document at the time of attempting to remove it,
+		// then this is an illegal situation. Throw the error.
 		else {
-			throw new IllegalArgumentException("Entry does not exist for instance of \"" + getClass().getName() + "\": \"" + entryName + "\".");
+			throw new IllegalArgumentException(
+					"Entry does not exist for instance of \"" + getClass().getName() + "\": \"" + entryName + "\".");
 		}
 		// Return the result.
 		return result;
@@ -181,13 +184,13 @@ public abstract class MongoDocument {
 		onSave(object);
 		// Save the entries.
 		saveEntries(object);
-		//Upsert the document.
+		// Upsert the document.
 		getCollection().upsert(object, getFieldId(), this);
 	}
-	
+
 	public void saveEntries(DBObject object) {
 		// Go through each entry.
-		for(String key : mapDocumentEntries.keySet()) {
+		for (String key : mapDocumentEntries.keySet()) {
 			// Grab the next entry with the provided key.
 			MongoDocumentEntry entry = mapDocumentEntries.get(key);
 			// Create a new DBObject to populate with the entry data.
@@ -203,7 +206,7 @@ public abstract class MongoDocument {
 	 * Deletes the document from the assigned <DBCollection>.
 	 */
 	public void delete() {
-		if(MongoDatabase.DEBUG) {			
+		if (MongoDatabase.DEBUG) {
 			System.out.println("DELETING MongoDocument: \"" + this.getClass().getName() + "\".");
 		}
 		getCollection().delete(getFieldId(), getFieldValue());

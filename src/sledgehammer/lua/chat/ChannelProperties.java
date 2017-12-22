@@ -25,9 +25,9 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.lua.LuaTable;
 
 public class ChannelProperties extends LuaTable {
-	
+
 	public static final String DEFAULT_CONTEXT = "sledgehammer.chat.channel";
-	
+
 	private String _name = "Untitled_Channel";
 	private String _context = "";
 	private String _description = "";
@@ -36,7 +36,7 @@ public class ChannelProperties extends LuaTable {
 	private boolean _history = true;
 	private boolean _custom = true;
 	private boolean _global = false;
-	
+
 	public ChannelProperties() {
 		super("ChannelProperties");
 	}
@@ -45,19 +45,19 @@ public class ChannelProperties extends LuaTable {
 	public void onLoad(KahluaTable table) {
 		// TODO: Future Implement.
 	}
-	
+
 	public String getChannelName() {
 		return this._name;
 	}
-	
+
 	public void setChannelName(String name) {
 		this._name = name;
 	}
-	
+
 	public boolean streamToGlobal() {
 		return this._global;
 	}
-	
+
 	public void streamGlobal(boolean flag) {
 		this._global = flag;
 	}
@@ -69,43 +69,43 @@ public class ChannelProperties extends LuaTable {
 	public void setPublic(boolean flag) {
 		this._public = flag;
 	}
-	
+
 	public boolean canSpeak() {
 		return this._speak;
 	}
-	
+
 	public void setSpeak(boolean flag) {
 		this._speak = flag;
 	}
-	
+
 	public String getContext() {
 		return this._context;
 	}
-	
+
 	public void setContext(String context) {
 		this._context = context;
 	}
-	
+
 	public String getDescription() {
 		return this._description;
 	}
-	
+
 	public void setDescription(String description) {
 		this._description = description;
 	}
-	
+
 	public boolean showHistory() {
 		return this._history;
 	}
-	
+
 	public void setHistory(boolean flag) {
 		this._history = flag;
 	}
-	
+
 	public boolean isCustom() {
 		return this._custom;
 	}
-	
+
 	public void setCustom(boolean flag) {
 		this._custom = flag;
 	}
@@ -129,7 +129,7 @@ public class ChannelProperties extends LuaTable {
 		setPublic(object.get("public").toString().equals("1"));
 		setSpeak(object.get("speak").toString().equals("1"));
 	}
-	
+
 	private void onSave(DBObject object) {
 		object.put("name", getChannelName());
 		object.put("description", getDescription());

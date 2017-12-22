@@ -15,7 +15,7 @@ public abstract class MongoNodeDocument extends MongoDocument {
 
 	/** The Map storing <MongoNode>s by their node value as the key. */
 	private Map<String, MongoNode> mapNodes;
-	
+
 	/**
 	 * Main constructor.
 	 * 
@@ -28,7 +28,7 @@ public abstract class MongoNodeDocument extends MongoDocument {
 		super(collection, fieldId);
 		mapNodes = new HashMap<>();
 	}
-	
+
 	/**
 	 * Handles loading nodes.
 	 * 
@@ -85,7 +85,8 @@ public abstract class MongoNodeDocument extends MongoDocument {
 		if (!hasNode(mongoNode)) {
 			mapNodes.put(mongoNode.getNode(), mongoNode);
 			returned = true;
-			if (save) save();
+			if (save)
+				save();
 		}
 		return returned;
 	}
@@ -106,7 +107,8 @@ public abstract class MongoNodeDocument extends MongoDocument {
 		if (hasNode(mongoNode)) {
 			mapNodes.remove(mongoNode.getNode());
 			returned = true;
-			if (save) save();
+			if (save)
+				save();
 		}
 		return returned;
 	}

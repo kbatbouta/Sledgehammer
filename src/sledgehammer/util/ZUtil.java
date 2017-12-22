@@ -38,92 +38,93 @@ import com.google.gson.Gson;
 import sledgehammer.SledgeHammer;
 
 public class ZUtil {
-	
+
 	/**
-	 * The location for plug-ins, as a String. 
+	 * The location for plug-ins, as a String.
 	 */
 	public static String pluginLocation = "plugins" + File.separator;
-	
+
 	/**
 	 * The location for plug-ins, as a File.
 	 */
 	public static File pluginFolder = new File(ZUtil.pluginLocation);
 
 	private static Gson gson = new Gson();
-	
+
 	public static Random random = new RandomXS128();
-	
+
 	public static boolean isClass(String className) {
-	    try  {
-	        Class.forName(className);
-	        return true;
-	    }  catch (final ClassNotFoundException e) {
-	        return false;
-	    }
+		try {
+			Class.forName(className);
+			return true;
+		} catch (final ClassNotFoundException e) {
+			return false;
+		}
 	}
-	
+
 	public static Gson getGson() {
 		return gson;
 	}
-	
+
 	/**
 	 * Returns a String representation of the current time.
+	 * 
 	 * @return
 	 */
 	public static String getHourMinuteSeconds() {
-		String hours =  Calendar.getInstance().get(11) + "";
-		if ( Calendar.getInstance().get(11) < 10) {
+		String hours = Calendar.getInstance().get(11) + "";
+		if (Calendar.getInstance().get(11) < 10) {
 			hours = "0" + hours;
 		}
-		
+
 		String minutes = Calendar.getInstance().get(12) + "";
 		if (Calendar.getInstance().get(12) < 10) {
 			minutes = "0" + minutes;
 		}
-		
+
 		String seconds = Calendar.getInstance().get(13) + "";
 		if (Calendar.getInstance().get(13) < 10) {
 			seconds = "0" + seconds;
 		}
 		return Calendar.getInstance().get(11) + ":" + minutes + ":" + seconds;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static void compactList(List list) {
 		List<Integer> listIndexesToRemove = new ArrayList<>();
 		Map<Object, Boolean> cacheMap = new HashMap<>();
-		
-		for(int index = 0; index < list.size(); index++) {
+
+		for (int index = 0; index < list.size(); index++) {
 			Object o = list.get(index);
-			
+
 			Boolean cached = cacheMap.get(o);
-			if(cached == null) {
+			if (cached == null) {
 				cacheMap.put(o, Boolean.valueOf(true));
 			} else {
 				listIndexesToRemove.add(index);
 			}
 		}
-		
-		synchronized(list) {
-			try{
-				for(int index : listIndexesToRemove) list.remove(index);
-			} catch(IndexOutOfBoundsException e) {
+
+		synchronized (list) {
+			try {
+				for (int index : listIndexesToRemove)
+					list.remove(index);
+			} catch (IndexOutOfBoundsException e) {
 				// Catches any asynchronous concurrent modifications.
 			}
 		}
 	}
-	
+
 	/**
-	 * DirectByteBuffers are garbage collected by using a phantom reference and
-	 * a reference queue. Every once a while, the JVM checks the reference queue
-	 * and cleans the DirectByteBuffers. However, as this doesn't happen
-	 * immediately after discarding all references to a DirectByteBuffer, it's
-	 * easy to OutOfMemoryError yourself using DirectByteBuffers. This function
-	 * explicitly calls the Cleaner method of a DirectByteBuffer.
+	 * DirectByteBuffers are garbage collected by using a phantom reference and a
+	 * reference queue. Every once a while, the JVM checks the reference queue and
+	 * cleans the DirectByteBuffers. However, as this doesn't happen immediately
+	 * after discarding all references to a DirectByteBuffer, it's easy to
+	 * OutOfMemoryError yourself using DirectByteBuffers. This function explicitly
+	 * calls the Cleaner method of a DirectByteBuffer.
 	 * 
 	 * @param toBeDestroyed
-	 *            The DirectByteBuffer that will be "cleaned". Utilizes
-	 *            reflection.
+	 *            The DirectByteBuffer that will be "cleaned". Utilizes reflection.
 	 * 
 	 */
 	public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) throws IllegalArgumentException,
@@ -141,7 +142,7 @@ public class ZUtil {
 		cleanMethod.invoke(cleaner);
 
 	}
-	
+
 	public static void addDir(String s) throws IOException {
 		try {
 			// This enables the java.library.path to be modified at runtime
@@ -167,11 +168,11 @@ public class ZUtil {
 			throw new IOException("Failed to get field handle to set library path");
 		}
 	}
-	
+
 	public static long getCurrentTimeStamp() {
 		return (new Date()).getTime() / 1000L;
 	}
-	
+
 	public static String encrypt(String previousPwd) {
 		if (previousPwd == null || previousPwd.isEmpty()) {
 			return "";
@@ -179,8 +180,7 @@ public class ZUtil {
 			byte[] crypted = null;
 
 			try {
-				crypted = MessageDigest.getInstance("MD5")
-						.digest(previousPwd.getBytes());
+				crypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
 			} catch (NoSuchAlgorithmException e) {
 				SledgeHammer.instance.println("Can\'t encrypt password");
 				e.printStackTrace();
@@ -198,53 +198,53 @@ public class ZUtil {
 			return hashString.toString();
 		}
 	}
-	
+
 	public static long currentTimeStamp() {
 		return (System.currentTimeMillis() / 1000);
 	}
-	
+
 	public static File[] getFiles(File directory, String extension) {
-		
+
 		List<File> listFiles = new ArrayList<File>();
-		
-		if(directory.exists()) {
+
+		if (directory.exists()) {
 			File[] files = directory.listFiles();
-			
-			for(File file : files) {
-				
-				if(file.isDirectory()) {
-					
+
+			for (File file : files) {
+
+				if (file.isDirectory()) {
+
 					// Recursive cannot iterate over parent directories.
-					if(file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
+					if (file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
 						continue;
 					}
-					
+
 					// Not a part of PZ.
-					if(file.getName().equalsIgnoreCase("rcon")) {
+					if (file.getName().equalsIgnoreCase("rcon")) {
 						continue;
 					}
-					
+
 					File[] newFiles = getFiles(file, extension);
-					if(newFiles.length > 0) {
-						for(File newFile : newFiles) {
+					if (newFiles.length > 0) {
+						for (File newFile : newFiles) {
 							listFiles.add(newFile);
 						}
 					}
 				} else {
-					if(file.getName().endsWith(extension)) {
+					if (file.getName().endsWith(extension)) {
 						listFiles.add(file);
 					}
 				}
 			}
 		}
-		
+
 		File[] array = new File[listFiles.size()];
-		
-		for(int index = 0; index < listFiles.size(); index++) {
+
+		for (int index = 0; index < listFiles.size(); index++) {
 			array[index] = listFiles.get(index);
 		}
-		
+
 		return array;
 	}
-	
+
 }

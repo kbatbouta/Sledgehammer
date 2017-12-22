@@ -5,11 +5,11 @@ import sledgehammer.lua.Send;
 public class SendPlayer extends Send {
 
 	private Player player;
-	
+
 	public SendPlayer() {
 		super("core", "sendPlayer");
 	}
-	
+
 	public Player getPlayer() {
 		return this.player;
 	}

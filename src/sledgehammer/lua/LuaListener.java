@@ -35,8 +35,7 @@ import zombie.iso.IsoMovingObject;
 public class LuaListener extends Printable implements EventListener {
 
 	/*
-	 * PERSONAL NOTE: 
-	 * OnTick, OnTickEvenPaused, OnObjectCollide, and
+	 * PERSONAL NOTE: OnTick, OnTickEvenPaused, OnObjectCollide, and
 	 * OnCharacterCollide are the most common lua events.
 	 */
 
@@ -171,13 +170,13 @@ public class LuaListener extends Printable implements EventListener {
 
 	private boolean _OnZombieUpdate(Object[] arguments) {
 
-//		IsoZombie zombie = null;
-//
-//		if (arguments.length != 1) {
-//			return false;
-//		}
-//
-//		zombie = (IsoZombie) arguments[0];
+		// IsoZombie zombie = null;
+		//
+		// if (arguments.length != 1) {
+		// return false;
+		// }
+		//
+		// zombie = (IsoZombie) arguments[0];
 
 		return true;
 	}

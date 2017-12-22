@@ -8,14 +8,14 @@ import sledgehammer.lua.Send;
  * @author Jab
  */
 public class SendRemoveChatChannel extends Send {
-	
+
 	private ChatChannel channel;
-	
+
 	public SendRemoveChatChannel(ChatChannel channel) {
 		super("core.chat", "removeChatChannel");
 		this.channel = channel;
 	}
-	
+
 	@Override
 	public void onExport() {
 		set("channel", getChatChannel());

@@ -42,7 +42,8 @@ public class FactionActions {
 	/**
 	 * Main constructor.
 	 * 
-	 * @param module The <ModuleFactions> instance using this.
+	 * @param module
+	 *            The <ModuleFactions> instance using this.
 	 */
 	public FactionActions(ModuleFactions module) {
 		setModule(module);
@@ -71,7 +72,7 @@ public class FactionActions {
 			return new Response("Faction already exists: " + factionName, "", Result.FAILURE);
 		}
 		response = module.validateFactionTag(tag);
-		if(response.getResult() == Result.FAILURE) {
+		if (response.getResult() == Result.FAILURE) {
 			return response;
 		}
 		tag = tag.toUpperCase();
@@ -81,7 +82,7 @@ public class FactionActions {
 		}
 		password = password.trim();
 		response = module.validatePlayerFactionCreate(player);
-		if(response.getResult() == Result.FAILURE) {
+		if (response.getResult() == Result.FAILURE) {
 			return response;
 		}
 		try {
@@ -93,7 +94,7 @@ public class FactionActions {
 		}
 		return new Response("Failed to create faction. (Internal Error)", "", Result.FAILURE);
 	}
-	
+
 	/**
 	 * Attempts to disband the given <Faction>.
 	 * 
@@ -103,7 +104,7 @@ public class FactionActions {
 	 */
 	public Response disbandFaction(Player player) {
 		FactionMember factionMember = module.getFactionMember(player);
-		if(factionMember == null) {
+		if (factionMember == null) {
 			return new Response("You are not in a faction.", "", Result.FAILURE);
 		}
 		Faction faction = factionMember.getFaction();
@@ -123,6 +124,7 @@ public class FactionActions {
 
 	/**
 	 * TODO: Document.
+	 * 
 	 * @param playerOwner
 	 * @param playerInvited
 	 * @return
@@ -131,13 +133,13 @@ public class FactionActions {
 		// Grab the unique ID of the Player.
 		UUID playerOwnerId = playerOwner.getUniqueId();
 		UUID playerInvitedId = playerInvited.getUniqueId();
-		if(playerOwner.equals(playerInvited)) {
+		if (playerOwner.equals(playerInvited)) {
 			return new Response("You cannot invite yourself.", "", Result.FAILURE);
 		}
 		// Grab the FactionMember.
 		FactionMember member = module.getFactionMember(playerOwnerId);
 		// If the member object is null, the Owner provided is not in a Faction.
-		if(member == null) {
+		if (member == null) {
 			return new Response("Sorry! You are not currently in a faction.", "", Result.FAILURE);
 		}
 		// Grab the Faction of the Member.
@@ -148,23 +150,29 @@ public class FactionActions {
 					+ "\", yet the Faction representing the member is null.");
 		}
 		// Check to see if the FactionMember is the owner of the Faction.
-		if(!factionOwner.isOwner(playerOwner)) {
-			return new Response("Sorry! You do not own the faction \"" + factionOwner.getFactionName() + "\".", "", Result.FAILURE);
+		if (!factionOwner.isOwner(playerOwner)) {
+			return new Response("Sorry! You do not own the faction \"" + factionOwner.getFactionName() + "\".", "",
+					Result.FAILURE);
 		}
-		
+
 		// Grab the FactionMember of the invited player.
 		FactionMember memberInvited = module.getFactionMember(playerInvitedId);
-		// If the invited player is a member of a Faction, check to see if he is valid to receive invites.
-		if(memberInvited != null) {
+		// If the invited player is a member of a Faction, check to see if he is valid
+		// to receive invites.
+		if (memberInvited != null) {
 			// Grab the Faction.
 			Faction factionInvited = memberInvited.getFaction();
 			// If the invited player's faction is the same as the owner.
-			if(factionInvited.equals(factionOwner)) {
-				return new Response("Player \"" + playerInvited.getUsername() + "\" is in the same faction.", "", Result.FAILURE);
+			if (factionInvited.equals(factionOwner)) {
+				return new Response("Player \"" + playerInvited.getUsername() + "\" is in the same faction.", "",
+						Result.FAILURE);
 			}
 			// If the invited player is the owner of his faction.
-			if(factionInvited.isOwner(playerInvited)) {
-				return new Response("Player \"" + playerInvited.getUsername() + "\" is the owner of another Faction, and cannot be invited to your faction.", "", Result.FAILURE);
+			if (factionInvited.isOwner(playerInvited)) {
+				return new Response(
+						"Player \"" + playerInvited.getUsername()
+								+ "\" is the owner of another Faction, and cannot be invited to your faction.",
+						"", Result.FAILURE);
 			}
 		}
 		// Process the invite.
@@ -174,6 +182,7 @@ public class FactionActions {
 
 	/**
 	 * TODO: Document
+	 * 
 	 * @param faction
 	 * @param player
 	 * @param password
@@ -193,20 +202,20 @@ public class FactionActions {
 						Result.FAILURE);
 			}
 			// Check to make sure the faction to join isn't the same faction.
-			if(factionCurrent.equals(faction)) {
+			if (factionCurrent.equals(faction)) {
 				return new Response("You are already in this faction.", "", Result.FAILURE);
 			}
 		}
 		// Check to make sure the password given is valid.
-		if(!faction.isPassword(password)) {
+		if (!faction.isPassword(password)) {
 			return new Response("Incorrect password.", "", Result.FAILURE);
 		}
 		// If the player is currently a member in a faction, remove.
-		if(factionCurrent != null) {
+		if (factionCurrent != null) {
 			factionCurrent.removeMember(factionMember);
 		}
 		// If the player is not in a faction, create the member and save.
-		if(factionMember == null) {
+		if (factionMember == null) {
 			factionMember = module.createFactionMember(player, faction);
 		} else {
 			factionMember.setFaction(factionCurrent, true);
@@ -217,17 +226,18 @@ public class FactionActions {
 
 	/**
 	 * TODO: Document.
+	 * 
 	 * @param player
 	 * @return
 	 */
 	public Response leaveFaction(Player player) {
-		if(player == null) {
+		if (player == null) {
 			throw new IllegalArgumentException("Player given is null!");
 		}
 		// Grab the FactionMember container for the player.
 		FactionMember factionMember = module.getFactionMember(player);
 		// Check to make sure the Player is a member of a faction.
-		if(factionMember == null) {
+		if (factionMember == null) {
 			return new Response("You are not in a faction.", "", Result.FAILURE);
 		}
 		// Grab the Faction
@@ -240,12 +250,13 @@ public class FactionActions {
 		}
 		// Process leaving the faction.
 		factionMember.leaveFaction();
-		// Return success message.		
+		// Return success message.
 		return new Response("Left the faction.", "", Result.SUCCESS);
 	}
 
 	/**
 	 * TODO: Document
+	 * 
 	 * @param player
 	 * @param faction
 	 * @return
@@ -254,8 +265,9 @@ public class FactionActions {
 		// Check to see if the invite exists.
 		FactionInvite factionInvite = module.getFactionInvite(player, faction);
 		// Check if there's no invite for the player.
-		if(factionInvite == null) {
-			return new Response("You do not have an invite from the faction \"" + faction.getFactionName() + "\".", "", Result.FAILURE);
+		if (factionInvite == null) {
+			return new Response("You do not have an invite from the faction \"" + faction.getFactionName() + "\".", "",
+					Result.FAILURE);
 		}
 		// Process and return the Response from the module.
 		return module.acceptInvite(factionInvite);
@@ -318,25 +330,27 @@ public class FactionActions {
 
 	/**
 	 * TODO: Document
+	 * 
 	 * @param playerOwner
 	 * @param playerKick
 	 * @return
 	 */
 	public Response kickFromFaction(Player playerOwner, Player playerKick) {
 		FactionMember factionMemberOwner = module.getFactionMember(playerOwner);
-		if(factionMemberOwner == null) {
+		if (factionMemberOwner == null) {
 			return new Response("You are not on a faction.", "", Result.FAILURE);
 		}
 		Faction faction = factionMemberOwner.getFaction();
-		if(!faction.isOwner(factionMemberOwner)) {
+		if (!faction.isOwner(factionMemberOwner)) {
 			return new Response("You do not own your faction.", "", Result.FAILURE);
 		}
 		FactionMember factionMemberKick = module.getFactionMember(playerKick);
-		if(factionMemberKick == null) {
-			return new Response("Player is not in a faction: \"" + playerKick.getUsername() + "\".", "", Result.FAILURE);
+		if (factionMemberKick == null) {
+			return new Response("Player is not in a faction: \"" + playerKick.getUsername() + "\".", "",
+					Result.FAILURE);
 		}
 		Faction factionKick = factionMemberKick.getFaction();
-		if(!factionKick.equals(faction)) {
+		if (!factionKick.equals(faction)) {
 			return new Response("Player is not in the same faction.", "", Result.FAILURE);
 		}
 		module.removeFactionMember(factionMemberKick);
@@ -448,7 +462,7 @@ public class FactionActions {
 		}
 		nameNew = nameNew.trim();
 		Response responseValidateName = module.validateFactionName(nameNew);
-		if(responseValidateName.getResult() == Result.FAILURE) {
+		if (responseValidateName.getResult() == Result.FAILURE) {
 			return responseValidateName;
 		}
 		// Set the new name, and save the document.
@@ -481,12 +495,16 @@ public class FactionActions {
 			return new Response("You do not own your faction.", "", Result.FAILURE);
 		}
 		// Make sure the color is a valid color.
-		if(!ChatTags.isValidColor(colorNew)) {
-			return new Response("Invalid color: \"" + colorNew + "\". Use /colors to see list of available colors. (Only light or normal colors are allowed)", "", Result.FAILURE);
+		if (!ChatTags.isValidColor(colorNew)) {
+			return new Response("Invalid color: \"" + colorNew
+					+ "\". Use /colors to see list of available colors. (Only light or normal colors are allowed)", "",
+					Result.FAILURE);
 		}
 		// Make sure the color is not a dark color.
-		if(ChatTags.isDarkColor(colorNew)) {
-			return new Response("Factions can only use light or normal colors. Dark colors (including black and brown), are not allowed.", "", Result.FAILURE);
+		if (ChatTags.isDarkColor(colorNew)) {
+			return new Response(
+					"Factions can only use light or normal colors. Dark colors (including black and brown), are not allowed.",
+					"", Result.FAILURE);
 		}
 		// Grab the coded version of this color.
 		String colorCode = ChatTags.getColor(colorNew);
@@ -524,12 +542,12 @@ public class FactionActions {
 			return new Response("You do not own your faction.", "", Result.FAILURE);
 		}
 		FactionMember factionMemberOwnerNew = module.getFactionMember(playerOwnerNew);
-		if(factionMemberOwnerNew == null || !factionMemberOwnerNew.getFaction().equals(faction)) {
+		if (factionMemberOwnerNew == null || !factionMemberOwnerNew.getFaction().equals(faction)) {
 			return new Response("Player is not in your faction.", "", Result.FAILURE);
 		}
 		// Set the new owner.
 		faction.setOwner(factionMemberOwnerNew, true);
-		// Return the success message.		
+		// Return the success message.
 		return new Response("Changed faction owner to \"" + playerOwnerNew.getUsername() + "\".", "", Result.SUCCESS);
 	}
 

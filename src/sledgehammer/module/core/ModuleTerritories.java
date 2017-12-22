@@ -22,17 +22,17 @@ import sledgehammer.module.Module;
 
 public class ModuleTerritories extends Module {
 
-	public static final String ID      = "ModuleTerritories";
-	public static final String NAME    = "Territories";
-	public static final String MODULE  = "Territories";
+	public static final String ID = "ModuleTerritories";
+	public static final String NAME = "Territories";
+	public static final String MODULE = "Territories";
 	public static final String VERSION = "1.00";
-	
+
 	private TerritoriesEventListener eventListener;
-	
+
 	@Override
 	public void onLoad() {
 		eventListener = new TerritoriesEventListener(this);
-		
+
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class ModuleTerritories extends Module {
 	@Override
 	public void onUpdate(long delta) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -56,10 +56,22 @@ public class ModuleTerritories extends Module {
 		eventListener = null;
 	}
 
-	public String getID()         { return ID;      }
-	public String getName()       { return NAME;    }
-	public String getModuleName() { return MODULE;  }
-	public String getVersion()    { return VERSION; }
+	public String getID() {
+		return ID;
+	}
 
-	public void onClientCommand(ClientEvent e) {}
+	public String getName() {
+		return NAME;
+	}
+
+	public String getModuleName() {
+		return MODULE;
+	}
+
+	public String getVersion() {
+		return VERSION;
+	}
+
+	public void onClientCommand(ClientEvent e) {
+	}
 }

@@ -30,28 +30,28 @@ import sledgehammer.module.faction.ModuleFactions;
 public class FactionMember extends LuaTable {
 
 	private MongoFactionMember mongoFactionMember;
-	
+
 	private Faction faction;
-	
+
 	public FactionMember(MongoFactionMember mongoFactionMember) {
 		super("FactionMember");
 		setMongoDocument(mongoFactionMember);
 	}
-	
+
 	@Override
 	public void onLoad(KahluaTable table) {
-		//TODO: implement.
+		// TODO: implement.
 	}
 
 	@Override
 	public void onExport() {
-		//TODO: implement.
+		// TODO: implement.
 	}
-	
+
 	public MongoFactionMember getMongoDocument() {
 		return this.mongoFactionMember;
 	}
-	
+
 	private void setMongoDocument(MongoFactionMember mongoFactionMember) {
 		this.mongoFactionMember = mongoFactionMember;
 	}
@@ -63,40 +63,41 @@ public class FactionMember extends LuaTable {
 	public UUID getFactionId() {
 		return getMongoDocument().getFactionId();
 	}
-	
+
 	public Faction getFaction() {
 		return this.faction;
 	}
 
 	/**
 	 * Sets the new Faction.
+	 * 
 	 * @param faction
 	 * @param save
 	 */
 	public void setFaction(Faction faction, boolean save) {
 		boolean success = false;
 		Faction factionOld = getFaction();
-		if(factionOld != null) {
+		if (factionOld != null) {
 			factionOld.removeMember(this);
 			success = true;
 		} else {
 			success = true;
 		}
-		if(success) {			
-			if(faction != null) {
+		if (success) {
+			if (faction != null) {
 				success = faction.addMember(this);
-				if(success) {			
+				if (success) {
 					this.faction = faction;
 					getMongoDocument().setFactionId(faction.getUniqueId(), save);
 					Player player = SledgeHammer.instance.getPlayer(getPlayerId());
-					if(player != null) {
+					if (player != null) {
 						player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
 						player.setColor(Color.getColor(faction.getFactionRawColor()));
 					}
 				}
 			} else {
 				Player player = SledgeHammer.instance.getPlayer(getPlayerId());
-				if(player != null) {
+				if (player != null) {
 					player.setNickname(null);
 					player.setColor(Color.WHITE);
 				}
@@ -108,7 +109,8 @@ public class FactionMember extends LuaTable {
 	 * Removes the <FactionMember> from the <Faction>.
 	 */
 	public void leaveFaction() {
-		ModuleFactions moduleFactions = (ModuleFactions) SledgeHammer.instance.getPluginManager().getModule(ModuleFactions.class);
+		ModuleFactions moduleFactions = (ModuleFactions) SledgeHammer.instance.getPluginManager()
+				.getModule(ModuleFactions.class);
 		moduleFactions.removeFactionMember(this);
 	}
 

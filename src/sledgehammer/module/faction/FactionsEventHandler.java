@@ -50,12 +50,7 @@ public class FactionsEventHandler implements EventListener {
 
 	@Override
 	public String[] getTypes() {
-		return new String[] {
-				ConnectEvent.ID,
-				DisconnectEvent.ID,
-				PlayerCreatedEvent.ID,
-				RequestChannelsEvent.ID
-		};
+		return new String[] { ConnectEvent.ID, DisconnectEvent.ID, PlayerCreatedEvent.ID, RequestChannelsEvent.ID };
 	}
 
 	@Override
@@ -63,46 +58,44 @@ public class FactionsEventHandler implements EventListener {
 		String ID = event.getID();
 		if (ID == ConnectEvent.ID) {
 			handleConnectEvent((ConnectEvent) event);
-		} else
-		if (ID == DisconnectEvent.ID) {
+		} else if (ID == DisconnectEvent.ID) {
 			handleDisconnectEvent((DisconnectEvent) event);
-		} else
-		if (ID == PlayerCreatedEvent.ID) {
+		} else if (ID == PlayerCreatedEvent.ID) {
 			handlePlayerCreatedEvent((PlayerCreatedEvent) event);
-		} else 
-		if (ID == RequestChannelsEvent.ID) {
+		} else if (ID == RequestChannelsEvent.ID) {
 			handleRequestChannelsEvent((RequestChannelsEvent) event);
 		}
 	}
-	
+
 	private void handleConnectEvent(ConnectEvent event) {
 		Player player = event.getPlayer();
 		List<FactionInvite> invitesToDelete = new ArrayList<>();
 		List<FactionInvite> invites = module.getInvitesForPlayer(player);
-		if(invites != null && invites.size() > 0) {
+		if (invites != null && invites.size() > 0) {
 			for (FactionInvite factionInvite : invites) {
 				Faction faction = module.getFaction(factionInvite.getFactionId());
-				if(faction == null) {
+				if (faction == null) {
 					invitesToDelete.add(factionInvite);
 					continue;
 				}
 				FactionMember member = module.getFactionMember(factionInvite.getInviteeId());
-				if(member == null) {
+				if (member == null) {
 					invitesToDelete.add(factionInvite);
 					continue;
 				}
-				player.sendMessage(factionInvite.getUniqueId() + " has invited you to join the faction " + faction.getFactionName() + ".");
+				player.sendMessage(factionInvite.getUniqueId() + " has invited you to join the faction "
+						+ faction.getFactionName() + ".");
 			}
 			player.sendMessage("Type \'/faction accept <FACTION>\' to accept.");
 			player.sendMessage("To reject an invitation, type \'/faction reject \"faction\'.");
 			player.sendMessage("To reject all invitations, type \'/faction reject all\'.");
 		}
 	}
-	
+
 	private void handleDisconnectEvent(DisconnectEvent event) {
 		Player player = event.getPlayer();
 		FactionMember factionMember = module.getFactionMember(player);
-		if(factionMember != null) {
+		if (factionMember != null) {
 			Faction faction = factionMember.getFaction();
 			faction.getChatChannel().removePlayer(player);
 		}
@@ -111,7 +104,7 @@ public class FactionsEventHandler implements EventListener {
 	public void handlePlayerCreatedEvent(PlayerCreatedEvent event) {
 		Player player = event.getPlayer();
 		FactionMember factionMember = module.getFactionMember(player);
-		if(factionMember != null) {
+		if (factionMember != null) {
 			Faction faction = factionMember.getFaction();
 			player.setColor(Color.getColor(faction.getFactionRawColor()));
 			player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
@@ -121,7 +114,7 @@ public class FactionsEventHandler implements EventListener {
 	private void handleRequestChannelsEvent(RequestChannelsEvent event) {
 		Player player = event.getPlayer();
 		FactionMember factionMember = module.getFactionMember(player);
-		if(factionMember != null) {
+		if (factionMember != null) {
 			Faction faction = factionMember.getFaction();
 			ChatChannel chatChannel = faction.getChatChannel();
 			event.addChatChannel(chatChannel);
@@ -140,7 +133,7 @@ public class FactionsEventHandler implements EventListener {
 	public ModuleFactions getModule() {
 		return this.module;
 	}
-	
+
 	/**
 	 * (Internal Method)
 	 * 

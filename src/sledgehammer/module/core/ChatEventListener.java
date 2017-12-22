@@ -26,7 +26,7 @@ public class ChatEventListener implements EventListener {
 
 	@Override
 	public String[] getTypes() {
-		return new String[] {ChatMessageEvent.ID, HandShakeEvent.ID};
+		return new String[] { ChatMessageEvent.ID, HandShakeEvent.ID };
 	}
 
 	@Override

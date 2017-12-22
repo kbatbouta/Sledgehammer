@@ -171,7 +171,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 	 * Sets the parent group for the PermissionGroup instance.
 	 * 
 	 * @param group
-	 * @param save 
+	 * @param save
 	 */
 	public void setParent(PermissionGroup group, boolean save) {
 		this.parent = group;
@@ -203,7 +203,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 	public String getGroupName() {
 		return getMongoDocument().getGroupName();
 	}
-	
+
 	public void setGroupName(String name, boolean save) {
 		getMongoDocument().setGroupName(name, save);
 	}

@@ -79,7 +79,7 @@ public abstract class MongoModule extends Module {
 	public final static DB getDatabase(String databaseName) {
 		return SledgeHammer.instance.getDatabase().getClient().getDB(databaseName);
 	}
-	
+
 	/**
 	 * @return Returns the default <DB> database.
 	 */

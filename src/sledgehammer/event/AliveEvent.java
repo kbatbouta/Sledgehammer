@@ -21,7 +21,7 @@ import sledgehammer.lua.core.Player;
 public class AliveEvent extends PlayerEvent {
 
 	public static final String ID = "AliveEvent";
-	
+
 	public AliveEvent(Player player) {
 		super(player);
 		// TODO Auto-generated constructor stub
@@ -32,5 +32,8 @@ public class AliveEvent extends PlayerEvent {
 		return null;
 	}
 
-	@Override public String getID() { return ID; }
+	@Override
+	public String getID() {
+		return ID;
+	}
 }

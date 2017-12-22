@@ -18,6 +18,6 @@ This file is part of Sledgehammer.
 */
 
 public interface ExceptionListener {
-	
+
 	void onError(String reason, Throwable throwable);
 }

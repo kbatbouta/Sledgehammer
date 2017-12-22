@@ -96,14 +96,14 @@ public class INI {
 		mapSections.put("", mapSection);
 		mapVariableComments = new HashMapINI<String, List<String>>(mapSectionName);
 		mapSectionVariableComments.put("", mapVariableComments);
-		
-		
+
 		String newLine = null;
 		while (scanner.hasNextLine()) {
 
 			newLine = scanner.nextLine().trim();
 
-			if (newLine.isEmpty()) continue;
+			if (newLine.isEmpty())
+				continue;
 
 			// If the line is a comment, continue to the next line.
 			if (newLine.startsWith(";")) {
@@ -112,16 +112,15 @@ public class INI {
 				}
 				String nextComment = null;
 				String[] split = newLine.split(";");
-				if(split.length == 2) {					
+				if (split.length == 2) {
 					nextComment = split[1].trim();
-				} else if(split.length == 1) {
+				} else if (split.length == 1) {
 					nextComment = split[0];
 				}
-					
+
 				comment.add(nextComment);
 				if (mapSectionName != null) {
-					mapSectionVariableComments.put(mapSectionName,
-							mapVariableComments);
+					mapSectionVariableComments.put(mapSectionName, mapVariableComments);
 				}
 				lastLineComment = true;
 				continue;
@@ -129,7 +128,8 @@ public class INI {
 
 			// If the line is the beginning of a new section.
 			if (newLine.startsWith("[") && newLine.endsWith("]")) {
-				if (mapVariableComments != null) mapSectionVariableComments.put(mapSectionName, mapVariableComments);
+				if (mapVariableComments != null)
+					mapSectionVariableComments.put(mapSectionName, mapVariableComments);
 				mapVariableComments = new HashMapINI<String, List<String>>(mapSectionName);
 
 				// Place the current section into the main Map.
@@ -142,11 +142,13 @@ public class INI {
 
 				if (mapSection != null) {
 					mapSectionAsString = mapSectionsAsStrings.get(mapSectionName);
-					if (mapSectionAsString == null) mapSectionAsString = new HashMapINI<String, String>(mapSectionName);
+					if (mapSectionAsString == null)
+						mapSectionAsString = new HashMapINI<String, String>(mapSectionName);
 				} else {
 					mapSectionAsString = new HashMapINI<String, String>(mapSectionName);
 					mapSection = new HashMapINI<String, Object>(mapSectionName);
-					if (lastLineComment) mapSectionComments.put(mapSectionName, comment);
+					if (lastLineComment)
+						mapSectionComments.put(mapSectionName, comment);
 					mapSections.put(mapSectionName, mapSection);
 				}
 				lastLineComment = false;
@@ -155,7 +157,7 @@ public class INI {
 
 			if (newLine.contains("=")) {
 				variableSplit = newLine.split("=");
-				
+
 				// If the syntax is correct.
 				if (variableSplit.length == 2) {
 					// If the sides of the '=' character are valid.
@@ -163,10 +165,13 @@ public class INI {
 						// Store object as String for convenience.
 						mapSectionAsString.put(variableSplit[0], variableSplit[1]);
 						// At this point, we can only handle the variable as a String.
-						if (!numericalSuccess) mapSection.put(variableSplit[0], variableSplit[1]);
+						if (!numericalSuccess)
+							mapSection.put(variableSplit[0], variableSplit[1]);
 						// Stores comment for writing and reference purposes.
-						if (lastLineComment) mapVariableComments.put(variableSplit[0], comment);
-						else mapVariableComments.remove(variableSplit[0]);
+						if (lastLineComment)
+							mapVariableComments.put(variableSplit[0], comment);
+						else
+							mapVariableComments.remove(variableSplit[0]);
 						lastLineComment = false;
 					}
 				} else if (!variableSplit[0].isEmpty()) {
@@ -196,8 +201,7 @@ public class INI {
 
 	public void saveFileAs(File file) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos,
-				"UTF-8"));
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
 
 		HashMapINI<String, List<String>> mapVComments = null;
 		List<String> comments = null;
@@ -219,7 +223,7 @@ public class INI {
 
 			if (comments != null) {
 				for (String comment : comments) {
-					if(comment != null) {						
+					if (comment != null) {
 						if (!comment.startsWith("#") || comment.startsWith("//")) {
 							comment = "# " + comment + newLine;
 						}
@@ -234,14 +238,17 @@ public class INI {
 
 			for (String variable : mapSection.getKeysOrdered()) {
 
-				if (mapVComments != null) comments = mapVComments.get(variable);
+				if (mapVComments != null)
+					comments = mapVComments.get(variable);
 
 				if (comments != null) {
 					String newComment;
 					for (String comment : comments) {
 						if (comment != null) {
-							if (comment.startsWith(";")) newComment = comment;
-							else newComment = "; " + comment;
+							if (comment.startsWith(";"))
+								newComment = comment;
+							else
+								newComment = "; " + comment;
 							writer.write(newComment + newLine);
 						}
 					}
@@ -253,11 +260,9 @@ public class INI {
 				} else if (o instanceof String) {
 					writer.write(variable + "=" + (String) o + newLine);
 				} else if (o instanceof Boolean) {
-					writer.write(variable + "=" + ((Boolean) o).toString()
-							+ newLine);
+					writer.write(variable + "=" + ((Boolean) o).toString() + newLine);
 				} else if (o instanceof Integer) {
-					writer.write(variable + "=" + ((Integer) o).intValue()
-							+ newLine);
+					writer.write(variable + "=" + ((Integer) o).intValue() + newLine);
 				} else {
 					writer.write(variable + "=" + o.toString() + newLine);
 				}
@@ -267,8 +272,7 @@ public class INI {
 		writer.close();
 	}
 
-	public void setComments(String sectionName, String variable,
-			List<String> comments) {
+	public void setComments(String sectionName, String variable, List<String> comments) {
 		HashMapINI<String, List<String>> mapComments = getSectionComments(sectionName);
 
 		if (mapComments == null) {
@@ -281,7 +285,8 @@ public class INI {
 
 	public void setComments(String sectionName, String variable, String... comments) {
 		List<String> listComments = new ArrayList<String>();
-		for (String comment : comments) listComments.add(comment);
+		for (String comment : comments)
+			listComments.add(comment);
 		setComments(sectionName, variable, listComments);
 	}
 
@@ -316,8 +321,7 @@ public class INI {
 		}
 	}
 
-	private HashMapINI<String, List<String>> getSectionComments(
-			String sectionName) {
+	private HashMapINI<String, List<String>> getSectionComments(String sectionName) {
 		return mapSectionVariableComments.get(sectionName);
 	}
 
@@ -332,8 +336,7 @@ public class INI {
 		return false;
 	}
 
-	private HashMapINI<String, List<String>> createVariableCommentsMap(
-			String sectionName) {
+	private HashMapINI<String, List<String>> createVariableCommentsMap(String sectionName) {
 		HashMapINI<String, List<String>> mapVComments = null;
 
 		mapVComments = mapSectionVariableComments.get(sectionName);
@@ -348,16 +351,17 @@ public class INI {
 
 	public String getVariableAsString(String section, String variable) {
 		Object o = mapSections.get(section).get(variable);
-		if(o == null) return "";
-		else return o.toString();
+		if (o == null)
+			return "";
+		else
+			return o.toString();
 	}
 
 	public Object getVariable(String section, String variable) {
 		return mapSections.get(section).get(variable);
 	}
 
-	public void setVariable(String sectionName, String variableName,
-			Object variable, String... comments) {
+	public void setVariable(String sectionName, String variableName, Object variable, String... comments) {
 
 		List<String> listComments = null;
 
@@ -371,8 +375,7 @@ public class INI {
 		setVariable(sectionName, variableName, variable, listComments);
 	}
 
-	public void setVariable(String sectionName, String variableName,
-			Object variable, List<String> comments) {
+	public void setVariable(String sectionName, String variableName, Object variable, List<String> comments) {
 		Map<String, Object> map = getSection(sectionName);
 		if (map == null) {
 			map = createSection(sectionName);
@@ -385,20 +388,19 @@ public class INI {
 		}
 	}
 
-	public HashMapINI<String, Object> createSection(String sectionName,
-			String... comments) {
+	public HashMapINI<String, Object> createSection(String sectionName, String... comments) {
 		List<String> listComments = null;
 
 		listComments = new ArrayList<String>();
 
 		if (comments.length > 0) {
-			for (String comment : comments) listComments.add(comment);
+			for (String comment : comments)
+				listComments.add(comment);
 		}
 		return createSection(sectionName, listComments);
 	}
 
-	public HashMapINI<String, Object> createSection(String sectionName,
-			List<String> comments) {
+	public HashMapINI<String, Object> createSection(String sectionName, List<String> comments) {
 		HashMapINI<String, Object> map = null;
 
 		map = mapSections.get(sectionName);
@@ -441,7 +443,8 @@ public class INI {
 		}
 
 		public V put(K key, V value) {
-			if (!listOrderedKeys.contains(key)) listOrderedKeys.add(key);
+			if (!listOrderedKeys.contains(key))
+				listOrderedKeys.add(key);
 			return super.put(key, value);
 		}
 
@@ -451,7 +454,8 @@ public class INI {
 		}
 
 		public V remove(Object key) {
-			if (listOrderedKeys.contains(key)) listOrderedKeys.remove(key);
+			if (listOrderedKeys.contains(key))
+				listOrderedKeys.remove(key);
 			return super.remove(key);
 		}
 

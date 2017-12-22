@@ -13,7 +13,7 @@ public class YamlUtil {
 
 	/** The <Yaml> instance for <SledgeHammer> to use. */
 	private static Yaml yaml;
-	
+
 	static {
 		DumperOptions options = new DumperOptions();
 		options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);

@@ -27,7 +27,7 @@ import sledgehammer.database.document.MongoDocument;
 public class MongoFactionRelationship extends MongoDocument {
 
 	private UUID uniqueId;
-	
+
 	public MongoFactionRelationship(MongoCollection collection) {
 		super(collection, "id");
 	}
@@ -39,9 +39,9 @@ public class MongoFactionRelationship extends MongoDocument {
 
 	@Override
 	public void onSave(DBObject object) {
-		
+
 	}
-	
+
 	@Override
 	public Object getFieldValue() {
 		return getUniqueId().toString();
@@ -50,11 +50,11 @@ public class MongoFactionRelationship extends MongoDocument {
 	public UUID getUniqueId() {
 		return this.uniqueId;
 	}
-	
+
 	private void setUniqueId(UUID uniqueId) {
 		this.uniqueId = uniqueId;
 	}
-	
+
 	private void setUniqueId(String uniqueId) {
 		setUniqueId(UUID.fromString(uniqueId));
 	}

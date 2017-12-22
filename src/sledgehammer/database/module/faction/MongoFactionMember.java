@@ -28,12 +28,12 @@ public class MongoFactionMember extends MongoDocument {
 
 	private UUID playerId;
 	private UUID factionId;
-	
+
 	public MongoFactionMember(MongoCollection collection, DBObject object) {
 		super(collection, "playerId");
 		onLoad(object);
 	}
-	
+
 	public MongoFactionMember(MongoCollection collection, UUID playerId, UUID factionId) {
 		super(collection, "playerId");
 		setPlayerId(playerId);
@@ -59,24 +59,25 @@ public class MongoFactionMember extends MongoDocument {
 	public UUID getPlayerId() {
 		return this.playerId;
 	}
-	
+
 	private void setPlayerId(UUID playerId) {
 		this.playerId = playerId;
 	}
-	
+
 	private void setPlayerId(String playerId) {
 		setPlayerId(UUID.fromString(playerId));
 	}
-	
+
 	public UUID getFactionId() {
 		return this.factionId;
 	}
-	
+
 	public void setFactionId(UUID factionId, boolean save) {
 		this.factionId = factionId;
-		if(save) save();
+		if (save)
+			save();
 	}
-	
+
 	public void setFactionId(String factionId, boolean save) {
 		setFactionId(UUID.fromString(factionId), save);
 	}

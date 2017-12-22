@@ -3,7 +3,7 @@ package sledgehammer.module.core;
 import sledgehammer.lua.LuaListener;
 
 public class CoreLuaEventListener extends LuaListener {
-	
+
 	private ModuleCore module;
 
 	CoreLuaEventListener(ModuleCore module) {

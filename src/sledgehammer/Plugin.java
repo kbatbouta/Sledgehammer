@@ -26,7 +26,7 @@ public class Plugin extends Printable {
 	private static final boolean DEBUG = false;
 
 	private boolean loadClasses = true;
-	
+
 	private File file;
 
 	private PluginProperties properties;
@@ -100,7 +100,7 @@ public class Plugin extends Printable {
 	public void instantiateModules() {
 		try {
 			File fileJar = getJarFile();
-			if(loadClasses()) {				
+			if (loadClasses()) {
 				setClassLoader(loadJarClasses(fileJar));
 			}
 			List<String> listModuleNames = getProperties().getModuleNames();
@@ -135,7 +135,7 @@ public class Plugin extends Printable {
 	}
 
 	public void loadModules() {
-		synchronized(this) {			
+		synchronized (this) {
 			for (Module module : listModulesToLoad) {
 				if (loadModule(module)) {
 					listModulesToStart.add(module);
@@ -147,7 +147,7 @@ public class Plugin extends Printable {
 	}
 
 	public void startModules() {
-		synchronized(this) {
+		synchronized (this) {
 			for (Module module : listModulesToStart) {
 				if (startModule(module)) {
 					listModulesStarted.add(module);
@@ -158,11 +158,11 @@ public class Plugin extends Printable {
 	}
 
 	public void updateModules(long delta) {
-		synchronized(this) {
-			if(listModulesToLoad.size() > 0) {			
+		synchronized (this) {
+			if (listModulesToLoad.size() > 0) {
 				loadModules();
 			}
-			if(listModulesToStart.size() > 0) {
+			if (listModulesToStart.size() > 0) {
 				startModules();
 			}
 			List<Module> listModulesToUpdate = new ArrayList<>();
@@ -200,7 +200,7 @@ public class Plugin extends Printable {
 	}
 
 	public void stopModules() {
-		synchronized(this) {
+		synchronized (this) {
 			for (Module module : listModulesStarted) {
 				if (module.isLoaded() && module.isStarted()) {
 					stopModule(module);
@@ -211,7 +211,7 @@ public class Plugin extends Printable {
 	}
 
 	public void unloadModules() {
-		synchronized(this) {			
+		synchronized (this) {
 			for (Module module : listModulesLoaded) {
 				if (module.isLoaded()) {
 					unloadModule(module);
@@ -331,15 +331,16 @@ public class Plugin extends Printable {
 
 	public void addModule(Module module) {
 		String classLiteral = getClassLiteral(module.getClass());
-		for(Module moduleNext : listModulesToLoad) {
+		for (Module moduleNext : listModulesToLoad) {
 			String classLiteralNext = getClassLiteral(moduleNext.getClass());
-			if(classLiteral.equalsIgnoreCase(classLiteralNext)) {
-				throw new IllegalArgumentException("Module " + classLiteral + " is already loaded in the plug-in " + getPluginName() + ".");
+			if (classLiteral.equalsIgnoreCase(classLiteralNext)) {
+				throw new IllegalArgumentException(
+						"Module " + classLiteral + " is already loaded in the plug-in " + getPluginName() + ".");
 			}
 		}
 		listModulesToLoad.add(module);
 	}
-	
+
 	public static String getClassLiteral(Class<?> clazz) {
 		return clazz.getPackage().getName() + "." + clazz.getSimpleName();
 	}
@@ -426,14 +427,14 @@ public class Plugin extends Printable {
 	private List<Module> getStartedModules() {
 		return listModulesStarted;
 	}
-	
+
 	public void setLoadClasses(boolean flag) {
 		loadClasses = flag;
-		if(!loadClasses) {
+		if (!loadClasses) {
 			classLoader = ClassLoader.getSystemClassLoader();
 		}
 	}
-	
+
 	public boolean loadClasses() {
 		return this.loadClasses;
 	}

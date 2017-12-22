@@ -32,18 +32,18 @@ public class PluginManager extends Manager {
 	private List<Plugin> listPluginsToStart;
 	private List<Plugin> listPluginsStarted;
 	private List<Plugin> listPluginsToUnload;
-	
+
 	private ModulePermissions modulePermissions;
 	private ModuleCore moduleCore;
 	private ModuleVanilla moduleVanilla;
 	private ModuleChat moduleChat;
 	private ModuleFactions moduleFactions;
-	
+
 	private File directory;
 	private long timeThen;
 
 	public PluginManager() {
-		
+
 	}
 
 	// @formatter:off
@@ -64,20 +64,20 @@ public class PluginManager extends Manager {
 		moduleChat        = pluginSledgehammer.getModule(ModuleChat.class       );
 		moduleFactions    = pluginSledgehammer.getModule(ModuleFactions.class   );
 		// @formatter:on
-		if (!debug) {			
+		if (!debug) {
 			loadInstalledPlugins();
 		}
-		for(Plugin plugin : listPluginsToLoad) {
+		for (Plugin plugin : listPluginsToLoad) {
 			println("Loading plug-in " + plugin.getPluginName() + "'s module(s):");
 			plugin.loadModules();
 			listPluginsToStart.add(plugin);
 		}
 		listPluginsToLoad.clear();
 	}
-	
+
 	@Override
 	public void onStart() {
-		for(Plugin plugin : listPluginsToStart) {
+		for (Plugin plugin : listPluginsToStart) {
 			println("Starting plug-in " + plugin.getPluginName() + "'s module(s):");
 			plugin.startModules();
 			listPluginsStarted.add(plugin);
@@ -85,7 +85,7 @@ public class PluginManager extends Manager {
 		}
 		listPluginsToStart.clear();
 	}
-	
+
 	@Override
 	public void onUpdate() {
 		// Grab the current time.
@@ -93,29 +93,29 @@ public class PluginManager extends Manager {
 		// Compare it with the last time the method has been called, calculating
 		// the delta.
 		long delta = timeNow - timeThen;
-		for(Plugin plugin : getPlugins()) {
+		for (Plugin plugin : getPlugins()) {
 			plugin.updateModules(delta);
 		}
 		// Store the current time to compare for the next cycle.
 		timeThen = timeNow;
 	}
-	
+
 	@Override
 	public void onShutDown() {
-		for(Plugin plugin : listPluginsStarted) {
+		for (Plugin plugin : listPluginsStarted) {
 			println("Stopping plug-in " + plugin.getPluginName() + "'s module(s):");
 			plugin.stopModules();
 			listPluginsToUnload.add(plugin);
 		}
 		listPluginsStarted.clear();
 		mapPlugins.clear();
-		for(Plugin plugin : listPluginsToUnload) {
+		for (Plugin plugin : listPluginsToUnload) {
 			println("Unloading plug-in " + plugin.getPluginName() + "'s module(s):");
 			plugin.unloadModules();
 		}
 		listPluginsToUnload.clear();
 	}
-	
+
 	@Override
 	public String getName() {
 		return "PluginManager";
@@ -132,7 +132,7 @@ public class PluginManager extends Manager {
 		pluginSledgehammer.load();
 		registerPlugin(pluginSledgehammer);
 	}
-	
+
 	private void loadInstalledPlugins() {
 		println("Loading plug-in module(s).");
 		File[] plugins = getPluginDirectory().listFiles();
@@ -165,10 +165,10 @@ public class PluginManager extends Manager {
 			println("Registered no plug-in module(s).");
 		}
 	}
-	
+
 	public void handleClientCommand(ClientEvent event) {
 		boolean foundModule = false;
-		for(Plugin plugin : getPlugins()) {			
+		for (Plugin plugin : getPlugins()) {
 			for (Module module : plugin.getModules()) {
 				if (module.getModuleName().equalsIgnoreCase(event.getModuleName())) {
 					foundModule = true;
@@ -176,12 +176,12 @@ public class PluginManager extends Manager {
 					break;
 				}
 			}
-			if(foundModule) {
+			if (foundModule) {
 				break;
 			}
 		}
 	}
-	
+
 	private Collection<Plugin> getPlugins() {
 		return mapPlugins.values();
 	}
@@ -200,7 +200,7 @@ public class PluginManager extends Manager {
 	}
 
 	private File getPluginDirectory() {
-		if(directory == null) {
+		if (directory == null) {
 			directory = new File("plugins" + File.separator);
 		}
 		return directory;
@@ -209,14 +209,14 @@ public class PluginManager extends Manager {
 	@SuppressWarnings("unchecked")
 	public <T extends Module> T getModule(Class<? extends Module> clazz) {
 		Module returned = null;
-		for(Plugin plugin : getPlugins()) {
-			for(Module module : plugin.getModules()) {
-				if(module.getClass().equals(clazz)) {
+		for (Plugin plugin : getPlugins()) {
+			for (Module module : plugin.getModules()) {
+				if (module.getClass().equals(clazz)) {
 					returned = module;
 					break;
 				}
 			}
-			if(returned != null) {
+			if (returned != null) {
 				break;
 			}
 		}
@@ -226,11 +226,11 @@ public class PluginManager extends Manager {
 	public ModulePermissions getPermissionsModule() {
 		return this.modulePermissions;
 	}
-	
+
 	public ModuleCore getCoreModule() {
 		return this.moduleCore;
 	}
-	
+
 	public ModuleVanilla getVanillaModule() {
 		return this.moduleVanilla;
 	}
@@ -238,7 +238,7 @@ public class PluginManager extends Manager {
 	public ModuleChat getChatModule() {
 		return this.moduleChat;
 	}
-	
+
 	public ModuleFactions getFactionsModule() {
 		return this.moduleFactions;
 	}

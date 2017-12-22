@@ -52,7 +52,7 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		mapPermissionNodes = new HashMap<>();
 		setMongoDocument(mongoDocument);
 	}
-	
+
 	/**
 	 * Sets a permission <Node> if one exists, or creates a permission <Node> if one
 	 * does not exists.
@@ -383,7 +383,7 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		// Validate that the permission given is assigned to the object.
 		if (!mapPermissionNodes.containsKey(nodeAsString)) {
 			throw new IllegalArgumentException("Node given is not assigned to PermissionObject.");
-		}		
+		}
 		// If so, remove it from the map first.
 		mapPermissionNodes.remove(nodeAsString);
 		// Remove the node formally on the document layer, and save it if the parameter

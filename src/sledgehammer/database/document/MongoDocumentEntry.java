@@ -88,7 +88,8 @@ public abstract class MongoDocumentEntry {
 	}
 
 	/**
-	 * Deletes the <MongoDocumentEntry> from the assigned <MongoDocument>, and saves the <MongoDocument>.
+	 * Deletes the <MongoDocumentEntry> from the assigned <MongoDocument>, and saves
+	 * the <MongoDocument>.
 	 * 
 	 * (Note: If the <MongoDocumentEntry> does not have an assigned <MongoDocument>,
 	 * an <IllegalStateException> is thrown.)

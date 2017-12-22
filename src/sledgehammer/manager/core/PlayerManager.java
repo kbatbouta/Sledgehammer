@@ -20,8 +20,7 @@ import sledgehammer.manager.Manager;
 */
 
 /**
- * TODO: Re-implement.
- * TODO: Document
+ * TODO: Re-implement. TODO: Document
  * 
  * @author Jab
  */

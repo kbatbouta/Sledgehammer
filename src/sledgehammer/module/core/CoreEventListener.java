@@ -42,27 +42,28 @@ public class CoreEventListener implements EventListener {
 		this.module = module;
 		mapPlayerTimeStamps = new HashMap<>();
 	}
-	
+
 	public Map<String, Long> getPlayerTimeStamps() {
 		return mapPlayerTimeStamps;
 	}
-	
+
 	@Override
 	public String[] getTypes() {
-		return new String[] {DeathEvent.ID, PVPKillEvent.ID};
+		return new String[] { DeathEvent.ID, PVPKillEvent.ID };
 	}
 
 	@Override
 	public void handleEvent(Event event) {
 		event.setIgnoreCore(true);
 		String text = event.getLogMessage();
-		
-		if(event.getID() == DeathEvent.ID) {
-			if(!event.shouldAnnounce() || ((DeathEvent)event).getPlayer().getIso() instanceof NPC) return;
-			String username = ((DeathEvent)event).getPlayer().getUsername();
-			if(username != null) {				
+
+		if (event.getID() == DeathEvent.ID) {
+			if (!event.shouldAnnounce() || ((DeathEvent) event).getPlayer().getIso() instanceof NPC)
+				return;
+			String username = ((DeathEvent) event).getPlayer().getUsername();
+			if (username != null) {
 				Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-				if(timeStamp != null) {
+				if (timeStamp != null) {
 					event.setHandled(true);
 					event.setCanceled(true);
 					return;
@@ -71,28 +72,29 @@ public class CoreEventListener implements EventListener {
 				module.sendGlobalMessage(ChatTags.COLOR_RED + " " + text);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
-		} else 
-		if(event.getID() == PVPKillEvent.ID) {
-			
-			if(!event.shouldAnnounce()) return;
-			
-			Player killed = ((PVPKillEvent)event).getKilled();
-			if(killed.getIso() instanceof NPC) return;
-			
+		} else if (event.getID() == PVPKillEvent.ID) {
+
+			if (!event.shouldAnnounce())
+				return;
+
+			Player killed = ((PVPKillEvent) event).getKilled();
+			if (killed.getIso() instanceof NPC)
+				return;
+
 			String username = killed.getUsername();
-			
+
 			Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-			if(timeStamp != null) {
+			if (timeStamp != null) {
 				event.setHandled(true);
 				event.setCanceled(true);
 				return;
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
 			module.sendGlobalMessage(COLOR_RED + " " + text);
-			SledgeHammer.instance.handleCommand((UdpConnection)null, "/thunder start", false);
+			SledgeHammer.instance.handleCommand((UdpConnection) null, "/thunder start", false);
 		}
 	}
-	
+
 	public void update() {
 		mapPlayerTimeStamps.clear();
 	}

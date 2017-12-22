@@ -24,49 +24,49 @@ import sledgehammer.interfaces.EventListener;
 public class CoreClientListener implements EventListener {
 
 	ModuleCore module;
-	
+
 	public CoreClientListener(ModuleCore module) {
 		this.module = module;
 	}
-	
+
 	public String[] getTypes() {
 		return new String[] { ClientEvent.ID };
 	}
-	
+
 	public void handleEvent(Event e) {
-//		// Cast to proper Event sub-class.
-//		ClientEvent event = (ClientEvent) e;
-//		
-//		// Get event content.
-//		String module     = event.getModule();
-//		String command    = event.getCommand();
-//		Player player     = event.getPlayer();
-//		
-//		if (module.equalsIgnoreCase("sledgehammer")) {
-//			
-//			if (command.equalsIgnoreCase("handshake")) {
-//				
-//				// We just want to ping back to the client saying we received the request.
-//				event.respond();
-//
-//				// Create a HandShakeEvent.
-//				HandShakeEvent handshakeEvent = new HandShakeEvent(player);
-//				
-//				// Handle the event.
-//				SledgeHammer.instance.handle(handshakeEvent);
-//			}
-//			
-//			
-//		} else if(module.equalsIgnoreCase("core")) {
-//			
-//			if(command.equalsIgnoreCase("requestInfo")) {
-//				
-//				RequestInfo info = new RequestInfo();
-//				info.setSelf(player);
-//
-//				event.respond(info);
-//			}
-//		}
+		// // Cast to proper Event sub-class.
+		// ClientEvent event = (ClientEvent) e;
+		//
+		// // Get event content.
+		// String module = event.getModule();
+		// String command = event.getCommand();
+		// Player player = event.getPlayer();
+		//
+		// if (module.equalsIgnoreCase("sledgehammer")) {
+		//
+		// if (command.equalsIgnoreCase("handshake")) {
+		//
+		// // We just want to ping back to the client saying we received the request.
+		// event.respond();
+		//
+		// // Create a HandShakeEvent.
+		// HandShakeEvent handshakeEvent = new HandShakeEvent(player);
+		//
+		// // Handle the event.
+		// SledgeHammer.instance.handle(handshakeEvent);
+		// }
+		//
+		//
+		// } else if(module.equalsIgnoreCase("core")) {
+		//
+		// if(command.equalsIgnoreCase("requestInfo")) {
+		//
+		// RequestInfo info = new RequestInfo();
+		// info.setSelf(player);
+		//
+		// event.respond(info);
+		// }
+		// }
 	}
 
 	@Override

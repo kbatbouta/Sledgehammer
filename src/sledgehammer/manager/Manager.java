@@ -78,7 +78,7 @@ public abstract class Manager extends Printable {
 	/**
 	 * @return Returns the <ModuleCore> instance.
 	 *//*
-	public ModuleCore getCoreModule() {
-		return SledgeHammer.instance.getModuleManager().getCoreModule();
-	}*/
+		 * public ModuleCore getCoreModule() { return
+		 * SledgeHammer.instance.getModuleManager().getCoreModule(); }
+		 */
 }

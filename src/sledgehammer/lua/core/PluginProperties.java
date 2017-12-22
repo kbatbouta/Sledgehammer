@@ -15,12 +15,12 @@ public class PluginProperties extends LuaTable {
 	private String name;
 	private String version;
 	private String description;
-	
+
 	private List<String> listModuleNames;
 	private Map<String, ModuleProperties> mapModuleProperties;
-	
+
 	private Map mapProperties;
-	
+
 	public PluginProperties(InputStream inputStream) {
 		super("PluginProperties");
 		mapProperties = YamlUtil.getYaml().load(inputStream);
@@ -28,7 +28,7 @@ public class PluginProperties extends LuaTable {
 		mapModuleProperties = new HashMap<>();
 		loadProperties();
 	}
-	
+
 	public PluginProperties(String name, String version, String description) {
 		super("PluginProperties");
 		setPluginName(name);
@@ -37,28 +37,27 @@ public class PluginProperties extends LuaTable {
 		listModuleNames = new ArrayList<>();
 		mapModuleProperties = new HashMap<>();
 	}
-	
 
 	private void loadProperties() {
 		Object oName = mapProperties.get("name");
-		if(oName != null) {
+		if (oName != null) {
 			setPluginName(oName.toString());
 		}
 		Object oVersion = mapProperties.get("version");
-		if(oVersion != null) {
+		if (oVersion != null) {
 			setPluginVersion(oVersion.toString());
 		}
 		Object oDescription = mapProperties.get("description");
-		if(oDescription != null) {
+		if (oDescription != null) {
 			setPluginDescription(oDescription.toString());
 		}
-		
+
 		Map map = (Map) mapProperties.get("modules");
-		if(map == null) {
+		if (map == null) {
 			return;
 		}
 		mapModuleProperties = new HashMap<>();
-		for(Object key : map.keySet()) {
+		for (Object key : map.keySet()) {
 			ModuleProperties moduleProperties = new ModuleProperties((String) key, (Map) map.get(key));
 			moduleProperties.setPluginProperties(this);
 			addProperties(moduleProperties);
@@ -67,7 +66,7 @@ public class PluginProperties extends LuaTable {
 
 	public void addProperties(ModuleProperties moduleProperties) {
 		String moduleName = moduleProperties.getModuleName();
-		if(!listModuleNames.contains(moduleName)) {
+		if (!listModuleNames.contains(moduleName)) {
 			listModuleNames.add(moduleName);
 		}
 		mapModuleProperties.put(moduleName, moduleProperties);
@@ -76,23 +75,23 @@ public class PluginProperties extends LuaTable {
 	public String getPluginName() {
 		return this.name;
 	}
-	
+
 	private void setPluginName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getPluginVersion() {
 		return this.version;
 	}
-	
+
 	private void setPluginVersion(String version) {
 		this.version = version;
 	}
-	
+
 	public String getPluginDescription() {
 		return this.description;
 	}
-	
+
 	private void setPluginDescription(String description) {
 		this.description = description;
 	}

@@ -41,17 +41,16 @@ import zombie.sledgehammer.npc.NPC;
 
 public class ModuleNPC extends Module {
 
-	public static final String ID      = "sledgehammer_npc";
-	public static final String NAME    = "NPC-Spawner"     ;
-	public static final String MODULE  = "NPC"             ;
-	public static final String VERSION = "1.00"            ;
-	public static final boolean DEBUG  = true              ;
-	
+	public static final String ID = "sledgehammer_npc";
+	public static final String NAME = "NPC-Spawner";
+	public static final String MODULE = "NPC";
+	public static final String VERSION = "1.00";
+	public static final boolean DEBUG = true;
+
 	private Map<NPC, IsoGameCharacter> mapSpawners;
-	
-	
+
 	private CommandListener commandListener = null;
-	
+
 	public ModuleNPC() {
 
 	}
@@ -59,39 +58,41 @@ public class ModuleNPC extends Module {
 	public void onLoad() {
 		mapSpawners = new HashMap<>();
 		// LuaManager.exposer.exposeClass(NPC.class);
-		
+
 		commandListener = new CommandListener() {
 
 			public String[] getCommands() {
-				return new String[] { "addnpc", "destroynpcs"};
+				return new String[] { "addnpc", "destroynpcs" };
 			}
 
 			public void onCommand(Command c, Response r) {
 				String command = c.getCommand();
 				String[] args = c.getArguments();
 				Player commander = c.getPlayer();
-				if(command.equalsIgnoreCase("addnpc")) {
-					if(commander.hasPermission(getPermissionNode("addnpc"))) {						
-						if(args.length == 1) {
+				if (command.equalsIgnoreCase("addnpc")) {
+					if (commander.hasPermission(getPermissionNode("addnpc"))) {
+						if (args.length == 1) {
 							IsoPlayer player = c.getPlayer().getIso();
 							IsoGridSquare square = null;
 							float x = 0, y = 0, z = 0;
-							if(player != null) {
-								
+							if (player != null) {
+
 								int attempts = 0;
 								int maxAttempts = 50;
-								
-								while(square == null) {									
+
+								while (square == null) {
 									x = player.x + ZUtil.random.nextInt(11) - 5;
 									y = player.y + ZUtil.random.nextInt(11) - 5;
-									z = player.z;		
-									square = ServerMap.instance.getGridSquare((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
-									if(attempts >= maxAttempts) {
+									z = player.z;
+									square = ServerMap.instance.getGridSquare((int) Math.floor(x), (int) Math.floor(y),
+											(int) Math.floor(z));
+									if (attempts >= maxAttempts) {
 										x = player.x;
 										y = player.y;
-										z = player.z;			
-										square = ServerMap.instance.getGridSquare((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
-										if(square == null) {											
+										z = player.z;
+										square = ServerMap.instance.getGridSquare((int) Math.floor(x),
+												(int) Math.floor(y), (int) Math.floor(z));
+										if (square == null) {
 											r.set(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
 											return;
 										}
@@ -101,17 +102,17 @@ public class ModuleNPC extends Module {
 							}
 							String name = args[0];
 							NPC fakePlayer = createFakePlayer(name, x, y, z);
-							println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z + "). PlayerIndex: " + fakePlayer.PlayerIndex + " OnlineID: " + fakePlayer.OnlineID);
-							
+							println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z
+									+ "). PlayerIndex: " + fakePlayer.PlayerIndex + " OnlineID: "
+									+ fakePlayer.OnlineID);
+
 							BehaviorSurvive behavior = new BehaviorSurvive(fakePlayer);
 							behavior.setDefaultTarget(player);
 							behavior.setActive(true);
 							fakePlayer.addBehavior(behavior);
-							
-							
-							
+
 							mapSpawners.put(fakePlayer, player);
-							
+
 							r.set(Result.SUCCESS, "NPC created.");
 							return;
 						} else {
@@ -122,8 +123,8 @@ public class ModuleNPC extends Module {
 						r.set(Result.FAILURE, getPermissionDeniedMessage());
 						return;
 					}
-				} else if(command.equalsIgnoreCase("destroynpcs")) {
-					if(commander.hasPermission(getPermissionNode("destroynpcs"))) {						
+				} else if (command.equalsIgnoreCase("destroynpcs")) {
+					if (commander.hasPermission(getPermissionNode("destroynpcs"))) {
 						SledgeHammer.instance.getNPCManager().destroyNPCs();
 						r.set(Result.SUCCESS, "NPCs destroyed.");
 					} else {
@@ -134,11 +135,10 @@ public class ModuleNPC extends Module {
 			}
 
 			public String onTooltip(Player player, Command command) {
-				if(player.hasPermission(getPermissionNode(command.getCommand()))) {
-					if(command.getCommand().equalsIgnoreCase("addnpc")) {
+				if (player.hasPermission(getPermissionNode(command.getCommand()))) {
+					if (command.getCommand().equalsIgnoreCase("addnpc")) {
 						return "Adds a fake player at current location. ex: /addnpc \"name\"";
-					} else 
-					if(command.getCommand().equalsIgnoreCase("destroynpcs")) {
+					} else if (command.getCommand().equalsIgnoreCase("destroynpcs")) {
 						return "Destroys all active NPCs.";
 					}
 				}
@@ -146,27 +146,29 @@ public class ModuleNPC extends Module {
 			}
 
 			public String getPermissionNode(String command) {
-				if(command.equalsIgnoreCase("addnpc")) {
+				if (command.equalsIgnoreCase("addnpc")) {
 					return "sledgehammer.npc.add";
-				} else 
-				if(command.equalsIgnoreCase("destroynpcs")) {
+				} else if (command.equalsIgnoreCase("destroynpcs")) {
 					return "sledgehammer.npc.remove";
 				}
 				return null;
 			}
 
 		};
-	
+
 		register(commandListener);
 	}
 
-	public void onStart() {}
-	public void onStop() {}
+	public void onStart() {
+	}
+
+	public void onStop() {
+	}
 
 	public void onUnload() {
 		unregister(commandListener);
 	}
-	
+
 	public NPC createFakePlayer(String name, float x, float y, float z) {
 		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
 		System.out.println("SurvivorDesc ID: " + desc.getID());
@@ -174,18 +176,28 @@ public class ModuleNPC extends Module {
 		return SledgeHammer.instance.getNPCManager().addNPC(npc);
 	}
 
-	public void onUpdate(long delta) {}
-	
-	public String getID()         { return ID      ; }
-	public String getName()       { return NAME    ; }
-	public String getModuleName() { return MODULE  ; }
-	public String getVersion()    { return VERSION ; }
+	public void onUpdate(long delta) {
+	}
 
+	public String getID() {
+		return ID;
+	}
+
+	public String getName() {
+		return NAME;
+	}
+
+	public String getModuleName() {
+		return MODULE;
+	}
+
+	public String getVersion() {
+		return VERSION;
+	}
 
 	public void onClientCommand(ClientEvent e) {
 		// TODO Auto-generated method stub
-		
-	}
 
+	}
 
 }

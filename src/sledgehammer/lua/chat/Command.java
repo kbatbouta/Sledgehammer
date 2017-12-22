@@ -61,7 +61,7 @@ public class Command extends LuaTable {
 		super("Command", table);
 		println("Raw: " + getRaw());
 	}
-	
+
 	@Override
 	public void onLoad(KahluaTable table) {
 		Object raw = table.rawget("raw");
@@ -123,11 +123,11 @@ public class Command extends LuaTable {
 		println("Raw: " + getRaw());
 		println();
 	}
-	
+
 	public boolean hasArguments() {
 		return this.args != null && this.args.length > 0;
 	}
-	
+
 	public String getCommand() {
 		return command;
 	}
@@ -135,7 +135,7 @@ public class Command extends LuaTable {
 	public String[] getArguments() {
 		return args;
 	}
-	
+
 	public Player getPlayer() {
 		return this.player;
 	}

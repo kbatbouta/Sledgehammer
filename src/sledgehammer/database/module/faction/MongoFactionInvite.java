@@ -26,6 +26,7 @@ import sledgehammer.database.document.MongoDocument;
 
 /**
  * TODO: Document
+ * 
  * @author Jab
  *
  */
@@ -36,7 +37,7 @@ public class MongoFactionInvite extends MongoDocument {
 	private UUID factionId;
 	private UUID uniqueId;
 	private long timeInvited;
-	
+
 	/**
 	 * Loading constructor.
 	 * 
@@ -49,7 +50,7 @@ public class MongoFactionInvite extends MongoDocument {
 		super(collection, "id");
 		onLoad(object);
 	}
-	
+
 	public MongoFactionInvite(MongoCollection collection, UUID inviteeId, UUID invitedId, UUID factionId) {
 		super(collection, "id");
 		setUniqueId(UUID.randomUUID());
@@ -82,7 +83,7 @@ public class MongoFactionInvite extends MongoDocument {
 	public Object getFieldValue() {
 		return getUniqueId();
 	}
-	
+
 	/**
 	 * @return Returns the <Long> UNIX TimeStamp representing the time the
 	 *         Invitation was created.
@@ -101,7 +102,7 @@ public class MongoFactionInvite extends MongoDocument {
 	private void setTimeInvited(long timeInvited) {
 		this.timeInvited = timeInvited;
 	}
-	
+
 	public UUID getFactionId() {
 		return this.factionId;
 	}
@@ -109,7 +110,7 @@ public class MongoFactionInvite extends MongoDocument {
 	private void setFactionId(UUID factionId) {
 		this.factionId = factionId;
 	}
-	
+
 	public UUID getInviteeId() {
 		return this.inviteeId;
 	}
@@ -117,11 +118,11 @@ public class MongoFactionInvite extends MongoDocument {
 	private void setInviteeId(UUID playerInviteeId) {
 		this.inviteeId = playerInviteeId;
 	}
-	
+
 	public UUID getInvitedId() {
 		return this.invitedId;
 	}
-	
+
 	private void setInvitedId(UUID playerInvitedId) {
 		this.invitedId = playerInvitedId;
 	}
@@ -129,7 +130,7 @@ public class MongoFactionInvite extends MongoDocument {
 	public UUID getUniqueId() {
 		return this.uniqueId;
 	}
-	
+
 	private void setUniqueId(UUID uniqueId) {
 		this.uniqueId = uniqueId;
 	}

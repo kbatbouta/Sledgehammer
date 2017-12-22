@@ -27,11 +27,12 @@ public class CoreContextListener extends Printable implements ContextListener {
 	@Override
 	public String onContext(String context, String source) {
 		try {
-			if(context != null) {				
+			if (context != null) {
 				String result = Translator.getText(context);
-				if(result != null && !result.isEmpty()) return result;
+				if (result != null && !result.isEmpty())
+					return result;
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			stackTrace(e);
 		}
 		return source;
@@ -42,7 +43,13 @@ public class CoreContextListener extends Printable implements ContextListener {
 		return onContext(context, source);
 	}
 
+	@Override
+	public String getContext(String context) {
+		return null;
+	}
 
-	@Override public String getContext(String context) { return null; }
-	@Override public String getName() { return "Core-Translator"; }
+	@Override
+	public String getName() {
+		return "Core-Translator";
+	}
 }

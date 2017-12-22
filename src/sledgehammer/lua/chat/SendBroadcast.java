@@ -4,6 +4,7 @@ import sledgehammer.lua.Send;
 
 /**
  * Class designed to package Broadcast LuaObjects.
+ * 
  * @author Jab
  * 
  */
@@ -13,14 +14,15 @@ public class SendBroadcast extends Send {
 	 * The Broadcast LuaObject being packaged.
 	 */
 	private Broadcast broadcast;
-	
+
 	/**
 	 * Main constructor.
+	 * 
 	 * @param broadcast
 	 */
 	public SendBroadcast(Broadcast broadcast) {
 		super("core", "sendBroadcast");
-		
+
 		// Set variable(s).
 		setBroadcast(broadcast);
 	}
@@ -32,6 +34,7 @@ public class SendBroadcast extends Send {
 
 	/**
 	 * Returns the Broadcast LuaObject packaged.
+	 * 
 	 * @return
 	 */
 	public Broadcast getBroadcast() {
@@ -40,6 +43,7 @@ public class SendBroadcast extends Send {
 
 	/**
 	 * Sets the Broadcast LuaObject to be packaged.
+	 * 
 	 * @param broadcast
 	 */
 	public void setBroadcast(Broadcast broadcast) {

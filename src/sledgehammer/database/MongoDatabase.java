@@ -35,11 +35,11 @@ public abstract class MongoDatabase extends Printable {
 	public static boolean DEBUG = true;
 
 	private volatile boolean shutdown = false;
-	
+
 	private DB db;
 	private MongoClient client = null;
 	private List<MongoDocumentTransaction> listTransactions;
-	
+
 	private MongoDatabaseTransactionWorker worker;
 
 	public MongoDatabase() {
@@ -81,9 +81,9 @@ public abstract class MongoDatabase extends Printable {
 			}
 		})).start();
 	}
-	
+
 	public int getTransactionQueueSize() {
-		synchronized(listTransactions) {
+		synchronized (listTransactions) {
 			return listTransactions.size();
 		}
 	}
@@ -110,5 +110,6 @@ public abstract class MongoDatabase extends Printable {
 	}
 
 	public abstract void reset();
+
 	public abstract void onConnection(MongoClient client);
 }

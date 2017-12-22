@@ -27,7 +27,7 @@ import sledgehammer.event.LogEvent.LogType;
  * @author Jab
  */
 public class Response {
-	
+
 	private String response;
 	private Result result;
 
@@ -35,64 +35,66 @@ public class Response {
 	private LogEvent.LogType logType = LogEvent.LogType.INFO;
 	private boolean logImportant = false;
 	private boolean handled = false;
-	
+
 	public Response() {
-		
+
 	}
-	
+
 	public Response(String response, String log, Result result) {
 		this.response = response;
 		this.log = log;
 		this.result = result;
 	}
-	
+
 	public void set(Result result, String message) {
 		this.result = result;
 		this.response = message;
 		this.setHandled(true);
 	}
-	
+
 	public void log(String log) {
 		this.log = log;
 	}
-	
+
 	public void log(LogEvent.LogType logType, String log) {
 		this.log = log;
 		this.logType = logType;
 	}
-	
+
 	public void deny() {
 		this.result = Result.FAILURE;
 		this.response = SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
 		this.setHandled(true);
 	}
-	
+
 	public void setHandled(boolean flag) {
 		this.handled = flag;
 	}
-	
+
 	public boolean isHandled() {
 		return this.handled;
 	}
-	
+
 	public String getResponse() {
 		return this.response;
 	}
-	
-	public void setLoggedImportant(boolean b) { 
-		this.logImportant = b; 
+
+	public void setLoggedImportant(boolean b) {
+		this.logImportant = b;
 	}
-	
-	public boolean getLogImportance() { 
+
+	public boolean getLogImportance() {
 		return this.logImportant;
 	}
-	
+
 	public String getLogMessage() {
-		if(log == null  ) return null;
-		if(log.isEmpty()) return null;
+		if (log == null)
+			return null;
+		if (log.isEmpty())
+			return null;
 		return this.log;
 	}
-	
+
 	public Result getResult() {
 		return result;
 	}

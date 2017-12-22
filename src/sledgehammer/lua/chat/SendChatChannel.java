@@ -4,13 +4,14 @@ import sledgehammer.lua.Send;
 
 /**
  * TODO: Document.
+ * 
  * @author Jab
  *
  */
 public class SendChatChannel extends Send {
-	
+
 	private ChatChannel channel;
-	
+
 	public SendChatChannel(ChatChannel channel) {
 		super("core.chat", "sendChatChannel");
 		this.channel = channel;
@@ -20,7 +21,7 @@ public class SendChatChannel extends Send {
 	public void onExport() {
 		set("channel", channel);
 	}
-	
+
 	public ChatChannel getChatChannel() {
 		return this.channel;
 	}

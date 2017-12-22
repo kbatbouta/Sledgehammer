@@ -65,7 +65,6 @@ public class MongoCollection {
 	public MongoDatabase getDatabase() {
 		return this.database;
 	}
-	
 
 	private void setMongoDatabase(MongoDatabase database) {
 		this.database = database;

@@ -41,7 +41,7 @@ public class PlayerInfoEvent extends PlayerEvent {
 
 	public static final String ID = "PlayerInfoEvent";
 	private String log = null;
-	
+
 	public PlayerInfoEvent(Player player) {
 		super(player);
 	}
@@ -50,18 +50,21 @@ public class PlayerInfoEvent extends PlayerEvent {
 	public String getLogMessage() {
 		return this.log;
 	}
-	
+
 	public void setLogMessage(String log) {
 		this.log = log;
 	}
-	
+
 	public Vector3f getPosition() {
 		return getPlayer().getPosition();
 	}
-	
+
 	public Vector2f getMetaPosition() {
 		return getPlayer().getMetaPosition();
 	}
 
-	@Override public String getID() { return ID; }
+	@Override
+	public String getID() {
+		return ID;
+	}
 }

@@ -32,18 +32,18 @@ public class FactionRelationship extends LuaTable {
 
 	@Override
 	public void onLoad(KahluaTable table) {
-		//TODO: Implement
+		// TODO: Implement
 	}
 
 	@Override
 	public void onExport() {
-		//TODO: Implement
+		// TODO: Implement
 	}
 
 	public MongoFactionRelationship getMongoDocument() {
 		return this.mongoFactionRelationship;
 	}
-	
+
 	private void setMongoDocument(MongoFactionRelationship mongoFactionRelationship) {
 		this.mongoFactionRelationship = mongoFactionRelationship;
 	}

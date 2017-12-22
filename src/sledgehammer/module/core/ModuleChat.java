@@ -45,7 +45,7 @@ public class ModuleChat extends Module {
 
 	private MongoCollection collectionChannels;
 	private MongoCollection collectionMessages;
-	
+
 	@Override
 	public void onLoad() {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
@@ -55,65 +55,66 @@ public class ModuleChat extends Module {
 
 	@Override
 	public void onStart() {
-		
+
 		getPermissionsManager().addDefaultPlayerPermission(ChannelProperties.DEFAULT_CONTEXT);
-		
+
 		ChatChannel global = new ChatChannel("Global");
 		ChatChannel Espanol = new ChatChannel("Espanol");
-//		ChatChannel Russia = new ChatChannel("\u0440\u0443\u0441\u0441\u043A\u0438\u0439");
-		ChatChannel local  = new ChatChannel("Local");
-		ChatChannel pms    = new ChatChannel("PMs");
-		
+		// ChatChannel Russia = new
+		// ChatChannel("\u0440\u0443\u0441\u0441\u043A\u0438\u0439");
+		ChatChannel local = new ChatChannel("Local");
+		ChatChannel pms = new ChatChannel("PMs");
+
 		local.getProperties().streamGlobal(true);
 		pms.getProperties().streamGlobal(true);
-		
+
 		local.getProperties().setHistory(false);
 		global.getProperties().setPublic(true);
 		pms.getProperties().setSpeak(false);
-		
+
 		local.getProperties().setPublic(false);
 		pms.getProperties().setPublic(false);
-		
+
 		Espanol.getProperties().setPublic(true);
 		Espanol.getProperties().streamGlobal(false);
-//		Espanol.getProperties().setContext("sledgehammer.chat.espanol");
-//		Russia.getProperties().setPublic(true);
-		
+		// Espanol.getProperties().setContext("sledgehammer.chat.espanol");
+		// Russia.getProperties().setPublic(true);
+
 		addChannel(global);
-		addChannel(local );
+		addChannel(local);
 		addChannel(Espanol);
-		addChannel(pms   );
+		addChannel(pms);
 	}
-	
+
 	@Override
 	public void onStop() {
-		//TODO: Implement stopping services.
+		// TODO: Implement stopping services.
 	}
-	
+
 	@Override
 	public void onUnload() {
-		//TODO: Implement cleanup
+		// TODO: Implement cleanup
 	}
-	
+
 	@Override
 	public void onClientCommand(ClientEvent event) {
 		String command = event.getCommand();
 		Player player = event.getPlayer();
-		if(command.equalsIgnoreCase("getChatChannels")) {
+		if (command.equalsIgnoreCase("getChatChannels")) {
 			// Send request for channels before dispatching.
 			RequestChannelsEvent requestEvent = new RequestChannelsEvent(player);
 			SledgeHammer.instance.handle(requestEvent);
 			RequestChatChannels request = new RequestChatChannels();
-			for(ChatChannel channel : getChatManager().getChannels()) {
+			for (ChatChannel channel : getChatManager().getChannels()) {
 				request.addChannel(channel);
 			}
-			for(ChatChannel channel : getChatManager().getChannels()) {
-				if(channel.canSee(player)) {					
+			for (ChatChannel channel : getChatManager().getChannels()) {
+				if (channel.canSee(player)) {
 					request.addChannel(channel);
 				}
 			}
 			event.respond(request);
-		} else if(command.equalsIgnoreCase("sendChatMessagePlayer")) {
+		} else if (command.equalsIgnoreCase("sendChatMessagePlayer")) {
 			// Get the arguments.
 			KahluaTable table = event.getTable();
 			KahluaTable tableMessage = (KahluaTable) table.rawget("message");
@@ -125,7 +126,7 @@ public class ModuleChat extends Module {
 			String channelName = (String) tableMessage.rawget("channel");
 			println("ChannelName: " + channelName);
 			ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(channelName);
-			if(channel == null) {
+			if (channel == null) {
 				errorln("Channel does not exist: \"" + channelName + "\".");
 				return;
 			}
@@ -135,22 +136,22 @@ public class ModuleChat extends Module {
 			SledgeHammer.instance.handle(e);
 		}
 	}
-	
+
 	public void addChannel(ChatChannel channel) {
 		getManager().addChatChannel(channel);
 	}
-	
+
 	public void getChannelHistory(ChatChannel channel, int length) {
 		List<ChatMessage> listMessages = new LinkedList<>();
 		int count = 0;
 		DBCursor cursor = collectionMessages.find(new BasicDBObject());
-		while(count < length && cursor.hasNext()) {
+		while (count < length && cursor.hasNext()) {
 			BasicDBObject object = (BasicDBObject) cursor.next();
 			long messageID = Long.parseLong(object.get("id").toString());
 			ChatMessage message = getManager().getMessageFromCache(messageID);
-			if(message == null) {
+			if (message == null) {
 				int type = Integer.parseInt(object.get("type").toString());
-				if(type == 1) {
+				if (type == 1) {
 					message = new ChatMessage(object);
 				} else {
 					message = new ChatMessagePlayer(object);
@@ -161,26 +162,26 @@ public class ModuleChat extends Module {
 		}
 		cursor.close();
 		int size = listMessages.size();
-		for(int index = 0; index < size; index++) {				
+		for (int index = 0; index < size; index++) {
 			channel.addMessage(listMessages.get(index));
 		}
 	}
-	
+
 	public String getChannelHistoryName(ChatChannel channel) {
 		return getChannelHistoryName(channel.getChannelName());
 	}
-	
+
 	public String getChannelHistoryName(String channelName) {
 		return "sledgehammer_channel_history_" + channelName;
 	}
-	
+
 	public MongoCollection getChannelHistoryCollection(ChatChannel channel) {
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		String collectionName = getChannelHistoryName(channel);
 		MongoCollection collectionHistory = database.createMongoCollection(collectionName);
 		return collectionHistory;
 	}
-	
+
 	public void saveMessageHistory(ChatChannel channel, ChatMessage message) {
 		// Save the message to the channel's history collection.
 		MongoCollection collectionHistory = getChannelHistoryCollection(channel);
@@ -189,12 +190,12 @@ public class ModuleChat extends Module {
 		object.put("timeAdded", message.getTime());
 		collectionHistory.upsert(object, "messageID", channel);
 	}
-	
+
 	public void saveMessage(ChatMessage message) {
 		// Grab the channel for the Message.
 		ChatChannel channel = getManager().getChannel(message.getChannel());
 		// If the channel is null, the message cannot be saved.
-		if(channel == null) {
+		if (channel == null) {
 			println("Message has no channel: " + message.getChannel());
 			return;
 		}
@@ -202,19 +203,19 @@ public class ModuleChat extends Module {
 		message.save(collectionMessages);
 		saveMessageHistory(channel, message);
 	}
-	
+
 	public ChannelProperties loadChannelProperties(String name) {
 		ChannelProperties properties = new ChannelProperties();
 		DBCursor cursor = this.collectionChannels.find(new BasicDBObject("name", name));
-		if(cursor.hasNext()) {
+		if (cursor.hasNext()) {
 			properties.load(cursor.next());
 		}
 		cursor.close();
 		return properties;
 	}
-	
+
 	public void deleteChannel(ChatChannel channel) {
-		if(channel == null) {
+		if (channel == null) {
 			errorln("Channel is null!");
 			return;
 		}
@@ -222,17 +223,18 @@ public class ModuleChat extends Module {
 		getManager().removeChatChannel(channel);
 		collectionChannels.delete("name", channel.getChannelName());
 		collectionMessages.delete("channel", channel.getChannelName());
-		DBCollection collection = SledgeHammer.instance.getDatabase().getCollection(this.getChannelHistoryName(channel));
+		DBCollection collection = SledgeHammer.instance.getDatabase()
+				.getCollection(this.getChannelHistoryName(channel));
 		collection.drop();
 		channel.removeAllPlayers();
 	}
-	
+
 	public void renameChannelDatabase(ChatChannel chatChannel, String nameOld, String nameNew) {
 		chatChannel.getProperties().rename(collectionChannels, nameNew);
 		MongoCollection collectionHistory = getChannelHistoryCollection(chatChannel);
-		try {			
+		try {
 			collectionHistory.rename(getChannelHistoryName(nameNew));
-		} catch(Exception e) {
+		} catch (Exception e) {
 			// Collection doesn't exist yet.
 		}
 		chatChannel.setChannelName(nameNew);
@@ -241,11 +243,11 @@ public class ModuleChat extends Module {
 	public MongoCollection getMessageCollection() {
 		return this.collectionMessages;
 	}
-	
+
 	public MongoCollection getChannelCollection() {
 		return this.collectionChannels;
 	}
-	
+
 	public ChatManager getManager() {
 		return SledgeHammer.instance.getChatManager();
 	}

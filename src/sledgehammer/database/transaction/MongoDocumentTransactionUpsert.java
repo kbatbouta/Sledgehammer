@@ -23,8 +23,9 @@ public class MongoDocumentTransactionUpsert extends MongoDocumentTransaction {
 	public void run() {
 		String field = getField();
 		DBObject object = getObject();
-		if(MongoDatabase.DEBUG) {
-			System.out.println("===> Upserting document in Collection: \"" + getMongoCollection().getDBCollection().getName() + "\".");
+		if (MongoDatabase.DEBUG) {
+			System.out.println("===> Upserting document in Collection: \""
+					+ getMongoCollection().getDBCollection().getName() + "\".");
 			System.out.println("Document ID: " + field + " Value: " + object.get(field));
 		}
 		BasicDBObject append = new BasicDBObject();

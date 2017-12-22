@@ -31,8 +31,10 @@ public class StringUtils {
 	 */
 	public static String md5(String input, String salt) {
 		String md5 = null;
-		if (null == input) return null;
-		if (salt != null) input += salt;
+		if (null == input)
+			return null;
+		if (salt != null)
+			input += salt;
 		try {
 			// Create MessageDigest object for MD5
 			MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -55,7 +57,7 @@ public class StringUtils {
 	public static String md5(String input) {
 		return md5(input, (String) null);
 	}
-	
+
 	public static void main(String[] args) {
 		String password = "Test123";
 		String username = "MyUsername";

@@ -22,5 +22,5 @@ import zombie.sledgehammer.npc.NPC;
 
 public abstract class Action extends Printable {
 	public abstract boolean act(NPC npc);
-	
+
 }

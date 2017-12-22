@@ -36,13 +36,13 @@ import sledgehammer.manager.core.ChatManager;
 import sledgehammer.module.core.ModuleChat;
 
 /**
- * TODO: Document.
- * Class designed to store and manage all chat messages for a channel (tab).
+ * TODO: Document. Class designed to store and manage all chat messages for a
+ * channel (tab).
  * 
  * @author Jab
  */
-public class ChatChannel extends LuaTable  {
-	
+public class ChatChannel extends LuaTable {
+
 	public static final int CHANNEL_HISTORY_SIZE = 512;
 
 	private Map<String, Player> mapPlayersSent;
@@ -56,7 +56,7 @@ public class ChatChannel extends LuaTable  {
 	private ChannelProperties properties;
 	private String channelName;
 	private int id;
-	
+
 	/**
 	 * Dynamic Load constructor.
 	 * 
@@ -69,7 +69,7 @@ public class ChatChannel extends LuaTable  {
 		init();
 		properties = new ChannelProperties();
 	}
-	
+
 	/**
 	 * Lua Load constructor.
 	 * 
@@ -98,168 +98,170 @@ public class ChatChannel extends LuaTable  {
 		properties.setDescription(description);
 		properties.setContext(context);
 	}
-	
+
 	public void init() {
 		listMessages = new LinkedList<ChatMessage>();
 		mapPlayersSent = new HashMap<>();
 		send = new SendChatChannel(this);
 		sendRemove = new SendRemoveChatChannel(this);
 		sendRename = new SendRenameChatChannel();
-		
+
 		sendMessage = new SendChatMessage();
 		sendMessagePlayer = new SendChatMessagePlayer();
 		comparator = new ChatChannelComparator();
 	}
 
 	public void addPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
-		
+
 		// Only add new messages.
-		if(!listMessages.contains(chatMessagePlayer)) {
+		if (!listMessages.contains(chatMessagePlayer)) {
 			listMessages.add(chatMessagePlayer);
-			if(listMessages.size() > CHANNEL_HISTORY_SIZE) {
+			if (listMessages.size() > CHANNEL_HISTORY_SIZE) {
 				listMessages.removeFirst();
 			}
 		}
-		
-		for(Player player : SledgeHammer.instance.getPlayers()) {
-			if(player.hasPermission(properties.getContext())) {				
+
+		for (Player player : SledgeHammer.instance.getPlayers()) {
+			if (player.hasPermission(properties.getContext())) {
 				sendMessage(chatMessagePlayer, player);
 			}
 		}
 	}
-	
+
 	public void sendMessage(ChatMessage message, Player player) {
 		sendMessage.setChatMessage(message);
 		SledgeHammer.instance.send(sendMessage, player);
 	}
-	
+
 	public void sendMessagePlayer(ChatMessagePlayer message, Player player) {
 		sendMessagePlayer.setChatMessage(message);
 		SledgeHammer.instance.send(sendMessagePlayer, player);
 	}
-	
+
 	public void addMessage(ChatMessage chatMessage) {
 		// Only add new messages.
-		if(!listMessages.contains(chatMessage)) {
+		if (!listMessages.contains(chatMessage)) {
 			listMessages.add(chatMessage);
-			if(listMessages.size() > CHANNEL_HISTORY_SIZE) {
+			if (listMessages.size() > CHANNEL_HISTORY_SIZE) {
 				listMessages.removeFirst();
 			}
 		}
-		
-		if(chatMessage instanceof ChatMessagePlayer) {			
-			for(Player player : SledgeHammer.instance.getPlayers()) {
-				if(this.getChannelName().toLowerCase().equals("local")) {
-					if(player.isWithinLocalRange(((ChatMessagePlayer)chatMessage).getPlayer())){
-						sendMessagePlayer((ChatMessagePlayer) chatMessage, player);						
+
+		if (chatMessage instanceof ChatMessagePlayer) {
+			for (Player player : SledgeHammer.instance.getPlayers()) {
+				if (this.getChannelName().toLowerCase().equals("local")) {
+					if (player.isWithinLocalRange(((ChatMessagePlayer) chatMessage).getPlayer())) {
+						sendMessagePlayer((ChatMessagePlayer) chatMessage, player);
 					}
-				} else {					
+				} else {
 					sendMessagePlayer((ChatMessagePlayer) chatMessage, player);
 				}
 			}
 		} else {
-			for(Player player : SledgeHammer.instance.getPlayers()) {
+			for (Player player : SledgeHammer.instance.getPlayers()) {
 				sendMessage(chatMessage, player);
 			}
 		}
 	}
-	
+
 	/**
-	 * Returns a List container of LuaObject_ChatMessagePlayer from a given player's ID.
+	 * Returns a List container of LuaObject_ChatMessagePlayer from a given player's
+	 * ID.
+	 * 
 	 * @param playerID
 	 * @return
 	 */
 	public List<ChatMessagePlayer> getMessagesForPlayer(UUID uniqueId) {
 		List<ChatMessagePlayer> listMessages = new LinkedList<>();
-		for(ChatMessage message : this.listMessages) {
-			if(message instanceof ChatMessagePlayer) {
-				ChatMessagePlayer messagePlayer = (ChatMessagePlayer)message;
-				if(messagePlayer.getPlayer().getMongoPlayer().getUniqueId().equals(uniqueId)) {
+		for (ChatMessage message : this.listMessages) {
+			if (message instanceof ChatMessagePlayer) {
+				ChatMessagePlayer messagePlayer = (ChatMessagePlayer) message;
+				if (messagePlayer.getPlayer().getMongoPlayer().getUniqueId().equals(uniqueId)) {
 					listMessages.add(messagePlayer);
 				}
 			}
 		}
 		return listMessages;
 	}
-	
+
 	public void deleteMessagesForPlayer(UUID uniqueId) {
 		List<ChatMessagePlayer> listMessages = getMessagesForPlayer(uniqueId);
-		
+
 		this.listMessages.removeAll(listMessages);
-		
+
 		// TODO: Broadcast deleted messages.
 	}
-	
+
 	public void deleteMessages(List<ChatMessage> listMessages) {
 		// TODO: Broadcast deleted messages.
 	}
-	
+
 	public String getChannelName() {
 		return this.channelName;
 	}
-	
+
 	public LuaArray<ChatMessage> getLastMessages(int amount) {
 		List<ChatMessage> listLastMessages = new ArrayList<>();
-		
+
 		int size = listMessages.size();
-		
-		for(int index = size - 1; index >= size - amount - 1; index--) {
-			if(index < 0) break;
+
+		for (int index = size - 1; index >= size - amount - 1; index--) {
+			if (index < 0)
+				break;
 			listLastMessages.add(listMessages.get(index));
 		}
-		
+
 		Collections.sort(listLastMessages, comparator);
-		
+
 		LuaArray<ChatMessage> array = new LuaArray<>(listLastMessages);
-		
+
 		return array;
 	}
 
 	public void sendToPlayer(Player player) {
-		if(canSee(player)) {
+		if (canSee(player)) {
 			SledgeHammer.instance.send(send);
 			mapPlayersSent.put(player.getName(), player);
 		}
 	}
-	
+
 	public void removeAllPlayers() {
-		
-		for(Player player : SledgeHammer.instance.getPlayers()) {
-			if(canSee(player)) {
+
+		for (Player player : SledgeHammer.instance.getPlayers()) {
+			if (canSee(player)) {
 				SledgeHammer.instance.send(sendRemove, player);
 			}
 		}
-		
-		for(Player player : mapPlayersSent.values()) {
+
+		for (Player player : mapPlayersSent.values()) {
 			SledgeHammer.instance.send(sendRemove, player);
 		}
-		
+
 		mapPlayersSent.clear();
 	}
-	
+
 	public void removePlayer(Player player) {
 
 		// Send a command to remove the channel.
 		SledgeHammer.instance.send(sendRemove, player);
-		
+
 		// Remove the player from the list.
 		mapPlayersSent.remove(player.getName());
 	}
-	
+
 	private class ChatChannelComparator implements Comparator<ChatMessage> {
 		@Override
 		public int compare(ChatMessage a, ChatMessage b) {
 			int i = 0;
 			if (a.getMessageID() < b.getMessageID()) {
 				i = -1;
-			} else
-			if (a.getMessageID() > b.getMessageID()) {
+			} else if (a.getMessageID() > b.getMessageID()) {
 				i = 1;
 			}
 			return i;
 		}
 	}
-	
+
 	/**
 	 * Renames the <ChatChannel>
 	 * 
@@ -267,11 +269,11 @@ public class ChatChannel extends LuaTable  {
 	 *            The <String> new name.
 	 */
 	public void rename(String nameNew) {
-		String nameOld = getChannelName();		
+		String nameOld = getChannelName();
 		this.setChannelName(nameNew);
 		sendRename.set(this, nameOld, nameNew);
-		for(Player player : SledgeHammer.instance.getPlayers()) {
-			if(canSee(player)) {				
+		for (Player player : SledgeHammer.instance.getPlayers()) {
+			if (canSee(player)) {
 				SledgeHammer.instance.send(sendRename, player);
 			}
 		}
@@ -279,7 +281,7 @@ public class ChatChannel extends LuaTable  {
 		module.renameChannelDatabase(this, nameOld, nameNew);
 		getChatManager().renameChatChannel(this, nameOld, nameNew);
 	}
-	
+
 	/**
 	 * Sets the <ChannelProperties> data for the <ChatChannel>.
 	 * 
@@ -289,14 +291,14 @@ public class ChatChannel extends LuaTable  {
 	public void setProperties(ChannelProperties properties) {
 		this.properties = properties;
 	}
-	
+
 	/**
 	 * @return Returns the <ChannelProperties> data for the <ChatChannel>.
 	 */
 	public ChannelProperties getProperties() {
 		return this.properties;
 	}
-	
+
 	/**
 	 * @return Returns the <ChatManager> instance for Sledgehammer.
 	 */
@@ -319,64 +321,67 @@ public class ChatChannel extends LuaTable  {
 	 * @return Returns true if the <Player> can see the <ChatChannel>.
 	 */
 	public boolean canSee(Player player) {
-		if(getChannelName().equalsIgnoreCase("global") || getChannelName().equalsIgnoreCase("local")) {
+		if (getChannelName().equalsIgnoreCase("global") || getChannelName().equalsIgnoreCase("local")) {
 			return true;
-		} 
-		if(getChannelName().equalsIgnoreCase("espanol")) {
+		}
+		if (getChannelName().equalsIgnoreCase("espanol")) {
 			String propertyEspanol = player.getProperty("espanol");
-			if(propertyEspanol != null && propertyEspanol.equals("1")) {
+			if (propertyEspanol != null && propertyEspanol.equals("1")) {
 				return true;
 			}
 		}
 		return player.hasRawPermission(getProperties().getContext());
 	}
-	
+
 	/**
-	 * @param player The <Player> being tested.
-	 * @return Returns true if the <ChatChannel> has already been sent to the <Player>.
+	 * @param player
+	 *            The <Player> being tested.
+	 * @return Returns true if the <ChatChannel> has already been sent to the
+	 *         <Player>.
 	 */
 	public boolean hasAlreadySentPlayer(Player player) {
 		return mapPlayersSent.get(player.getName()) != null;
 	}
-	
+
 	public void onDisconnect(Player player) {
 		mapPlayersSent.remove(player.getName());
 		// TODO: Broadcast player leaving.
 	}
-	
+
 	public void editMessage() {
-		//TODO: implement
+		// TODO: implement
 	}
-	
+
 	/**
-	 * If the channel has its own context permission, 
-	 * then it is running as white-listed.
+	 * If the channel has its own context permission, then it is running as
+	 * white-listed.
+	 * 
 	 * @return
 	 */
 	public boolean isWhitelisted() {
 		return !getProperties().getContext().equals(ChannelProperties.DEFAULT_CONTEXT);
 	}
-	
+
 	public void setChannelName(String name) {
 		this.channelName = name;
 	}
-	
+
 	public LinkedList<ChatMessage> getAllMessages() {
 		return this.listMessages;
 	}
-	
+
 	public int getID() {
 		return id;
 	}
-	
+
 	public void setID(int id) {
 		this.id = id;
 	}
-	
+
 	public Collection<Player> getPlayers() {
 		return mapPlayersSent.values();
 	}
-	
+
 	public void addMessage(String string) {
 		addMessage(new ChatMessage(string));
 	}
@@ -390,11 +395,11 @@ public class ChatChannel extends LuaTable  {
 		channelName = table.rawget("channelName").toString();
 		// TODO: Future-Implement when clients can create channels.
 	}
-	
+
 	public ChannelProperties loadChannelProperties() {
 		return getChatModule().loadChannelProperties(getChannelName());
 	}
-	
+
 	@Override
 	public void onExport() {
 		// @formatter:off
@@ -403,5 +408,5 @@ public class ChatChannel extends LuaTable  {
 		set("properties" , getProperties());
 		// @formatter:on
 	}
-	
+
 }
