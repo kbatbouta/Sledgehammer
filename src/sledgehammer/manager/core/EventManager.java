@@ -30,11 +30,11 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
-import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.core.CoreCommandListener;
 import sledgehammer.util.ChatTags;
+import sledgehammer.util.Command;
 import sledgehammer.util.Result;
 import zombie.core.logger.LoggerManager;
 import zombie.core.raknet.UdpConnection;
@@ -198,7 +198,7 @@ public class EventManager extends Manager {
 				for (EventListener listener : listEventListeners) {
 					if (!listener.runSecondary()) {
 						if (listener != coreEventListener) {
-							listener.handleEvent(event);
+							listener.onEvent(event);
 						}
 						if (event.canceled())
 							return event;
@@ -209,7 +209,7 @@ public class EventManager extends Manager {
 				for (EventListener listener : listEventListeners) {
 					if (listener.runSecondary()) {
 						if (listener != coreEventListener) {
-							listener.handleEvent(event);
+							listener.onEvent(event);
 						}
 						if (event.canceled())
 							return event;
@@ -224,7 +224,7 @@ public class EventManager extends Manager {
 			}
 			// Force Core Event-handling to be last, for modification potential.
 			if (!event.handled() && !event.ignoreCore()) {
-				coreEventListener.handleEvent(event);
+				coreEventListener.onEvent(event);
 			}
 			// If the Event is set to canceled, return before logging it.
 			if (event.canceled()) {
@@ -335,7 +335,7 @@ public class EventManager extends Manager {
 		Player player = null;
 		// Create a Player instance.
 		if (connection == null) {
-			player = SledgeHammer.getAdmin();
+			player = SledgeHammer.getAdministrator();
 		} else {
 			player = sledgeHammer.getPlayer(connection.username);
 		}

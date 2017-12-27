@@ -50,7 +50,7 @@ public class ChatEventListener implements EventListener {
 	}
 
 	@Override
-	public void handleEvent(Event event) {
+	public void onEvent(Event event) {
 	}
 
 	@Override

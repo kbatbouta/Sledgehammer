@@ -1,291 +1,311 @@
-/*
-This file is part of Sledgehammer.
-
-   Sledgehammer is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Lesser General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Sledgehammer is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
- */
 package sledgehammer.lua.chat;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
+import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
-import sledgehammer.lua.LuaTable;
-import sledgehammer.module.core.ModuleChat;
-import zombie.Lua.LuaManager;
+import sledgehammer.database.module.chat.MongoChatMessage;
+import sledgehammer.lua.MongoLuaObject;
+import sledgehammer.lua.core.Player;
 
 /**
  * TODO: Document.
  * 
  * @author Jab
  */
-public class ChatMessage extends LuaTable {
+public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
 
-	public static final String ORIGIN_CLIENT = "client";
-	public static final String ORIGIN_SERVER = "server";
-	public static final String ORIGIN_MODULE = "module";
-	public static final String ORIGIN_CORE = "core";
+	// @formatter:off
+	public static final String ORIGIN_CLIENT  = "client" ;
+	public static final String ORIGIN_SERVER  = "server" ;
+	public static final String ORIGIN_MODULE  = "module" ;
+	public static final String ORIGIN_CORE    = "core"   ;
+	public static final String ORIGIN_DISCORD = "discord";
+	// @formatter:on
 
-	private String time;
-	private String origin;
-	private String channel = "Global";
-	private String message;
-	private String messageOriginal;
-	private String editorID = null;
-	private String deleterID = null;
-	private long messageID = -1L;
-	private long modifiedTimestamp = -1L;
-	private int type = 0;
-	private boolean edited = false;
-	private boolean deleted = false;
+	private Player player;
 
-	/**
-	 * Constructor for creating a new ChatMessage Object.
-	 */
-	public ChatMessage(String message) {
-		super("ChatMessage");
-		// Sets the message.
-		setMessage(message);
-		setOriginalMessage(message);
-		// Create long as both timestamp and ID.
-		setID(generateMessageID());
-		// If the time is not set manually, create it for now.
-		setTime();
-		// If the origin is not set manually, set it to server.
-		setOrigin(ORIGIN_SERVER);
+	public ChatMessage(MongoChatMessage mongoDocument) {
+		super(mongoDocument, "ChatMessage");
 	}
 
-	public ChatMessage(BasicDBObject object) {
-		super("ChatMessage");
-		load(object);
+	public ChatMessage(MongoChatMessage mongoDocument, KahluaTable table) {
+		super(mongoDocument, "ChatMessage");
+		onLoad(table);
 	}
 
-	public ChatMessage(long id, String channel, String message, String messageOriginal, boolean edited, String editorID,
-			boolean deleted, String deleterID, long modifiedTimestamp, String time) {
-		super("ChatMessage");
-		this.messageID = id;
-		this.channel = channel;
-		this.message = message;
-		this.messageOriginal = messageOriginal;
-		this.modifiedTimestamp = modifiedTimestamp;
-		this.editorID = editorID;
-		this.deleterID = deleterID;
-		this.edited = edited;
-		this.deleted = deleted;
-		this.time = time;
-	}
-
-	/**
-	 * Constructor for loading an existing ChatMessage Object.
-	 * 
-	 * @param table
-	 */
-	public ChatMessage(KahluaTable table) {
-		super("ChatMessage", table);
+	public ChatMessage(MongoChatMessage mongoDocument, UUID channelId, UUID playerId, UUID editorId, UUID deleterId,
+			String origin, String playerName, String message, String messageOriginal, String timestampPrinted,
+			long timestamp, long timestampModified, int type) {
+		super(mongoDocument, "ChatMessage");
+		setChannelId(channelId, false);
+		setPlayerId(playerId, false);
+		setEditorId(editorId, false);
+		setDeleterId(deleterId, false);
+		setOrigin(origin, false);
+		setCachedPlayerName(playerName, false);
+		setMessage(message, false);
+		setOriginalMessage(messageOriginal, false);
+		setPrintedTimestamp(timestampPrinted, false);
+		setTimestamp(timestamp, false);
+		setModifiedTimestamp(timestampModified, false);
+		setType(type, false);
 	}
 
 	@Override
 	public void onLoad(KahluaTable table) {
-		setID(new Double(table.rawget("messageID").toString()).longValue());
-		setChannel(table.rawget("channel").toString());
-		setMessage(table.rawget("message").toString());
-		setOriginalMessage(table.rawget("messageOriginal").toString());
-		setEdited(Boolean.parseBoolean(table.rawget("edited").toString()));
-		setEditorID(table.rawget("editorID").toString());
-
-		setDeleted(Boolean.parseBoolean(table.rawget("deleted").toString()));
-		setDeleterID(table.rawget("deleterID").toString());
-		Double d = Double.parseDouble(table.rawget("modifiedTimestamp").toString());
-		setModifiedTimestamp(d.longValue());
-
-		// If origin is set.
-		Object o = table.rawget("origin");
-		if (o != null) {
-			setOrigin(o.toString());
+		// Set the ID if it exists.
+		UUID uniqueId = UUID.fromString(table.rawget("id").toString());
+		if (uniqueId != null) {
+			setUniqueId(uniqueId, false);
 		}
-	}
-
-	public void load(DBObject object) {
-		setID(Long.parseLong(object.get("id").toString()));
-		setChannel(object.get("channel").toString());
-		setMessage(object.get("message").toString());
-		setOriginalMessage(object.get("messageOriginal").toString());
-		setModifiedTimestamp(Long.parseLong(object.get("modifiedTimestamp").toString()));
-		setTime(object.get("time").toString());
-		setOrigin(object.get("origin").toString());
-		setType(Integer.parseInt(object.get("type").toString()));
-		setEditorID(object.get("editorID").toString());
-		setEdited(object.get("edited").toString().equals("1"));
-		setDeleterID(object.get("deleterID").toString());
-		setDeleted(object.get("deleted").toString().equals("1"));
-	}
-
-	public void save(MongoCollection collection) {
-		DBObject object = new BasicDBObject();
-		onSave(object);
-		collection.upsert(object, "id", this);
-	}
-
-	public void onSave(DBObject object) {
-		// @formatter:off
-		object.put("id"               , getMessageID() + "");
-		object.put("channel"          , getChannel());
-		object.put("message"          , getMessage());
-		object.put("messageOriginal"  , getOriginalMessage());
-		object.put("modifiedTimestamp", getModifiedTimestamp());
-		object.put("time"             , getTime());
-		object.put("origin"           , getOrigin());
-		object.put("type"             , getType() + "");
-		object.put("editor"           , isEdited()  ? "1" : "0");
-		object.put("deleted"          , isDeleted() ? "1" : "0");
-		object.put("editorID"         , getEditorID());
-		object.put("deleterID"        , getDeleterID());
-		// @formatter:on
-	}
-
-	private void setDeleted(boolean flag) {
-		this.deleted = flag;
-	}
-
-	private void setDeleterID(String id) {
-		this.deleterID = id;
-	}
-
-	private void setModifiedTimestamp(long value) {
-		this.modifiedTimestamp = value;
-	}
-
-	protected void setOriginalMessage(String string) {
-		this.messageOriginal = string;
-	}
-
-	private void setEdited(boolean flag) {
-		this.edited = flag;
-	}
-
-	private void setEditorID(String id) {
-		this.editorID = id;
+		setChannelId(UUID.fromString(table.rawget("channel_id").toString()), false);
+		setPlayerId(UUID.fromString(table.rawget("player_id").toString()), false);
+		setEditorId(UUID.fromString(table.rawget("editor_id").toString()), false);
+		setDeleterId(UUID.fromString(table.rawget("deleter_id").toString()), false);
+		setOrigin(table.rawget("origin").toString(), false);
+		setCachedPlayerName(table.rawget("player_name").toString(), false);
+		setMessage(table.rawget("message").toString(), false);
+		setOriginalMessage(table.rawget("message_original").toString(), false);
+		// Check to see if the printed timestamp is given. If not, the method
+		// with a null String passed will generate one instead.
+		String timestampPrinted = null;
+		Object oTimestampPrinted = table.rawget("timestamp_printed");
+		if (oTimestampPrinted != null) {
+			timestampPrinted = oTimestampPrinted.toString();
+		}
+		setPrintedTimestamp(timestampPrinted, false);
+		// Check to see if a timestamp is given. If not, create one.
+		Object oTimestamp = table.rawget("timestamp");
+		if (oTimestamp != null) {
+			long timestamp = ((Double) Double.parseDouble(oTimestamp.toString())).longValue();
+			setTimestamp(timestamp, false);
+		} else {
+			createTimestamp(false);
+		}
+		// Check to see if a timestamp is given. If the timestamp is 0, assign one.
+		Object oTimestampModified = table.rawget("timestamp_modified");
+		if (oTimestampModified != null) {
+			long timestampModified = ((Double) Double.parseDouble(oTimestamp.toString())).longValue();
+			if (timestampModified > 0) {
+				setModifiedTimestamp(timestampModified, false);
+			} else if (timestampModified == 0) {
+				createModifiedTimestamp(false);
+			}
+		}
+		setType((Integer) table.rawget("message_type"), false);
 	}
 
 	@Override
 	public void onExport() {
-		set("messageID", "" + getMessageID());
-		set("channel", getChannel());
-		set("message", getMessage());
-		set("messageOriginal", getOriginalMessage());
-		set("edited", isEdited());
-		set("editorID", getEditorID());
-		set("deleted", isDeleted());
-		set("deleterID", getDeleterID());
-		set("modifiedTimestamp", getModifiedTimestamp());
-		set("time", getTime());
-		set("origin", getOrigin());
+		// @formatter:off
+		set("id"                , getUniqueId().toString() );
+		set("channel_id"        , getChannelId().toString());
+		set("player_id"         , getPlayerId().toString() );
+		set("editor_id"         , getEditorId().toString() );
+		set("deleter_id"        , getDeleterId().toString());
+		set("origin"            , getOrigin()              );
+		set("player_name"       , getCachedPlayerName()    );
+		set("message"           , getMessage()             );
+		set("message_original"  , getOriginalMessage()     );
+		set("timestamp"         , getTimestamp()           );
+		set("timestamp_modified", getModifiedTimestamp()   );
+		set("timestamp_printed" , getPrintedTimestamp()    );
+		set("message_type"      , getType()                );
+		set("edited"            , isEdited()               );
+		set("deleted"           , isDeleted()              );
+		// @formatter:on
 	}
 
-	public String getChannel() {
-		return this.channel;
-	}
-
-	public void setChannel(String channel) {
-		if (channel != null) {
-			channel = channel.toLowerCase().trim();
+	@Override
+	public boolean equals(Object other) {
+		boolean returned = false;
+		if (other instanceof ChatMessage) {
+			returned = ((ChatMessage) other).getUniqueId().equals(getUniqueId());
 		}
+		return returned;
+	}
 
-		if (this.channel == null || !this.channel.equals(channel)) {
-			this.channel = channel;
+	/**
+	 * Deep-Clones a Chat-Message, creating a new <MongoChatMessage> document,
+	 * however it is not saved to the MongoDB database.
+	 */
+	public ChatMessage clone() {
+		MongoCollection collectionChatMessages = getMongoDocument().getCollection();
+		MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionChatMessages);
+		UUID channelId = getChannelId();
+		UUID playerId = getPlayerId();
+		UUID editorId = getEditorId();
+		UUID deleterId = getDeleterId();
+		String origin = getOrigin();
+		String playerName = getCachedPlayerName();
+		String message = getMessage();
+		String messageOriginal = getOriginalMessage();
+		String timestampPrinted = getPrintedTimestamp();
+		long timestamp = getTimestamp();
+		long timestampModified = getModifiedTimestamp();
+		int type = getType();
+		ChatMessage chatMessageClone = new ChatMessage(mongoChatMessage, channelId, playerId, editorId, deleterId,
+				origin, playerName, message, messageOriginal, timestampPrinted, timestamp, timestampModified, type);
+		return chatMessageClone;
+	}
+
+	public Player getPlayer() {
+		Player returned = null;
+		if (player == null) {
+			UUID playerId = getPlayerId();
+			if (playerId != null) {
+				player = SledgeHammer.instance.getPlayer(playerId);
+			}
 		}
+		returned = player;
+		return returned;
 	}
 
-	public long getMessageID() {
-		return this.messageID;
+	public UUID getPlayerId() {
+		return getMongoDocument().getPlayerId();
 	}
 
-	public void setID(long id) {
-		if (this.messageID != id) {
-			this.messageID = id;
+	public void setPlayerId(UUID playerId, boolean save) {
+		getMongoDocument().setPlayerId(playerId, save);
+		if (playerId != null) {
+			player = SledgeHammer.instance.getPlayer(playerId);
 		}
-	}
-
-	public String getMessage() {
-		return this.message;
-	}
-
-	public void setMessage(String message) {
-		if (this.message == null || !this.message.equals(message)) {
-			this.message = message;
-		}
-	}
-
-	public long getModifiedTimestamp() {
-		return this.modifiedTimestamp;
-	}
-
-	public String getDeleterID() {
-		return this.deleterID;
 	}
 
 	public boolean isDeleted() {
-		return this.deleted;
+		return getMongoDocument().isDeleted();
 	}
 
-	public String getEditorID() {
-		return this.editorID;
+	public void setDeleted(boolean deleted, boolean save) {
+		getMongoDocument().setDeleted(deleted, save);
 	}
 
 	public boolean isEdited() {
-		return this.edited;
+		return getMongoDocument().isEdited();
 	}
 
-	public String getOriginalMessage() {
-		return this.messageOriginal;
-	}
-
-	public static long generateMessageID() {
-		return System.currentTimeMillis();
-	}
-
-	public String getOrigin() {
-		return this.origin;
-	}
-
-	public void setOrigin(String origin) {
-		this.origin = origin;
-	}
-
-	public void setTime(String time) {
-		this.time = time;
-	}
-
-	public String getTime() {
-		return this.time;
-	}
-
-	public void save() {
-		ModuleChat module = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
-		module.saveMessage(this);
-	}
-
-	public void setTime() {
-		this.setTime(LuaManager.getHourMinuteJava());
+	public void setEdited(boolean edited, boolean save) {
+		getMongoDocument().setEdited(edited, save);
 	}
 
 	public int getType() {
-		return this.type;
+		return getMongoDocument().getType();
 	}
 
-	public void setType(int type) {
-		this.type = type;
+	public void setType(int type, boolean save) {
+		getMongoDocument().setType(type, save);
+	}
+
+	public long getModifiedTimestamp() {
+		return getMongoDocument().getModifiedTimestamp();
+	}
+
+	public void setModifiedTimestamp(long timestampModified, boolean save) {
+		getMongoDocument().setModifiedTimestamp(timestampModified, save);
+	}
+
+	public void createModifiedTimestamp(boolean save) {
+		getMongoDocument().setModifiedTimestamp(System.currentTimeMillis(), save);
+	}
+
+	public long getTimestamp() {
+		return getMongoDocument().getTimestamp();
+	}
+
+	public void setTimestamp(long timestamp, boolean save) {
+		getMongoDocument().setTimestamp(timestamp, save);
+	}
+
+	public void createTimestamp(boolean save) {
+		getMongoDocument().setTimestamp(System.currentTimeMillis(), save);
+	}
+
+	public String getPrintedTimestamp() {
+		return getMongoDocument().getPrintedTimestamp();
+	}
+
+	public void setPrintedTimestamp(String timestampPrinted, boolean save) {
+		if (timestampPrinted == null) {
+			setPrintedTimestamp(save);
+		}
+		getMongoDocument().setPrintedTimestamp(timestampPrinted, save);
+	}
+
+	public void setPrintedTimestamp(boolean save) {
+		getMongoDocument().setPrintedTimestamp(save);
+	}
+
+	public String getOriginalMessage() {
+		return getMongoDocument().getOriginalMessage();
+	}
+
+	public void setOriginalMessage(String messageOriginal, boolean save) {
+		getMongoDocument().setOriginalMessage(messageOriginal, save);
+	}
+
+	public String getMessage() {
+		return getMongoDocument().getMessage();
+	}
+
+	public void setMessage(String message, boolean save) {
+		getMongoDocument().setMessage(message, save);
+	}
+
+	public String getCachedPlayerName() {
+		return getMongoDocument().getCachedPlayerName();
+	}
+
+	private void setCachedPlayerName(String playerName, boolean save) {
+		getMongoDocument().setCachedPlayerName(playerName, save);
+	}
+
+	public String getOrigin() {
+		return getMongoDocument().getOrigin();
+	}
+
+	public void setOrigin(String origin, boolean save) {
+		getMongoDocument().setOrigin(origin, save);
+	}
+
+	public UUID getDeleterId() {
+		return getMongoDocument().getDeleterId();
+	}
+
+	private void setDeleterId(UUID deleterId, boolean save) {
+		getMongoDocument().setDeleterId(deleterId, save);
+	}
+
+	public UUID getEditorId() {
+		return getMongoDocument().getEditorId();
+	}
+
+	private void setEditorId(UUID editorId, boolean save) {
+		getMongoDocument().setEditorId(editorId, save);
+	}
+
+	public UUID getChannelId() {
+		return getMongoDocument().getChannelId();
+	}
+
+	public void setChannelId(UUID channelId, boolean save) {
+		getMongoDocument().setChannelId(channelId, save);
+	}
+
+	public UUID getUniqueId() {
+		return getMongoDocument().getUniqueId();
+	}
+
+	private void setUniqueId(UUID uniqueId, boolean save) {
+		getMongoDocument().setUniqueId(uniqueId, save);
+	}
+
+	public void save() {
+		getMongoDocument().save();
+	}
+
+	public void delete() {
+		getMongoDocument().delete();
 	}
 }

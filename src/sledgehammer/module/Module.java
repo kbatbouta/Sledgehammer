@@ -17,7 +17,6 @@ This file is part of Sledgehammer.
 package sledgehammer.module;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import sledgehammer.Plugin;
@@ -28,17 +27,15 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
-import sledgehammer.interfaces.ModuleSettingsHandler;
 import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.ModuleProperties;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.core.ChatManager;
 import sledgehammer.manager.core.EventManager;
 import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.manager.core.PluginManager;
 import sledgehammer.module.core.ModuleChat;
-import sledgehammer.util.INI;
 import sledgehammer.util.Printable;
 
 /**
@@ -50,8 +47,6 @@ public abstract class Module extends Printable {
 
 	private Plugin plugin;
 	private ModuleProperties properties = new ModuleProperties();
-	private INI ini;
-	private File iniFile;
 	public boolean loadedSettings = false;
 	private boolean loaded = false;
 	private boolean started = false;
@@ -62,38 +57,6 @@ public abstract class Module extends Printable {
 	@Override
 	public String getName() {
 		return getProperties().getModuleName();
-	}
-
-	public void loadSettings(ModuleSettingsHandler handler) {
-		if (handler == null) {
-			throw new IllegalArgumentException("Settings Handler given is null!");
-		}
-		loadedSettings = false;
-		if (ini == null) {
-			getINI();
-		}
-		if (iniFile.exists()) {
-			handler.createSettings(getINI());
-			try {
-				ini.read();
-				loadedSettings = true;
-			} catch (IOException e) {
-				println("Failed to read settings.");
-				e.printStackTrace();
-			}
-		} else {
-			println("WARNING: No settings file found. Creating one.");
-			println("WARNING: " + getName() + " may require modified settings to run properly.");
-			println("Settings file is located at: " + ini.getFile().getAbsolutePath());
-			handler.createSettings(ini);
-			loadedSettings = true;
-			try {
-				ini.save();
-			} catch (IOException e) {
-				println("Failed to save settings.");
-				e.printStackTrace();
-			}
-		}
 	}
 
 	public boolean stopModule() {
@@ -150,20 +113,40 @@ public abstract class Module extends Printable {
 		}
 	}
 
-	/**
-	 * Registers a <ChatChannel> properly.
-	 * 
-	 * @param chatChannel
-	 *            The <ChatChannel> being registered.
-	 */
-	public void registerChatChannel(ChatChannel chatChannel) {
-		if (chatChannel == null) {
-			throw new IllegalArgumentException("ChatChannel given is null!");
+	public ChatChannel createChatChannel(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Name provided is null or empty.");
 		}
-		// Grab the ChatManager.
-		ChatManager chatManager = getChatManager();
-		// Add the ChatChannel to the ChatManager.
-		chatManager.addChatChannel(chatChannel);
+		return createChatChannel(name, null, null);
+	}
+
+	public ChatChannel createChatChannel(String name, String description, String permissionNode) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Name provided is null or empty.");
+		}
+		if (description == null) {
+			description = "No description.";
+		}
+		if (permissionNode == null) {
+			permissionNode = "sledgehammer.chat";
+		}
+		boolean isGlobalChannel = true;
+		boolean isPublicChannel = true;
+		boolean isCustomChannel = false;
+		boolean saveHistory = true;
+		boolean canSpeak = true;
+		ChatChannel chatChannel = createChatChannel(name, description, permissionNode, isGlobalChannel, isPublicChannel,
+				isCustomChannel, saveHistory, canSpeak);
+		return chatChannel;
+	}
+
+	public ChatChannel createChatChannel(String channelName, String channelDescription, String permissionNode,
+			boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel, boolean saveHistory,
+			boolean canSpeak) {
+		ModuleChat moduleChat = getChatModule();
+		ChatChannel chatChannel = moduleChat.createChatChannel(channelName, channelDescription, permissionNode,
+				isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
+		return chatChannel;
 	}
 
 	/**
@@ -172,12 +155,11 @@ public abstract class Module extends Printable {
 	 * @param chatChannel
 	 *            The <ChatChannel> being unregistered.
 	 */
-	public void unregisterChatChannel(ChatChannel chatChannel) {
+	public void deleteChatChannel(ChatChannel chatChannel) {
 		if (chatChannel == null) {
 			throw new IllegalArgumentException("ChatChannel given is null!");
 		}
-		ModuleChat moduleChat = getChatModule();
-		moduleChat.deleteChannel(chatChannel);
+		getChatModule().deleteChatChannel(chatChannel);
 	}
 
 	public void startModule() {
@@ -187,14 +169,6 @@ public abstract class Module extends Printable {
 		} else {
 			println("Module is already started.");
 		}
-	}
-
-	public INI getINI() {
-		if (ini == null) {
-			iniFile = new File("plugins" + File.separator + getProperties().getModuleName() + ".ini");
-			ini = new INI(iniFile);
-		}
-		return this.ini;
 	}
 
 	public void updateModule(long delta) {
@@ -248,9 +222,13 @@ public abstract class Module extends Printable {
 		plugin.saveResourceAs(jarPath, file);
 	}
 
+	public ChatMessage createChatMessage(String message) {
+		return getChatModule().createChatMessage(message);
+	}
+
 	public void sendGlobalMessage(String message) {
-		ChatChannel global = getChatManager().getChannel("global");
-		global.addMessage(message);
+		ChatChannel global = getChatModule().getGlobalChatChannel();
+		global.addChatMessage(createChatMessage(message));
 	}
 
 	public void register(CommandListener listener) {
@@ -333,10 +311,6 @@ public abstract class Module extends Printable {
 		return getPluginManager().getChatModule();
 	}
 
-	public ChatManager getChatManager() {
-		return SledgeHammer.instance.getChatManager();
-	}
-
 	public Plugin getPlugin() {
 		return this.plugin;
 	}
@@ -352,9 +326,9 @@ public abstract class Module extends Printable {
 	 *         chatChannelName. Returns null if no <ChatChannel> exists without the
 	 *         name provided.
 	 */
-	public ChatChannel getChatChannel(String chatChannelName) {
-		return getChatManager().getChannel(chatChannelName);
-	}
+	// public ChatChannel getChatChannel(String chatChannelName) {
+	// return getChatManager().getChannel(chatChannelName);
+	// }
 
 	public List<Player> getPlayers() {
 		return SledgeHammer.instance.getPlayers();
@@ -389,6 +363,14 @@ public abstract class Module extends Printable {
 
 	public void setProperties(ModuleProperties properties) {
 		this.properties = properties;
+	}
+	
+	public String getClientModuleId() {
+		return getProperties().getClientModuleId();
+	}
+
+	public ChatChannel getChatChannel(String name) {
+		return getChatModule().getChatChannel(name);
 	}
 
 	/**

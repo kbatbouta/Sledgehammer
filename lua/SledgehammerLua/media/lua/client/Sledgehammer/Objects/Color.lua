@@ -28,3 +28,15 @@ end);
 function Color:__tostring()
 	return tostring(self.r) .. ", " .. tostring(self.g) .. ", " .. tostring(self.b) .. ", " .. tostring(self.a);
 end
+
+----------------------------------------------------------------
+-- Renders the ChatMessage into a String.
+--
+-- @table color The color to convert to a ProjectZomboid 
+--   color-encoded String.
+-- @return Returns the rendered String.
+----------------------------------------------------------------
+function colorToTag(color)
+	if color == nil then return ""; end
+	return '<RGB:'..color.r..','..color.g..','..color.b..'>';
+end

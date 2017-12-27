@@ -21,8 +21,7 @@ import sledgehammer.event.Event;
 public interface EventListener {
 	String[] getTypes();
 
-	void handleEvent(Event event);
+	void onEvent(Event event);
 
 	boolean runSecondary();
-
 }

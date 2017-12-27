@@ -24,7 +24,6 @@ import sledgehammer.event.HandShakeEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
-import sledgehammer.lua.chat.ChatMessagePlayer;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.core.ModuleChat;
@@ -47,33 +46,31 @@ public class ChatManager extends Manager implements EventListener {
 
 	public static final String NAME = "ChatManager";
 
-	public Map<String, ChatChannel> mapChannels;
-	private LinkedHashMap<Long, ChatMessage> mapMessagesByID;
-
-	public static ChatChannel chatChannelAll = new ChatChannel("*");
+//	public Map<String, ChatChannel> mapChannels;
+//	private LinkedHashMap<Long, ChatMessage> mapMessagesByID;
 
 	public ChatManager(SledgeHammer sledgeHammer) {
-		mapChannels = new HashMap<>();
-		int maxSize = 0x800;
-		mapMessagesByID = new LinkedHashMap<Long, ChatMessage>() {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected boolean removeEldestEntry(final Map.Entry<Long, ChatMessage> eldest) {
-				return size() > maxSize;
-			}
-		};
+//		mapChannels = new HashMap<>();
+//		int maxSize = 0x800;
+//		mapMessagesByID = new LinkedHashMap<Long, ChatMessage>() {
+//			private static final long serialVersionUID = 1L;
+//
+//			@Override
+//			protected boolean removeEldestEntry(final Map.Entry<Long, ChatMessage> eldest) {
+//				return size() > maxSize;
+//			}
+//		};
 	}
 
 	@Override
-	public void handleEvent(Event event) {
-		if (event.getID() == ClientEvent.ID) {
-			handleClientEvent((ClientEvent) event);
-		} else if (event.getID() == HandShakeEvent.ID) {
-			handleHandShakeEvent((HandShakeEvent) event);
-		} else if (event.getID() == DisconnectEvent.ID) {
-			handleDisconnectEvent((DisconnectEvent) event);
-		}
+	public void onEvent(Event event) {
+//		if (event.getID() == ClientEvent.ID) {
+//			handleClientEvent((ClientEvent) event);
+//		} else if (event.getID() == HandShakeEvent.ID) {
+//			handleHandShakeEvent((HandShakeEvent) event);
+//		} else if (event.getID() == DisconnectEvent.ID) {
+//			handleDisconnectEvent((DisconnectEvent) event);
+//		}
 	}
 
 	@Override
@@ -91,132 +88,134 @@ public class ChatManager extends Manager implements EventListener {
 		return new String[] { ClientEvent.ID, HandShakeEvent.ID, DisconnectEvent.ID };
 	}
 
-	public void startChat() {
-		SledgeHammer.instance.register(this);
-	}
+//	public void startChat() {
+//		SledgeHammer.instance.register(this);
+//	}
+//
+//	public void stopChat() {
+//		SledgeHammer.instance.unregister(this);
+//	}
 
-	public void stopChat() {
-		SledgeHammer.instance.unregister(this);
-	}
+//	public void addChatChannelNoBroadcast(ChatChannel channel) {
+//		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
+//		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
+//		moduleChat.addChannel(channel);
+//
+//	}
 
-	public void addChatChannelNoBroadcast(ChatChannel channel) {
-		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
-		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
-		moduleChat.addChannel(channel);
+//	public void addChatChannel(ChatChannel channel) {
+//		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
+//	}
 
-	}
+//	public ChatChannel addChatChannel(String name) {
+//		ChatChannel channel = new ChatChannel(name);
+//		addChatChannel(channel);
+//		return channel;
+//	}
 
-	public void addChatChannel(ChatChannel channel) {
-		mapChannels.put(channel.getChannelName().toLowerCase(), channel);
-	}
+//	/**
+//	 * @param player
+//	 * @return Returns the accepted List of chat channels for a given player.
+//	 */
+//	public List<ChatChannel> getChannelsForPlayer(Player player) {
+//		List<ChatChannel> list = new LinkedList<>();
+//		// Go through each ChatChannel.
+//		for (String channelName : mapChannels.keySet()) {
+//			// Grab the next channel in the list.
+//			ChatChannel nextChannel = mapChannels.get(channelName);
+//			// Check to make sure the player has access to this channel.
+//			if (player.hasPermission(nextChannel.getProperties().getContext())) {
+//				// If so, then add it to the list to return.
+//				list.add(nextChannel);
+//			}
+//		}
+//		// Return the result list of channels for the player.
+//		return list;
+//	}
 
-	public ChatChannel addChatChannel(String name) {
-		ChatChannel channel = new ChatChannel(name);
-		addChatChannel(channel);
-		return channel;
-	}
+//	/**
+//	 * Digests a player's message, sending it to other clients.
+//	 * 
+//	 * @param chatMessagePlayer
+//	 */
+//	public void digestPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
+//		// Grab channel.
+//		String channel = chatMessagePlayer.getChannel();
+//		ChatChannel chatChannel = mapChannels.get(channel);
+//		chatChannel.addPlayerMessage(chatMessagePlayer);
+//		mapMessagesByID.put(chatMessagePlayer.getMessageID(), chatMessagePlayer);
+//	}
 
-	/**
-	 * @param player
-	 * @return Returns the accepted List of chat channels for a given player.
-	 */
-	public List<ChatChannel> getChannelsForPlayer(Player player) {
-		List<ChatChannel> list = new LinkedList<>();
-		// Go through each ChatChannel.
-		for (String channelName : mapChannels.keySet()) {
-			// Grab the next channel in the list.
-			ChatChannel nextChannel = mapChannels.get(channelName);
-			// Check to make sure the player has access to this channel.
-			if (player.hasPermission(nextChannel.getProperties().getContext())) {
-				// If so, then add it to the list to return.
-				list.add(nextChannel);
-			}
-		}
-		// Return the result list of channels for the player.
-		return list;
-	}
+//	/**
+//	 * Digests a message, sending it to other clients.
+//	 * 
+//	 * @param chatMessage
+//	 */
+//	public void digestMessage(ChatMessage chatMessage) {
+//		// Grab channel.
+//		String channel = chatMessage.getChannel();
+//		ChatChannel chatChannel = mapChannels.get(channel);
+//		chatChannel.addMessage(chatMessage);
+//		mapMessagesByID.put(chatMessage.getMessageID(), chatMessage);
+//	}
 
-	/**
-	 * Digests a player's message, sending it to other clients.
-	 * 
-	 * @param chatMessagePlayer
-	 */
-	public void digestPlayerMessage(ChatMessagePlayer chatMessagePlayer) {
-		// Grab channel.
-		String channel = chatMessagePlayer.getChannel();
-		ChatChannel chatChannel = mapChannels.get(channel);
-		chatChannel.addPlayerMessage(chatMessagePlayer);
-		mapMessagesByID.put(chatMessagePlayer.getMessageID(), chatMessagePlayer);
-	}
+//	private void handleDisconnectEvent(DisconnectEvent event) {
+//		Player player = event.getPlayer();
+//		for (ChatChannel channel : this.mapChannels.values()) {
+//			channel.onDisconnect(player);
+//		}
+//	}
 
-	/**
-	 * Digests a message, sending it to other clients.
-	 * 
-	 * @param chatMessage
-	 */
-	public void digestMessage(ChatMessage chatMessage) {
-		// Grab channel.
-		String channel = chatMessage.getChannel();
-		ChatChannel chatChannel = mapChannels.get(channel);
-		chatChannel.addMessage(chatMessage);
-		mapMessagesByID.put(chatMessage.getMessageID(), chatMessage);
-	}
+//	public void addMessageToCache(ChatMessage message) {
+//		ChatMessage msg = mapMessagesByID.get(message.getMessageID());
+//		if (msg == null) {
+//			mapMessagesByID.put(message.getMessageID(), message);
+//		}
+//	}
 
-	private void handleDisconnectEvent(DisconnectEvent event) {
-		Player player = event.getPlayer();
-		for (ChatChannel channel : this.mapChannels.values()) {
-			channel.onDisconnect(player);
-		}
-	}
+//	/**
+//	 * Attempts to broadcast all channels to a player.
+//	 * 
+//	 * @param player
+//	 */
+//	void broadcastChannels(Player player) {
+//		for (ChatChannel channel : mapChannels.values()) {
+//			if(channel.hasAccess(player)) {
+//				channel.addPlayer(player);				
+//			}
+//		}
+//	}
 
-	public void addMessageToCache(ChatMessage message) {
-		ChatMessage msg = mapMessagesByID.get(message.getMessageID());
-		if (msg == null) {
-			mapMessagesByID.put(message.getMessageID(), message);
-		}
-	}
+//	public void saveMessage(ChatMessage chatMessage) {
+//		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
+//		moduleChat.saveMessage(chatMessage);
+//	}
+//
+//	public void renameChatChannel(ChatChannel chatChannel, String nameOld, String nameNew) {
+//		this.mapChannels.put(nameOld.toLowerCase(), null);
+//		this.mapChannels.put(nameNew.toLowerCase(), chatChannel);
+//	}
 
-	/**
-	 * Attempts to broadcast all channels to a player.
-	 * 
-	 * @param player
-	 */
-	void broadcastChannels(Player player) {
-		for (ChatChannel channel : mapChannels.values()) {
-			channel.sendToPlayer(player);
-		}
-	}
+//	public void removeChatChannel(ChatChannel channel) {
+//		this.mapChannels.remove(channel.getChannelName().toLowerCase());
+//		channel.removeAllPlayers();
+//	}
 
-	public void saveMessage(ChatMessage chatMessage) {
-		ModuleChat moduleChat = (ModuleChat) SledgeHammer.instance.getPluginManager().getModule(ModuleChat.class);
-		moduleChat.saveMessage(chatMessage);
-	}
+//	public Collection<ChatChannel> getChannels() {
+//		return mapChannels.values();
+//	}
 
-	public void renameChatChannel(ChatChannel chatChannel, String nameOld, String nameNew) {
-		this.mapChannels.put(nameOld.toLowerCase(), null);
-		this.mapChannels.put(nameNew.toLowerCase(), chatChannel);
-	}
+//	public ChatChannel getChannel(String channelName) {
+//		return mapChannels.get(channelName.toLowerCase());
+//	}
+//
+//	public ChatMessage getMessageFromCache(long messageID) {
+//		return mapMessagesByID.get(messageID);
+//	}
 
-	public void removeChatChannel(ChatChannel channel) {
-		this.mapChannels.remove(channel.getChannelName().toLowerCase());
-		channel.removeAllPlayers();
-	}
-
-	public Collection<ChatChannel> getChannels() {
-		return mapChannels.values();
-	}
-
-	public ChatChannel getChannel(String channelName) {
-		return mapChannels.get(channelName.toLowerCase());
-	}
-
-	public ChatMessage getMessageFromCache(long messageID) {
-		return mapMessagesByID.get(messageID);
-	}
-
-	private void handleHandShakeEvent(HandShakeEvent event) {
-	}
-
-	private void handleClientEvent(ClientEvent event) {
-	}
+//	private void handleHandShakeEvent(HandShakeEvent event) {
+//	}
+//
+//	private void handleClientEvent(ClientEvent event) {
+//	}
 }

@@ -35,7 +35,6 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
-import sledgehammer.lua.faction.FactionChatChannel;
 import sledgehammer.lua.faction.FactionInvite;
 import sledgehammer.lua.faction.FactionMember;
 import sledgehammer.module.MongoModule;
@@ -867,13 +866,14 @@ public class ModuleFactions extends MongoModule {
 	 */
 	public ChatChannel createChatChannel(Faction faction) {
 		// Creates a new ChatChannel wrapper for the Faction.
-		ChatChannel chatChannel = new FactionChatChannel("Faction_" + faction.getFactionName());
-		chatChannel.getProperties().setContext("sledgehammer.factions.chat");
-		chatChannel.getProperties().setPublic(false);
-		chatChannel.getProperties().streamGlobal(true);
-		registerChatChannel(chatChannel);
+//		ChatChannel chatChannel = createChatChannel("Faction_" + faction.getFactionName());
+		// new FactionChatChannel("Faction_" + faction.getFactionName());
+//		chatChannel.setPermissionNode("sledgehammer.factions.chat", false);
+//		chatChannel.setPublicChannel(false, false);
+//		chatChannel.setGlobalChannel(true, false);
 		// Return the new ChatChannel.
-		return chatChannel;
+//		return chatChannel;
+		return null;
 	}
 
 	/**
@@ -893,7 +893,7 @@ public class ModuleFactions extends MongoModule {
 			throw new IllegalStateException("Faction ChatChannel is null!");
 		}
 		// Unregister the channel entirely.
-		unregisterChatChannel(chatChannel);
+		deleteChatChannel(chatChannel);
 		// Return the unregistered channel.
 		return chatChannel;
 	}

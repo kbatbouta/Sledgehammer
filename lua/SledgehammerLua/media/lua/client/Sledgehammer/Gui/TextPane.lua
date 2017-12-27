@@ -18,8 +18,8 @@
 
 require "ISUI/ISRichTextPanel"
 require "Sledgehammer/Gui/Component"
-require "Sledgehammer/Color"
-require "Sledgehammer/Utils"
+require "Sledgehammer/Objects/Color"
+require "Util"
 
 TextPane = ISRichTextPanel:derive("TextPane");
 
@@ -41,9 +41,7 @@ function TextPane:update()
 end
 
 function TextPane:addLine(text)
-	
 	local vsv1 = self:isVScrollBarVisible();
-	
 	local pos = self.vscroll.pos;
 	if text ~= nil then
 		if text == "" then
@@ -52,15 +50,11 @@ function TextPane:addLine(text)
 			self.text = self.text .. " <LINE> " .. text;
 		end
 	end
-
 	self:paginate();
-
 	local vsv2 = self:isVScrollBarVisible();
-
 	if not vsv1 and vsv2 then
 		self.autoscroll = true;
 	end
-
 	if self.autoscroll then
 		self:scrollToBottom();
 	end
@@ -71,12 +65,9 @@ function TextPane:render()
 end
 
 function TextPane:_render() 
-	
 	self:setStencilRect(0, 0, self.width, self.height);
-    
 	-- Invoke super method.
     ISRichTextPanel.render(self);
-    
     self:clearStencilRect();
     self.vscroll.javaObject:render();
 end

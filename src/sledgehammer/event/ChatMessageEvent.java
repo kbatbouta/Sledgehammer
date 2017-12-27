@@ -16,24 +16,45 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.event;
 
+import java.util.UUID;
+
+import sledgehammer.SledgeHammer;
+import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.module.core.ModuleChat;
 
 public class ChatMessageEvent extends Event {
 
 	public static final String ID = "ChatMessageEvent";
 
-	private ChatMessage message;
+	private ChatChannel chatChannel;
+	private ChatMessage chatMessage;
 
-	public ChatMessageEvent(ChatMessage message) {
-		this.message = message;
+	public ChatMessageEvent(ChatMessage chatMessage) {
+		setMessage(chatMessage);
+		UUID channelId = getMessage().getChannelId();
+		ModuleChat moduleChat = getChatModule();
+		setChatChannel(moduleChat.getChatChannel(channelId));
 	}
 
 	public ChatMessage getMessage() {
-		return this.message;
+		return this.chatMessage;
 	}
 
-	public String getChannelName() {
-		return getMessage().getChannel();
+	private void setMessage(ChatMessage chatMessage) {
+		this.chatMessage = chatMessage;
+	}
+
+	public ChatChannel getChatChannel() {
+		return this.chatChannel;
+	}
+
+	private void setChatChannel(ChatChannel chatChannel) {
+		this.chatChannel = chatChannel;
+	}
+
+	public ModuleChat getChatModule() {
+		return SledgeHammer.instance.getPluginManager().getChatModule();
 	}
 
 	public String getLogMessage() {

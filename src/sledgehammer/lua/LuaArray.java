@@ -103,4 +103,12 @@ public class LuaArray<T> extends LuaObject {
 		array = this.array.toArray(array);
 		return (T[]) array;
 	}
+	
+	public boolean contains(T element) {
+		return array.contains(element);
+	}
+
+	public void clear() {
+		array.clear();
+	}
 }

@@ -48,7 +48,6 @@ function Module_Chat:handshake()
 end
 
 function Module_Chat:command(command, args)
-
 	if command == "sendChatMessagePlayer" then		
 		self:addChatMessagePlayer(args.message, false);
 	elseif command == "sendChatMessage" then
@@ -274,4 +273,4 @@ function Module_Chat:unload()
 end
 
 -- Registers the module to SledgeHammer
-register(Module_Chat());
+-- register(Module_Chat());

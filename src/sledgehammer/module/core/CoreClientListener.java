@@ -37,7 +37,7 @@ public class CoreClientListener implements EventListener {
 		return new String[] { ClientEvent.ID };
 	}
 
-	public void handleEvent(Event e) {
+	public void onEvent(Event e) {
 		// // Cast to proper Event sub-class.
 		// ClientEvent event = (ClientEvent) e;
 		//

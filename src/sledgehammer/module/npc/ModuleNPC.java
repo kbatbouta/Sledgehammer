@@ -21,10 +21,10 @@ import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
 import sledgehammer.module.Module;
 import sledgehammer.npc.behavior.BehaviorSurvive;
+import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;

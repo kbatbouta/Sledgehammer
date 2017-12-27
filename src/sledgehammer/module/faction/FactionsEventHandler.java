@@ -58,7 +58,7 @@ public class FactionsEventHandler implements EventListener {
 	}
 
 	@Override
-	public void handleEvent(Event event) {
+	public void onEvent(Event event) {
 		String ID = event.getID();
 		if (ID == ConnectEvent.ID) {
 			handleConnectEvent((ConnectEvent) event);
@@ -87,12 +87,12 @@ public class FactionsEventHandler implements EventListener {
 					invitesToDelete.add(factionInvite);
 					continue;
 				}
-				player.sendMessage(factionInvite.getUniqueId() + " has invited you to join the faction "
+				player.sendChatMessage(factionInvite.getUniqueId() + " has invited you to join the faction "
 						+ faction.getFactionName() + ".");
 			}
-			player.sendMessage("Type \'/faction accept <FACTION>\' to accept.");
-			player.sendMessage("To reject an invitation, type \'/faction reject \"faction\'.");
-			player.sendMessage("To reject all invitations, type \'/faction reject all\'.");
+			player.sendChatMessage("Type \'/faction accept <FACTION>\' to accept.");
+			player.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
+			player.sendChatMessage("To reject all invitations, type \'/faction reject all\'.");
 		}
 	}
 

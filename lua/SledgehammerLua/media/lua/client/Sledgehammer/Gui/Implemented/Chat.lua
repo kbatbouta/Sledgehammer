@@ -19,7 +19,7 @@
 require "Sledgehammer/Gui/Window"
 require "Sledgehammer/Gui/TextPane"
 require "ISUI/ISRichTextPanel"
-require "Sledgehammer/Utils"
+require "Util"
 
 Chat = Window:derive("Chat");
 Chat.__type = "Chat";

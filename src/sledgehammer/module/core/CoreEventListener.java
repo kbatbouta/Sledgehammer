@@ -57,7 +57,7 @@ public class CoreEventListener implements EventListener {
 	}
 
 	@Override
-	public void handleEvent(Event event) {
+	public void onEvent(Event event) {
 		event.setIgnoreCore(true);
 		String text = event.getLogMessage();
 

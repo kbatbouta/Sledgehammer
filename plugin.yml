@@ -8,22 +8,27 @@ version: "2.0_0"
 description: "Core plug-in for Sledgehammer."
 modules:
   Permissions:
+    client-module-id: "core.permissions"
     version: "2.0_0"
     description: "Default permissions plug-in for Sledgehammer."
     class: "sledgehammer.module.permissions.ModulePermissions"
   Core:
+    client-module-id: "core" 
     version: "2.0_0"
     description: "Core module for Sledgehammer."
     class: "sledgehammer.module.core.ModuleCore"
   Vanilla:
+    client-module-id: "core.vanilla"
     version: "1.3_0"
     description: "Vanilla module for Sledgehammer."
     class: "sledgehammer.module.vanilla.ModuleVanilla"
   Chat:
+    client-module-id: "core.chat"
     version: "2.0_0"
     description: "Chat module for Sledgehammer."
     class: "sledgehammer.module.core.ModuleChat"
   Factions:
+    client-module-id: "core.factions"
     version: "3.0_0"
     description: "Factions module for Sledgehammer."
     class: "sledgehammer.module.faction.ModuleFactions"

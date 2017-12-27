@@ -33,7 +33,7 @@ import sledgehammer.database.MongoCollection;
 public abstract class MongoDocument {
 
 	/** The <Map> that stores entries. */
-	private Map<String, MongoDocumentEntry> mapDocumentEntries;
+	private Map<String, MongoDocumentElement> mapDocumentEntries;
 
 	/** The <DBCollection> storing the document. */
 	private MongoCollection collection;
@@ -64,7 +64,7 @@ public abstract class MongoDocument {
 	 * @param entry
 	 *            The <MongoDocumentEntry> being added to the document.
 	 */
-	public void addEntry(MongoDocumentEntry entry) {
+	public void addEntry(MongoDocumentElement entry) {
 		mapDocumentEntries.put(entry.getEntryName(), entry);
 	}
 
@@ -75,7 +75,7 @@ public abstract class MongoDocument {
 	 *            The <MongoDocumentEntry> to remove.
 	 * @return Returns true if the document exists and is removed.
 	 */
-	public boolean removeEntry(MongoDocumentEntry entry) {
+	public boolean removeEntry(MongoDocumentElement entry) {
 		return removeEntry(entry.getEntryName());
 	}
 
@@ -98,7 +98,7 @@ public abstract class MongoDocument {
 			// Go through each entry.
 			for (String key : mapDocumentEntries.keySet()) {
 				// Grab the next entry with the provided key.
-				MongoDocumentEntry entry = mapDocumentEntries.get(key);
+				MongoDocumentElement entry = mapDocumentEntries.get(key);
 				// If the entry is the one we are removing.
 				if (entry.getEntryName().equals(entryName)) {
 					// Set the field explicitly to null.
@@ -190,7 +190,7 @@ public abstract class MongoDocument {
 		// Go through each entry.
 		for (String key : mapDocumentEntries.keySet()) {
 			// Grab the next entry with the provided key.
-			MongoDocumentEntry entry = mapDocumentEntries.get(key);
+			MongoDocumentElement entry = mapDocumentEntries.get(key);
 			// Create a new DBObject to populate with the entry data.
 			DBObject objectEntry = new BasicDBObject();
 			// Populate the DBObject.

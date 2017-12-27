@@ -23,15 +23,14 @@ import java.util.Map;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.lua.chat.Broadcast;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
-import sledgehammer.lua.chat.ChatMessagePlayer;
-import sledgehammer.lua.chat.Command;
-import sledgehammer.lua.chat.SendBroadcast;
+import sledgehammer.lua.core.Broadcast;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.core.send.SendBroadcast;
 import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.util.ChatTags;
+import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
 import sledgehammer.util.Result;
@@ -61,7 +60,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 
 	public CoreCommandListener(ModuleCore module) {
 		this.module = module;
-		sendBroadcast = new SendBroadcast((Broadcast) null);
+		sendBroadcast = new SendBroadcast();
 		// @formatter:off
 		mapTooltips = new HashMap<>();
 		mapTooltips.put("colors", "Displays all supported colors on this server.");
@@ -143,8 +142,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
 
 	@Override
 	public void onCommand(Command com, Response r) {
-		Player player = com.getPlayer();
-		String username = player.getUsername();
+		Player commander = com.getPlayer();
+		String username = commander.getUsername();
 		String command = com.getCommand();
 		String[] args = com.getArguments();
 		String response = null;
@@ -153,22 +152,21 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			println("Command fired by " + username + ": " + com.getRaw());
 		}
 		if (command.startsWith("espanol")) {
-			ChatChannel channel = module.getChatManager().getChannel("Espanol");
-			String property = player.getProperty("espanol");
+			ChatChannel channel = module.getChatModule().getChatChannel("Espanol");
+			String property = commander.getProperty("espanol");
 			if (property != null && property.equals("1")) {
-				player.setProperty("espanol", "0");
-				channel.removePlayer(player);
+				commander.setProperty("espanol", "0");
+				channel.removePlayer(commander);
 				r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
 			} else {
-				player.setProperty("espanol", "1");
-				channel.sendToPlayer(player);
+				commander.setProperty("espanol", "1");
+				channel.addPlayer(commander);
 				r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
 			}
-
 			return;
 		}
 		if (command.startsWith("colors")) {
-			if (player.hasPermission(getPermissionNode("colors"))) {
+			if (commander.hasPermission(getPermissionNode("colors"))) {
 				r.set(Result.SUCCESS, ChatTags.listColors());
 				return;
 			} else {
@@ -177,13 +175,13 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			}
 		}
 		if (command.startsWith("pm")) {
-			if (player.hasPermission(getPermissionNode("pm"))) {
+			if (commander.hasPermission(getPermissionNode("pm"))) {
 				if (args.length >= 2) {
 					String playerName = args[0];
 					IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
-					String commanderName = player.getNickname();
+					String commanderName = commander.getNickname();
 					if (commanderName == null) {
-						commanderName = player.getUsername();
+						commanderName = commander.getUsername();
 					}
 					if (playerPM == null) {
 						r.set(Result.FAILURE, "Could not find player: " + playerName);
@@ -191,13 +189,14 @@ public class CoreCommandListener extends Printable implements CommandListener {
 					}
 					String msg = com.getRaw().split(args[0])[1].trim();
 					Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
+					ModuleChat moduleChat = module.getChatModule();
 					if (playerDirty != null) {
 						// FIXME: Add database entry for PMs.
-						ChatMessagePlayer chatMessage = new ChatMessagePlayer(com.getPlayer(), msg);
-						chatMessage.setOrigin(ChatMessage.ORIGIN_CLIENT);
-						chatMessage.setChannel("PMs");
-						chatMessage.setTime();
-						playerDirty.sendMessage(chatMessage);
+						ChatMessage chatMessage = module.createChatMessage(msg);
+						chatMessage.setPlayerId(commander.getUniqueId(), false);
+						chatMessage.setOrigin(ChatMessage.ORIGIN_CLIENT, false);
+						chatMessage.setChannelId(moduleChat.getPMsChatChannel().getUniqueId(), false);
+						playerDirty.sendChatMessage(chatMessage);
 						r.set(Result.SUCCESS, "Message sent.");
 						r.log(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName()
 								+ " with message: \"" + msg + "\".");
@@ -213,8 +212,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		} else if (command.startsWith("warn")) {
-			if (player.hasPermission(getPermissionNode("warn"))) {
-				if (player.isAdmin()) {
+			if (commander.hasPermission(getPermissionNode("warn"))) {
+				if (commander.isAdmin()) {
 					if (args.length >= 2) {
 						String playerName = args[0];
 						String msg = "";
@@ -227,9 +226,9 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						if (playerDirty != null) {
 							if (playerDirty.isConnected()) {
 
-								ChatMessagePlayer message = new ChatMessagePlayer(com.getPlayer(),
-										"You have been warned. Reason: " + msg);
-								playerDirty.sendMessageAllChannels(message);
+								ChatMessage chatMessage = module.createChatMessage("You have been warned. Reason: " + msg);
+								chatMessage.setPlayerId(commander.getUniqueId(), false);
+								playerDirty.sendChatMessageToAllChatChannels(chatMessage);
 								response = "Player warned.";
 								r.set(Result.SUCCESS, response);
 								r.log(LogEvent.LogType.STAFF,
@@ -260,20 +259,18 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		} else if (command.startsWith("broadcast")) {
-			if (player.hasPermission(getPermissionNode("broadcast"))) {
+			if (commander.hasPermission(getPermissionNode("broadcast"))) {
 				if (args.length > 1) {
 					String color = ChatTags.getColor(args[0]);
-					if (color == null)
+					if (color == null) {						
 						color = COLOR_LIGHT_RED;
-
+					}
 					Broadcast broadcast = new Broadcast(args[0] + args[1]);
 					sendBroadcast.setBroadcast(broadcast);
-
 					SledgeHammer.instance.send(sendBroadcast);
-
 					response = "Broadcast sent.";
 					r.set(Result.SUCCESS, response);
-					r.log(LogEvent.LogType.STAFF, player.getUsername() + " broadcasted message: \"" + args[1] + "\".");
+					r.log(LogEvent.LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
 					return;
 				} else {
 					response = "/broadcast \"color\" \"message\"...";
@@ -285,15 +282,15 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		} else if (command.startsWith("commitsuicide")) {
-			if (player.hasPermission(getPermissionNode("commitsuicide"))) {
-				IsoPlayer iso = player.getIso();
+			if (commander.hasPermission(getPermissionNode("commitsuicide"))) {
+				IsoPlayer iso = commander.getIso();
 				if (iso != null) {
 					iso.setHealth(-1.0F);
 					iso.DoDeath(iso.bareHands, iso, true);
 				}
 				response = "Done.";
 				r.set(Result.SUCCESS, response);
-				r.log(LogEvent.LogType.INFO, player.getUsername() + " commited suicide.");
+				r.log(LogEvent.LogType.INFO, commander.getUsername() + " commited suicide.");
 
 				return;
 			} else {
@@ -301,11 +298,11 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		} else if (command.equalsIgnoreCase("properties")) {
-			if (player.hasPermission(getPermissionNode("properties"))) {
+			if (commander.hasPermission(getPermissionNode("properties"))) {
 				Player playerProperties = null;
 
 				if (args.length == 0) {
-					playerProperties = player;
+					playerProperties = commander;
 				} else if (args.length == 1) {
 					playerProperties = SledgeHammer.instance.getPlayer(username);
 				} else {
@@ -339,7 +336,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		} else if (command.equalsIgnoreCase("ban")) {
-			if (player.hasPermission(getPermissionNode("ban"))) {
+			if (commander.hasPermission(getPermissionNode("ban"))) {
 				if (args.length > 0) {
 					ban(com, r, args);
 					return;
@@ -353,7 +350,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				return;
 			}
 		} else if (command.equalsIgnoreCase("unban")) {
-			if (player.hasPermission(getPermissionNode("unban"))) {
+			if (commander.hasPermission(getPermissionNode("unban"))) {
 				if (args.length > 0) {
 					try {
 						unban(com, r, args);

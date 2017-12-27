@@ -3,7 +3,6 @@
 	<target name = "makejar" description="Create a jar for Sledgehammer">
 		<mkdir dir="prod"/>
 		<delete file="prod/Sledgehammer.jar"/>
-		
 		<jar jarfile="prod/Sledgehammer.jar" includes="*.class" basedir="">
 			<fileset dir = "bin">
 				<exclude name="**/zombie3709/**"/>

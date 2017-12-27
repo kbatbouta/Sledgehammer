@@ -18,8 +18,8 @@
 
 require "Sledgehammer"
 require "Sledgehammer/Objects/Color"
-require "Sledgehammer/Faction/Protocol/FactionMember"
-require "Sledgehammer/Faction/Protocol/FactionRelationship"
+require "Sledgehammer/Modules/Factions/Objects/FactionMember"
+require "Sledgehammer/Modules/Factions/Objects/FactionRelationship"
 
 ----------------------------------------------------------------
 -- Faction.Lua

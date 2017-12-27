@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.mongodb.DBCursor;
 
@@ -34,10 +35,10 @@ import sledgehammer.event.HandShakeEvent;
 import sledgehammer.lua.RequestInfo;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
-import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.SendPlayer;
 import sledgehammer.module.Module;
+import sledgehammer.util.Command;
 import zombie.network.ServerWorldDatabase;
 
 /**
@@ -166,34 +167,36 @@ public class ModuleCore extends Module {
 		} else if (command.equalsIgnoreCase("sendCommand")) {
 			KahluaTable table = (KahluaTable) e.getTable().rawget("command");
 			String raw = table.rawget("raw").toString();
-			String channelName = table.rawget("channel").toString();
+			UUID channelId = UUID.fromString(table.rawget("channel_id").toString());
 			Command _command = new Command(raw);
-			_command.setChannel(channelName);
+			_command.setChannelId(channelId);
 			_command.setPlayer(e.getPlayer());
 			_command.debugPrint();
 			CommandEvent _event = SledgeHammer.instance.handleCommand(_command);
+			ModuleChat moduleChat = getChatModule();
+			Player _player = e.getPlayer();
 			if (_event.isHandled()) {
-				ChatMessage message = new ChatMessage(_event.getResponse().getResponse());
-				message.setTime();
-				message.setOrigin(ChatMessage.ORIGIN_SERVER);
-				ChatChannel channel = getChatManager().getChannel(channelName);
+				ChatMessage message = getChatModule().createChatMessage(_event.getResponse().getResponse());
+				message.setPrintedTimestamp(false);
+				message.setOrigin(ChatMessage.ORIGIN_SERVER, false);
+				ChatChannel channel = moduleChat.getChatChannel(channelId);
 				if (channel == null) {
-					channelName = "Global";
+					channel = moduleChat.getGlobalChatChannel();
 				}
-				message.setChannel(channelName);
-				e.getPlayer().sendMessage(message);
+				message.setChannelId(channelId, false);
+				_player.sendChatMessage(message);
 			} else {
-				ChatMessage message = new ChatMessage("Unknown command: " + command);
-				message.setTime();
-				message.setOrigin(ChatMessage.ORIGIN_SERVER);
-				// Checks if the origin Channel is avaliable.
+				ChatMessage message = createChatMessage("Unknown command: " + command);
+				message.setPrintedTimestamp(false);
+				message.setOrigin(ChatMessage.ORIGIN_SERVER, false);
+				// Checks if the origin Channel is available.
 				// This can sometimes be affected by the command fired.
-				ChatChannel channel = getChatManager().getChannel(channelName);
+				ChatChannel channel = getChatModule().getChatChannel(channelId);
 				if (channel == null) {
-					channelName = "Global";
+					channel = moduleChat.getGlobalChatChannel();
 				}
-				message.setChannel(channelName);
-				e.getPlayer().sendMessage(message);
+				message.setChannelId(channel.getUniqueId(), false);
+				_player.sendChatMessage(message);
 			}
 		}
 	}

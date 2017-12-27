@@ -61,7 +61,7 @@ public class LuaListener extends Printable implements EventListener {
 	private static final boolean DEBUG = false;
 
 	@Override
-	public void handleEvent(Event e) {
+	public void onEvent(Event e) {
 
 		boolean validArguments = true;
 

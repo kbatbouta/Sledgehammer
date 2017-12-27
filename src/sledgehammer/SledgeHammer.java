@@ -36,6 +36,7 @@ This file is part of Sledgehammer.
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,9 +52,7 @@ import sledgehammer.interfaces.ExceptionListener;
 import sledgehammer.interfaces.LogListener;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
-import sledgehammer.lua.chat.Command;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.core.ChatManager;
 import sledgehammer.manager.core.EventManager;
 import sledgehammer.manager.core.NPCManager;
 import sledgehammer.manager.core.PermissionsManager;
@@ -61,6 +60,7 @@ import sledgehammer.manager.core.PlayerManager;
 import sledgehammer.manager.core.PluginManager;
 import sledgehammer.interfaces.ContextListener;
 import sledgehammer.module.core.CoreContextListener;
+import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
 import zombie.characters.IsoPlayer;
@@ -117,10 +117,6 @@ public class SledgeHammer extends Printable {
 	 * Manager to handle Events.
 	 */
 	private EventManager managerEvent;
-	/**
-	 * Chat instance for working with chat packets and chat filtering.
-	 */
-	private ChatManager chat;
 	/**
 	 * Manager to handle logging of Players and Player data.
 	 */
@@ -179,7 +175,6 @@ public class SledgeHammer extends Printable {
 			translator = new CoreContextListener();
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			// Initialize the Chat Engine.
-			chat = new ChatManager(this);
 			managerEvent = new EventManager();
 			managerPermissions = new PermissionsManager();
 			managerPlugin = new PluginManager();
@@ -201,7 +196,6 @@ public class SledgeHammer extends Printable {
 	public void start() {
 		getPluginManager().onStart();
 		getPlayerManager().onStart();
-		getChatManager().startChat();
 		for (Player player : getPlayers()) {
 			PlayerCreatedEvent event = new PlayerCreatedEvent(player);
 			SledgeHammer.instance.handle(event);
@@ -231,7 +225,6 @@ public class SledgeHammer extends Printable {
 			synchronized (this) {
 				managerPlugin.onShutDown();
 				managerPlayer.onShutDown();
-				getChatManager().stopChat();
 				getDatabase().shutDown();
 			}
 		} catch (Exception e) {
@@ -367,10 +360,24 @@ public class SledgeHammer extends Printable {
 	 * Sends a Send LuaTable Object to online players.
 	 * 
 	 * @param send
-	 * @param player
+	 *            The <Send> LuaTable Object being sent.
 	 */
 	public void send(Send send) {
 		for (Player player : getPlayers()) {
+			send(send, player);
+		}
+	}
+
+	/**
+	 * Sends a <Send> LuaTable Object to the given <Collection> of <Player>'s.
+	 * 
+	 * @param send
+	 *            The <Send> LuaTable Object being sent.
+	 * @param players
+	 *            The <Collection> of <Player>'s being sent the <Send> Object.
+	 */
+	public void send(Send send, Collection<Player> players) {
+		for (Player player : players) {
 			send(send, player);
 		}
 	}
@@ -388,13 +395,6 @@ public class SledgeHammer extends Printable {
 	 */
 	public PluginManager getPluginManager() {
 		return this.managerPlugin;
-	}
-
-	/**
-	 * @return Returns the <ChatManager> instance.
-	 */
-	public ChatManager getChatManager() {
-		return chat;
 	}
 
 	/**
@@ -447,7 +447,7 @@ public class SledgeHammer extends Printable {
 	public List<UdpConnection> getConnections() {
 		return getUdpEngine().getConnections();
 	}
-	
+
 	/**
 	 * @return Returns Project Zomboid's UdpEngine instance.
 	 */
@@ -526,6 +526,7 @@ public class SledgeHammer extends Printable {
 	 * <code> handleEvent(event, true); </code>,
 	 * 
 	 * The Event is logged.
+	 * 
 	 * @param event
 	 * @return
 	 */
@@ -704,7 +705,7 @@ public class SledgeHammer extends Printable {
 		return new File(getJarFileLocation());
 	}
 
-	public static Player getAdmin() {
+	public static Player getAdministrator() {
 		return Player.admin;
 	}
 

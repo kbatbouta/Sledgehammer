@@ -30,6 +30,8 @@ import sledgehammer.lua.LuaTable;
 @SuppressWarnings("rawtypes")
 public class ModuleProperties extends LuaTable {
 
+	public static final boolean DEBUG = true;
+	
 	private PluginProperties pluginProperties;
 	/** The <String> name of the <Module>. */
 	private String name;
@@ -39,6 +41,8 @@ public class ModuleProperties extends LuaTable {
 	private String moduleLocation;
 	/** The <String> description of the <Module>. */
 	private String description;
+
+	private String clientModuleId;
 
 	/**
 	 * (Internal constructor)
@@ -93,6 +97,7 @@ public class ModuleProperties extends LuaTable {
 		String version = "1.0";
 		String description = "No description.";
 		String moduleLocation = "unknown";
+		String clientModuleId = name.toLowerCase().trim();
 		// Grab the version.
 		Object oVersion = map.get("version");
 		// If it exists, set it.
@@ -111,16 +116,31 @@ public class ModuleProperties extends LuaTable {
 		if (oModuleLocation != null) {
 			moduleLocation = oModuleLocation.toString();
 		}
+
+		Object oClientModuleId = map.get("client-module-id");
+		if (oClientModuleId != null) {
+			clientModuleId = oClientModuleId.toString().toLowerCase().trim();
+		}
 		if (DEBUG) {
 			System.out.println("Name: " + name);
 			System.out.println("Version: " + version);
 			System.out.println("Location: " + moduleLocation);
 			System.out.println("Description: " + description);
+			System.out.println("ClientModuleId: " + clientModuleId);
 		}
 		// Set the result properties.
 		setModuleVersion(version);
 		setModuleLocation(moduleLocation);
 		setModuleDescription(description);
+		setClientModuleId(clientModuleId);
+	}
+
+	public String getClientModuleId() {
+		return this.clientModuleId;
+	}
+
+	private void setClientModuleId(String clientModuleId) {
+		this.clientModuleId = clientModuleId;
 	}
 
 	/**

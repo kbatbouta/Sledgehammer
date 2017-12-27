@@ -196,7 +196,7 @@ public class NPCManager extends Manager {
 		}
 
 		@Override
-		public void handleEvent(Event event) {
+		public void onEvent(Event event) {
 			if (event.getID() == ConnectEvent.ID) {
 
 				ConnectEvent connectEvent = (ConnectEvent) event;

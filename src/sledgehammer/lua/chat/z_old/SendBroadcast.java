@@ -14,47 +14,54 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.lua.chat;
+package sledgehammer.lua.chat.z_old;
 
 import sledgehammer.lua.Send;
 
 /**
- * TODO: Document.
+ * Class designed to package Broadcast LuaObjects.
  * 
  * @author Jab
  */
-public class SendRenameChatChannel extends Send {
+public class SendBroadcast extends Send {
 
-	private ChatChannel channel;
-	private String nameOld;
-	private String nameNew;
+	/**
+	 * The Broadcast LuaObject being packaged.
+	 */
+	private Broadcast broadcast;
 
-	public SendRenameChatChannel() {
-		super("core.chat", "sendRenameChatChannel");
-	}
+	/**
+	 * Main constructor.
+	 * 
+	 * @param broadcast
+	 */
+	public SendBroadcast(Broadcast broadcast) {
+		super("core", "sendBroadcast");
 
-	public void set(ChatChannel channel, String nameOld, String nameNew) {
-		this.channel = channel;
-		this.nameOld = nameOld;
-		this.nameNew = nameNew;
-	}
-
-	public ChatChannel getChatChannel() {
-		return this.channel;
-	}
-
-	public String getOldName() {
-		return this.nameOld;
-	}
-
-	public String getNewName() {
-		return this.nameNew;
+		// Set variable(s).
+		setBroadcast(broadcast);
 	}
 
 	@Override
 	public void onExport() {
-		set("channel", getChatChannel());
-		set("nameNew", getNewName());
-		set("nameOld", getOldName());
+		set("broadcast", getBroadcast());
+	}
+
+	/**
+	 * Returns the Broadcast LuaObject packaged.
+	 * 
+	 * @return
+	 */
+	public Broadcast getBroadcast() {
+		return this.broadcast;
+	}
+
+	/**
+	 * Sets the Broadcast LuaObject to be packaged.
+	 * 
+	 * @param broadcast
+	 */
+	public void setBroadcast(Broadcast broadcast) {
+		this.broadcast = broadcast;
 	}
 }

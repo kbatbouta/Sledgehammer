@@ -77,16 +77,13 @@ end
 -- @return  	Returns the length of the table.
 ----------------------------------------------------------------
 function tLength(T)
-
 	-- The counting variable for the table.
 	local count = 0;
-  
 	-- Loop through all paired elements in the table.
 	for _ in pairs(T) do 
 		-- Discard the index, and increment the value.
 		count = count + 1;
 	end
-
 	-- Return the result count.
 	return count;
 end

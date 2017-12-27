@@ -18,7 +18,7 @@
 --	Sledgehammer is free to use and modify, ONLY for non-official third-party servers 
 --    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
 
-require "Sledgehammer/Factions/Factions"
+require "Sledgehammer/Modules/Factions/ModuleFactions"
 
 function onServerCommand(module, in_command, table)
 	

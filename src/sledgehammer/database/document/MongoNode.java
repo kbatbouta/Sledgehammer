@@ -24,7 +24,7 @@ import com.mongodb.DBObject;
  * 
  * @author Jab
  */
-public class MongoNode extends MongoDocumentEntry {
+public class MongoNode extends MongoDocumentElement {
 
 	/** The <String> node being stored. */
 	private String node;

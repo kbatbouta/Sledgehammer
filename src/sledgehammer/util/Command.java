@@ -14,11 +14,12 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.lua.chat;
+package sledgehammer.util;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.lua.LuaArray;
@@ -35,7 +36,7 @@ public class Command extends LuaTable {
 	private String[] args = new String[0];
 	private String raw = null;
 	private Player player;
-	private String channel;
+	private UUID channelId;
 
 	public Command(String raw) {
 		super("Command");
@@ -62,9 +63,9 @@ public class Command extends LuaTable {
 	@Override
 	public void onLoad(KahluaTable table) {
 		Object raw = table.rawget("raw");
-		Object channel = table.rawget("channel");
-		if (channel != null) {
-			setChannel(channel.toString());
+		Object oChannelId = table.rawget("channel_id");
+		if (oChannelId != null) {
+			setChannelId(UUID.fromString(oChannelId.toString()));
 		}
 		parse(raw.toString());
 	}
@@ -75,7 +76,7 @@ public class Command extends LuaTable {
 		set("command", command);
 		set("args", new LuaArray<String>(args));
 		set("player", getPlayer());
-		set("channel", getChannel());
+		set("channel_id", getChannelId());
 	}
 
 	@Override
@@ -141,12 +142,12 @@ public class Command extends LuaTable {
 		this.player = player;
 	}
 
-	public String getChannel() {
-		return channel;
+	public UUID getChannelId() {
+		return this.channelId;
 	}
 
-	public void setChannel(String channel) {
-		this.channel = channel;
+	public void setChannelId(UUID channelId) {
+		this.channelId = channelId;
 	}
 
 	public static String[] tryAgain(String input) {

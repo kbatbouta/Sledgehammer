@@ -31,8 +31,7 @@ import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
-import sledgehammer.lua.chat.ChatMessagePlayer;
-import sledgehammer.manager.core.ChatManager;
+import sledgehammer.module.core.ModuleChat;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;
@@ -64,30 +63,22 @@ public class Player extends LuaTable {
 	private boolean hasInit = false;
 	private boolean created = false;
 
+	/**
+	 * UdpConnection constructor.
+	 * 
+	 * @param connection
+	 *            The <UdpConnection> of the Player.
+	 */
 	public Player(UdpConnection connection) {
 		super("Player");
-		if (connection == null)
+		if (connection == null) {
 			throw new IllegalArgumentException("UdpConnection instance given is null!");
+		}
 		this.connection = connection;
 		this.iso = SledgeHelper.getIsoPlayer(connection);
 		position = new Vector3f(0, 0, 0);
 		metaPosition = new Vector2f(0, 0);
 		color = Color.WHITE;
-	}
-
-	public MongoPlayer getMongoPlayer() {
-		return this.mongoPlayer;
-	}
-
-	public void setMongoPlayer(MongoPlayer mongoPlayer) {
-		this.mongoPlayer = mongoPlayer;
-		if (!created) {
-			if (SledgeHammer.instance.isStarted()) {
-				PlayerCreatedEvent event = new PlayerCreatedEvent(this);
-				SledgeHammer.instance.handle(event);
-				created = true;
-			}
-		}
 	}
 
 	/**
@@ -151,6 +142,41 @@ public class Player extends LuaTable {
 		username = mongoPlayer.getUsername();
 	}
 
+	@Override
+	public void onLoad(KahluaTable table) {
+		// Players will only be authored by the server.
+	}
+
+	@Override
+	public void onExport() {
+		set("id", getUniqueId().toString());
+		set("username", getUsername());
+		set("nickname", getNickname());
+		set("color", getColor());
+	}
+
+	@Override
+	public String getName() {
+		String name = getNickname();
+		if (name == null) {
+			name = getUsername();
+		}
+		return name;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Player) {
+			return ((Player) other).getUniqueId().equals(getUniqueId());
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
+
 	public void init() {
 		position = new Vector3f(0, 0, 0);
 		metaPosition = new Vector2f(0, 0);
@@ -198,8 +224,75 @@ public class Player extends LuaTable {
 		}
 	}
 
-	public IsoPlayer getIso() {
-		return iso;
+	/**
+	 * Sends a given <ChatMessage> to the Player on the ChatChannel defined.
+	 * 
+	 * If a ChatChannel's Id is not defined in the ChatMessage, an
+	 * IllegalArgumentException is thrown.
+	 * 
+	 * If a ChatChanel is not found with the defined Id in the ChatMessage, an
+	 * IllegalArgumentException is thrown.
+	 * 
+	 * @param message
+	 *            The <ChatMessage> being sent to the Player.
+	 */
+	public void sendChatMessage(ChatMessage message) {
+		// Check and make sure the Message provided is not null.
+		if (message == null) {
+			throw new IllegalArgumentException("ChatMessage given is null.");
+		}
+		// Grab the ChannelId defined in the message.
+		UUID channelId = message.getChannelId();
+		// Make sure that the ChatChannel is defined. It must be defined to send to the
+		// Player.
+		if (channelId == null) {
+			throw new IllegalArgumentException("ChatMessage given does not have a defined ChatChannel Id.");
+		}
+		// Grab the ModuleChat to grab the ChatChannel with the given Id.
+		ModuleChat moduleChat = getChatModule();
+		// Grab the ChatChannel with the given Id.
+		ChatChannel channel = moduleChat.getChatChannel(channelId);
+		// If the channelId is invalid, we cannot send this message.
+		if (channel == null) {
+			throw new IllegalArgumentException("ChatMessage given does not have a valid ChatChannel.");
+		}
+		// Send the ChatMessage to the Player to the ChatChannel.
+		channel.sendMessage(message, this);
+	}
+
+	/**
+	 * Sends a given <ChatMessage> to the PLayer in all available <ChatChannel>'s.
+	 * 
+	 * @param chatMessage
+	 *            The <ChatMessage> to send.
+	 */
+	public void sendChatMessageToAllChatChannels(ChatMessage chatMessage) {
+		// Check and make sure the Message provided is not null.
+		if (chatMessage == null) {
+			throw new IllegalArgumentException("ChatMessage given is null.");
+		}
+		// Grab the ChatChannel for relaying to all ChatChannels.
+		ChatChannel chatChannelAll = getChatModule().getAllChatChannel();
+		// Clone the ChatMessage to set the ChatChannel exclusively for this action
+		// only.
+		chatMessage = chatMessage.clone();
+		// Set the 'All' ChatChannel so that it may be distributed on the client-side.
+		chatMessage.setChannelId(chatChannelAll.getUniqueId(), false);
+		// Send the ChatMessage clone formally.
+		sendChatMessage(chatMessage);
+	}
+
+	/**
+	 * Sends a <ChatMessage> with provided <String> content to the Player.
+	 * 
+	 * @param message
+	 *            The <String> message content to send.
+	 */
+	public void sendChatMessage(String message) {
+		// Create the ChatMessage using the message content.
+		ChatMessage chatMessage = getChatModule().createChatMessage(message);
+		// Send the ChatMessage to All available ChatChannels.
+		sendChatMessageToAllChatChannels(chatMessage);
 	}
 
 	public UdpConnection getConnection() {
@@ -214,6 +307,56 @@ public class Player extends LuaTable {
 		return connection;
 	}
 
+	public MongoPlayer getMongoPlayer() {
+		return this.mongoPlayer;
+	}
+
+	public void setMongoPlayer(MongoPlayer mongoPlayer) {
+		this.mongoPlayer = mongoPlayer;
+		if (!created) {
+			if (SledgeHammer.instance.isStarted()) {
+				PlayerCreatedEvent event = new PlayerCreatedEvent(this);
+				SledgeHammer.instance.handle(event);
+				created = true;
+			}
+		}
+	}
+
+	public boolean isWithinLocalRange(Player other) {
+		if (isConnected() && other.isConnected()) {
+			IsoPlayer isoOther = other.getIso();
+			return getConnection().ReleventTo(isoOther.x, isoOther.y);
+		}
+		return false;
+	}
+
+	public boolean isOnline() {
+		if (connection == null) {
+			return false;
+		} else {
+			return connection.connected;
+		}
+	}
+
+	/**
+	 * @param node
+	 *            The <String> node that is being tested.
+	 * @return Returns true if the <Player> is granted the given <String> node
+	 *         permission. If the <Player> is an administrator, this method will
+	 *         always return true. To grab the raw permission, use
+	 *         'hasRawPermission(String node)...'.
+	 */
+	public boolean hasPermission(String node) {
+		if (isAdmin()) {
+			return true;
+		}
+		return hasRawPermission(node);
+	}
+
+	public IsoPlayer getIso() {
+		return iso;
+	}
+
 	public boolean isConnected() {
 		return connection != null && connection.connected;
 	}
@@ -224,22 +367,6 @@ public class Player extends LuaTable {
 
 	public String getUsername() {
 		return username;
-	}
-
-	public String getName() {
-		String name = getNickname();
-		if (name == null) {
-			name = getUsername();
-		}
-		return name;
-	}
-
-	public boolean isOnline() {
-		if (connection == null) {
-			return false;
-		} else {
-			return connection.connected;
-		}
 	}
 
 	public boolean isUsername(String username) {
@@ -302,11 +429,6 @@ public class Player extends LuaTable {
 		this.iso = iso;
 	}
 
-	@Override
-	public String toString() {
-		return getName();
-	}
-
 	public String getNickname() {
 		if (nickname == null)
 			return username;
@@ -337,28 +459,8 @@ public class Player extends LuaTable {
 		return this.metaPosition;
 	}
 
-	/**
-	 * @param node
-	 *            The <String> node that is being tested.
-	 * @return Returns true if the <Player> is granted the given <String> node
-	 *         permission. If the <Player> is an administrator, this method will
-	 *         always return true. To grab the raw permission, use
-	 *         'hasRawPermission(String node)...'.
-	 */
-	public boolean hasPermission(String node) {
-		if (isAdmin()) {
-			return true;
-		}
-		return hasRawPermission(node);
-	}
-
 	public boolean hasRawPermission(String node) {
 		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(this, node);
-	}
-
-	@Override
-	public void onLoad(KahluaTable table) {
-		// Players will only be authored by the server.
 	}
 
 	public Color getColor() {
@@ -369,54 +471,16 @@ public class Player extends LuaTable {
 		this.color = color;
 	}
 
-	@Override
-	public void onExport() {
-		set("id", getUniqueId().toString());
-		set("username", getUsername());
-		set("nickname", getNickname());
-		set("color", getColor());
-	}
-
 	public void setNickname(String nickname) {
 		this.nickname = nickname;
 	}
 
-	public void sendMessage(ChatMessage message) {
-		ChatChannel channel = SledgeHammer.instance.getChatManager().getChannel(message.getChannel());
-		if (message instanceof ChatMessagePlayer) {
-			channel.sendMessagePlayer((ChatMessagePlayer) message, this);
-		} else {
-			channel.sendMessage(message, this);
-		}
-	}
-
-	public void sendMessageAllChannels(ChatMessagePlayer message) {
-		String oldChannel = message.getChannel();
-		ChatChannel channel = ChatManager.chatChannelAll;
-		message.setChannel("*");
-		if (message instanceof ChatMessagePlayer) {
-			channel.sendMessagePlayer((ChatMessagePlayer) message, this);
-		} else {
-			channel.sendMessage(message, this);
-		}
-		message.setChannel(oldChannel);
-	}
-
-	public void sendMessage(String string) {
-		ChatMessage message = new ChatMessage(string);
-		sendMessage(message);
+	private ModuleChat getChatModule() {
+		return SledgeHammer.instance.getPluginManager().getChatModule();
 	}
 
 	public void update() {
 		SledgeHammer.instance.updatePlayer(this);
-	}
-
-	public boolean isWithinLocalRange(Player other) {
-		if (isConnected() && other.isConnected()) {
-			IsoPlayer isoOther = other.getIso();
-			return getConnection().ReleventTo(isoOther.x, isoOther.y);
-		}
-		return false;
 	}
 
 	public void setPermission(String username, String node, boolean flag) {
@@ -425,13 +489,5 @@ public class Player extends LuaTable {
 
 	public UUID getUniqueId() {
 		return getMongoPlayer().getUniqueId();
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof Player) {
-			return ((Player) other).getUniqueId().equals(getUniqueId());
-		}
-		return false;
 	}
 }

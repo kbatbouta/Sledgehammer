@@ -18,7 +18,8 @@
 
 require "ISUI/ISUIElement"
 require "ISUI/ISPanel"
-require "Sledgehammer/Utils"
+
+require "Sledgehammer/Objects/Color"
 
 Component = ISPanel:derive("Component");
 

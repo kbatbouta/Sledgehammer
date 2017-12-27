@@ -58,13 +58,11 @@ public abstract class LuaObject extends Printable {
 	 */
 	public static Object processValue(Object value) {
 		Object result = value;
-
 		if (value instanceof Number) {
-			result = ((Number) value).doubleValue();
+			result = toLuaNumber((Number) value);
 		} else if (value instanceof LuaObject) {
 			result = ((LuaObject) value).export();
 		}
-
 		if (DEBUG && VERBOSE) {
 			if (value == null) {
 				System.out.println("LuaObject: Processed Value is null.");
@@ -73,8 +71,18 @@ public abstract class LuaObject extends Printable {
 						+ result.getClass() + "\' = " + result);
 			}
 		}
-
 		return result;
 	}
 
+	/**
+	 * Formats a given <Number> to a double, as Lua requires all values to be
+	 * doubles.
+	 * 
+	 * @param number
+	 *            The <Number> being formatted for Lua.
+	 * @return Returns a <Double> value as a <Number>.
+	 */
+	public static Number toLuaNumber(Number number) {
+		return number.doubleValue();
+	}
 }

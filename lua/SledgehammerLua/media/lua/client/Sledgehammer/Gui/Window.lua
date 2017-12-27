@@ -17,7 +17,7 @@
 --    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
 
 require "Sledgehammer/Gui/Component"
-require "Sledgehammer/Color"
+require "Sledgehammer/Objects/Color"
 
 Window = Component:derive("Window");
 

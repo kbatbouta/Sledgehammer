@@ -24,7 +24,7 @@ import com.mongodb.DBObject;
  * 
  * @author Jab
  */
-public abstract class MongoDocumentEntry {
+public abstract class MongoDocumentElement {
 
 	/** The <String> name of the entry. */
 	private String name;
@@ -38,7 +38,7 @@ public abstract class MongoDocumentEntry {
 	 * @param mongoDocument
 	 * @param name
 	 */
-	public MongoDocumentEntry(MongoDocument mongoDocument, String name) {
+	public MongoDocumentElement(MongoDocument mongoDocument, String name) {
 		setEntryName(name);
 		setMongoDocument(mongoDocument);
 	}

@@ -40,7 +40,7 @@ public class TerritoriesEventListener implements EventListener {
 	}
 
 	@Override
-	public void handleEvent(Event event) {
+	public void onEvent(Event event) {
 		if (event.getID() == PlayerInfoEvent.ID) {
 			handlePlayerInfoEvent((PlayerInfoEvent) event);
 		}

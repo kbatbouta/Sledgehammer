@@ -14,37 +14,30 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.lua.chat;
+package sledgehammer.lua.chat.z_old;
 
-import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.lua.LuaArray;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.Send;
 
 /**
- * TODO: Documentation.
+ * TODO: Document.
  * 
  * @author Jab
  */
-public class RequestChatChannels extends LuaTable {
+public class SendChatChannel extends Send {
 
-	private LuaArray<ChatChannel> channels;
+	private ChatChannel channel;
 
-	public RequestChatChannels() {
-		super("RequestChatChannels");
-		channels = new LuaArray<>();
+	public SendChatChannel(ChatChannel channel) {
+		super("core.chat", "sendChatChannel");
+		this.channel = channel;
 	}
 
-	public void addChannel(ChatChannel channel) {
-		channels.add(channel);
-	}
-
-	public void onLoad(KahluaTable table) {
-		channels = new LuaArray<>((KahluaTable) table.rawget("channels"));
-	}
-
+	@Override
 	public void onExport() {
-		set("length", channels.size());
-		set("channels", channels);
+		set("channel", channel);
 	}
 
+	public ChatChannel getChatChannel() {
+		return this.channel;
+	}
 }

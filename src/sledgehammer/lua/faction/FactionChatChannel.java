@@ -18,6 +18,7 @@ package sledgehammer.lua.faction;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
+import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 import sledgehammer.module.faction.ModuleFactions;
@@ -34,8 +35,8 @@ public class FactionChatChannel extends ChatChannel {
 	 * 
 	 * @param table
 	 */
-	public FactionChatChannel(KahluaTable table) {
-		super(table);
+	public FactionChatChannel(MongoChatChannel mongoChatChannel, KahluaTable table) {
+		super(mongoChatChannel, table);
 	}
 
 	/**
@@ -43,28 +44,13 @@ public class FactionChatChannel extends ChatChannel {
 	 * 
 	 * @param name
 	 */
-	public FactionChatChannel(String name) {
-		super(name);
-		setProperties(loadChannelProperties());
+	public FactionChatChannel(MongoChatChannel mongoChatChannel) {
+		super(mongoChatChannel);
 	}
 
 	@Override
-	public boolean canSee(Player player) {
-		return super.canSee(player);
-	}
-
-	/**
-	 * Main constructor.
-	 * 
-	 * @param name
-	 *            The <String> name of the <ChatChannel>.
-	 * @param description
-	 *            The <String> description of the <ChatChannel>.
-	 * @param context
-	 *            The <String> context of the <ChatChannel>.
-	 */
-	public FactionChatChannel(String name, String description, String context) {
-		super(name, description, context);
+	public boolean hasAccess(Player player) {
+		return super.hasAccess(player);
 	}
 
 	/**
