@@ -39,11 +39,11 @@ Module_Chat = class(Module, function(o)
 end);
 
 ----------------------------------------------------------------
--- 
+-- @Override
 ----------------------------------------------------------------
 function Module_Chat:load()
 	-- Inidialize Chat GUI
-	self.gui = Chat:new(self);
+	self.gui = ChatWindow:new(self);
 	self.gui:initialise();
 	self.gui.resizable = false;
 	self.gui:addToUIManager();
@@ -51,36 +51,44 @@ function Module_Chat:load()
 end
 
 ----------------------------------------------------------------
--- 
+-- @Override
 ----------------------------------------------------------------
-function Module_Chat:start()
-
-end
+function Module_Chat:start() end
 
 ----------------------------------------------------------------
--- 
+-- @Override
 ----------------------------------------------------------------
 function Module_Chat:handshake()
 	self:requestChannels();
-	self:requestChannelsHistory();
 end
 
 ----------------------------------------------------------------
--- 
+-- @Override
 ----------------------------------------------------------------
 function Module_Chat:command(command, args)
-	if command == "sendChatMessage" then
-		local channel_id = args.message.channel_id;
-		local chat_channel = self:getChannelWithId(channel_id);
-		local chat_message = ChatMessage();
-		chat_message:initialize(args.message, chat_channel);
-		self:addChatMessage(chat_message, false);
+	if command == "sendChatMessages" then
+		local messages = args.messages;
+		local length = tLength(messages) - 1;
+		for index = 0, length, 1 do
+			local message = messages[index];
+			local channel_id = message.channel_id;
+			local chat_channel = self:getChannelWithId(channel_id);
+			if chat_channel == nil then
+				chat_channel = self:getChannelWithName("global");
+			end
+			local chat_message = ChatMessage();
+			chat_message:initialize(message, chat_channel);
+			self:assignChatMessage(chat_message, false);
+		end
 	elseif command == "sendChatChannel" then
 		local chat_channel = ChatChannel();
 		chat_channel:initialize(args.channel);
 		self:addChatChannel(chat_channel);
+		local chat_history = ChatHistory();
+		chat_history:initialize(args.history, chat_channel);
+		chat_channel.chat_history = chat_history;
 	elseif command == "sendChatChannelRemove" then
-		self:removeChatChannel(args);
+		self:removeChatChannel(args.channel_id);
 	-- elseif command == "sendChatChannelRename" then
 	end
 end
@@ -89,30 +97,30 @@ end
 -- 
 ----------------------------------------------------------------
 function Module_Chat:requestChannels()
-	
 	local moduleChat = self;
 	local success = function(table, request)
-
 		local length = tLength(table.channels) - 1;
 		for index = 0, length, 1 do
 			local table_channel = table.channels[index];
-			rPrint(table_channel);
 			local chat_channel = ChatChannel();
 			chat_channel:initialize(table_channel);
 			moduleChat:addChatChannel(chat_channel);
 		end
+		self.gui.tab_panel:setActiveTab(0);
 		-- After initializing the data, set the chat to visible.
 		self.gui:setVisible(true);
+		self:requestChannelsHistory();
 	end
-
 	local failure = function(error, request)
 		print("WARNING: Failed to start chat.");
 		print(error);
 	end
-
 	self:sendRequest("requestChatChannels", nil, success, failure);
 end
 
+----------------------------------------------------------------
+-- 
+----------------------------------------------------------------
 function Module_Chat:requestChannelsHistory()
 	local moduleChat = self;
 	local success = function(table, request)
@@ -124,11 +132,10 @@ function Module_Chat:requestChannelsHistory()
 			local chat_channel = self:getChannelWithId(channel_id);
 			if chat_channel ~= nil then
 				local chat_history = ChatHistory();
-				chat_history:initialize(table_history);
+				chat_history:initialize(table_history, chat_channel);
 				chat_channel.chat_history = chat_history;
-				print("Set ChatHistory for ChatChannel: "..chat_channel.name);
 			else
-				print("WARNING: Received ChatHistory for unknown ChatChannel: "..table_history.channel_id);
+				print("WARNING: Received ChatHistory for unknown ChatChannel: "..tostring(table_history.channel_id));
 			end
 		end
 	end
@@ -144,63 +151,31 @@ end
 -- 
 ----------------------------------------------------------------
 function Module_Chat:addChatChannel(chat_channel)
-	print("Adding ChatChannel: "..chat_channel.name);
-	local length = tLength(self.channels);
-	self.channels[length] = chat_channel;
+	self.channels[chat_channel.id] = chat_channel;
+	local panel = ChatWindow.instance:createChatTab(chat_channel);
+	ChatWindow.instance.tab_panel:addTab(chat_channel.name, panel);
+	chat_channel.panel = panel;
 end
 
 ----------------------------------------------------------------
 -- 
 ----------------------------------------------------------------
-function Module_Chat:addChatMessage(chat_message, history)
-	local channel_id = chat_message.channel_id;
-	local channel = self:getChannelWithId(channel_id);
-	local origin = message.origin or "";
-	local timestamp = message.timestamp or "";
-	local channelGlobal = self.gui:getChannelWithName("Global");
-	-- Format the ChatMessage to make sure it is ready to be added.
-	self:formatChatMessage(chat_message);
-	-- Pre-Render the ChatMessage to avoid wasted calculations.
-	chat_message:render();
-	self:assignChatMessage(chat_message);
-end
-
-----------------------------------------------------------------
--- 
-----------------------------------------------------------------
-function Module_Chat:formatChatMessage(chat_message)
-	-- local origin = chat_message.origin;
-	-- -- Format the origin for the ChatMessage.
-	-- if origin ~= nil and origin ~= "client" and origin ~= server then
-	-- 	-- If discord is disabled, then mute the ChatMessage.
-	-- 	if self.gui.discord == false and origin == "discord" then 
-	-- 		chat_message.muted = true;
-	-- 	else
-	-- 		-- If the origin is defined, then head the message with the
-	-- 		-- origin name.
-	-- 		if origin ~= "" then
-	-- 			origin_text = "("..firstToUpper(origin)..") ";
-	-- 		end
-	-- 	end
-	-- end
-	-- -- Set the formatted origin text.
-	-- chat_message.origin_text = origin;
-	-- -- Next, the timestamp needs to be formatted and pre-compiled.
-	-- local timestamp_header = "";
-	-- local timestamp_printed = chat_message.timestamp_printed;
-	-- -- If the time is not null and the time is not empty, Head the
-	-- -- message with it.
-	-- if timestamp_printed ~= nil and timestamp_printed ~= "" then
-	-- 	timestamp_header = "["..timestamp_printed.."] : ";
-	-- end
-	-- -- Set the pre-compiled Timestamp header.
-	-- chat_message.timestamp_header = timestamp_header;
+function Module_Chat:removeChatChannel(channel_id)
+	local chat_channel = self:getChannelWithId(channel_id);
+	if chat_channel == nil then
+		print("WARNING: ChatChannel not found to remove with ID: \""..tostring(channel_id).."\".");
+		return;
+	end
+	self.channels[channel_id] = nil;
+	self.gui:removeChatTab(chat_channel);
 end
 
 ----------------------------------------------------------------
 -- 
 ----------------------------------------------------------------
 function Module_Chat:assignChatMessage(chat_message)
+	-- Pre-Render the ChatMessage to avoid wasted calculations.
+	chat_message:render();
 	local channel_id = chat_message.channel_id;
 	if channel_id == nil or channel_id == "*" then
 		local length = tLength(channels) - 1;
@@ -211,18 +186,15 @@ function Module_Chat:assignChatMessage(chat_message)
 			end
 		end
 	else
+		local chat_channel_global = self:getChannelWithName("global");
 		local channel_id = chat_message.channel_id;
 		local channel = self:getChannelWithId(channel_id);
-		if history then
-			compiled = self:colorToTag({r = 0.8, g = 0.8, b = 0.8}) .. " " .. compiled; 
+		if channel == nil then
+			channel = chat_channel_global;
 		end
-		if channel ~= nil then
-			channel:addLine(compiled .. " <RGB:1,1,1>");
-			if not history and channel ~= channelGlobal and _channel ~= nil and _channel.properties.global == true then
-				channelGlobal:addLine("("..tostring(channel._name)..") "..compiled .. " <RGB:1,1,1>");
-			end
-		else
-			channelGlobal:addLine(compiled .. " <RGB:1,1,1>");
+		channel:addChatMessage(chat_message);
+		if chat_channel_global.id ~= channel.id then
+			chat_channel_global:addChatMessage(chat_message);
 		end
 	end
 end
@@ -243,25 +215,12 @@ end
 function Module_Chat:getChannelWithName(channel_name)
 	-- Format the argument.
 	channel_name = string.lower(channel_name);
-	-- The ChatChannel to return.
-	local returned = nil;
-	-- Grab the amount of channels.
-	local length = tLength(channels) - 1;
-	-- Go through each channel.
-	for index = 0, length, 1 do
-		-- Grab the next ChatChannel in the associative array.
-		local channel = self.channels[index];
-		-- If the names match in a non-case-sensitive test, then
-		--   this is the ChatChannel we are looking for. Set the
-		--   returned object and break out of the loop to save
-		--   computation time.
-		if string.lower(channel.name) == channel_name then
-			returned = channel;
-			break;
+	for channel_id, chat_channel in pairs(self.channels) do
+		if string.lower(chat_channel.name) == channel_name then
+			return chat_channel;
 		end
 	end
-	-- Return the result.
-	return returned;
+	return nil;
 end
 
 -- Registers the module to SledgeHammer

@@ -257,7 +257,7 @@ public class Player extends LuaTable {
 			throw new IllegalArgumentException("ChatMessage given does not have a valid ChatChannel.");
 		}
 		// Send the ChatMessage to the Player to the ChatChannel.
-		channel.sendMessage(message, this);
+		channel.sendChatMessageDirect(message, this);
 	}
 
 	/**
@@ -323,6 +323,9 @@ public class Player extends LuaTable {
 	}
 
 	public boolean isWithinLocalRange(Player other) {
+		if (other.equals(this)) {
+			return true;
+		}
 		if (isConnected() && other.isConnected()) {
 			IsoPlayer isoOther = other.getIso();
 			return getConnection().ReleventTo(isoOther.x, isoOther.y);
@@ -341,16 +344,32 @@ public class Player extends LuaTable {
 	/**
 	 * @param node
 	 *            The <String> node that is being tested.
+	 * @param ignoreAdmin
+	 *            <Boolean> flag for ignoring Administrator check.
+	 * @return Returns true if the <Player> is granted the given <String> node
+	 *         permission. If the <Player> is an administrator and the ignoreAdmin
+	 *         flag is set to false, this method will always return true. To grab
+	 *         the raw permission, use 'hasRawPermission(String node)...'.
+	 */
+	public boolean hasPermission(String node, boolean ignoreAdmin) {
+		if (!ignoreAdmin && isAdmin()) {
+			return true;
+		}
+		return hasRawPermission(node);
+	}
+
+	/**
+	 * @param node
+	 *            The <String> node that is being tested.
+	 * @param ignoreAdmin
+	 *            <Boolean> flag for ignoring Administrator check.
 	 * @return Returns true if the <Player> is granted the given <String> node
 	 *         permission. If the <Player> is an administrator, this method will
 	 *         always return true. To grab the raw permission, use
 	 *         'hasRawPermission(String node)...'.
 	 */
 	public boolean hasPermission(String node) {
-		if (isAdmin()) {
-			return true;
-		}
-		return hasRawPermission(node);
+		return hasPermission(node, false);
 	}
 
 	public IsoPlayer getIso() {
@@ -483,7 +502,7 @@ public class Player extends LuaTable {
 		SledgeHammer.instance.updatePlayer(this);
 	}
 
-	public void setPermission(String username, String node, boolean flag) {
+	public void setPermission(String node, boolean flag) {
 		SledgeHammer.instance.getPermissionsManager().setRawPermission(this, node, flag);
 	}
 

@@ -55,15 +55,35 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
 
 	@Override
 	public void onLoad(KahluaTable table) {
+		UUID uniqueId = null;
+		Object oId = table.rawget("id");
 		// Set the ID if it exists.
-		UUID uniqueId = UUID.fromString(table.rawget("id").toString());
-		if (uniqueId != null) {
-			setUniqueId(uniqueId, false);
+		if(oId != null) {
+			uniqueId = UUID.fromString(oId.toString());
+		} 
+		// This is a new ChatMessage. Create a new UUID.
+		else {
+			uniqueId = UUID.randomUUID();
 		}
-		setChannelId(UUID.fromString(table.rawget("channel_id").toString()), false);
-		setPlayerId(UUID.fromString(table.rawget("player_id").toString()), false);
-		setEditorId(UUID.fromString(table.rawget("editor_id").toString()), false);
-		setDeleterId(UUID.fromString(table.rawget("deleter_id").toString()), false);
+		setUniqueId(uniqueId, false);
+		Object oChannelId = table.rawget("channel_id");
+		if(oChannelId != null) {
+			setChannelId(UUID.fromString(oChannelId.toString()), false);
+		} else {
+			throw new IllegalArgumentException("channel_id provided is null.");
+		}
+		Object oPlayerId = table.rawget("player_id");
+		if(oPlayerId != null) {
+			setPlayerId(UUID.fromString(oPlayerId.toString()), false);
+		}
+		Object oEditorId = table.rawget("editor_id");
+		if(oEditorId != null) {
+			setEditorId(UUID.fromString(oEditorId.toString()), false);
+		}
+		Object oDeleterId = table.rawget("deleter_id");
+		if(oDeleterId != null) {
+			setDeleterId(UUID.fromString(oDeleterId.toString()), false);
+		}		
 		setOrigin(table.rawget("origin").toString(), false);
 		setCachedPlayerName(table.rawget("player_name").toString(), false);
 		setMessage(table.rawget("message").toString(), false);
@@ -79,7 +99,7 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
 		// Check to see if a timestamp is given. If not, create one.
 		Object oTimestamp = table.rawget("timestamp");
 		if (oTimestamp != null) {
-			long timestamp = ((Double) Double.parseDouble(oTimestamp.toString())).longValue();
+			long timestamp = Double.doubleToLongBits(((Double) Double.parseDouble(oTimestamp.toString())));
 			setTimestamp(timestamp, false);
 		} else {
 			createTimestamp(false);
@@ -87,34 +107,46 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
 		// Check to see if a timestamp is given. If the timestamp is 0, assign one.
 		Object oTimestampModified = table.rawget("timestamp_modified");
 		if (oTimestampModified != null) {
-			long timestampModified = ((Double) Double.parseDouble(oTimestamp.toString())).longValue();
+			long timestampModified = Double.doubleToLongBits(((Double) Double.parseDouble(oTimestamp.toString())));
 			if (timestampModified > 0) {
 				setModifiedTimestamp(timestampModified, false);
 			} else if (timestampModified == 0) {
 				createModifiedTimestamp(false);
 			}
 		}
-		setType((Integer) table.rawget("message_type"), false);
+		setType(((Double) table.rawget("message_type")).intValue(), false);
+		setEdited((Boolean) table.rawget("edited"), false);
+		setDeleted((Boolean) table.rawget("deleted"), false);
 	}
 
 	@Override
 	public void onExport() {
 		// @formatter:off
-		set("id"                , getUniqueId().toString() );
-		set("channel_id"        , getChannelId().toString());
-		set("player_id"         , getPlayerId().toString() );
-		set("editor_id"         , getEditorId().toString() );
-		set("deleter_id"        , getDeleterId().toString());
-		set("origin"            , getOrigin()              );
-		set("player_name"       , getCachedPlayerName()    );
-		set("message"           , getMessage()             );
-		set("message_original"  , getOriginalMessage()     );
-		set("timestamp"         , getTimestamp()           );
-		set("timestamp_modified", getModifiedTimestamp()   );
-		set("timestamp_printed" , getPrintedTimestamp()    );
-		set("message_type"      , getType()                );
-		set("edited"            , isEdited()               );
-		set("deleted"           , isDeleted()              );
+		UUID uniqueId  = getUniqueId() ;
+		UUID channelId = getChannelId();
+		UUID playerId  = getPlayerId() ;
+		UUID editorId  = getEditorId() ;
+		UUID deleterId = getDeleterId();
+		String uniqueIdAsString  =                            uniqueId.toString() ;
+		String channelIdAsString = channelId == null ? null : channelId.toString();
+		String playerIdAsString  = playerId  == null ? null : playerId.toString() ;
+		String editorIdAsString  = editorId  == null ? null : editorId.toString() ;
+		String deleterIdAsString = deleterId == null ? null : deleterId.toString();
+		set("id"                , uniqueIdAsString      );
+		set("channel_id"        , channelIdAsString     );
+		set("player_id"         , playerIdAsString      );
+		set("editor_id"         , editorIdAsString      );
+		set("deleter_id"        , deleterIdAsString     );
+		set("origin"            , getOrigin()           );
+		set("player_name"       , getCachedPlayerName() );
+		set("message"           , getMessage()          );
+		set("message_original"  , getOriginalMessage()  );
+		set("timestamp"         , getTimestamp()        );
+		set("timestamp_modified", getModifiedTimestamp());
+		set("timestamp_printed" , getPrintedTimestamp() );
+		set("message_type"      , getType()             );
+		set("edited"            , isEdited()            );
+		set("deleted"           , isDeleted()           );
 		// @formatter:on
 	}
 

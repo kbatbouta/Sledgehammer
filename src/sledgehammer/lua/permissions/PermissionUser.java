@@ -52,10 +52,6 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 
 	@Override
 	public boolean hasPermission(String node) {
-		// If the Player is an administrator, he is automatically granted the node.
-		if (isAdministrator()) {
-			return true;
-		}
 		// Our returning flag result.
 		boolean returned = false;
 		// This will be the group's returned node for the one requested, if one is

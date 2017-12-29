@@ -11,8 +11,7 @@ import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.chat.send.SendChatChannel;
 import sledgehammer.lua.chat.send.SendChatChannelRemove;
 import sledgehammer.lua.chat.send.SendChatChannelRename;
-import sledgehammer.lua.chat.send.SendChatHistory;
-import sledgehammer.lua.chat.send.SendChatMessage;
+import sledgehammer.lua.chat.send.SendChatMessages;
 import sledgehammer.lua.core.Player;
 
 /**
@@ -26,9 +25,8 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
 	private List<Player> listPlayersSent;
 
-	private SendChatMessage sendChatMessage;
+	private SendChatMessages sendChatMessages;
 	private SendChatChannel sendChatChannel;
-	private SendChatHistory sendChatHistory;
 	private SendChatChannelRemove sendChatChannelRemove;
 	private SendChatChannelRename sendChatChannelRename;
 
@@ -70,6 +68,15 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 		set("flags"          , exportFlags()           );
 		// @formatter:on
 	}
+	
+	@Override
+	public boolean equals(Object other) {
+		boolean returned = false;
+		if(other instanceof ChatChannel) {
+			returned = ((ChatChannel)other).getUniqueId().equals(getUniqueId());
+		}
+		return returned;
+	}
 
 	/**
 	 * (Private Method)
@@ -77,15 +84,14 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 	 * Initializes the <ChatChannel> instance fields.
 	 */
 	private void initialize() {
-		chatHistory = new ChatHistory(getUniqueId());
+		chatHistory = new ChatHistory(this);
 		listPlayersSent = new ArrayList<>();
-		sendChatMessage = new SendChatMessage();
 		sendChatChannel = new SendChatChannel(this);
-		sendChatHistory = new SendChatHistory(chatHistory);
 		sendChatChannelRename = new SendChatChannelRename();
 		sendChatChannelRename.setChannelId(getUniqueId());
 		sendChatChannelRemove = new SendChatChannelRemove();
 		sendChatChannelRemove.setChannelId(getUniqueId());
+		sendChatMessages = new SendChatMessages(getUniqueId());
 	}
 
 	private void importFlags(KahluaTable table) {
@@ -94,32 +100,35 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 		setCustomChannel((boolean) table.rawget("custom"), false);
 		setCanSpeak((boolean) table.rawget("speak"), false);
 		setSaveHistory((boolean) table.rawget("history"), false);
+		setExplicit((boolean) table.rawget("explicit"), false);
 	}
 
 	private KahluaTable exportFlags() {
 		KahluaTable table = newTable();
 		// @formatter:off
-		table.rawset("global" , isGlobalChannel());
-		table.rawset("public" , isPublicChannel());
-		table.rawset("custom" , isCustomChannel());
-		table.rawset("speak"  , canSpeak()       );
-		table.rawset("history", saveHistory()    );
+		table.rawset("global"   , isGlobalChannel());
+		table.rawset("public"   , isPublicChannel());
+		table.rawset("custom"   , isCustomChannel());
+		table.rawset("can_speak", canSpeak()       );
+		table.rawset("history"  , saveHistory()    );
+		table.rawset("explicit" , isExplicit()     );
 		// @formatter:on
 		return table;
 	}
 
-	public void addPlayer(Player player) {
+	public void addPlayer(Player player, boolean send) {
 		if (!listPlayersSent.contains(player)) {
-			SledgeHammer.instance.send(sendChatChannel, player);
+			if (send) {
+				SledgeHammer.instance.send(sendChatChannel, player);
+			}
 			listPlayersSent.add(player);
 		}
 	}
 
 	public void removePlayer(Player player) {
-		if(!listPlayersSent.contains(player)) {			
-			listPlayersSent.add(player);
-			SledgeHammer.instance.send(sendChatChannel, player);
-			SledgeHammer.instance.send(sendChatHistory, player);
+		if (listPlayersSent.contains(player)) {
+			listPlayersSent.remove(player);
+			SledgeHammer.instance.send(sendChatChannelRemove, player);
 		}
 	}
 
@@ -127,13 +136,12 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 		SledgeHammer.instance.send(sendChatChannelRemove, getPlayers());
 		listPlayersSent.clear();
 	}
-	
 
 	public boolean hasAccess(Player player) {
 		boolean returned = false;
 		String permissionNode = getPermissionNode();
 		if (permissionNode != null) {
-			returned = player.hasPermission(permissionNode);
+			returned = player.hasPermission(permissionNode, true);
 		} else {
 			returned = true;
 		}
@@ -146,30 +154,25 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 		sendChatChannelRename.setNewName(nameNew);
 		SledgeHammer.instance.send(sendChatChannelRename, getPlayers());
 	}
-	
 
-	public void sendMessage(ChatMessage message, Player player) {
-		sendChatMessage.setChatMessage(message);
-		SledgeHammer.instance.send(sendChatMessage, player);
+	/**
+	 * Sends a ChatMessage directly to a <Player> in the <ChatChannel>.
+	 * 
+	 * (Note: This ChatChannel does not save the ChatMessage passed in this method)
+	 * 
+	 * @param message
+	 *            The <ChatMessage> being sent to the <Player>.
+	 * @param player
+	 *            The <Player> being sent the <ChatMessage>.
+	 */
+	public void sendChatMessageDirect(ChatMessage message, Player player) {
+		sendChatMessages.clearChatMessages();
+		sendChatMessages.addChatMessage(message);
+		SledgeHammer.instance.send(sendChatMessages, player);
 	}
 
 	public void addChatMessage(ChatMessage chatMessage) {
-		getHistory().addMessage(chatMessage);
-		sendChatMessage.setChatMessage(chatMessage);
-		if (isGlobalChannel()) {
-			SledgeHammer.instance.send(sendChatMessage, listPlayersSent);
-		} else {
-			Player chatMessagePlayer = chatMessage.getPlayer();
-			if (chatMessagePlayer != null) {
-				for (Player player : getPlayers()) {
-					if (player.isWithinLocalRange(chatMessagePlayer)) {
-						SledgeHammer.instance.send(sendChatMessage, player);
-					}
-				}
-			} else {
-				SledgeHammer.instance.send(sendChatMessage, listPlayersSent);
-			}
-		}
+		getHistory().addChatMessage(chatMessage, true);
 	}
 
 	public boolean canSpeak() {
@@ -254,5 +257,13 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
 	public List<Player> getPlayers() {
 		return this.listPlayersSent;
+	}
+
+	public boolean isExplicit() {
+		return getMongoDocument().isExplicit();
+	}
+
+	public void setExplicit(boolean explicit, boolean save) {
+		getMongoDocument().setExplicit(explicit, save);
 	}
 }

@@ -1,7 +1,7 @@
 package sledgehammer.module.core;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
+import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
@@ -20,6 +21,7 @@ import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.RequestChannelsEvent;
+import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatHistory;
@@ -27,22 +29,28 @@ import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.chat.request.RequestChatChannels;
 import sledgehammer.lua.chat.request.RequestChatHistory;
 import sledgehammer.lua.core.Player;
+import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.module.MongoModule;
+import sledgehammer.util.Command;
+import sledgehammer.util.Response;
+import sledgehammer.util.Result;
 
 /**
  * TODO: Document.
  * 
  * @author Jab
  */
-public class ModuleChat extends MongoModule implements EventListener {
+public class ModuleChat extends MongoModule implements EventListener, CommandListener {
 
 	private Map<UUID, ChatChannel> mapChatChannels;
+	private LinkedList<ChatChannel> listOrderedChatChannels;
 	private MongoCollection collectionChannels;
 	private MongoCollection collectionMessages;
 	private ChatChannel all;
 	private ChatChannel global;
 	private ChatChannel local;
 	private ChatChannel pms;
+	private ChatChannel espanol;
 
 	/**
 	 * Main constructor.
@@ -53,18 +61,28 @@ public class ModuleChat extends MongoModule implements EventListener {
 
 	@Override
 	public void onLoad() {
-		mapChatChannels = new HashMap<>();
+		mapChatChannels = new LinkedHashMap<>();
+		listOrderedChatChannels = new LinkedList<>();
 		// Grab the MongoCollections storing the data for this Module.
 		SledgehammerDatabase database = getSledgehammerDatabase();
 		collectionChannels = database.createMongoCollection("sledgehammer_chat_channels");
 		collectionMessages = database.createMongoCollection("sledgehammer_chat_messages");
+		// Handle chat command initializations.
+		PermissionsManager managerPermissions = getPermissionsManager();
+		// Set the default permission nodes for the chat module. @formatter:off
+		managerPermissions.addDefaultPlayerPermission("sledgehammer.chat.global"  );
+		managerPermissions.addDefaultPlayerPermission("sledgehammer.chat.local"   );
+		managerPermissions.addDefaultPlayerPermission("sledgehammer.chat.pm"      );
+		managerPermissions.addDefaultPlayerPermission(getPermissionNode("espanol"));
+		// @formatter:on
 	}
 
 	@Override
 	public void onStart() {
 		loadMongoDocuments();
 		verifyCoreChannels();
-		register(this);
+		register((EventListener) this);
+		register((CommandListener) this);
 	}
 
 	@Override
@@ -74,7 +92,8 @@ public class ModuleChat extends MongoModule implements EventListener {
 
 	@Override
 	public void onStop() {
-		unregister(this);
+		unregister((EventListener) this);
+		unregister((CommandListener) this);
 	}
 
 	@Override
@@ -83,13 +102,14 @@ public class ModuleChat extends MongoModule implements EventListener {
 			chatChannel.removePlayers();
 		}
 		// Nullify all fields. @formatter:off
-		this.collectionChannels = null;
-		this.collectionMessages = null;
-		this.mapChatChannels    = null;
-		this.all                = null;
-		this.global             = null;
-		this.local              = null;
-		this.pms                = null;
+		this.collectionChannels      = null;
+		this.collectionMessages      = null;
+		this.mapChatChannels         = null;
+		this.listOrderedChatChannels = null;
+		this.all                     = null;
+		this.global                  = null;
+		this.local                   = null;
+		this.pms                     = null;
 		// @formatter:on
 	}
 
@@ -101,35 +121,53 @@ public class ModuleChat extends MongoModule implements EventListener {
 			RequestChannelsEvent requestEvent = new RequestChannelsEvent(player);
 			onEvent(requestEvent);
 			RequestChatChannels request = new RequestChatChannels();
+			// Add the main ChatChannels first in order.
+			if(global.hasAccess(player)) {
+				global.addPlayer(player, false);
+				request.addChannel(global);
+			}
+			if(local.hasAccess(player)) {
+				local.addPlayer(player, false);
+				request.addChannel(local);
+			}
+			if(pms.hasAccess(player)) {
+				pms.addPlayer(player, false);
+				request.addChannel(pms);
+			}
+			if(espanol.hasAccess(player)) {
+				espanol.addPlayer(player, false);
+				request.addChannel(espanol);
+			}
 			for (ChatChannel channel : getChatChannels()) {
+				if(channel.equals(global) || channel.equals(local) || channel.equals(pms) || channel.equals(espanol)) {
+					continue;
+				}
 				if (channel.hasAccess(player)) {
+					channel.addPlayer(player, false);
 					request.addChannel(channel);
 				}
 			}
 			event.respond(request);
-		} 
-		else if (command.equalsIgnoreCase("requestChatHistories")) {
+		} else if (command.equalsIgnoreCase("requestChatHistories")) {
 			RequestChatHistory request = new RequestChatHistory();
-			for(ChatChannel chatChannel : getChatChannels()) {
-				request.addChatHistory(chatChannel.getHistory());
+			for (ChatChannel chatChannel : getChatChannels()) {
+				if (chatChannel.hasAccess(player)) {
+					request.addChatHistory(chatChannel.getHistory());
+				}
 			}
 			event.respond(request);
-		}
-		else if (command.equalsIgnoreCase("sendChatMessagePlayer")) {
-			println("Handling ClientEvent: \"sendChatMessagePlayer\"");			
+		} else if (command.equalsIgnoreCase("sendChatMessage")) {
 			MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages);
-			ChatMessage chatMessage = new ChatMessage(mongoChatMessage, event.getTable());
+			KahluaTable table = (KahluaTable) event.getTable().rawget("message");
+			ChatMessage chatMessage = new ChatMessage(mongoChatMessage, table);
 			UUID channelId = chatMessage.getChannelId();
 			ChatChannel chatChannel = getChatChannel(channelId);
 			if (chatChannel == null) {
 				errorln("ChatMessage provided null Channel ID: " + channelId);
 				return;
 			}
-			chatChannel.getHistory().addMessage(chatMessage);
+			chatChannel.getHistory().addChatMessage(chatMessage, true);
 			chatMessage.save();
-			println("Responding ClientEvent.");
-		} else if (command.equalsIgnoreCase("sendChat")) {
-
 		}
 	}
 
@@ -186,19 +224,19 @@ public class ModuleChat extends MongoModule implements EventListener {
 			MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, cursor.next());
 			ChatChannel chatChannel = new ChatChannel(mongoChatChannel);
 			mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
+			listOrderedChatChannels.add(chatChannel);
 		}
 		cursor.close();
 	}
 
 	private void loadMongoChatHistories() {
 		for (ChatChannel chatChannel : mapChatChannels.values()) {
-			UUID channelId = chatChannel.getUniqueId();
 			// Create the History container.
-			ChatHistory chatHistory = new ChatHistory(channelId);
+			ChatHistory chatHistory = new ChatHistory(chatChannel);
 			chatChannel.setHistory(chatHistory);
 			// Grab the chat messages from the message collection for this history.
-			List<ChatMessage> listChatMessages = getChatMessages(channelId, ChatHistory.MAX_SIZE);
-			chatHistory.addMessages(listChatMessages);
+			List<ChatMessage> listChatMessages = getChatMessages(chatChannel.getUniqueId(), ChatHistory.MAX_SIZE);
+			chatHistory.addChatMessages(listChatMessages, false);
 		}
 	}
 
@@ -253,14 +291,14 @@ public class ModuleChat extends MongoModule implements EventListener {
 		channelName = "*";
 		channelDescription = "Wildcard channel for the server. Sends messages to all spoken channels.";
 		channelPermissionNode = null;
-		isGlobalChannel = true;
-		isPublicChannel = true;
+		isGlobalChannel = false;
+		isPublicChannel = false;
 		isCustomChannel = false;
-		saveHistory = true;
-		canSpeak = true;
+		saveHistory = false;
+		canSpeak = false;
 		MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName, channelDescription,
 				channelPermissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
-		all = new ChatChannel(mongoChatChannel);
+		setAllChatChannel(new ChatChannel(mongoChatChannel));
 		// Create the global ChatChannel.
 		ChatChannel global = getChatChannel("Global");
 		if (global == null) {
@@ -274,6 +312,10 @@ public class ModuleChat extends MongoModule implements EventListener {
 			canSpeak = true;
 			global = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
+		}
+		// Check to make sure that Global is forced explicit.
+		if (!global.isExplicit()) {
+			global.setExplicit(true, true);
 		}
 		// Create the local ChatChannel.
 		ChatChannel local = getChatChannel("Local");
@@ -299,13 +341,35 @@ public class ModuleChat extends MongoModule implements EventListener {
 			isPublicChannel = true;
 			isCustomChannel = false;
 			saveHistory = false;
-			canSpeak = true;
+			canSpeak = false;
 			pms = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
+					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
+		}
+		ChatChannel espanol = getChatChannel("Espanol");
+		if (espanol == null) {
+			channelName = "Espanol";
+			channelDescription = "Spanish channel for the server.";
+			channelPermissionNode = "sledgehammer.chat.espanol";
+			isGlobalChannel = true;
+			isPublicChannel = false;
+			isCustomChannel = false;
+			saveHistory = true;
+			canSpeak = true;
+			espanol = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		}
 		setGlobalChatChannel(global);
 		setLocalChatChannel(local);
 		setPMsChatChannel(pms);
+		setEspanolChannel(espanol);
+	}
+
+	public ChatChannel getEspanolChannel() {
+		return this.espanol;
+	}
+
+	private void setEspanolChannel(ChatChannel espanol) {
+		this.espanol = espanol;
 	}
 
 	/**
@@ -386,15 +450,17 @@ public class ModuleChat extends MongoModule implements EventListener {
 	}
 
 	public Collection<ChatChannel> getChatChannels() {
-		return mapChatChannels.values();
+		return listOrderedChatChannels;
 	}
 
 	public ChatChannel getChatChannel(String name) {
 		name = name.toLowerCase();
+		println("name: " + name);
 		ChatChannel returned = null;
-		for (UUID channelId : mapChatChannels.keySet()) {
-			ChatChannel chatChannel = mapChatChannels.get(channelId);
-			if (chatChannel.getChannelName().equalsIgnoreCase(name)) {
+		for (ChatChannel chatChannel : getChatChannels()) {
+			String chatChannelName = chatChannel.getChannelName().toLowerCase();
+			println("\tNext chatChannel: " + chatChannelName);
+			if (chatChannelName.equalsIgnoreCase(name)) {
 				returned = chatChannel;
 				break;
 			}
@@ -409,6 +475,7 @@ public class ModuleChat extends MongoModule implements EventListener {
 				permissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		ChatChannel chatChannel = new ChatChannel(mongoChatChannel);
 		mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
+		listOrderedChatChannels.add(chatChannel);
 		mongoChatChannel.save();
 		return chatChannel;
 	}
@@ -420,6 +487,7 @@ public class ModuleChat extends MongoModule implements EventListener {
 		chatChannel.removePlayers();
 		chatChannel.delete();
 		mapChatChannels.remove(chatChannel.getUniqueId());
+		listOrderedChatChannels.remove(chatChannel);
 	}
 
 	public ChatMessage createChatMessage(String message) {
@@ -432,6 +500,52 @@ public class ModuleChat extends MongoModule implements EventListener {
 		chatMessage.setTimestamp(System.currentTimeMillis(), false);
 		chatMessage.setModifiedTimestamp(-1L, false);
 		return chatMessage;
+	}
+
+	@Override
+	public void onCommand(Command com, Response r) {
+		Player commander = com.getPlayer();
+		String command = com.getCommand().toLowerCase();
+		if (command.equals("espanol")) {
+			String permissionNode = "sledgehammer.chat.espanol";
+			ChatChannel channel = getChatChannel("Espanol");
+			if (commander.hasPermission(permissionNode, true)) {
+				commander.setPermission(permissionNode, false);
+				channel.removePlayer(commander);
+				r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
+			} else {
+				commander.setPermission(permissionNode, true);
+				channel.addPlayer(commander, true);
+				r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
+			}
+			return;
+		}
+	}
+
+	@Override
+	public String[] getCommands() {
+		// @formatter:off
+		return new String[] {
+				"espanol"
+		};
+		// @formatter:on
+	}
+
+	@Override
+	public String onTooltip(Player player, Command com) {
+		String command = com.getCommand().toLowerCase();
+		if (command.equals("espanol")) {
+			return "Adds you to the Spanish chat channel.";
+		}
+		return null;
+	}
+
+	@Override
+	public String getPermissionNode(String command) {
+		if (command.equalsIgnoreCase("espanol")) {
+			return "sledgehammer.chat.command.espanol";
+		}
+		return null;
 	}
 
 }

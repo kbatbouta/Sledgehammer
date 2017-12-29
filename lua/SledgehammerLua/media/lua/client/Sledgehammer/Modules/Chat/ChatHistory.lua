@@ -49,7 +49,8 @@ function ChatHistory:initialize(lua_table, chat_channel)
 		-- Instantiate the ChatMessage.
 		local chat_message = ChatMessage();
 		-- Initialize the ChatMessage.
-		chat_message:initialize(lua_table, chat_channel);
+		chat_message:initialize(table_message, chat_channel);
+		chat_message.history = true;
 		-- Add the ChatMessage to the ChatHistory Array.
 		self:addChatMessage(chat_message);
 	end
@@ -84,7 +85,24 @@ function ChatHistory:addChatMessage(chat_message)
 		end
 		-- Set the pruned Array as the new messages Array.
 		self.messages = messagesNew;
+		local panel = self.chat_channel.panel;
+		panel:clear();
+		local length_messages = tLength(self.messages) - 1;
+		for index_messages = 0, length_messages, 1 do
+			local chat_message_next = self.messages[index_messages];
+			local rendered = chat_message_next:render(self.chat_channel);
+			panel:addLine(rendered);
+		end
+	else
+		local panel = self.chat_channel.panel;
+		local rendered = chat_message:render(self.chat_channel);
+		panel:addLine(rendered);
 	end
+end
+
+function ChatHistory:clear()
+	self.messages = {};
+	self.chat_channel.panel:clear();
 end
 
 -- The Maximum amount of lines that can be stored at one time in the ChatHistory.

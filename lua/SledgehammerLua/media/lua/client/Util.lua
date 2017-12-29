@@ -59,15 +59,24 @@ end
 	Indents tables as [KEY] VALUE, nested tables as [KEY] [KEY]...[KEY] VALUE
 	Set indent ("") to prefix each line:    Mytable [KEY] [KEY]...[KEY] VALUE
 --]]
-function rPrint(s, l, i) -- recursive Print (structure, limit, indent)
-	l = (l) or 100; i = i or "";	-- default item limit, indent string
+function rPrint(s, l, i, o) -- recursive Print (structure, limit, indent)
+	o = (o) or {};
+	l = (l) or 1024; -- default item limit
+	i = i or ""; -- indent string
 	if (l<1) then print "ERROR: Item limit reached."; return l-1 end;
 	local ts = type(s);
 	if (ts ~= "table") then print (i,ts,s); return l-1 end
 	print (i,ts);           -- print "table"
 	for k,v in pairs(s) do  -- print "[KEY] VALUE"
-		l = rPrint(v, l, i.."\t["..tostring(k).."]");
-		if (l < 0) then break end
+		-- if o[k] ~= v then
+		-- 	o[k] = v;
+			if k ~= "parent" and k ~= "vscroll" and k ~= "children" then
+				l = rPrint(v, l, i.."\t["..tostring(k).."]", o);
+				if (l < 0) then 
+					break; 
+				end
+			end
+		-- end
 	end
 	return l
 end	

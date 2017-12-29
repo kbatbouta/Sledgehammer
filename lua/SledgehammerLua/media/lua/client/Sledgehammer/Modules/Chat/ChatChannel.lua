@@ -40,12 +40,14 @@ ChatChannel = class(function(o)
 		--   ChatChannel, where only Players by the Player authoring the ChatMessage 
 		--   will see it.
 		global = true,
+		-- To force the explicit tag on this ChatChannel regardless of origin.
+		explicit = true,
 		-- Whether or not the ChatChannel is available to all Players.
 		public = true,
 		-- Whether or not the ChatChannel is custom.
 		custom = false,
 		-- Whether or not Players can speak in the ChatChannel. (Read-Only)
-		speak = true,
+		can_speak = true,
 		-- Whether or not to Save ChatMessages to a ChatHistory LuaObject.
 		history = false
 	};
@@ -53,6 +55,8 @@ ChatChannel = class(function(o)
 	o.DEBUG = true;
 	-- The ChatHistory storing ChatMessages for the ChatChannel.
 	o.chat_history = nil;
+	-- The ChatPanel controlled by the ChatChannel.
+	o.panel = nil;
 end);
 
 ----------------------------------------------------------------
@@ -73,5 +77,12 @@ end
 -- @table chat_message The ChatMessage to add to the ChatHistory.
 ----------------------------------------------------------------
 function ChatChannel:addChatMessage(chat_message)
-	self.history:addChatMessage(chat_message);
+	self.chat_history:addChatMessage(chat_message);
+	self.panel:update();
+end
+
+function ChatChannel:rename(name)
+	self.name        = name;
+	self.panel.name  = name;
+	self.panel._name = name;
 end

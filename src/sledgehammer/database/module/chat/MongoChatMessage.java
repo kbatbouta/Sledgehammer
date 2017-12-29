@@ -16,7 +16,6 @@ import zombie.Lua.LuaManager;
  */
 public class MongoChatMessage extends MongoUniqueDocument {
 
-	private UUID uniqueId;
 	private UUID channelId;
 	private UUID playerId;
 	private UUID editorId = null;
@@ -243,17 +242,6 @@ public class MongoChatMessage extends MongoUniqueDocument {
 
 	public void setOrigin(String origin, boolean save) {
 		this.origin = origin;
-		if (save) {
-			save();
-		}
-	}
-
-	public UUID getUniqueId() {
-		return this.uniqueId;
-	}
-
-	public void setUniqueId(UUID uniqueId, boolean save) {
-		this.uniqueId = uniqueId;
 		if (save) {
 			save();
 		}

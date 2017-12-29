@@ -22,6 +22,7 @@ public class MongoChatChannel extends MongoUniqueDocument {
 	private boolean isCustomChannel = true;
 	private boolean saveHistory = true;
 	private boolean canSpeak = true;
+	private boolean explicit = false;
 
 	public MongoChatChannel(MongoCollection mongoCollection, String channelName, String channelDescription,
 			String permissionNode, boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel,
@@ -67,16 +68,21 @@ public class MongoChatChannel extends MongoUniqueDocument {
 		setCustomChannel((boolean) object.get("custom"), false);
 		setCanSpeak((boolean) object.get("speak"), false);
 		setSaveHistory((boolean) object.get("history"), false);
+		Object oExplicit = object.get("explicit");
+		if (oExplicit != null) {
+			setExplicit((boolean) oExplicit, false);
+		}
 	}
 
 	private DBObject saveFlags() {
 		// @formatter:off
 		DBObject object = new BasicDBObject();
-		object.put("global" , isGlobalChannel());
-		object.put("public" , isPublicChannel());
-		object.put("custom" , isCustomChannel());
-		object.put("speak"  , canSpeak()       );
-		object.put("history", saveHistory()    );
+		object.put("global"  , isGlobalChannel());
+		object.put("public"  , isPublicChannel());
+		object.put("custom"  , isCustomChannel());
+		object.put("speak"   , canSpeak()       );
+		object.put("history" , saveHistory()    );
+		object.put("explicit", isExplicit()     );
 		// @formatter:on
 		return object;
 	}
@@ -164,6 +170,17 @@ public class MongoChatChannel extends MongoUniqueDocument {
 
 	public void setSaveHistory(boolean saveHistory, boolean save) {
 		this.saveHistory = saveHistory;
+		if (save) {
+			save();
+		}
+	}
+
+	public boolean isExplicit() {
+		return this.explicit;
+	}
+
+	public void setExplicit(boolean explicit, boolean save) {
+		this.explicit = explicit;
 		if (save) {
 			save();
 		}

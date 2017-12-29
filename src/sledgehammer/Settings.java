@@ -533,6 +533,7 @@ public class Settings extends Printable {
 
 	private void setDebug(boolean debug) {
 		this.debug = debug;
+		SledgeHammer.DEBUG = debug;
 	}
 
 	public String getAdministratorPassword() {

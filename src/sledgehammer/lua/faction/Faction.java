@@ -76,7 +76,7 @@ public class Faction extends LuaTable {
 			// Add the Player to the ChatChannel if he is online.
 			Player player = SledgeHammer.instance.getPlayer(factionMember.getPlayerId());
 			if (player != null) {
-				getChatChannel().addPlayer(player);
+				getChatChannel().addPlayer(player, true);
 			} else {
 				errorln("addMember() -> Player is null.");
 			}

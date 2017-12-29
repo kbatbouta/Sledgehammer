@@ -545,8 +545,27 @@ function SledgeHammer:removePlayer(player)
 end
 
 ----------------------------------------------------------------
+----------------------------------------------------------------
+--      ######  ########    ###    ######## ####  ######      --
+--     ##    ##    ##      ## ##      ##     ##  ##    ##     --
+--     ##          ##     ##   ##     ##     ##  ##           --
+--      ######     ##    ##     ##    ##     ##  ##           --
+--           ##    ##    #########    ##     ##  ##           --
+--     ##    ##    ##    ##     ##    ##     ##  ##    ##     --
+--      ######     ##    ##     ##    ##    ####  ######      --
+----------------------------------------------------------------
+----------------------------------------------------------------
+
+-- List of modules to be loaded. (static for preloading)
+preloaded_modules       = {};
+-- Index of pre-loaded modules.
+preloaded_modules_index =  0;
+
+----------------------------------------------------------------
 -- Static method to execute the instantiation of the Sledgehammer
 -- Lua Framwork.
+--
+-- @static
 ----------------------------------------------------------------
 function load_sledgehammer()
 	print("load_sledgehammer()");
@@ -557,6 +576,8 @@ end
 ----------------------------------------------------------------
 -- Static method to execute loading of the Sledgehammer Lua 
 -- Framework.
+--
+-- @static
 ----------------------------------------------------------------
 function init_sledgehammer()
 	print("init_sledgehammer()");
@@ -565,21 +586,25 @@ end
 
 ----------------------------------------------------------------
 -- Static method to pipe updates on every tick.
+--
+-- @static
 ----------------------------------------------------------------
 function update_sledgehammer()
 	SledgeHammer.instance:update();
 end
 
+----------------------------------------------------------------
+-- @static
+----------------------------------------------------------------
 function command_sledgehammer(mod, command, args)
 	SledgeHammer.instance:onClientCommand(mod, command, args);
 end
 
--- List of modules to be loaded. (static for preloading)
-preloaded_modules       = {};
--- Index of pre-loaded modules.
-preloaded_modules_index =  0;
-
+----------------------------------------------------------------
 -- Static method for preloading modules.
+-- 
+-- @static
+----------------------------------------------------------------
 function register(mod)
 	-- Validity check.
 	if mod == nil then
@@ -638,8 +663,5 @@ end
 
 -- Add the creation function to the Event dispatcher.
 Events.OnInitWorld.Add(load_sledgehammer);
-print("0");
 -- Add the initialization function to the Event dispatcher.
 Events.OnGameStart.Add(init_sledgehammer);
-print("1");
-print("Test ###############################################<<<<<<<<<<<<<<<<");

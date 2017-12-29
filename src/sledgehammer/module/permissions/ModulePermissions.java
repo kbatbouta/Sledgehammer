@@ -88,6 +88,10 @@ public class ModulePermissions extends MongoModule {
 		// Connect the data from groups to users.
 		assignObjects();
 
+		// Create the Default PermissionGroup.
+		MongoPermissionGroup mongoPermissionGroupDefault = new MongoPermissionGroup(collectionGroups, "default");
+		permissionGroupDefault = new PermissionGroup(mongoPermissionGroupDefault);
+		
 		permissionsListener = new PermissionsListener(this);
 		setPermissionListener(permissionsListener);
 	}
@@ -371,7 +375,7 @@ public class ModulePermissions extends MongoModule {
 	 *         registered in Permissions as a <PermissionsUser>.
 	 */
 	public PermissionUser getPermissionUser(Player player) {
-		return getPermissionuser(player.getUniqueId());
+		return getPermissionUser(player.getUniqueId());
 	}
 
 	/**
@@ -382,12 +386,12 @@ public class ModulePermissions extends MongoModule {
 	 *         identifier for a <Player>, if registered in Permissions as a
 	 *         <PermissionUser>.
 	 */
-	private PermissionUser getPermissionuser(UUID playerId) {
+	private PermissionUser getPermissionUser(UUID playerId) {
 		return this.mapPermissionUsers.get(playerId);
 	}
 
 	public PermissionGroup getDefaultPermissionGroup() {
-		return null;
+		return this.permissionGroupDefault;
 	}
 
 	/**

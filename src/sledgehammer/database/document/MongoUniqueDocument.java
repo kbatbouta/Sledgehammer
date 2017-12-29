@@ -43,7 +43,7 @@ public abstract class MongoUniqueDocument extends MongoDocument {
 	 */
 	public MongoUniqueDocument(MongoCollection collection) {
 		super(collection, "id");
-		setUniqueId(UUID.randomUUID());
+		setUniqueId(UUID.randomUUID(), false);
 	}
 
 	/**
@@ -64,7 +64,7 @@ public abstract class MongoUniqueDocument extends MongoDocument {
 					"New Object in collection contains ID that is already in use: \"" + uniqueId.toString() + "\".");
 		}
 		cursor.close();
-		setUniqueId(uniqueId);
+		setUniqueId(uniqueId, false);
 	}
 
 	/**
@@ -78,7 +78,14 @@ public abstract class MongoUniqueDocument extends MongoDocument {
 	public MongoUniqueDocument(MongoCollection collection, DBObject object) {
 		super(collection, "id");
 		// Grab the ID from the object first before loading.
-		setUniqueId(UUID.fromString(object.get("id").toString()));
+		UUID uniqueId = null;
+		Object oUniqueId = object.get("id");
+		if(oUniqueId instanceof UUID) {
+			uniqueId = (UUID) oUniqueId;
+		} else if(oUniqueId instanceof String) {
+			uniqueId = UUID.fromString(oUniqueId.toString());
+		}
+		setUniqueId(uniqueId, false);
 	}
 
 	/**
@@ -95,13 +102,18 @@ public abstract class MongoUniqueDocument extends MongoDocument {
 	 * 
 	 * @param uniqueId
 	 *            The <UUID> that will represent the document.
+	 * @param save 
 	 */
-	private void setUniqueId(UUID uniqueId) {
+	public void setUniqueId(UUID uniqueId, boolean save) {
 		this.uniqueId = uniqueId;
+		delete();
+		if(save) {
+			save();
+		}
 	}
 
 	@Override
 	public Object getFieldValue() {
-		return getUniqueId().toString();
+		return getUniqueId();
 	}
 }

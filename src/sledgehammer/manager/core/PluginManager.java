@@ -195,10 +195,10 @@ public class PluginManager extends Manager {
 			
 			for (Module module : plugin.getModules()) {
 				String clientModuleId = module.getClientModuleId();
-				println("\t-> Next Module: " + module.getModuleName() + " ClientModuleId: " + clientModuleId);
+//				println("\t-> Next Module: " + module.getModuleName() + " ClientModuleId: " + clientModuleId);
 				if (clientModuleId.equalsIgnoreCase(event.getModuleName())) {
 					foundModule = true;
-					println("\t\tFound! Executing ClientCommand.");
+//					println("\t\tFound! Executing ClientCommand.");
 					module.onClientCommand(event);
 					break;
 				}

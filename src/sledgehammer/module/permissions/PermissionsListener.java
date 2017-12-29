@@ -62,21 +62,39 @@ public class PermissionsListener implements PermissionListener {
 			// Trim the node string to exclude the operator.
 			node = node.substring(0, node.length() - 2);
 		}
+		System.out.println("Wildcard: " + wildcard);
 		// Check the default permissions first.
 		PermissionGroup permissionGroupDefault = module.getDefaultPermissionGroup();
 		granted = wildcard ? permissionGroupDefault.hasAnyPermission(node) : permissionGroupDefault.hasPermission(node);
+		System.out.println("Default permission for node \"" + node + "\": " + granted);
 		// If the player is assigned as a permission user, then override the default
 		// flag.
 		PermissionUser permissionUser = module.getPermissionUser(player);
 		if (permissionUser != null) {
 			granted = wildcard ? permissionUser.hasAnyPermission(node) : permissionUser.hasPermission(node);
+			System.out.println("User permission for node \"" + node + "\": " + granted);
 		}
 		return granted;
 	}
 
 	@Override
 	public void setPermission(Player player, String node, boolean flag) {
-
+		// Validate the Player argument.
+		if (player == null) {
+			throw new IllegalArgumentException("Player given is null.");
+		}
+		// Validate the node argument..
+		if (node == null || node.isEmpty()) {
+			throw new IllegalArgumentException("Node given is null or empty.");
+		}
+		// Grab the PermissionUser.
+		PermissionUser permissionUser = module.getPermissionUser(player);
+		// If the PermissionUser does not exist, create it.
+		if(permissionUser == null) {
+			permissionUser = module.createPermissionUser(player.getUniqueId());
+		}
+		// Set the Permission for the user.
+		permissionUser.setPermission(node, flag, true);
 	}
 
 	/**
@@ -100,14 +118,14 @@ public class PermissionsListener implements PermissionListener {
 
 	@Override
 	public void addDefaultPermission(String node, boolean flag) {
-		// TODO Auto-generated method stub
-
+		PermissionGroup permissionGroupDefault = module.getDefaultPermissionGroup();
+		permissionGroupDefault.setPermission(node, flag, false);
 	}
 
 	@Override
 	public boolean hasDefaultPermission(String node) {
-		// TODO Auto-generated method stub
-		return false;
+		PermissionGroup permissionGroupDefault = module.getDefaultPermissionGroup();		
+		return permissionGroupDefault.hasPermission(node);
 	}
 
 }

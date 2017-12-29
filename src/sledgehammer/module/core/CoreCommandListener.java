@@ -68,7 +68,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapTooltips.put("warn", "Warns a player. ex: /warn \"player\" \"message\"");
 		mapTooltips.put("broadcast", "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"");
 		mapTooltips.put("commitsuicide", "End your character's life.");
-		mapTooltips.put("espanol", "Adds you to the Spanish chat channel.");
 		mapTooltips.put("properties", "Lists a player's properties. ex: /properties rj.");
 		mapTooltips.put("ban", "Bans a player. Flags:" 
 				+ NEW_LINE + " -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s" 
@@ -83,7 +82,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts = new HashMap<>();
 		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
 		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"         );
-		mapContexts.put("espanol"      , "sledgehammer.core.chat.espanol"         );
 		mapContexts.put("commitsuicide", "sledgehammer.core.basic.commitsuicide"  );
 		mapContexts.put("properties"   , "sledgehammer.core.moderation.properties");
 		mapContexts.put("ban"          , "sledgehammer.core.moderation.ban"       );
@@ -93,7 +91,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		PermissionsManager managerPermissions = module.getPermissionsManager();
 		managerPermissions.addDefaultPlayerPermission(getPermissionNode("pm"));
 		managerPermissions.addDefaultPlayerPermission(getPermissionNode("colors"));
-		managerPermissions.addDefaultPlayerPermission(getPermissionNode("espanol"));
 		managerPermissions.addDefaultPlayerPermission(getPermissionNode("commitsuicide"));
 		// @formatter:on
 	}
@@ -126,8 +123,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				"properties", 
 				"ban", 
 				"unban",
-				"espanol"
-				// "purge"
 		};
 		// @formatter:on
 	}
@@ -150,20 +145,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 
 		if (DEBUG) {
 			println("Command fired by " + username + ": " + com.getRaw());
-		}
-		if (command.startsWith("espanol")) {
-			ChatChannel channel = module.getChatModule().getChatChannel("Espanol");
-			String property = commander.getProperty("espanol");
-			if (property != null && property.equals("1")) {
-				commander.setProperty("espanol", "0");
-				channel.removePlayer(commander);
-				r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
-			} else {
-				commander.setProperty("espanol", "1");
-				channel.addPlayer(commander);
-				r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
-			}
-			return;
 		}
 		if (command.startsWith("colors")) {
 			if (commander.hasPermission(getPermissionNode("colors"))) {

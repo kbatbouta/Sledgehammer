@@ -83,6 +83,10 @@ public abstract class LuaObject extends Printable {
 	 * @return Returns a <Double> value as a <Number>.
 	 */
 	public static Number toLuaNumber(Number number) {
-		return number.doubleValue();
+		if(number instanceof Long) {
+			return Double.longBitsToDouble((Long)number);
+		} else {
+			return number.doubleValue();
+		}
 	}
 }

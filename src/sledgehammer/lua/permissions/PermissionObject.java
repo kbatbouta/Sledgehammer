@@ -82,6 +82,9 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	 * @return Returns the result <Node> with the flag set.
 	 */
 	public Node setPermission(String nodeAsString, boolean flag, boolean save) {
+		if(nodeAsString == null) {
+			throw new IllegalArgumentException("String node given is null.");
+		}
 		Node returned = this.getExplicitPermissionNode(nodeAsString);
 		if (returned == null) {
 			MongoNode mongoNode = new MongoNode(getMongoDocument(), nodeAsString, flag);

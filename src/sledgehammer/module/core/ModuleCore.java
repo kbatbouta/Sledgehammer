@@ -165,9 +165,19 @@ public class ModuleCore extends Module {
 			info.setSelf(player);
 			event.respond(info);
 		} else if (command.equalsIgnoreCase("sendCommand")) {
-			KahluaTable table = (KahluaTable) e.getTable().rawget("command");
-			String raw = table.rawget("raw").toString();
-			UUID channelId = UUID.fromString(table.rawget("channel_id").toString());
+			KahluaTable command_table = (KahluaTable) e.getTable().rawget("command");
+			Object oRaw = command_table.rawget("raw");
+			if(oRaw == null) {
+				errorln("Warning: Player " + player.getName() + " sent a undefined command.");
+				return;
+			}
+			String raw = oRaw.toString();
+			Object oChannelId = command_table.rawget("channel_id");
+			if(oChannelId == null) {
+				errorln("Warning: Player " + player.getName() + " sent a command with a undefined ChatChannel ID.");
+				return;
+			}
+			UUID channelId = UUID.fromString(command_table.rawget("channel_id").toString());
 			Command _command = new Command(raw);
 			_command.setChannelId(channelId);
 			_command.setPlayer(e.getPlayer());

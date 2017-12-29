@@ -2,6 +2,7 @@ package sledgehammer.lua.chat.send;
 
 import sledgehammer.lua.Send;
 import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.chat.ChatHistory;
 
 /**
  * Send Class for ChatChannels.
@@ -26,6 +27,7 @@ public class SendChatChannel extends Send {
 	@Override
 	public void onExport() {
 		set("channel", getChatChannel());
+		set("history", getChatHistory());
 	}
 
 	/**
@@ -33,6 +35,10 @@ public class SendChatChannel extends Send {
 	 */
 	public ChatChannel getChatChannel() {
 		return this.chatChannel;
+	}
+	
+	public ChatHistory getChatHistory() {
+		return getChatChannel().getHistory();
 	}
 
 	/**

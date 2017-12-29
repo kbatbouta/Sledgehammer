@@ -29,17 +29,17 @@ Component.__extends = "ISPanel";
 renderer = getRenderer();
 
 function Component:new(x, y, w, h)
-	local object = ISPanel:new(x, y, w, h)
-	setmetatable(object, self);
+	local o = ISPanel:new(x, y, w, h)
+	setmetatable(o, self);
 	self.__index = self;
-	object.x = x;
-	object.y = y;
-	object.w = w;
-	object.h = h;
-	object.alphaFactor = 1;
-	object.brightness = 1;
-	object.moveWithMouse = false;
-	return object;
+	o.x             = x;
+	o.y             = y;
+	o.w             = w;
+	o.h             = h;
+	o.alpha_factor  = 1;
+	o.brightness    = 1;
+	o.moveWithMouse = false;
+	return o;
 end
 
 function Component:initialise()
@@ -47,7 +47,7 @@ function Component:initialise()
 end
 
 function Component:drawLineH(x, y, length, thickness, color)
-	local af = self.alphaFactor;
+	local af = self.alpha_factor;
 	if af == nil then af = 1; end
 
 	local br = self.brightness;
@@ -61,7 +61,7 @@ function Component:drawLineH(x, y, length, thickness, color)
 end
 
 function Component:drawLineV(x, y, length, thickness, color)
-	local af = self.alphaFactor;
+	local af = self.alpha_factor;
 	if af == nil then af = 1; end
 
 	local br = self.brightness;
@@ -75,7 +75,7 @@ function Component:drawLineV(x, y, length, thickness, color)
 end
 
 function Component:fillRect(x, y, w, h, color)
-	local af = self.alphaFactor;
+	local af = self.alpha_factor;
 	if af == nil then af = 1; end
 
 	local br = self.brightness;
@@ -140,7 +140,6 @@ function Component:drawRect(x, y, w, h, color)
 end
 
 function Component:drawRectPartial(x, y, width, height, n, s, e, w, color)
-	-- print("x: " .. tostring(x) .. ", y: " .. tostring(y) .. ", w: " .. tostring(w) .. ", h: " .. tostring(h) .. ", color: " .. tostring(color));
 	if n == true then 
 		self:drawLineH(x, y, width, 1, color); 
 	end
@@ -184,7 +183,7 @@ function Component:drawTab_(text, x, y, length, height, textColor, borderColor, 
 	local l = length;
 	local h = height;
 
-	local af = self.alphaFactor;
+	local af = self.alpha_factor;
 	if af == nil then af = 1; end
 	local br = self.brightness;
 	if br == nil then br = 1; end

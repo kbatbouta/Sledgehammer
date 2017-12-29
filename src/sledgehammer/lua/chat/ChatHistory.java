@@ -1,11 +1,15 @@
 package sledgehammer.lua.chat;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.UUID;
+import java.util.List;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.lua.LuaArray;
 import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.chat.send.SendChatMessages;
+import sledgehammer.lua.core.Player;
 
 /**
  * Chat LuaTable designed to store <ChatMessage> entries for a <ChatChannel>.
@@ -16,10 +20,12 @@ public class ChatHistory extends LuaTable {
 
 	/** The Maximum amount of messages to store in the <ChatChannel>'s history. */
 	public static final int MAX_SIZE = 1024;
-	/** The <UUID> of the <ChatChannel>. */
-	private UUID channelId;
 	/** The <LinkedList> to store the <ChatMessage>s. */
 	private LinkedList<ChatMessage> listMessages;
+	/** The <ChatChannel> using this ChatHistory. */
+	private ChatChannel chatChannel;
+
+	private SendChatMessages sendChatMessages;
 
 	/**
 	 * Main constructor.
@@ -27,18 +33,24 @@ public class ChatHistory extends LuaTable {
 	 * @param channelId
 	 *            The <UUID> of the <ChatChannel> using the history.
 	 */
-	public ChatHistory(UUID channelId) {
+	public ChatHistory(ChatChannel chatChannel) {
 		super("ChatHistory");
-		setChannelId(channelId);
+		setChatChannel(chatChannel);
+		sendChatMessages = new SendChatMessages(chatChannel.getUniqueId());
 		listMessages = new LinkedList<>();
 	}
-	
+
 	@Override
 	public void onExport() {
 		LuaArray<ChatMessage> listChatMessages = new LuaArray<>();
-		for(ChatMessage chatMessage : listMessages) {
+		for (ChatMessage chatMessage : listMessages) {
 			listChatMessages.add(chatMessage);
 		}
+		String channelIdAsString = getChatChannel().getUniqueId().toString();
+		// @formatter:off
+		set("channel_id", channelIdAsString);
+		set("messages"  , listChatMessages );
+		// @formatter:on
 	}
 
 	/**
@@ -47,9 +59,15 @@ public class ChatHistory extends LuaTable {
 	 * @param collectionChatMessages
 	 *            The <Collection> of <ChatMessage>s to add to the history.
 	 */
-	public void addMessages(Collection<ChatMessage> collectionChatMessages) {
+	public void addChatMessages(Collection<ChatMessage> collectionChatMessages, boolean send) {
+		boolean sendIndividually = send && !chatChannel.isGlobalChannel();
 		for (ChatMessage chatMessage : collectionChatMessages) {
-			addMessage(chatMessage);
+			addChatMessage(chatMessage, !chatChannel.isGlobalChannel() && send);
+		}
+		if (send && !sendIndividually) {
+			sendChatMessages.clearChatMessages();
+			sendChatMessages.addChatMessages(collectionChatMessages);
+			SledgeHammer.instance.send(sendChatMessages, chatChannel.getPlayers());
 		}
 	}
 
@@ -59,16 +77,36 @@ public class ChatHistory extends LuaTable {
 	 * @param chatMessage
 	 *            The <ChatMessage> being added to the history.
 	 */
-	public void addMessage(ChatMessage chatMessage) {
+	public void addChatMessage(ChatMessage chatMessage, boolean send) {
 		// Make sure the history doesn't already contain the ChatMessage.
 		if (!listMessages.contains(chatMessage)) {
 			// Add the ChatMessage to the history.
 			listMessages.add(chatMessage);
+			if (send) {
+				sendChatMessages.clearChatMessages();
+				sendChatMessages.addChatMessage(chatMessage);
+				if (chatChannel.isGlobalChannel()) {
+					SledgeHammer.instance.send(sendChatMessages, chatChannel.getPlayers());
+				} else {
+					Player chatMessagePlayer = chatMessage.getPlayer();
+					List<Player> listPlayers = new ArrayList<>();
+					if (chatMessagePlayer != null) {
+						for (Player player : chatChannel.getPlayers()) {
+							if (player.isWithinLocalRange(chatMessagePlayer)) {
+								listPlayers.add(player);
+							}
+						}
+					} else {
+						listPlayers.addAll(chatChannel.getPlayers());
+					}
+					SledgeHammer.instance.send(sendChatMessages, listPlayers);
+				}
+			}
 			// Check if the history is at message capacity.
 			if (listMessages.size() > MAX_SIZE) {
 				// If it is, grab the oldest ChatMessage to the list and delete it.
-				ChatMessage chatMessageRemoved = listMessages.removeFirst();
-				chatMessageRemoved.delete();
+				listMessages.removeFirst();
+				// chatMessageRemoved.delete();
 			}
 		}
 	}
@@ -85,13 +123,21 @@ public class ChatHistory extends LuaTable {
 	}
 
 	/**
-	 * @return Returns the <UUID>
+	 * @return Returns the <ChatChannel> using the ChatHistory.
 	 */
-	public UUID getChannelId() {
-		return this.channelId;
+	public ChatChannel getChatChannel() {
+		return this.chatChannel;
 	}
 
-	private void setChannelId(UUID channelId) {
-		this.channelId = channelId;
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <ChatChannel> using the ChatHistory
+	 * 
+	 * @param chatChannel
+	 *            The <ChatChannel> to set.
+	 */
+	private void setChatChannel(ChatChannel chatChannel) {
+		this.chatChannel = chatChannel;
 	}
 }

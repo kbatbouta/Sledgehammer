@@ -19,50 +19,65 @@
 require "Sledgehammer/Gui/Component"
 require "Util"
 
+----------------------------------------------------------------
+-- TabPanel.lua
+-- UI for generic Tabbed Panels.
+-- 
+-- @author Jab
+-- @license LGPL3
+----------------------------------------------------------------
 TabPanel = Component:derive("TabPanel");
-TabPanel.headerHeight = 24;
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:new(x, y, w, h) 
 	-- Generic instantiation.
-	local object = Component:new(x, y, w, h);
-	setmetatable(object, self);
+	local o = Component:new(x, y, w, h);
+	setmetatable(o, self);
 	self.__index = self;
 	-- The active index to each array.
-	object.activeIndex = 0;
+	o.active_index = 0;
 	-- Panel content for each tab. Requires a 'name' field.
-	object.panels = {};
+	o.panels = {};
 	-- String lengths of each tab pre-calculated.
-	object.tabLengths = {};
+	o.tab_lengths = {};
 	-- For when a tab is added.
-	object.tabsDirty = false;
+	o.tabs_dirty = false;
 	-- Beginning x position after the tab space. 
-	object.tabEndX = 0;
+	o.tab_end_x = 0;
 	-- For when panels need to be resized.
-	object.panelsDirty = true;
+	o.panels_dirty = true;
 	-- Amount of tabs. Used as a placemarker for the next added tab.
-	object.tabCount = 0;
+	o.tab_count = 0;
 	-- Dimensions used to calculate tab positions.
-	object.tabDimensionHighlightFactors = {};
+	o.tab_dimension_highlight_factors = {};
 	-- The font-size of the tabs.
-	object.tabFontSize = UIFont.Small;
+	o.tab_font_size = UIFont.Small;
 	-- Height in pixels of the Tab's font.
-	object.fontHeight = sHeight(object.tabFontSize);
+	o.font_height = sHeight(o.tab_font_size);
 	-- The active panel / Tab.
-	object.activePanel = nil;
+	o.active_panel = nil;
 	-- Internal panel dimension data.
-	object.innerX = 0;
-	object.innerY = 0;
-	object.innerWidth = 0;
-	object.innerHeight = 0;
-	return object;
+	o.inner_x      = 0;
+	o.inner_y      = 0;
+	o.inner_width  = 0;
+	o.inner_height = 0;
+	return o;
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:initialise()
 	-- Invoke super method.
 	Component.initialise(self);
 
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:createChildren()
 	-- Invoke super method.
 	Component.createChildren(self);
@@ -72,10 +87,13 @@ function TabPanel:createChildren()
 	self.colorTextSelected = Color(240, 240, 240, 255);
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:update()
 	-- Update the active panel.
-	if self.activePanel ~= nil then
-		self.activePanel:update();
+	if self.active_panel ~= nil then
+		self.active_panel:update();
 	end
 	local mouse = self:getLocalMouse();
 	if self:containsPoint(mouse.x, mouse.y) then
@@ -86,14 +104,14 @@ function TabPanel:update()
 			local nextPanel = self.panels[index];
 			if nextDim ~= nil then
 				local nextDim = nextPanel._dim;
-				local factor = self.tabDimensionHighlightFactors[index];
+				local factor = self.tab_dimension_highlight_factors[index];
 				if self:containsPoint(mouse.x, mouse.y, nextDim) then
 					if factor < 2 then
-						self.tabDimensionHighlightFactors[index] = factor + 0.2;
+						self.tab_dimension_highlight_factors[index] = factor + 0.2;
 					end
 				else
 					if factor > 1 then
-						self.tabDimensionHighlightFactors[index] = factor - 0.1;
+						self.tab_dimension_highlight_factors[index] = factor - 0.1;
 					end
 				end
 			end
@@ -102,74 +120,80 @@ function TabPanel:update()
 		-- Drop Highlights for tabs while the mouse is outside the TabPanel.
 		local length = 32;
 		for index = 0, length, 1 do
-			if self.tabDimensionHighlightFactors[index] ~= nil then
-				if self.tabDimensionHighlightFactors[index] > 1 then
-					self.tabDimensionHighlightFactors[index] = self.tabDimensionHighlightFactors[index] - 0.1;
+			if self.tab_dimension_highlight_factors[index] ~= nil then
+				if self.tab_dimension_highlight_factors[index] > 1 then
+					self.tab_dimension_highlight_factors[index] = self.tab_dimension_highlight_factors[index] - 0.1;
 				end
 			end
 		end
 	end
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:prerender()
-	if self.tabsDirty then
-		local index = 0;
-		local length = self.tabCount;
+	if self.tabs_dirty then
+		local index  = 0;
+		local length = self.tab_count;
 		-- Go through each tab.
-		for index=0, length, 1 do
+		for index = 0, length, 1 do
 			local panel = self.panels[index];
 			if panel ~= nil then
 				local name = self.panels[index]._name;
 				-- Set the length of the tab.
-				self.tabLengths[index] = sLength(name, self.tabFontSize) + 7;
+				self.tab_lengths[index] = sLength(name, self.tab_font_size) + 7;
 			end
 		end
 		-- Reset the font height variable.
-		self.fontHeight = sHeight(self.tabFontSize);
+		self.font_height = sHeight(self.tab_font_size);
 		-- Set the tab data clean.
-		self.tabsDirty = false;
+		self.tabs_dirty = false;
 	end
 	self:setInnerDimensions();
-	self.activePanel:setX(self:getInnerX());
-	self.activePanel:setY(self:getInnerY());
-	self.activePanel:setWidth(self:getInnerWidth());
-	self.activePanel:setHeight(self:getInnerHeight());
+	if self.active_panel ~= nil then
+		self.active_panel:setX(self:getInnerX());
+		self.active_panel:setY(self:getInnerY());
+		self.active_panel:setWidth(self:getInnerWidth());
+		self.active_panel:setHeight(self:getInnerHeight());
+	end
 end
 
-function TabPanel:render() end
-
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:_render()
-	local parent = self:getParent();
-	local sx = parent:getX() + 4;
-	local y = parent:getY() + self:getY();
-	local h = self.fontHeight;
-	local panelsLength = 32;
-	local hasPanels = panelsLength > 0 or false;
-	if hasPanels then
-		for index = 0, panelsLength, 1 do
+	local parent        = self:getParent()           ;
+	local sx            = parent:getX() + 4          ;
+	local y             = parent:getY() + self:getY();
+	local h             = self.font_height           ;
+	local panels_length = 32                         ;
+	local has_panels    = panels_length > 0 or false ;
+	if has_panels then
+		for index = 0, panels_length, 1 do
 			local panel = self.panels[index];
 			if panel ~= nil then
-				local tabLength = self.tabLengths[index];
+				local tab_length = self.tab_lengths[index];
 				local dim = nil;
 				-- Draw the tab.
 				if panel.active == true then
-					dim = self:drawActiveTab(panel._name, sx, y, tabLength, self.fontHeight, self.colorTextSelected, self.colorOutline, self.font, 2, true);
+					dim = self:drawActiveTab(panel._name, sx, y, tab_length, self.font_height, self.colorTextSelected, self.colorOutline, self.font, 2, true);
 				else
-					dim = self:drawTab(panel._name, sx, y, tabLength, self.fontHeight, self.colorText, self.colorOutline, self.font, self.tabDimensionHighlightFactors[index], true);
+					dim = self:drawTab(panel._name, sx, y, tab_length, self.font_height, self.colorText, self.colorOutline, self.font, self.tab_dimension_highlight_factors[index], true);
 				end
 				-- Update panel's tab dimension.
 				panel._dim = dim;
 				-- Add the tab's length to the next measure.
-				sx = sx + tabLength + 2;
+				sx = sx + tab_length + 2;
 			end
 		end
 		-- Store the x position of the end of the tab space.
-		self.tabEndX = sx + 1;
+		self.tab_end_x = sx + 1;
 		-- Draw the line in the remaining space to the right of the tabs.
 		self:drawLineH(sx, y + h + 3, self:getWidth() - sx + parent:getX() + self:getX(), 1, self.colorOutline);
 	else
 		-- No tabs means the entire bar at the top is free to populate.
-		self.tabEndX = 0;
+		self.tab_end_x = 0;
 		-- Draw the line in the remaining space to the right of the tabs.
 		self:drawLineH(parent:getX() + self:getX(), y + h + 3, self:getWidth(), 1, self.colorOutline);
 	end
@@ -183,41 +207,35 @@ function TabPanel:_render()
 	self:_renderChildren();
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:click()
 	local mouse = self:getMouse();
-	if SledgeHammer.isDebug() then 
-		print("Mouse: "..tostring(mouse.x)..", "..tostring(mouse.y));
-	end
 	local length = 32;
 	for index = 0, length, 1 do
-		local nextPanel = self.panels[index];
-		if nextPanel ~= nil then
-			local nextDim = nextPanel._dim;
-			local factor = self.tabDimensionHighlightFactors[index];
-			if SledgeHammer.isDebug() then 
-				print("NextDim: "..tostring(nextDim.x1)..", "..tostring(nextDim.y1));
-			end
+		local next_panel = self.panels[index];
+		if next_panel ~= nil then
+			local nextDim = next_panel._dim;
+			local factor = self.tab_dimension_highlight_factors[index];
 			if self:containsPoint(mouse.x, mouse.y, nextDim) then
-				if SledgeHammer.isDebug() then 
-					print("Setting active tab: " .. nextPanel._name);
-				end
-				self:setActiveTab(nextPanel._name);
+				self:setActiveTab(next_panel._name);
 				break;
 			end
 		end
 	end
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:setActiveTab(identifier)
-	if SledgeHammer.isDebug() then 
-		print("setActiveTab("..tostring(identifier)..");");
-	end
 	-- Validity check.
 	if identifier == nil then
 		print("TabPanel:setActiveTab() -> Identifier is null.");
 		return;
 	end
-	if(type(identifier) == "number") then
+	if type(identifier) == "number" then
 		-- Handle identifier as index.
 		-- Validity check.
 		if identifier < 0 then
@@ -225,18 +243,18 @@ function TabPanel:setActiveTab(identifier)
 			return;
 		end
 		-- If a panel is currently active, remove it.
-		if self.activePanel ~= nil then
-			self:removeChild(self.activePanel);
-			self.activePanel:setVisible(false);
-			self.activePanel.active = false;
+		if self.active_panel ~= nil then
+			self:removeChild(self.active_panel);
+			self.active_panel:setVisible(false);
+			self.active_panel.active = false;
 		end
 		-- Set the new active panel.
-		self.activePanel = self.panels[identifier];
-		self.activePanel:setVisible(true);
-		self.activePanel.active = true;
+		self.active_panel = self.panels[identifier];
+		self.active_panel:setVisible(true);
+		self.active_panel.active = true;
 		-- Add the new active panel as a child of the Tabs UIElement.
-		self:addChild(self.activePanel);
-	elseif(type(identifier) == "string") then
+		self:addChild(self.active_panel);
+	elseif type(identifier) == "string" then
 		-- Handle identifier as the name.
 		-- Validity check.
 		if identifier == "" then
@@ -246,9 +264,9 @@ function TabPanel:setActiveTab(identifier)
 		-- length of the panels array.
 		local length = 32;
 		-- Our found panel object.
-		local foundPanel = nil;
+		local found_panel = nil;
 		-- Go through each panel.
-		for index=0, length, 1 do
+		for index = 0, length, 1 do
 			-- Grab the next panel.
 			local panel = self.panels[index];
 			-- Verify the panel is a valid LuaObject.
@@ -256,33 +274,36 @@ function TabPanel:setActiveTab(identifier)
 				-- If the name matches, this is the panel.
 				if panel._name == identifier then
 					-- Set the variable.
-					foundPanel = panel;
+					found_panel = panel;
 					-- Break for optimization.
 					break;
 				end
 			end
 		end
 		-- Validity check.
-		if foundPanel == nil then
+		if found_panel == nil then
 			print("TabPanel:setActiveTab() -> No panel found for name: " .. identifier);
 			return;
 		end
 		-- If a panel is currently active, remove it.
-		if self.activePanel ~= nil then
-			self:removeChild(self.activePanel);
-			self.activePanel:setVisible(false);
-			self.activePanel.active = false;
+		if self.active_panel ~= nil then
+			self:removeChild(self.active_panel);
+			self.active_panel:setVisible(false);
+			self.active_panel.active = false;
 		end
 		-- Set the new active panel.
-		self.activePanel = foundPanel;
-		self.activePanel:setVisible(true);
-		self.activePanel.active = true;
+		self.active_panel = found_panel;
+		self.active_panel:setVisible(true);
+		self.active_panel.active = true;
 		-- Add the new active panel as a child of the Tabs UIElement.
-		self:addChild(self.activePanel);
+		self:addChild(self.active_panel);
 	end
 	self:onTabFocus();
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:addTab(name, UIObject) 
 	-- Validity check.
 	if UIObject == nil then
@@ -296,9 +317,6 @@ function TabPanel:addTab(name, UIObject)
 	local toReturn = nil;
 	local index = 0;
 	while toReturn == nil do
-		if SledgeHammer.isDebug() then 
-			print(tostring(self.panels[index]));
-		end
 		if self.panels[index] == nil then
 			toReturn = index;
 			break;
@@ -307,24 +325,21 @@ function TabPanel:addTab(name, UIObject)
 	end
 	-- Insert the object into the panel array.
 	self.panels[toReturn] = UIObject;
-	self.tabDimensionHighlightFactors[toReturn] = 1;
+	self.tab_dimension_highlight_factors[toReturn] = 1;
 	-- Increment tabs length.
-	self.tabCount = self.tabCount + 1;
+	self.tab_count = self.tab_count + 1;
 	-- Set dirty flags to recalculate.
-	self.tabsDirty = true;
-	self.panelsDirty = true;
+	self.tabs_dirty = true;
+	self.panels_dirty = true;
 	-- Start as not visible.
 	UIObject:setVisible(false);
 	-- Return the index position of the tab.
 	return toReturn;
 end
 
-function TabPanel:getActiveTab()
-	return self.activePanel;
-end
-
-function TabPanel:onTabFocus(tab) end
-
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:removeTab(name)
 	-- TO lowercase to match.
 	name = string.lower(name);
@@ -335,11 +350,11 @@ function TabPanel:removeTab(name)
 			if string.lower(panel._name) == name then
 				-- Set panel to null.
 				self.panels[index] = nil;
-				self.tabCount = self.tabCount - 1;		
+				self.tab_count = self.tab_count - 1;		
 				-- If the removed tab is the active tab, set the first tab as active.
-				if self.activeIndex == index then
-					self.activeIndex = 0;
-					self.activePanel = self.panels[0];
+				if self.active_index == index then
+					self.active_index = 0;
+					self.active_panel = self.panels[0];
 				end
 				break;
 			end
@@ -347,10 +362,10 @@ function TabPanel:removeTab(name)
 	end
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:getTab(identifier)
-	if SledgeHammer.isDebug() then 
-		print("TabPanel:getTab("..tostring(identifier)..");");
-	end
 	if type(identifier) == "number" then
 		-- Handle identifier as index.
 		-- Validity check.
@@ -369,16 +384,14 @@ function TabPanel:getTab(identifier)
 		identifier = string.lower(identifier);
 		-- length of the panels array.
 		local length = 32;
-		-- print("length: -> " .. tostring(length));
 		-- Go through each panel.
-		for index=0, length, 1 do
+		for index = 0, length, 1 do
 			-- Grab the next panel.
 			local panel = self.panels[index];
 			-- Verify the panel is a valid LuaObject.
 			if panel ~= nil then
 				-- If the name matches, this is the panel.
 				if string.lower(panel._name) == identifier then
-					-- print("MATCH! Returning panel: "..tostring(panel));
 					-- Set the variable.
 					return panel;
 				end
@@ -387,6 +400,9 @@ function TabPanel:getTab(identifier)
 	end
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:setInnerDimensions()
 	-- Grab the parent.
 	local p  = self:getParent();
@@ -394,33 +410,81 @@ function TabPanel:setInnerDimensions()
 	local px = p:getX();
 	local py = p:getY();
 	-- Inner dimensions.
-	local x = self:getX() - 4;
+	local x = self:getX() -  4;
 	local y = self:getY() + 15;
-	local w = self:getWidth();
+	local w = self:getWidth() ;
 	local h = self:getHeight();
 	-- Set inner dimensions.
-	self.innerX = x;
-	self.innerY = y;
-	self.innerWidth = w;
-	self.innerHeight = h;
+	self.inner_x      = x;
+	self.inner_y      = y;
+	self.inner_width  = w;
+	self.inner_height = h;
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
+function TabPanel:getActiveTab()
+	return self.active_panel;
+end
+
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:getInnerX()
-	return self.innerX;
+	return self.inner_x;
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:getInnerY()
-	return self.innerY;
+	return self.inner_y;
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:getInnerWidth()
-	return self.innerWidth;
+	return self.inner_width;
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
 function TabPanel:getInnerHeight()
-	return self.innerHeight;
+	return self.inner_height;
 end
 
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
+function TabPanel:onTabFocus(tab) end
+
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
+function TabPanel:render() end
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+--      ######  ########    ###    ######## ####  ######      --
+--     ##    ##    ##      ## ##      ##     ##  ##    ##     --
+--     ##          ##     ##   ##     ##     ##  ##           --
+--      ######     ##    ##     ##    ##     ##  ##           --
+--           ##    ##    #########    ##     ##  ##           --
+--     ##    ##    ##    ##     ##    ##     ##  ##    ##     --
+--      ######     ##    ##     ##    ##    ####  ######      --
+----------------------------------------------------------------
+----------------------------------------------------------------
+
+-- The static definition for header heights for the TabPanel.
+TabPanel.header_height = 24;
+
+----------------------------------------------------------------
+-- @static
+-- @return Returns the HeaderHieght defined for the TabPanel.
+----------------------------------------------------------------
 function TabPanel:getHeaderHeight()
-	return 24;
+	return TabPanel.header_height;
 end

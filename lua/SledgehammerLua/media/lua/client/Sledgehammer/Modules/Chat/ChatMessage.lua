@@ -45,9 +45,9 @@ ChatMessage = class(function(o)
 	-- The String name of the Player.
 	o.player_name = nil;
 	-- The String message content of the ChatMessage.
-	o.message = nil;
+	o.message = "";
 	-- The String original message content of the ChatMessage.
-	o.message_original = nil;
+	o.message_original = "";
 	-- The Long timestamp of the ChatMessage, packaged as a Double. 
 	o.timestamp = nil;
 	-- The Long modified timestamp of the ChatMessage, packaged as a Double.
@@ -98,7 +98,6 @@ function ChatMessage:initialize(lua_table, chat_channel)
 	if origin ~= nil and origin ~= "" and origin ~= "client" and origin ~= "server" then
 		-- If the origin is defined, then head the message with the
 		-- origin name.
-		-- Set the formatted origin text.
 		self.origin_text = "("..firstToUpper(origin)..") ";
 	end
 	-- Next, the timestamp needs to be formatted and pre-compiled.
@@ -113,15 +112,6 @@ function ChatMessage:initialize(lua_table, chat_channel)
 end
 
 ----------------------------------------------------------------
--- Sets the ChatMessage's origin.
---
--- @string origin The Origin to set.
-----------------------------------------------------------------
-function ChatMessage:setOrigin(origin)
-	self.origin = origin;
-end
-
-----------------------------------------------------------------
 -- Resets the rendered Strings so that they are re-rendered when called.
 ----------------------------------------------------------------
 function ChatMessage:unrender()
@@ -132,36 +122,49 @@ end
 ----------------------------------------------------------------
 -- Renders the ChatMessage into a String if not defined.
 --
+-- @table chat_channel (Optional) The ChatChannel requesting the
+--   rendered String. 
 -- @return Returns the rendered String.
 ----------------------------------------------------------------
-function ChatMessage:render()
+function ChatMessage:render(chat_channel)
+	-- Flag for whether or not the ChatChannel name should be 
+	--   in-front of the rendered ChatMessage.
+	local explicit = false;
+	-- If the chat_channel argument is passed and the ChatChannel
+	--   is not the one the ChatMessage is listed under, then the
+	--   explicit flag is set, returning the ChatChannel origin
+	--   in-front of the ChatMessage.
+	if chat_channel ~= nil and (chat_channel.flags.explicit or chat_channel.id ~= self.chat_channel.id) then
+		explicit = true;
+	end
+	-- Check if the ChatMessage is already rendered.
 	if self.rendered == nil then
 		local history_header = "";
 		if self.history then 
 			history_header = ChatMessage.HISTORY_HEADER;
 		end
-		self.rendered = history_header..self.timestamp_header..self.origin..self.message;
+		local player_header = "";
+		if self.player_name ~= nil then
+			player_header = self.player_name.." : ";
+		end
+		self.rendered = history_header..self.timestamp_header..self.origin_text..player_header..self.message;
 	end
-	return self.rendered;
+	-- Check if the explicit ChatMessage is already rendered.
+	if self.rendered_explicit == nil then
+		self.rendered_explicit = "("..self.chat_channel.name..") "..self.rendered;
+	end
+	-- If we need the explicit form of the ChatMessage, return it.
+	if explicit then
+		return self.rendered_explicit;
+	-- Else, return the simple form of the ChatMessage.
+	else
+		return self.rendered;
+	end
 end
 
-----------------------------------------------------------------
--- Renders the ChatMessage into a explicit String if not defined.
---
--- @return Returns the explicitly rendered String.
-----------------------------------------------------------------
-function ChatMessage:renderExplicit()
-	if self.rendered_explicit == nil then
-		local history_header = "";
-		if self.history then 
-			history_header = ChatMessage.HISTORY_HEADER;
-		end
-		self.rendered_explicit = "("..self.channel.name..") ";
-		self.rendered_explicit = self.rendered_explicit..history_header..self.timestamp_header;
-		self.rendered_explicit = self.rendered_explicit..self.origin..self.message;
-	end
-
-	return self.rendered_explicit;
+function ChatMessage:resetRenders()
+	self.rendered          = nil;
+	self.rendered_explicit = nil;
 end
 
 ----------------------------------------------------------------
@@ -171,8 +174,11 @@ end
 --   is a history message.
 ----------------------------------------------------------------
 function ChatMessage:setHistory(history)
-	self.history = history;
+	if history ~= self.history then
+		self.history = history;
+		self:resetRenders();
+	end
 end
 
-ChatMessage.HISTORY_COLOR  = {r = 0.8, g = 0.8, b = 0.8};
-ChatMessage.HISTORY_HEADER = colorToTag(HISTORY_HEADER);
+ChatMessage.HISTORY_COLOR  = {r = 0.78, g = 0.78, b = 0.78};
+ChatMessage.HISTORY_HEADER = colorToTag(ChatMessage.HISTORY_COLOR);
