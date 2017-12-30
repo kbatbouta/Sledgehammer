@@ -1,0 +1,105 @@
+#   _____                           _     
+#  |     |___ _____ _____ ___ ___ _| |___ 
+#  |   --| . |     |     | .'|   | . |_ -|
+#  |_____|___|_|_|_|_|_|_|__,|_|_|___|___|
+#
+## General
+not_online: "Player not online: {{player}}"
+not_found: "Player not found: {{player}}"
+permission_denied: "Sorry! You do not have permission to do that."
+error_database_command: "Database error on command: {{command}}"
+
+## Tool-Tips
+command_tooltip_colors: "Displays all supported colors on this server."
+command_tooltip_pm: "Private messages a player. ex: /pm \"player\" \"message\""
+command_tooltip_warn: "Warns a player. ex: /warn \"player\" \"message\""
+command_tooltip_broadcast: "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\""
+command_tooltip_commitsuicide: "End your character's life."
+command_tooltip_properties: "Lists a player's properties. ex: /properties rj."
+command_ban:
+- "Bans a player. Flags:"
+- " -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s"
+- " -S: SteamID flag (ID required!) ex: /ban -S \"11330\""
+- " -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\""
+- " -i: IP flag (No IP required, but must be online!)"
+- " -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)"
+command_tooltip_unban:
+- "Unbans a player. Flags:"
+- " -U: Username flag (Required!) ex: /unban -U \"username\""
+- " -S: SteamID flag (ID required!) ex: /unban -S \"11330\""
+- " -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\""
+
+## Commands
+# Warn message for the Player.
+#
+# {{reason}} -> The message sent to the Player.
+command_warn_message: "You have been warned. Reason: {{reason}}"
+# Warn message sent to the commander.
+#
+# {{player}} -> The Player warned.
+command_warn_success: "{{player}} warned."
+# Log message for warn.
+#
+# {{commander}} -> The commanding Player.
+# {{player}} -> The Player warned.
+# {{reason}} -> The warning message sent to the Player.
+command_warn_success_log: "{{commander}} warned the player {{player}} with message: \"{{message}}\"." 
+# Broadcast message sent to the commander.
+command_broadcast_success: "Broadcast sent."
+# Log message for broadcast.
+#
+# {{commander}} -> The commanding Player.
+# {{message}} -> The message broadcasted.
+command_broadcast_success_log: "{{commander}} broadcasted message: \"{{message}}\""
+# /commitsuicide
+#
+# Commitsuicide message sent to the commander.
+command_commitsuicide_success: "Done."
+# Message announced when someone commits commitsuicide.
+#
+# {{commander}} -> The commanding Player.
+command_commitsuicide_announce: "{{commander}} committed suicide."
+
+# /properties
+command_properties_success: "Properties for player \"{{player}}\":"
+command_properties_property: "{{key}}: {{value}}"
+command_properties_success_log: "{{commander}} looked up properties for player \"{{player}}\"."
+
+# /ban
+command_ban_infer_steam: "Cannot infer IP-Ban in Steam mode."
+command_ban_infer_nosteam: "Cannot infer SteamID Ban in Non-Steam mode."
+command_ban_ip_steam: "Cannot IP-Ban in Steam mode."
+command_ban_id_nosteam: "Cannot SteamID Ban in Non-Steam mode."
+command_ban_u: "Must have -u \"username\" to use this command!"
+command_ban_ip_imply: "User must be online in order to imply IP ban."
+command_ban_id_imply: "User must be online in order to imply Steam-ban."
+# {{id}} -> The 64-bit Steam-ID entered into the command arguments.
+command_ban_id_invalid: "Invalid Steam ID: {{id}}"
+command_ban_success: "Banned."
+command_ban_ip_success: "Banned. (IP)"
+command_ban_id_success: "Banned. (Steam)"
+# {{commander}} -> The commanding Player.
+# {{player}} -> The Player banned.
+command_ban_success_log: "{{commander}} banned {{player}}."
+# {{commander}} -> The commanding Player.
+# {{player}} -> The Player banned.
+# {{ip}} -> The I.P. Address banned from the server.
+command_ban_ip_success_log: "{{commander}} banned {{player}}. IP={{ip}}"
+# {{commander}} -> The commanding Player.
+# {{player}} -> The Player banned.
+# {{id}} -> The 64-bit Steam ID banned from the server.
+command_ban_id_success_log: "{{commander}} banned {{player}}. ID={{id}}"
+
+# /unban
+command_unban_success: "Player unbanned."
+command_unban_ip_success: "IP unbanned."
+command_unban_id_success: "Steam ID unbanned."
+# {{commander}} -> The commanding Player.
+# {{player}} -> The Player banned.
+command_unban_success_log: "{{commander}} unbanned {{player}}."
+
+#   _____             _       
+#  |   __|_ _ ___ ___| |_ ___ 
+#  |   __| | | -_|   |  _|_ -|
+#  |_____|\_/|___|_|_|_| |___|
+#

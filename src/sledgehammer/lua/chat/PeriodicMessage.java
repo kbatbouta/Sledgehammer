@@ -14,47 +14,33 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.module.core;
+package sledgehammer.lua.chat;
 
+import sledgehammer.lua.LuaTable;
 import sledgehammer.util.ChatTags;
 
 /**
  * Class designed to handle periodic messages on the server.
+ *
+ * TODO: Change <String> Color to <Color> object.
  * 
- * TODO: Document.
+ * TODO: Implement PeriodicMessage on the Lua-end of Sledgehammer's ModuleChat.
  * 
  * @author Jab
  */
-public class PeriodicMessage {
+public class PeriodicMessage extends LuaTable {
 
-	/**
-	 * The name of the message. (Used for identification)
-	 */
+	/** The name of the message. (Used for identification) */
 	private String name;
-
-	/**
-	 * The message content.
-	 */
+	/** The message content. */
 	private String content;
-
-	/**
-	 * The color of the message broadcasted.
-	 */
+	/** The color of the message broadcasted. */
 	private String color = ChatTags.COLOR_WHITE;
-
-	/**
-	 * Whether or not to broadcast the message.
-	 */
+	/** Whether or not to broadcast the message. */
 	private boolean enabled = false;
-
-	/**
-	 * Whether or not to broadcast the message on the screen.
-	 */
+	/** Whether or not to broadcast the message on the screen. */
 	private boolean broadcast = false;
-
-	/**
-	 * The time setting. (In minutes. E.G: 15 = 15 minutes)
-	 */
+	/** The time setting. (In minutes. E.G: 15 = 15 minutes) */
 	private int time = 15;
 
 	/**
@@ -64,17 +50,27 @@ public class PeriodicMessage {
 	 * @param content
 	 */
 	public PeriodicMessage(String name, String content) {
+		super("PeriodicMessage");
 		this.name = name;
 		this.content = content;
 	}
 
+	@Override
+	public void onExport() {
+		// @formatter:off
+		set("name"   , getName()   );
+		set("message", getMessage());
+		set("enabled", isEnabled() );
+		set("time"   , getTime()   );
+		set("color"  , getColor()  );
+		// @formatter:on
+	}
+
 	/**
-	 * Returns whether or not this message is enabled.
-	 * 
-	 * @return
+	 * @return Returns whether or not this message is enabled.
 	 */
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	/**
@@ -83,34 +79,29 @@ public class PeriodicMessage {
 	 * @param flag
 	 */
 	public void setEnabled(boolean flag) {
-		enabled = flag;
+		this.enabled = flag;
 	}
 
 	/**
-	 * Returns this message's content.
-	 * 
-	 * @return
+	 * @return Returns this message's content.
 	 */
-	public String getContent() {
-		return content;
+	public String getMessage() {
+		return this.content;
 	}
 
 	/**
-	 * Returns the name associated with this message. (the ID of the message)
-	 * 
-	 * @return
+	 * @return Returns the name associated with this message. (the ID of the
+	 *         message)
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
 
 	/**
-	 * Returns how long (in minutes), this message waits until execution.
-	 *
-	 * @return
+	 * @return Returns how long (in minutes), this message waits until execution.
 	 */
 	public int getTime() {
-		return time;
+		return this.time;
 	}
 
 	/**
@@ -123,12 +114,10 @@ public class PeriodicMessage {
 	}
 
 	/**
-	 * Returns whether or not this message is broadcasted on the screen.
-	 * 
-	 * @return
+	 * @return Returns whether or not this message is broadcasted on the screen.
 	 */
 	public boolean isBroadcasted() {
-		return broadcast;
+		return this.broadcast;
 	}
 
 	/**
@@ -137,13 +126,22 @@ public class PeriodicMessage {
 	 * @param flag
 	 */
 	public void setBroadcasted(boolean flag) {
-		broadcast = flag;
+		this.broadcast = flag;
 	}
 
+	/**
+	 * @return Returns the <String> Color of the PeriodicMessage.
+	 */
 	public String getColor() {
 		return color;
 	}
 
+	/**
+	 * Sets the <String> Color of the PeriodicMessage.
+	 * 
+	 * @param color
+	 *            The <String> Color to set.
+	 */
 	public void setColor(String color) {
 		this.color = color;
 	}

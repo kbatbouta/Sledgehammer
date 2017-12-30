@@ -21,7 +21,7 @@ import java.util.UUID;
 import sledgehammer.SledgeHammer;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
-import sledgehammer.module.core.ModuleChat;
+import sledgehammer.module.chat.ModuleChat;
 
 public class ChatMessageEvent extends Event {
 

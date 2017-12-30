@@ -18,10 +18,15 @@ package sledgehammer.interfaces;
 
 import sledgehammer.event.Event;
 
+/**
+ * TODO: Document.
+ * 
+ * @author Jab
+ */
 public interface EventListener {
-	String[] getTypes();
+	public String[] getTypes();
 
-	void onEvent(Event event);
+	public void onEvent(Event event);
 
-	boolean runSecondary();
+	public boolean runSecondary();
 }

@@ -1,4 +1,4 @@
-package sledgehammer.module.core;
+package sledgehammer.module.chat;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;

@@ -28,7 +28,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.Module;
-import sledgehammer.module.core.ModuleChat;
+import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.module.permissions.ModulePermissions;

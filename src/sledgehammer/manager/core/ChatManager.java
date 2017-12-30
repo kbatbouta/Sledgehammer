@@ -26,7 +26,7 @@ import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
-import sledgehammer.module.core.ModuleChat;
+import sledgehammer.module.chat.ModuleChat;
 
 import java.util.Collection;
 import java.util.HashMap;

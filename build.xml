@@ -16,6 +16,7 @@
 				<exclude name="**/*.java"/>
 			</fileset>
 			<zipgroupfileset includes="*.jar" dir="lib"/>
+			<fileset dir="." includes="lang/**"/>
 			<fileset file="plugin.yml"></fileset>
 			<fileset file="config.yml"></fileset>
 			<manifest>

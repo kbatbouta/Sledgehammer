@@ -16,6 +16,7 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.module.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,12 +33,14 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.HandShakeEvent;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.RequestInfo;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.SendPlayer;
 import sledgehammer.module.Module;
+import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.Command;
 import zombie.network.ServerWorldDatabase;
 
@@ -48,19 +51,22 @@ import zombie.network.ServerWorldDatabase;
  */
 public class ModuleCore extends Module {
 
+	// @formatter:off
 	public static long LONG_SECOND = 1000L;
 	public static long LONG_MINUTE = LONG_SECOND * 60L;
-	public static long LONG_HOUR = LONG_MINUTE * 60L;
-	public static long LONG_DAY = LONG_HOUR * 24L;
+	public static long LONG_HOUR   = LONG_MINUTE * 60L;
+	public static long LONG_DAY    = LONG_HOUR   * 24L;
+	// @formatter:on
 
 	private Map<String, MongoPeriodicMessage> mapPeriodicMessages;
 	private List<MongoPeriodicMessage> listPeriodicMessages;
 
-	private CoreClientListener clientListener;
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	private MongoCollection collectionPeriodicMessages;
 	private SendPlayer sendPlayer;
+
+	private LanguagePackage lang;
 
 	private long timeThenPeriodicMessages = 0L;
 	private long timeThenCheckAccountExpire = 0L;
@@ -69,19 +75,29 @@ public class ModuleCore extends Module {
 
 	@Override
 	public void onLoad() {
+
+		File directory = getModuleDirectory();
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+		File directoryLang = new File(directory, "lang");
+		if(!directoryLang.exists()) {
+			directoryLang.mkdirs();
+		}
+		saveResourceAs("lang/core_en.yml", "lang/core_en.yml", false);
+
+		lang = new LanguagePackage(directoryLang, "core");
+		lang.load();
+
 		sendPlayer = new SendPlayer();
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
-
 		// Initialize the listeners.
 		commandListener = new CoreCommandListener(this);
 		eventListener = new CoreEventListener(this);
-		clientListener = new CoreClientListener(this);
-
 		// Initialize the Lists & Maps.
 		listPeriodicMessages = new ArrayList<>();
 		mapPeriodicMessages = new HashMap<>();
-
 		loadPeriodicMessages();
 	}
 
@@ -134,7 +150,6 @@ public class ModuleCore extends Module {
 
 	@Override
 	public void onStart() {
-		register(clientListener);
 	}
 
 	@Override
@@ -142,7 +157,6 @@ public class ModuleCore extends Module {
 		for (MongoPeriodicMessage message : listPeriodicMessages) {
 			message.save();
 		}
-		unregister(clientListener);
 	}
 
 	@Override
@@ -167,13 +181,13 @@ public class ModuleCore extends Module {
 		} else if (command.equalsIgnoreCase("sendCommand")) {
 			KahluaTable command_table = (KahluaTable) e.getTable().rawget("command");
 			Object oRaw = command_table.rawget("raw");
-			if(oRaw == null) {
+			if (oRaw == null) {
 				errorln("Warning: Player " + player.getName() + " sent a undefined command.");
 				return;
 			}
 			String raw = oRaw.toString();
 			Object oChannelId = command_table.rawget("channel_id");
-			if(oChannelId == null) {
+			if (oChannelId == null) {
 				errorln("Warning: Player " + player.getName() + " sent a command with a undefined ChatChannel ID.");
 				return;
 			}
@@ -230,7 +244,7 @@ public class ModuleCore extends Module {
 	}
 
 	/**
-	 * Adds a PeriodicMessage to the core, which will be displayed peridically to
+	 * Adds a PeriodicMessage to the core, which will be displayed periodically to
 	 * all players who have global-chat enabled.
 	 * 
 	 * @param periodicMessage

@@ -29,6 +29,7 @@ import sledgehammer.lua.core.Broadcast;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendBroadcast;
 import sledgehammer.manager.core.PermissionsManager;
+import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;

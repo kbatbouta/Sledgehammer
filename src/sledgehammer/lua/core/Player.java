@@ -31,7 +31,7 @@ import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
-import sledgehammer.module.core.ModuleChat;
+import sledgehammer.module.chat.ModuleChat;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.ServerOptions;

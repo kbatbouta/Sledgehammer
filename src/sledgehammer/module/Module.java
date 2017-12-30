@@ -35,7 +35,7 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.manager.core.EventManager;
 import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.manager.core.PluginManager;
-import sledgehammer.module.core.ModuleChat;
+import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.Printable;
 
 /**
