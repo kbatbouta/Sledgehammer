@@ -448,6 +448,10 @@ public class SledgeHammer extends Printable {
 		return getUdpEngine().getConnections();
 	}
 
+	public void broadcastMessage(String line) {
+		// TODO: Implement.
+	}
+
 	/**
 	 * @return Returns Project Zomboid's UdpEngine instance.
 	 */
@@ -714,4 +718,5 @@ public class SledgeHammer extends Printable {
 		instance = new SledgeHammer();
 		GameServer.main(args);
 	}
+
 }

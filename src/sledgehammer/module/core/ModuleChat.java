@@ -122,24 +122,24 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 			onEvent(requestEvent);
 			RequestChatChannels request = new RequestChatChannels();
 			// Add the main ChatChannels first in order.
-			if(global.hasAccess(player)) {
+			if (global.hasAccess(player)) {
 				global.addPlayer(player, false);
 				request.addChannel(global);
 			}
-			if(local.hasAccess(player)) {
+			if (local.hasAccess(player)) {
 				local.addPlayer(player, false);
 				request.addChannel(local);
 			}
-			if(pms.hasAccess(player)) {
+			if (pms.hasAccess(player)) {
 				pms.addPlayer(player, false);
 				request.addChannel(pms);
 			}
-			if(espanol.hasAccess(player)) {
+			if (espanol.hasAccess(player)) {
 				espanol.addPlayer(player, false);
 				request.addChannel(espanol);
 			}
 			for (ChatChannel channel : getChatChannels()) {
-				if(channel.equals(global) || channel.equals(local) || channel.equals(pms) || channel.equals(espanol)) {
+				if (channel.equals(global) || channel.equals(local) || channel.equals(pms) || channel.equals(espanol)) {
 					continue;
 				}
 				if (channel.hasAccess(player)) {
@@ -240,6 +240,13 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		}
 	}
 
+	/**
+	 * Returns the <ChatChannel>'s that a <Player> can see.
+	 * 
+	 * @param player
+	 *            The <Player> being checked.
+	 * @return Returns a <List> of <ChatChannels>.
+	 */
 	public List<ChatChannel> getChatChannels(Player player) {
 		List<ChatChannel> listChatChannels = new LinkedList<>();
 		for (ChatChannel chatChannel : getChatChannels()) {
@@ -278,6 +285,11 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		return listChatMessages;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Verifies that the Core <ChatChannel>'s are defined in-case of a new server.
+	 */
 	private void verifyCoreChannels() {
 		String channelName;
 		String channelDescription;
@@ -288,28 +300,29 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		boolean saveHistory;
 		boolean canSpeak;
 		// Create the wild-card ChatChannel.
-		channelName = "*";
-		channelDescription = "Wildcard channel for the server. Sends messages to all spoken channels.";
+		channelName           = "*";
+		channelDescription    = "Wildcard channel for the server. Sends messages to all spoken channels.";
 		channelPermissionNode = null;
-		isGlobalChannel = false;
-		isPublicChannel = false;
-		isCustomChannel = false;
-		saveHistory = false;
-		canSpeak = false;
+		isGlobalChannel       = false;
+		isPublicChannel       = false;
+		isCustomChannel       = false;
+		saveHistory           = false;
+		canSpeak              = false;
+		// Create the MongoDocument.
 		MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName, channelDescription,
 				channelPermissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		setAllChatChannel(new ChatChannel(mongoChatChannel));
 		// Create the global ChatChannel.
 		ChatChannel global = getChatChannel("Global");
 		if (global == null) {
-			channelName = "Global";
-			channelDescription = "Global channel for the server.";
+			channelName           = "Global";
+			channelDescription    = "Global channel for the server.";
 			channelPermissionNode = "sledgehammer.chat.global";
-			isGlobalChannel = true;
-			isPublicChannel = true;
-			isCustomChannel = false;
-			saveHistory = true;
-			canSpeak = true;
+			isGlobalChannel       = true;
+			isPublicChannel       = true;
+			isCustomChannel       = false;
+			saveHistory           = true;
+			canSpeak              = true;
 			global = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		}
@@ -320,27 +333,27 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		// Create the local ChatChannel.
 		ChatChannel local = getChatChannel("Local");
 		if (local == null) {
-			channelName = "Local";
-			channelDescription = "Local channel for the server.";
+			channelName           = "Local";
+			channelDescription    = "Local channel for the server.";
 			channelPermissionNode = "sledgehammer.chat.local";
-			isGlobalChannel = false;
-			isPublicChannel = true;
-			isCustomChannel = false;
-			saveHistory = false;
-			canSpeak = true;
+			isGlobalChannel       = false;
+			isPublicChannel       = true;
+			isCustomChannel       = false;
+			saveHistory           = false;
+			canSpeak              = true;
 			local = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		}
 		// Create the PM's ChatChannel.
 		ChatChannel pms = getChatChannel("PM's");
 		if (pms == null) {
-			channelName = "PM's";
-			channelDescription = "PM channel for the server.";
+			channelName           = "PM's";
+			channelDescription    = "PM channel for the server.";
 			channelPermissionNode = "sledgehammer.chat.pm";
-			isGlobalChannel = false;
-			isPublicChannel = true;
-			isCustomChannel = false;
-			saveHistory = false;
+			isGlobalChannel       = false;
+			isPublicChannel       = true;
+			isCustomChannel       = false;
+			saveHistory           = false;
 			canSpeak = false;
 			pms = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);

@@ -509,4 +509,10 @@ public class Player extends LuaTable {
 	public UUID getUniqueId() {
 		return getMongoPlayer().getUniqueId();
 	}
+
+	public void sendChatMessage(String[] lines) {
+		for(String line: lines) {
+			sendChatMessage(line);
+		}
+	}
 }
