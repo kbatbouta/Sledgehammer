@@ -36,7 +36,10 @@ public class SendChatChannel extends Send {
 	public ChatChannel getChatChannel() {
 		return this.chatChannel;
 	}
-	
+
+	/**
+	 * @return Returns the <ChatHistory> assigned to the set <ChatChannel>.
+	 */
 	public ChatHistory getChatHistory() {
 		return getChatChannel().getHistory();
 	}
