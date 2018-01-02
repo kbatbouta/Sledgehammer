@@ -18,13 +18,24 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * Event that is sent when a Player is marked 'Alive'.
+ * 
+ * @author Jab
+ */
 public class AliveEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "AliveEvent";
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> authoring the <PlayerEvent>.
+	 */
 	public AliveEvent(Player player) {
 		super(player);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
