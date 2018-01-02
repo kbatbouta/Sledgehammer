@@ -24,9 +24,8 @@ import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.permissions.MongoPermissionGroup;
 
 /**
- * Class designed to handle Permission-Group operations.
- * 
- * TODO: Document.
+ * PermissionObject designed to handle permission-group data and operations for
+ * the Permissions Module.
  * 
  * @author Jab
  */
@@ -34,7 +33,6 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 
 	/** The <List> of <PermissionUser> members assigned to the group. */
 	private List<PermissionUser> listPermissionUsers;
-
 	/** The <PermissionGroup> parent that the group inherits permissions from. */
 	private PermissionGroup parent;
 
@@ -42,6 +40,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 	 * Load constructor.
 	 * 
 	 * @param mongoDocument
+	 *            The <MongoDocument> to set.
 	 */
 	public PermissionGroup(MongoPermissionGroup mongoDocument) {
 		super(mongoDocument, "PermissionGroup");
@@ -50,10 +49,12 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 
 	@Override
 	public void onLoad(KahluaTable table) {
+		// TODO: Implement.
 	}
 
 	@Override
 	public void onExport() {
+		// TODO: Implement.
 	}
 
 	@Override
@@ -152,32 +153,36 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 	}
 
 	/**
-	 * Adds a member to this group.
+	 * Adds a <PermissionUser> to the <PermissionGroup>.
 	 * 
-	 * @param username
+	 * @param permissionUser
+	 *            The <PermissionUser> to add.
+	 * @param save
+	 *            The flag to save the Document.
 	 */
-	public void addMember(PermissionUser member, boolean save) {
-		if (!hasMember(member)) {
-			listPermissionUsers.add(member);
+	public void addMember(PermissionUser permissionUser, boolean save) {
+		if (!hasMember(permissionUser)) {
+			listPermissionUsers.add(permissionUser);
 		}
-		member.setPermissionGroup(this, save);
+		permissionUser.setPermissionGroup(this, save);
 	}
 
 	/**
-	 * Removes a member from this group.
+	 * Removes a <PermissionUser> from the <PermissionGroup>.
 	 * 
-	 * @param username
+	 * @param permissionUser
+	 *            The <PermissionUser> to remove.
+	 * @param save
+	 *            The flag to save the Document.
 	 */
-	public void removeMember(PermissionUser member, boolean save) {
-		if (hasMember(member)) {
-			listPermissionUsers.remove(member);
+	public void removeMember(PermissionUser permissionUser, boolean save) {
+		if (hasMember(permissionUser)) {
+			listPermissionUsers.remove(permissionUser);
 		}
-		member.setPermissionGroup(null, save);
+		permissionUser.setPermissionGroup(null, save);
 	}
 
 	/**
-	 * Returns the parent PermissionGroup.
-	 * 
 	 * @return Returns the parent <PermissionGroup>, if one is assigned.
 	 */
 	public PermissionGroup getParent() {
@@ -185,10 +190,12 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 	}
 
 	/**
-	 * Sets the parent group for the PermissionGroup instance.
+	 * Sets the parent <PermissionGroup> for the PermissionGroup.
 	 * 
 	 * @param group
+	 *            The <PermissionGroup> to assign as the parent.
 	 * @param save
+	 *            The flag to save the Document.
 	 */
 	public void setParent(PermissionGroup group, boolean save) {
 		this.parent = group;
@@ -217,10 +224,21 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
 		return getMongoDocument().getUniqueId();
 	}
 
+	/**
+	 * @return Returns the <String> name of the <PermissionGroup>.
+	 */
 	public String getGroupName() {
 		return getMongoDocument().getGroupName();
 	}
 
+	/**
+	 * Sets the <String> name of the <PermissionGroup>.
+	 * 
+	 * @param name
+	 *            The <String> name to set.
+	 * @param save
+	 *            The flag to save the Document.
+	 */
 	public void setGroupName(String name, boolean save) {
 		getMongoDocument().setGroupName(name, save);
 	}
