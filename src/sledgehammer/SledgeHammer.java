@@ -57,6 +57,11 @@ import sledgehammer.manager.NPCManager;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
 import sledgehammer.manager.PluginManager;
+import sledgehammer.module.chat.ModuleChat;
+import sledgehammer.module.core.ModuleCore;
+import sledgehammer.module.faction.ModuleFactions;
+import sledgehammer.module.permissions.ModulePermissions;
+import sledgehammer.module.vanilla.ModuleVanilla;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -435,6 +440,41 @@ public class SledgeHammer extends Printable {
 	 */
 	public PlayerManager getPlayerManager() {
 		return managerPlayer;
+	}
+
+	/**
+	 * @return Returns the <ModuleChat> instance loaded in the Core plug-in.
+	 */
+	public ModuleFactions getFactionModule() {
+		return getPluginManager().getFactionsModule();
+	}
+
+	/**
+	 * @return Returns the <ModuleChat> instance loaded in the Core plug-in.
+	 */
+	public ModuleChat getChatModule() {
+		return getPluginManager().getChatModule();
+	}
+
+	/**
+	 * @return Returns the <ModuleCore> instance loaded in the Core plug-in.
+	 */
+	public ModuleVanilla getVanillaModule() {
+		return getPluginManager().getVanillaModule();
+	}
+
+	/**
+	 * @return Returns the <ModuleCore> instance loaded in the Core plug-in.
+	 */
+	public ModuleCore getCoreModule() {
+		return getPluginManager().getCoreModule();
+	}
+
+	/**
+	 * @return Returns the <ModulePermissions> instance loaded in the Core plug-in.
+	 */
+	public ModulePermissions getPermissionsModule() {
+		return getPluginManager().getPermissionsModule();
 	}
 
 	/**
