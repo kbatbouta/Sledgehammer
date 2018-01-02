@@ -26,44 +26,60 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.lua.core.Player;
 
 /**
- * TODO: Re-implement.
- * 
- * TODO: Document
+ * Manager to handle <Player> data and operations for the Sledgehammer engine.
  * 
  * @author Jab
  */
 public class PlayerManager extends Manager {
 
+	/** The <String> name of the <Manager>. */
 	public static final String NAME = "PlayerManager";
 
+	/** The <Map> of <Player>'s identified by their <UUID> unique Id's. */
 	public Map<UUID, Player> mapPlayersByID = new HashMap<>();
+	/** The <Map> of <Player>'s identified by their <String> user-names. */
 	public Map<String, Player> mapPlayersByUsername = new HashMap<>();
+	/** A <List> of <Player>'s online. */
 	public List<Player> listPlayers = new ArrayList<>();
-
-	/**
-	 * Main constructor.
-	 */
-	public PlayerManager() {
-
-	}
 
 	@Override
 	public String getName() {
 		return NAME;
 	}
 
+	/**
+	 * @return Returns a <List> of <Player>'s registered in the <PlayerManager>.
+	 */
 	public List<Player> getPlayers() {
 		return listPlayers;
 	}
 
+	/**
+	 * @param username
+	 *            The <String> user-name of the <Player>.
+	 * @return Returns a <Player> with the given <String> user-name. If no <Player>
+	 *         identifies with the <String> user-name, then null is returned.
+	 */
 	public Player getPlayer(String username) {
 		return mapPlayersByUsername.get(username.toLowerCase());
 	}
 
+	/**
+	 * @param uniqueId
+	 *            The <UUID> unique Id of the <Player>.
+	 * @return Returns a <Player> with the given <UUID> unique Id. If no <Player>
+	 *         identifies with the UUID unique Id, then null is retrned.
+	 */
 	public Player getPlayer(UUID uniqueId) {
 		return mapPlayersByID.get(uniqueId);
 	}
 
+	/**
+	 * Adds a <Player> to the <PlayerManager>.
+	 * 
+	 * @param player
+	 *            The <Player> to add.
+	 */
 	public void addPlayer(Player player) {
 		if (!listPlayers.contains(player)) {
 			listPlayers.add(player);
