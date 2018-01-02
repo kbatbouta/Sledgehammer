@@ -18,26 +18,58 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * PlayerEvent to dispatch When a <Player> is affected or Authors a PVPEvent.
+ * 
+ * @author Jab
+ */
 public class PVPEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "PVPEvent";
 
-	private boolean enabled;
+	/** Flag to note if PVP Mode is enabled. */
+	private boolean pvpModeEnabled;
 
-	public PVPEvent(Player player, boolean enabled) {
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> affected or authoring the <PVPEvent>.
+	 * @param pvpModeEnabled
+	 *            Flag to note if PVP Mode is enabled.
+	 */
+	public PVPEvent(Player player, boolean pvpModeEnabled) {
 		super(player);
-		this.enabled = enabled;
+		setPVPModeEnabled(pvpModeEnabled);
 	}
 
-	public boolean isPVPEnabled() {
-		return this.enabled;
-	}
-
+	@Override
 	public String getLogMessage() {
-		return getPlayer().getUsername() + " " + (isPVPEnabled() ? "enabled" : "disabled") + " PVP.";
+		return getPlayer().getUsername() + " " + (isPVPModeEnabled() ? "enabled" : "disabled") + " PVP.";
 	}
 
+	@Override
 	public String getID() {
 		return ID;
+	}
+
+	/**
+	 * @return Returns true if PVP Mode is enabled.
+	 */
+	public boolean isPVPModeEnabled() {
+		return this.pvpModeEnabled;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the flag for PVP Mode.
+	 * 
+	 * @param pvpModeEnabled
+	 *            The flag to set.
+	 */
+	private void setPVPModeEnabled(boolean pvpModeEnabled) {
+		this.pvpModeEnabled = pvpModeEnabled;
 	}
 }
