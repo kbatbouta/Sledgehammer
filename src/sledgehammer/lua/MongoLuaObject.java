@@ -36,14 +36,12 @@ public abstract class MongoLuaObject<M extends MongoDocument> extends LuaTable {
 	}
 
 	/**
-	 * (Private Method)
-	 * 
 	 * Sets the <MongoDocument> storing the data for the <LuaTable>.
 	 * 
 	 * @param mongoDocument
 	 *            The <MongoDocument. to set.
 	 */
-	private void setMongoDocument(M mongoDocument) {
+	protected void setMongoDocument(M mongoDocument) {
 		this.mongoDocument = mongoDocument;
 	}
 }
