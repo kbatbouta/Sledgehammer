@@ -25,8 +25,8 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.interfaces.ExceptionListener;
-import sledgehammer.interfaces.LogListener;
+import sledgehammer.interfaces.ThrowableListener;
+import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
@@ -39,26 +39,83 @@ import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.Printable;
 
 /**
- * TODO: Document
+ * Class to handle module operations and utilities.
  * 
  * @author Jab
  */
 public abstract class Module extends Printable {
 
+	/** The Plug-in instance the Module is packaged with. */
 	private Plugin plugin;
+	/** The properties of the Module. */
 	private ModuleProperties properties = new ModuleProperties();
-	public boolean loadedSettings = false;
-	private boolean loaded = false;
-	private boolean started = false;
-
 	/** The <File> directory for data to be placed. */
 	private File directory = null;
+	/** Flag to note if the Module has passed into the loaded state. */
+	private boolean loaded = false;
+	/** Flag to note if the Module has passed into the started state. */
+	private boolean started = false;
 
 	@Override
 	public String getName() {
 		return getProperties().getModuleName();
 	}
 
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Loads the Module.
+	 * 
+	 * @return Returns true if the Module loads successfully.
+	 */
+	public boolean loadModule() {
+		try {
+			onLoad();
+			loaded = true;
+			return true;
+		} catch (Exception e) {
+			println("Failed to load module.");
+			loaded = false;
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Starts the module.
+	 */
+	public void startModule() {
+		if (!started) {
+			started = true;
+			onStart();
+		} else {
+			println("Module is already started.");
+		}
+	}
+
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Updates the Module every tick.
+	 * 
+	 * @param delta
+	 *            The latency in milliseconds since the last tick.
+	 */
+	public void updateModule(long delta) {
+		if (started) {
+			onUpdate(delta);
+		}
+	}
+
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Stops the Module.
+	 * 
+	 * @return Returns true if the Module stopped successfully.
+	 */
 	public boolean stopModule() {
 		if (loaded) {
 			try {
@@ -76,20 +133,13 @@ public abstract class Module extends Printable {
 		return true;
 	}
 
-	public boolean loadModule() {
-		try {
-			onLoad();
-			loaded = true;
-			return true;
-		} catch (Exception e) {
-			println("Failed to load module.");
-			loaded = false;
-			e.printStackTrace();
-
-		}
-		return false;
-	}
-
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Unloads the Module.
+	 * 
+	 * @return Returns true if the Module unloads successfully.
+	 */
 	public boolean unloadModule() {
 		try {
 			if (loaded) {
@@ -103,16 +153,22 @@ public abstract class Module extends Printable {
 		return true;
 	}
 
-	public void register(EventListener listener) {
-		String[] types = listener.getTypes();
-		if (types == null) {
-			throw new IllegalArgumentException("EventListener getTypes() array is null!");
-		}
-		for (String type : types) {
-			SledgeHammer.instance.register(type, listener);
-		}
+	/**
+	 * Unloads the module.
+	 */
+	public void unload() {
+		started = false;
+		getPlugin().unloadModule(this);
 	}
 
+	/**
+	 * Registers a <ChatChannel> with no description or permission-node. Throws an
+	 * IllegalArgumentException if the name provided is null or empty.
+	 * 
+	 * @param name
+	 *            The <String> name of the ChatChannel.
+	 * @return Returns the result ChatChannel.
+	 */
 	public ChatChannel createChatChannel(String name) {
 		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name provided is null or empty.");
@@ -120,6 +176,22 @@ public abstract class Module extends Printable {
 		return createChatChannel(name, null, null);
 	}
 
+	/**
+	 * Registers a <ChatChannel> with a name, description, and permission-node to
+	 * access it. Throws an IllegalArgumentException if the name provided is null or
+	 * empty.
+	 * 
+	 * The ChatChannel is set to be global, public, not custom, saves history, and
+	 * allows Players to speak.
+	 * 
+	 * @param name
+	 *            The <String> name of the ChatChannel.
+	 * @param description
+	 *            The <String> description of the ChatChannel.
+	 * @param permissionNode
+	 *            The <String> permission-node of the ChatChannel.
+	 * @return Returns the result ChatChannel.
+	 */
 	public ChatChannel createChatChannel(String name, String description, String permissionNode) {
 		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name provided is null or empty.");
@@ -130,16 +202,44 @@ public abstract class Module extends Printable {
 		if (permissionNode == null) {
 			permissionNode = "sledgehammer.chat";
 		}
-		boolean isGlobalChannel = true;
-		boolean isPublicChannel = true;
+		// @formatter:off
+		boolean isGlobalChannel = true ;
+		boolean isPublicChannel = true ;
 		boolean isCustomChannel = false;
-		boolean saveHistory = true;
-		boolean canSpeak = true;
+		boolean saveHistory     = true ;
+		boolean canSpeak        = true ;
+		// @formatter:on
 		ChatChannel chatChannel = createChatChannel(name, description, permissionNode, isGlobalChannel, isPublicChannel,
 				isCustomChannel, saveHistory, canSpeak);
 		return chatChannel;
 	}
 
+	/**
+	 * Registers a <ChatChannel> with a name, description, permission-node, and all
+	 * flags associated with it.
+	 * 
+	 * @param channelName
+	 *            The <String> name of the ChatChannel.
+	 * @param channelDescription
+	 *            The <String> description of the ChatChannel.
+	 * @param permissionNode
+	 *            The <String> permission-node of the ChatChannel.
+	 * @param isGlobalChannel
+	 *            Flag for if the ChatChannel should send messages to all players,
+	 *            or players relative to their location.
+	 * @param isPublicChannel
+	 *            Flag for if the ChatChannel is public to all Players, or if the
+	 *            ChatChannel is only accessable to the Player's with the given
+	 *            permission-node.
+	 * @param isCustomChannel
+	 *            Flag for if the ChatChannel is a custom ChatChannel. (Has no use)
+	 * @param saveHistory
+	 *            Flag to save the history of the ChatChannel.
+	 * @param canSpeak
+	 *            Flag for if the Players are allowed to send Messages in the
+	 *            ChatChannel. (Read-Only if set to false)
+	 * @return Returns the result ChatChannel.
+	 */
 	public ChatChannel createChatChannel(String channelName, String channelDescription, String permissionNode,
 			boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel, boolean saveHistory,
 			boolean canSpeak) {
@@ -155,31 +255,36 @@ public abstract class Module extends Printable {
 	 * @param chatChannel
 	 *            The <ChatChannel> being unregistered.
 	 */
-	public void deleteChatChannel(ChatChannel chatChannel) {
+	public void unregisterChatChannel(ChatChannel chatChannel) {
 		if (chatChannel == null) {
 			throw new IllegalArgumentException("ChatChannel given is null!");
 		}
-		getChatModule().deleteChatChannel(chatChannel);
+		getChatModule().unregisterChatChannel(chatChannel);
 	}
 
-	public void startModule() {
-		if (!started) {
-			started = true;
-			onStart();
-		} else {
-			println("Module is already started.");
-		}
+	/**
+	 * Creates a <ChatMessage> with no assigned <ChatChannel>.
+	 * 
+	 * @param message
+	 *            The <String> message content.
+	 * @return Returns a new ChatMessage.
+	 */
+	public ChatMessage createChatMessage(String message) {
+		return getChatModule().createChatMessage(message);
 	}
 
-	public void updateModule(long delta) {
-		if (started) {
-			onUpdate(delta);
-		}
-	}
-
-	public void unload() {
-		started = false;
-		getPlugin().unloadModule(this);
+	/**
+	 * Creates and sends a <ChatMessage> to the 'Global' <ChatChannel>.
+	 * 
+	 * @param message
+	 *            The <String> message content.
+	 * @return Returns the created ChatMessage.
+	 */
+	public ChatMessage sendGlobalMessage(String message) {
+		ChatChannel chatChannelGlobal = getChatModule().getGlobalChatChannel();
+		ChatMessage chatMessage = createChatMessage(message);
+		chatChannelGlobal.addChatMessage(chatMessage);
+		return chatMessage;
 	}
 
 	/**
@@ -196,10 +301,29 @@ public abstract class Module extends Printable {
 		return directory;
 	}
 
+	/**
+	 * Saves a File resource stored in the Plug-in Jar File to the same location
+	 * inside the Module's data folder. If the File exists in that location, the
+	 * File is not overwritten.
+	 * 
+	 * @param path
+	 *            The <String> path to the File inside the Jar file.
+	 */
 	public void saveResource(String path) {
 		saveResource(path, false);
 	}
 
+	/**
+	 * Saves a File resource stored in the Plug-in Jar File to the same location
+	 * inside the Module's data folder. If the file exists in that location and
+	 * overwrite is set to false, the File is not overwritten.
+	 * 
+	 * @param path
+	 *            The <String> path to the File inside the Jar File.
+	 * @param overwrite
+	 *            Flag to set if the File is to be overwritten, regardless of it's
+	 *            state.
+	 */
 	public void saveResource(String path, boolean overwrite) {
 		File file = new File(getModuleDirectory(), path);
 		if (!overwrite && file.exists()) {
@@ -209,10 +333,35 @@ public abstract class Module extends Printable {
 		plugin.saveResourceAs(path, file);
 	}
 
+	/**
+	 * Saves a File resource stored in the Plug-in Jar file to the given destination
+	 * inside the Module's data folder. If the file exists in the destination, the
+	 * File is not overwritten.
+	 * 
+	 * @param jarPath
+	 *            The <String> path to the File inside the Jar File.
+	 * @param destPath
+	 *            The <String> destination path to the File stored inside the
+	 *            Module's data folder.
+	 */
 	public void saveResourceAs(String jarPath, String destPath) {
 		saveResourceAs(jarPath, destPath, false);
 	}
 
+	/**
+	 * Saves a File resource stored in the Plug-in Jar file to the given destination
+	 * inside the Module's data folder. If the file exists in that location and
+	 * overwrite is set to false, the File is not overwritten.
+	 * 
+	 * @param jarPath
+	 *            The <String> path to the File inside the Jar File.
+	 * @param destPath
+	 *            The <String> destination path to the File stored inside the
+	 *            Module's data folder.
+	 * @param overwrite
+	 *            Flag to set if the File is to be overwritten, regardless of it's
+	 *            state.
+	 */
 	public void saveResourceAs(String jarPath, String destPath, boolean overwrite) {
 		File file = new File(getModuleDirectory(), destPath);
 		if (!overwrite && file.exists()) {
@@ -222,166 +371,333 @@ public abstract class Module extends Printable {
 		plugin.saveResourceAs(jarPath, file);
 	}
 
-	public ChatMessage createChatMessage(String message) {
-		return getChatModule().createChatMessage(message);
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(type, listener)'.
+	 * 
+	 * Registers all Events defined in the EventListener.
+	 * 
+	 * @param listener
+	 *            The <EventListener> being registered.
+	 */
+	public void register(EventListener listener) {
+		// Grab the types definition from the listener.
+		String[] types = listener.getTypes();
+		// Make sure that the types are defined.
+		if (types == null) {
+			throw new IllegalArgumentException(
+					"EventListener " + listener.getClass().getSimpleName() + "'s getTypes() returned null.");
+		}
+		// Make sure that there are types defined in the array.
+		if (types.length == 0) {
+			throw new IllegalArgumentException("EventListener " + listener.getClass().getSimpleName()
+					+ "'s getTypes() returned an empty String Array.");
+		}
+		// Go through each type.
+		for (String type : types) {
+			// Register each type individually.
+			register(type, listener);
+		}
 	}
 
-	public void sendGlobalMessage(String message) {
-		ChatChannel global = getChatModule().getGlobalChatChannel();
-		global.addChatMessage(createChatMessage(message));
-	}
-
-	public void register(CommandListener listener) {
-		SledgeHammer.instance.register(listener);
-	}
-
-	public void unregister(EventListener listener) {
-		getEventManager().unregister(listener);
-	}
-
-	public void unregister(CommandListener listener) {
-		getEventManager().unregister(listener);
-	}
-
-	public void unregister(LogListener listener) {
-		getEventManager().unregister(listener);
-	}
-
-	public void unregister(ExceptionListener listener) {
-		getEventManager().unregister(listener);
-	}
-
-	public void setPermissionListener(PermissionListener permissionListener) {
-		getPermissionsManager().setPermissionListener(permissionListener);
-	}
-
-	public EventManager getEventManager() {
-		return SledgeHammer.instance.getEventManager();
-	}
-
-	public PluginManager getModuleManager() {
-		return SledgeHammer.instance.getPluginManager();
-	}
-
-	public String getPermissionDeniedMessage() {
-		return SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
-	}
-
-	public void handleEvent(Event event, boolean shouldLog) {
-		SledgeHammer.instance.handle(event, shouldLog);
-	}
-
-	public void handleEvent(Event event) {
-		SledgeHammer.instance.handle(event);
-	}
-
-	public Module getModule(Class<? extends Module> clazz) {
-		return getPluginManager().getModule(clazz);
-	}
-
-	public PermissionsManager getPermissionsManager() {
-		return SledgeHammer.instance.getPermissionsManager();
-	}
-
-	public boolean loadedSettings() {
-		return this.loadedSettings;
-	}
-
-	public String getPublicServerName() {
-		return SledgeHammer.instance.getPublicServerName();
-	}
-
-	public void register(LogListener listener) {
-		SledgeHammer.instance.register(listener);
-	}
-
-	public void register(ExceptionListener listener) {
-		SledgeHammer.instance.register(listener);
-	}
-
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(type, listener)'.
+	 * 
+	 * Registers an <EventListener> for a given <Event> type.
+	 * 
+	 * @param type
+	 *            The type of an <Event>. (Event.getID() or Event.ID)
+	 * @param listener
+	 *            The <EventListener> to register.
+	 */
 	public void register(String type, EventListener listener) {
 		SledgeHammer.instance.register(type, listener);
 	}
 
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(listener)'.
+	 * 
+	 * Registers a <LogEventListener> for <LogEvent>'s.
+	 * 
+	 * @param listener
+	 *            The <LogEventListener> to register.
+	 */
+	public void register(LogEventListener listener) {
+		SledgeHammer.instance.register(listener);
+	}
+
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(listener)'.
+	 * 
+	 * Registers a <CommandListener>.
+	 * 
+	 * @param listener
+	 *            The <CommandListener> to register.
+	 */
+	public void register(CommandListener listener) {
+		SledgeHammer.instance.register(listener);
+	}
+
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(command, listener)'.
+	 * 
+	 * Registers a <CommandListener> to a given <String> command.
+	 * 
+	 * @param command
+	 *            The <String> command to register under.
+	 * @param listener
+	 *            The <CommandListener> to register.
+	 */
 	public void register(String command, CommandListener listener) {
 		SledgeHammer.instance.register(command, listener);
 	}
 
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(listener)'.
+	 * 
+	 * Registers a <ThrowableListener> to handle thrown Exceptions in the scope of
+	 * the Sledgehammer engine.
+	 * 
+	 * @param listener
+	 *            The <ThrowableListener> to register.
+	 */
+	public void register(ThrowableListener listener) {
+		SledgeHammer.instance.register(listener);
+	}
+
+	/**
+	 * Unregisters a <EventListener>.
+	 * 
+	 * @param listener
+	 *            The <EventListener> to unregister.
+	 */
+	public void unregister(EventListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	/**
+	 * Unregisters a <CommandListener>.
+	 * 
+	 * @param listener
+	 *            The <CommandListener> to unregister.
+	 */
+	public void unregister(CommandListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	/**
+	 * Unregisters a <LogEventListener>.
+	 * 
+	 * @param listener
+	 *            The <LogEventListener> to unregister.
+	 */
+	public void unregister(LogEventListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	/**
+	 * Unregisters a <ThrowableListener>.
+	 * 
+	 * @param listener
+	 *            The <ThrowableListener> to unregister.
+	 */
+	public void unregister(ThrowableListener listener) {
+		getEventManager().unregister(listener);
+	}
+
+	/**
+	 * Sets the Sledgehammer engine's <PermissionListener>. This method is reserved
+	 * for the Plug-ins implementing a permissions solution.
+	 * 
+	 * @param permissionListener
+	 *            The <PermissionListener> to set.
+	 */
+	public void setPermissionListener(PermissionListener permissionListener) {
+		getPermissionsManager().setPermissionListener(permissionListener);
+	}
+
+	/**
+	 * @return Returns the <EventManager> instance of the Sledgehammer engine.
+	 */
+	public EventManager getEventManager() {
+		return SledgeHammer.instance.getEventManager();
+	}
+
+	/**
+	 * @return Returns the <PluginManager> instance of the Sledgehammer engine.
+	 */
+	public PluginManager getModuleManager() {
+		return SledgeHammer.instance.getPluginManager();
+	}
+
+	/**
+	 * @return Returns the <String> response to a denied permission check.
+	 */
+	public String getPermissionDeniedMessage() {
+		return SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
+	}
+
+	/**
+	 * Approximate method for 'SledgeHammer.instance.handle(event, shouldLog)'.
+	 * 
+	 * Handles a <Event>, passing it to all registered <EventListener>'s listening
+	 * for the Event's type.
+	 * 
+	 * @param event
+	 *            The <Event> to handle.
+	 * @param shouldLog
+	 *            Flag for whether or not to pass the Event to the registered
+	 *            LogListeners as a LogEvent, based on the data set in the Event.
+	 */
+	public void handleEvent(Event event, boolean shouldLog) {
+		SledgeHammer.instance.handle(event, shouldLog);
+	}
+
+	/**
+	 * Approximate method for 'SledgeHammer.instance.handle(event)'.
+	 * 
+	 * Handles a <Event> passing it to all registered <EventListener>'s listening
+	 * for the Event's type.
+	 * 
+	 * @param event
+	 *            The <Event> to handle.
+	 */
+	public void handleEvent(Event event) {
+		SledgeHammer.instance.handle(event);
+	}
+
+	/**
+	 * Returns a registered. <Module> with the given <Class>.
+	 * 
+	 * @param clazz
+	 *            The Class of the Module.
+	 * @return Returns a <Module> with the given <Class>.
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends Module> Module getModule(Class<? extends Module> clazz) {
+		return (T) getPluginManager().getModule(clazz);
+	}
+
+	/**
+	 * @return Returns the <PermissionsManager> instance for the Sledgehammer
+	 *         engine.
+	 */
+	public PermissionsManager getPermissionsManager() {
+		return SledgeHammer.instance.getPermissionsManager();
+	}
+
+	/**
+	 * @return Returns the <String> name of the ProjectZomboid server displayed
+	 *         publically.
+	 */
+	public String getPublicServerName() {
+		return SledgeHammer.instance.getPublicServerName();
+	}
+
+	/**
+	 * @return Returns the loaded <ModuleChat> instance from the Core plug-in of
+	 *         Sledgehammer.
+	 */
 	public ModuleChat getChatModule() {
 		return getPluginManager().getChatModule();
 	}
 
+	/**
+	 * @return Returns the <Plugin> that the Module is assigned to.
+	 */
 	public Plugin getPlugin() {
 		return this.plugin;
 	}
 
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Sets the <Plugin> that the Module is assigned to.
+	 * 
+	 * @param plugin
+	 *            The <Plugin> to set.
+	 */
 	public void setPlugin(Plugin plugin) {
 		this.plugin = plugin;
 	}
 
 	/**
-	 * @param chatChannelName
-	 *            The <String> name used to retrieve the <ChatChannel>
-	 * @return Returns a <ChatChannel> if one exists with the given <String>
-	 *         chatChannelName. Returns null if no <ChatChannel> exists without the
-	 *         name provided.
+	 * @return Returns a <List> of online <Player>'s.
 	 */
-	// public ChatChannel getChatChannel(String chatChannelName) {
-	// return getChatManager().getChannel(chatChannelName);
-	// }
-
 	public List<Player> getPlayers() {
 		return SledgeHammer.instance.getPlayers();
 	}
 
-	private PluginManager getPluginManager() {
+	/**
+	 * @return Returns the Sledgehammer <PluginManager> instance.
+	 */
+	public PluginManager getPluginManager() {
 		return SledgeHammer.instance.getPluginManager();
 	}
 
+	/**
+	 * @return Returns true if the Module has passed into the loaded state.
+	 */
 	public boolean isLoaded() {
 		return loaded;
 	}
 
 	/**
-	 * Used to execute GenericEvent commands. This will be picked up by modules
-	 * that @override this this.
-	 * 
-	 * @param type
-	 * 
-	 * @param context
+	 * @return Returns the <String> version of the Module, as defined in the
+	 *         Module's properties.
 	 */
-	public void executeCommand(String type, String context) {
-	}
-
 	public String getVersion() {
 		return getProperties().getModuleVersion();
 	}
 
+	/**
+	 * @return Returns the Module's properties and definitions.
+	 */
 	public ModuleProperties getProperties() {
 		return this.properties;
 	}
 
+	/**
+	 * (Note: Modules should not use this method)
+	 * 
+	 * Sets the Module's properties and definitions for integration into the
+	 * Sledgehammer engine.
+	 * 
+	 * @param properties
+	 *            The <ModuleProperties> definitions to set.
+	 */
 	public void setProperties(ModuleProperties properties) {
 		this.properties = properties;
 	}
-	
+
+	/**
+	 * @return Returns the <String> identity of the Module for Lua-Client
+	 *         identification for <ClientEvent> communication.
+	 */
 	public String getClientModuleId() {
 		return getProperties().getClientModuleId();
 	}
 
+	/**
+	 * @param name
+	 *            The <String> name of the <ChatChannel>.
+	 * @return Returns a <ChatChannel> with the given <String> name. If no
+	 *         ChatChannel uses the name, null is returned.
+	 */
 	public ChatChannel getChatChannel(String name) {
 		return getChatModule().getChatChannel(name);
 	}
 
 	/**
-	 * FIXME: A Module's name needs to be defined in the YML.
-	 * 
-	 * @return
+	 * @return Return's the Module's <String> name defined in the properties. This
+	 *         is used for identifying the data folder.
 	 */
 	public String getModuleName() {
 		return getProperties().getModuleName();
 	}
 
+	/**
+	 * @return Returns true if the Module has started and has not stopped.
+	 */
 	public boolean isStarted() {
 		return this.started;
 	}
@@ -442,5 +758,16 @@ public abstract class Module extends Printable {
 	 *            the <ClientEvent> container for the event.
 	 */
 	public void onClientCommand(ClientEvent event) {
+	}
+
+	/**
+	 * Used to execute GenericEvent commands. This will be picked up by modules
+	 * that @override this this method.
+	 * 
+	 * @param type
+	 * 
+	 * @param context
+	 */
+	public void executeCommand(String type, String context) {
 	}
 }
