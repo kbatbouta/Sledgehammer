@@ -19,14 +19,30 @@ package sledgehammer.interfaces;
 import sledgehammer.event.Event;
 
 /**
- * TODO: Document.
+ * Interface for listening to and handling <Event>'s in the Sledgehammer engine.
+ * 
+ * TODO: Rewrite to support Annotation assignment.
  * 
  * @author Jab
  */
 public interface EventListener {
+
+	/**
+	 * @return Returns the <String> ID's of the <Event>'s to pass to the <Listener>.
+	 */
 	public String[] getTypes();
 
+	/**
+	 * Handles an <Event> passed to the <Listener>.
+	 * 
+	 * @param event
+	 *            The <Event> passed.
+	 */
 	public void onEvent(Event event);
 
+	/**
+	 * @return Returns true if the <Listener> runs after all Listeners that are
+	 *         primary have processed the <Event>.
+	 */
 	public boolean runSecondary();
 }
