@@ -18,6 +18,21 @@ package sledgehammer.interfaces;
 
 import sledgehammer.event.LogEvent;
 
-public interface LogListener {
-	public void onLogEntry(LogEvent logEntry);
+/**
+ * Listener to handle Logged events passed through the Sledgehammer engine.
+ * 
+ * TODO: Re-write to have a more modular design. This is too rigid of a model,
+ * and should be cohesive to the EventListener model.
+ * 
+ * @author Jab
+ */
+public interface LogEventListener {
+
+	/**
+	 * Handles a <LogEvent>.
+	 * 
+	 * @param logEvent
+	 *            The <LogEvent> to handle.
+	 */
+	public void onLogEvent(LogEvent logEvent);
 }
