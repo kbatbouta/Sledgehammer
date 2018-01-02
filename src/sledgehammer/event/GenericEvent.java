@@ -26,129 +26,155 @@ import sledgehammer.plugin.Module;
  * them to other modules for evaluation and execution.
  * 
  * @author Jab
- *
  */
 public class GenericEvent extends Event {
 
-	/**
-	 * The ID of the Event.
-	 */
+	/** The String ID of the Event. */
 	public static final String ID = "GENERIC_EVENT";
 
-	/**
-	 * The module that created this Event.
-	 */
+	/** The module that created this Event. */
 	private Module moduleSent;
-
-	/**
-	 * The context of the Event. Usually carrying data or a simple string.
-	 */
+	/** The context of the Event. Usually carrying data or a simple string. */
 	private String context = null;
-
 	/**
-	 * The type. Used to clarify in a module-like way what the event is, or what
-	 * group of events this is.
+	 * The type. This is used to clarify in a <Module>-like way what the <Event> is,
+	 * or what group of Event the <GenericEvent> is.
 	 */
 	private String type = null;
-
 	/**
 	 * The logger message. If not null, will be logged, depending on the logger
 	 * implementation.
 	 */
 	private String logMessage = null;
-
+	/**
+	 * The <Map> of <String> key->value generic variables to set for the <Event>.
+	 */
 	private Map<String, String> mapVariables;
 
 	/**
 	 * Main constructor.
 	 * 
-	 * @param module
+	 * @param moduleSent
+	 *            The <Module> authoring the <GenericEvent>.
 	 * 
 	 * @param type
+	 *            The <String> type of <GenericEvent> as an identification.
 	 * 
 	 * @param context
+	 *            The <String> context of the <GenericEvent>. This Usually carries
+	 *            data, or is a <String>.
 	 */
-	public GenericEvent(Module module, String type, String context) {
-
-		// Set the variables to those given.
-		this.moduleSent = module;
-		this.type = type;
-		this.context = context;
-
+	public GenericEvent(Module moduleSent, String type, String context) {
+		setModuleSent(moduleSent);
+		setType(type);
+		setContext(context);
 		mapVariables = new HashMap<>();
 	}
 
+	@Override
+	public String getLogMessage() {
+		return this.logMessage;
+	}
+
+	@Override
+	public String getID() {
+		return ID;
+	}
+
 	/**
-	 * Returns the type of this <GenericEvent>. This is used to clarify in a
-	 * module-like way what the event is, or what group of events this is.
-	 *
-	 * @return
+	 * @return Returns the type of this <GenericEvent>. This is used to clarify in a
+	 *         module-like way what the event is, or what group of events this is.
 	 */
 	public String getType() {
 		return type;
 	}
 
 	/**
-	 * Returns the context of this <GenericEvent>. This usually carries data, or a
-	 * simple string.
+	 * (Private Method)
 	 * 
-	 * @return
+	 * Sets the <String> type of <GenericEvent>.
+	 * 
+	 * @param type
+	 *            The <String> type to set.
+	 */
+	private void setType(String type) {
+		this.type = type;
+	}
+
+	/**
+	 * @return Returns the context of this <GenericEvent>. This usually carries
+	 *         data, or a simple string.
 	 */
 	public String getContext() {
 		return context;
 	}
 
 	/**
-	 * Returns the <Module> that authored this <GenericEvent>.
-	 *
-	 * @return
+	 * (Private Method)
+	 * 
+	 * Sets the <String> context of the <GenericEvent>.
+	 * 
+	 * @param context
+	 *            The <String> context to set.
+	 */
+	private void setContext(String context) {
+		this.context = context;
+	}
+
+	/**
+	 * @return Returns the <Module> that authored this <GenericEvent>.
 	 */
 	public Module getModule() {
 		return moduleSent;
 	}
 
 	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Module> that authored the <GenericEvent>.
+	 * 
+	 * @param moduleSent
+	 *            The <Module> to set.
+	 */
+	private void setModuleSent(Module moduleSent) {
+		this.moduleSent = moduleSent;
+	}
+
+	/**
 	 * Sets a generic variable with a value.
 	 * 
 	 * @param key
-	 * 
+	 *            The <String> key to pair with the String value.
 	 * @param value
+	 *            The <String> value for the String key given.
 	 */
 	public void setVariable(String key, String value) {
 		mapVariables.put(key, value);
 	}
 
 	/**
-	 * Returns a generic variable, with a given key.
-	 * 
 	 * @param key
-	 * 
-	 * @return
+	 *            The <String> key paired with the <String> value to return.
+	 * @return Returns a <String> variable, with a given String key.
 	 */
 	public String getVariable(String key) {
 		return mapVariables.get(key);
 	}
 
 	/**
-	 * Returns a <Map> of generic variables.
-	 * 
-	 * @return
+	 * @return Returns a <Map> of generic variables.
 	 */
 	public Map<String, String> getVariables() {
 		return mapVariables;
-	}
-
-	@Override
-	public String getLogMessage() {
-		return logMessage;
 	}
 
 	/**
 	 * Executes a command on the module that send this <GenericEvent>.
 	 * 
 	 * @param type
-	 * 
+	 *            The <String> type.
 	 * @param context
+	 *            The <String> context data.
 	 */
 	public void executeCommand(String type, String context) {
 		Module module = getModule();
@@ -158,18 +184,13 @@ public class GenericEvent extends Event {
 	}
 
 	/**
-	 * Sets the logged message for this <GenericEvent>. If null, the event will not
+	 * Sets the logged message for this <GenericEvent>. If null, the Event will not
 	 * be logged.
 	 * 
 	 * @param message
+	 *            The <String> message to log.
 	 */
 	public void setLogMessage(String message) {
 		logMessage = message;
 	}
-
-	@Override
-	public String getID() {
-		return ID;
-	}
-
 }
