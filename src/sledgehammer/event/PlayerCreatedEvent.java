@@ -18,20 +18,31 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * PlayerEvent sent when a <Player> is created.
+ * 
+ * @author Jab
+ */
 public class PlayerCreatedEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "PlayerCreatedEvent";
 
+	/**
+	 * Main constructor.
+	 * @param player The <Player> created.
+	 */
 	public PlayerCreatedEvent(Player player) {
 		super(player);
 	}
 
+	@Override
 	public String getLogMessage() {
 		return null;
 	}
 
+	@Override
 	public String getID() {
 		return ID;
 	}
-
 }
