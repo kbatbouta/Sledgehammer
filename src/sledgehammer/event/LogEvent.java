@@ -17,17 +17,37 @@ This file is part of Sledgehammer.
 package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
+import sledgehammer.util.LogType;
 
+/**
+ * Event to store and manage logging data for other Events, as well as any
+ * additional logging pushed from registered <Module>'s in the Sledgehammer
+ * engine.
+ * 
+ * @author Jab
+ */
 public class LogEvent extends Event {
 
+	/** The String ID of the Event. */
 	public static final String ID = "LogEvent";
 
+	/** The <LogType> id. */
 	private LogType type;
+	/** The <Player> being logged. (Optional) */
 	private Player player;
+	/** The <Event> being logged. */
 	private Event event;
+	/** The <String> message being logged. */
 	private String message;
+	/** Flag to signify the importance of the LogEvent. */
 	private boolean importance;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param event
+	 *            The <Event> being logged.
+	 */
 	public LogEvent(Event event) {
 		super();
 		setEvent(event);
@@ -35,53 +55,72 @@ public class LogEvent extends Event {
 		this.importance = false;
 	}
 
-	public LogType getLogType() {
-		return this.type;
-	}
-
-	public Player getPlayer() {
-		return this.player;
-	}
-
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
-
-	public Event getEvent() {
-		return this.event;
-	}
-
-	public void setEvent(Event event) {
-		this.event = event;
-	}
-
-	// public static enum LogType {
-	// PLAYER,
-	// COMMAND,
-	// SERVER,
-	// CHAT,
-	// ITEM
-	// }
-
-	public static enum LogType {
-		INFO, WARN, ERROR, CHEAT, STAFF
-	}
-
-	public boolean isImportant() {
-		return this.importance;
-	}
-
-	public void setImportant(boolean flag) {
-		this.importance = flag;
-	}
-
 	@Override
 	public String getLogMessage() {
-		return message;
+		return this.message;
 	}
 
 	@Override
 	public String getID() {
 		return ID;
+	}
+
+	/**
+	 * @return Returns the <LogType> id of the <LogEvent>.
+	 */
+	public LogType getLogType() {
+		return this.type;
+	}
+
+	/**
+	 * @return Returns the <Player> of the <LogEvent>, if set. Otherwise returns
+	 *         null.
+	 */
+	public Player getPlayer() {
+		return this.player;
+	}
+
+	/**
+	 * Sets the <Player> of the <LogEvent>.
+	 * 
+	 * @param player
+	 *            The <Player> to set.
+	 */
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+
+	/**
+	 * @return Returns the <Event> being logged.
+	 */
+	public Event getEvent() {
+		return this.event;
+	}
+
+	/**
+	 * Sets the <Event> being logged.
+	 * 
+	 * @param event
+	 *            The <Event> to set.
+	 */
+	public void setEvent(Event event) {
+		this.event = event;
+	}
+
+	/**
+	 * @return Returns true if the <LogEvent> is important.
+	 */
+	public boolean isImportant() {
+		return this.importance;
+	}
+
+	/**
+	 * Sets the importance of the <LogEvent>
+	 * 
+	 * @param flag
+	 *            The flag to set.
+	 */
+	public void setImportant(boolean flag) {
+		this.importance = flag;
 	}
 }
