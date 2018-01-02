@@ -29,7 +29,7 @@ public class NPCConnectionListener implements EventListener {
 	 * @param npcManager
 	 *            The <NPCManager> instance.
 	 */
-	private NPCConnectionListener(NPCManager npcManager) {
+	public NPCConnectionListener(NPCManager npcManager) {
 		this.npcManager = npcManager;
 	}
 
