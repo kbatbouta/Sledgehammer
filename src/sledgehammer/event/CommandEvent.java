@@ -20,42 +20,59 @@ import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
 /**
- * TODO: Document.
+ * Event that handles <Command>'s sent to the Sledgehammer engine.
  * 
  * @author Jab
- *
  */
 public class CommandEvent extends Event {
 
+	/** The String ID of the Event. */
 	public static final String ID = "CommandEvent";
 
+	/** The <Command> sent to Sledgehammer. */
 	private Command command;
-
+	/** The <Response> to send back. */
 	private Response response;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param command
+	 *            The <Command> sent to Sledgehammer.
+	 */
 	public CommandEvent(Command command) {
 		this.command = command;
 		this.response = new Response();
 	}
 
-	public Command getCommand() {
-		return this.command;
+	@Override
+	public String getLogMessage() {
+		return getResponse().getLogMessage();
 	}
-
-	public Response getResponse() {
-		return response;
-	}
-
-	public boolean isHandled() {
-		return getResponse().isHandled();
-	}
-
+	
+	@Override
 	public String getID() {
 		return ID;
 	}
 
-	public String getLogMessage() {
-		return getResponse().getLogMessage();
+	/**
+	 * @return Returns the <Command> sent to Sledgehammer.
+	 */
+	public Command getCommand() {
+		return this.command;
 	}
 
+	/**
+	 * @return Returns the <Response> to send back.
+	 */
+	public Response getResponse() {
+		return response;
+	}
+
+	/**
+	 * @return Returns true if the <CommandEvent> is handled by a <CommandListener>.
+	 */
+	public boolean isHandled() {
+		return getResponse().isHandled();
+	}
 }
