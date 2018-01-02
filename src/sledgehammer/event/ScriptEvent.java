@@ -17,197 +17,78 @@ This file is part of Sledgehammer.
 package sledgehammer.event;
 
 /**
- * TODO: Document
+ * Event to dispatch when a native LuaEvent is fired on the PZ Server.
  * 
  * @author Jab
  */
 public class ScriptEvent extends Event {
 
+	/** The String ID of the Event. */
 	public static final String ID = "ScriptEvent";
+
+	/** The <String> context for the <ScriptEvent>. */
 	private String context = null;
+
+	/** The generic Object Array arguments for the <ScriptEvent>. */
 	private Object[] arguments = null;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param context
+	 *            The <String> context for the <ScriptEvent.
+	 * @param arguments
+	 *            The Generic Object Array arguments for the <ScriptEvent>.
+	 */
 	public ScriptEvent(String context, Object... arguments) {
 		super();
-		this.context = context;
-		this.arguments = arguments;
+		setContext(context);
+		setArguments(arguments);
 	}
 
-	public String getContext() {
-		return context;
-	}
-
-	public Object[] getArguments() {
-		return arguments;
-	}
-
-	public void setArguments(Object... arguments) {
-		this.arguments = arguments;
-	}
-
+	@Override
 	public String getLogMessage() {
 		return null;
 	}
 
+	@Override
 	public String getID() {
 		return ID;
 	}
 
-	public static enum Context {
-
-		// '#' for implemented in the LuaListener class.
-		// @formatter:off
-		OnGameBoot("OnGameBoot"), //#
-		OnPreGameStart("OnPreGameStart"), //#
-		OnTick("OnTick"), //#
-		OnTickEvenPaused("OnTickEvenPaused"), //#
-		OnFETick("OnFETick"),
-		OnGameStart("OnGameStart"), //#
-		OnCharacterCollide("OnCharacterCollide"), //#
-		OnObjectCollide("OnObjectCollide"), //#
-		OnPlayerUpdate("OnPlayerUpdate"), //#
-		OnZombieUpdate("OnZombieUpdate"), //#
-		OnTriggerNPCEvent("OnTriggerNPCEvent"),
-		OnMultiTriggerNPCEvent("OnMultiTriggerNPCEvent"),
-		OnLoadMapZones("OnLoadMapZones"), //#
-		OnAddBuilding("OnAddBuilding"),
-		OnCreateLivingCharacter("OnCreateLivingCharacter"),//#
-		OnChallengeQuery("OnChallengeQuery"),
-		OnFillInventoryObjectContextMenu("OnFillInventoryObjectContextMenu"),
-		OnPreFillInventoryObjectContextMenu("OnPreFillInventoryObjectContextMenu"),
-		OnFillWorldObjectContextMenu("OnFillWorldObjectContextMenu"),
-		OnPreFillWorldObjectContextMenu("OnPreFillWorldObjectContextMenu"),
-		OnMakeItem("OnMakeItem"),
-		OnWeaponHitCharacter("OnWeaponHitCharacter"),
-		OnWeaponSwing("OnWeaponSwing"),
-		OnWeaponHitTree("OnWeaponHitTree"),
-		OnWeaponSwingHitPoint("OnWeaponSwingHitPoint"),
-		OnPlayerCancelTimedAction("OnPlayerCancelTimedAction"),
-		OnLoginState("OnLoginState"),
-		OnLoginStateSuccess("OnLoginStateSuccess"),
-		OnCharacterCreateStats("OnCharacterCreateStats"),
-		OnLoadSoundBanks("OnLoadSoundBanks"),
-		OnDoTileBuilding("OnDoTileBuilding"),
-		OnDoTileBuilding2("OnDoTileBuilding2"), //#
-		OnDoTileBuilding3("OnDoTileBuilding3"),
-		OnConnectFailed("OnConnectFailed"),
-		OnConnected("OnConnected"),
-		OnDisconnect("OnDisconnect"),
-		OnConnectionStateChanged("OnConnectionStateChanged"),
-		OnScoreboardUpdate("OnScoreboardUpdate"),
-		OnNewSurvivorGroup("OnNewSurvivorGroup"),
-		OnPlayerSetSafehouse("OnPlayerSetSafehouse"),
-		OnLoad("OnLoad"),
-		AddXP("AddXP"),
-		LevelPerk("LevelPerk"),
-		OnSave("OnSave"),
-		OnMainMenuEnter("OnMainMenuEnter"),
-		OnPreMapLoad("OnPreMapLoad"),
-		OnMapLoadCreateIsoObject("OnMapLoadCreateIsoObject"),
-		OnCreateSurvivor("OnCreateSurvivor"),
-		OnCreatePlayer("OnCreatePlayer"),
-		OnPlayerDeath("OnPlayerDeath"),
-		OnZombieDead("OnZombieDead"),
-		OnCharacterMeet("OnCharacterMeet"),
-		OnSpawnRegionsLoaded("OnSpawnRegionsLoaded"),
-		OnPostMapLoad("OnPostMapLoad"),
-		OnAIStateExecute("OnAIStateExecute"),
-		OnAIStateEnter("OnAIStateEnter"),
-		OnAIStateExit("OnAIStateExit"),
-		OnAIStateChange("OnAIStateChange"),
-		OnPlayerMove("OnPlayerMove"),
-		OnInitWorld("OnInitWorld"),
-		OnNewGame("OnNewGame"),
-		OnIsoThumpableLoad("OnIsoThumpableLoad"),
-		OnIsoThumpableSave("OnIsoThumpableSave"),
-		ReuseGridsquare("ReuseGridsquare"),
-		LoadGridsquare("LoadGridsquare"),
-		EveryTenMinutes("EveryTenMinutes"),
-		EveryDays("EveryDays"),
-		EveryHours("EveryHours"),
-		OnDusk("OnDusk"),
-		OnDawn("OnDawn"),
-		OnEquipPrimary("OnEquipPrimary"),
-		OnEquipSecondary("OnEquipSecondary"),
-		OnClothingUpdated("OnClothingUpdated"),
-		OnRainStart("OnRainStart"),
-		OnRainStop("OnRainStop"),
-		OnAmbientSound("OnAmbientSound"),
-		OnResetLua("OnResetLua"),
-		OnSeeNewRoom("OnSeeNewRoom"),
-		OnNewFire("OnNewFire"),
-		OnFillContainer("OnFillContainer"),
-		OnChangeWeather("OnChangeWeather"),
-		OnDestroyIsoThumpable("OnDestroyIsoThumpable"),
-		OnPostSave("OnPostSave"),
-		OnWaterAmountChange("OnWaterAmountChange"),
-		OnClientCommand("OnClientCommand"), //#
-		OnContainerUpdate("OnContainerUpdate"),
-		OnObjectAdded("OnObjectAdded"),
-		onLoadModDataFromServer("onLoadModDataFromServer"),
-		OnGameTimeLoaded("OnGameTimeLoaded"),
-		OnWorldMessage("OnWorldMessage"),
-		SendCustomModData("SendCustomModData"),
-		ServerPinged("ServerPinged"),
-		OnServerStarted("OnServerStarted"),
-		OnLoadedTileDefinitions("OnLoadedTileDefinitions"),
-		DoSpecialTooltip("DoSpecialTooltip"),
-		OnCoopJoinFailed("OnCoopJoinFailed"),
-		OnDeviceText("OnDeviceText"),
-		OnRadioInteraction("OnRadioInteraction"),
-		OnAcceptInvite("OnAcceptInvite"),
-		OnCoopServerMessage("OnCoopServerMessage");
-		
-		
-		// CLIENT_SIDE_COMMANDS==============================================
-		//
-		// OnRenderUpdate("OnRenderUpdate"),
-		// OnPreUIDraw("OnPreUIDraw"),
-		// OnPostUIDraw("OnPostUIDraw"),
-		// OnKeyPressed("OnKeyPressed"),
-		// OnNPCSurvivorUpdate("OnNPCSurvivorUpdate"),
-		// OnJoypadActivate("OnJoypadActivate"),
-		// OnObjectLeftMouseButtonDown("OnObjectLeftMouseButtonDown"),
-		// OnObjectLeftMouseButtonUp("OnObjectLeftMouseButtonUp"),
-		// OnObjectRightMouseButtonDown("OnObjectRightMouseButtonDown"),
-		// OnObjectRightMouseButtonUp("OnObjectRightMouseButtonUp"),
-		// OnMouseMove("OnMouseMove"),
-		// OnMouseDown("OnMouseDown"),
-		// OnMouseUp("OnMouseUp"),
-		// OnRightMouseDown("OnRightMouseDown"),
-		// OnRightMouseUp("OnRightMouseUp"),
-		// OnPostFloorSquareDraw("OnPostFloorSquareDraw"),
-		// OnPostFloorLayerDraw("OnPostFloorLayerDraw"),
-		// OnPostTilesSquareDraw("OnPostTilesSquareDraw"),
-		// OnPostTileDraw("OnPostTileDraw"),
-		// OnPostWallSquareDraw("OnPostWallSquareDraw"),
-		// OnPostCharactersSquareDraw("OnPostCharactersSquareDraw"),
-		// OnCreateUI("OnCreateUI"),
-		// OnRenderTick("OnRenderTick"),
-		// OnJoypadActivateUI("OnJoypadActivateUI"),
-		// OnResolutionChange("OnResolutionChange"),
-		// OnKeyKeepPressed("OnKeyKeepPressed"),
-		// OnPostRender("OnPostRender"),
-		// OnCustomUIKey("OnCustomUIKey"),
-		// OnServerCommand("OnServerCommand"),
-		
-		// @formatter:on
-
-		private String context;
-
-		Context(String context) {
-			this.context = context;
-		}
-
-		public String getContext() {
-			return this.context;
-		}
-
-		public boolean equals(String other) {
-			if (other != null)
-				return other.equals(getContext());
-			return false;
-		}
+	/**
+	 * @return Returns the <String> context of the <ScriptEvent>.
+	 */
+	public String getContext() {
+		return context;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <String> context for the <ScriptEvent>.
+	 * 
+	 * @param context
+	 *            The <String> context to set.
+	 */
+	private void setContext(String context) {
+		this.context = context;
+	}
+
+	/**
+	 * @return Returns the generic Object Array of arguments for the <ScriptEvent>.
+	 */
+	public Object[] getArguments() {
+		return arguments;
+	}
+
+	/**
+	 * Sets generic Object arguments for the <ScriptEvent>.
+	 * 
+	 * @param arguments
+	 *            The Object Array to set.
+	 */
+	public void setArguments(Object... arguments) {
+		this.arguments = arguments;
+	}
 }
