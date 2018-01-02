@@ -6,8 +6,8 @@ import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.chat.ChatChannel;
 
 /**
- * Request LuaTable designed to handle packaging of requests for ChatChannel
- * LuaTables.
+ * LuaTable designed to handle packaging of requests for <ChatChannel>
+ * <LuaTable>s.
  * 
  * @author Jab
  */
@@ -35,6 +35,19 @@ public class RequestChatChannels extends LuaTable {
 		onLoad(table);
 	}
 
+	@Override
+	public void onLoad(KahluaTable table) {
+		channels = new LuaArray<>((KahluaTable) table.rawget("channels"));
+	}
+
+	@Override
+	public void onExport() {
+		// @formatter:off
+		set("length"  , channels.size());
+		set("channels", channels       );
+		// @formatter:on
+	}
+
 	/**
 	 * Adds a given <ChatChannel> to the list.
 	 * 
@@ -44,16 +57,4 @@ public class RequestChatChannels extends LuaTable {
 	public void addChannel(ChatChannel channel) {
 		channels.add(channel);
 	}
-
-	@Override
-	public void onLoad(KahluaTable table) {
-		channels = new LuaArray<>((KahluaTable) table.rawget("channels"));
-	}
-
-	@Override
-	public void onExport() {
-		set("length", channels.size());
-		set("channels", channels);
-	}
-
 }
