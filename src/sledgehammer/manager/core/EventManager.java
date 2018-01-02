@@ -28,8 +28,8 @@ import sledgehammer.event.Event;
 import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.interfaces.ExceptionListener;
-import sledgehammer.interfaces.LogListener;
+import sledgehammer.interfaces.ThrowableListener;
+import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.Manager;
 import sledgehammer.module.core.CoreCommandListener;
@@ -66,12 +66,12 @@ public class EventManager extends Manager {
 	/**
 	 * List for registered LogListener interfaces.
 	 */
-	private List<LogListener> listLogListeners;
+	private List<LogEventListener> listLogListeners;
 
 	/**
 	 * List for registered ExceptionListneer interfaces.
 	 */
-	private List<ExceptionListener> listExceptionListeners;
+	private List<ThrowableListener> listExceptionListeners;
 
 	/**
 	 * Main constructor.
@@ -249,7 +249,7 @@ public class EventManager extends Manager {
 	 * @param throwable
 	 */
 	public void handleException(String reason, Throwable throwable) {
-		for (ExceptionListener listener : listExceptionListeners) {
+		for (ThrowableListener listener : listExceptionListeners) {
 			if (listener != null) {
 				listener.onError(reason, throwable);
 			}
@@ -260,9 +260,9 @@ public class EventManager extends Manager {
 		try {
 			Event event = logEvent.getEvent();
 			// Go through each LogListener interface and fire it.
-			for (LogListener listener : listLogListeners) {
+			for (LogEventListener listener : listLogListeners) {
 				if (listener != null) {
-					listener.onLogEntry(logEvent);
+					listener.onLogEvent(logEvent);
 				}
 			}
 			String log = "SledgeHammer";
@@ -397,9 +397,9 @@ public class EventManager extends Manager {
 					// Iterate the log listeners after the command.
 					if (c.getResponse().getLogMessage() != null) {
 						LogEvent entry = new LogEvent(c);
-						for (LogListener listener : listLogListeners) {
+						for (LogEventListener listener : listLogListeners) {
 							if (listener != null) {
-								listener.onLogEntry(entry);
+								listener.onLogEvent(entry);
 							}
 						}
 					}
@@ -509,7 +509,7 @@ public class EventManager extends Manager {
 	 * 
 	 * @param listener
 	 */
-	public void registerLogListener(LogListener listener) {
+	public void registerLogListener(LogEventListener listener) {
 		// Validate the LogListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -525,7 +525,7 @@ public class EventManager extends Manager {
 	 * 
 	 * @param listener
 	 */
-	public void registerExceptionListener(ExceptionListener listener) {
+	public void registerExceptionListener(ThrowableListener listener) {
 		// Validate the ExceptionListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -581,7 +581,7 @@ public class EventManager extends Manager {
 	 * 
 	 * @param listener
 	 */
-	public void unregister(LogListener listener) {
+	public void unregister(LogEventListener listener) {
 		// Validate the LogListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -593,7 +593,7 @@ public class EventManager extends Manager {
 	 * 
 	 * @param listener
 	 */
-	public void unregister(ExceptionListener listener) {
+	public void unregister(ThrowableListener listener) {
 		// Validate the ExceptionListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -615,7 +615,7 @@ public class EventManager extends Manager {
 	 * 
 	 * @return
 	 */
-	public List<LogListener> getLogListeners() {
+	public List<LogEventListener> getLogListeners() {
 		return this.listLogListeners;
 	}
 
@@ -624,7 +624,7 @@ public class EventManager extends Manager {
 	 * 
 	 * @return
 	 */
-	public List<ExceptionListener> getExceptionListeners() {
+	public List<ThrowableListener> getExceptionListeners() {
 		return this.listExceptionListeners;
 	}
 

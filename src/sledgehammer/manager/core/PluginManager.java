@@ -192,13 +192,14 @@ public class PluginManager extends Manager {
 		println("handleClientCommand(" + moduleId + ", " + event.getCommand() + ");");
 		boolean foundModule = false;
 		for (Plugin plugin : getPlugins()) {
-			
+
 			for (Module module : plugin.getModules()) {
 				String clientModuleId = module.getClientModuleId();
-//				println("\t-> Next Module: " + module.getModuleName() + " ClientModuleId: " + clientModuleId);
+				// println("\t-> Next Module: " + module.getModuleName() + " ClientModuleId: " +
+				// clientModuleId);
 				if (clientModuleId.equalsIgnoreCase(event.getModuleName())) {
 					foundModule = true;
-//					println("\t\tFound! Executing ClientCommand.");
+					// println("\t\tFound! Executing ClientCommand.");
 					module.onClientCommand(event);
 					break;
 				}
@@ -233,6 +234,13 @@ public class PluginManager extends Manager {
 		return directory;
 	}
 
+	/**
+	 * Returns a registered. <Module> with the given <Class>.
+	 * 
+	 * @param clazz
+	 *            The Class of the Module.
+	 * @return Returns a <Module> with the given <Class>.
+	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Module> T getModule(Class<? extends Module> clazz) {
 		Module returned = null;

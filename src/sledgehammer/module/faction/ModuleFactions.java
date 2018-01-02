@@ -893,7 +893,7 @@ public class ModuleFactions extends MongoModule {
 			throw new IllegalStateException("Faction ChatChannel is null!");
 		}
 		// Unregister the channel entirely.
-		deleteChatChannel(chatChannel);
+		unregisterChatChannel(chatChannel);
 		// Return the unregistered channel.
 		return chatChannel;
 	}

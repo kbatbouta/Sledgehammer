@@ -493,7 +493,7 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		return chatChannel;
 	}
 
-	public void deleteChatChannel(ChatChannel chatChannel) {
+	public void unregisterChatChannel(ChatChannel chatChannel) {
 		if (chatChannel == null) {
 			throw new IllegalArgumentException("ChatChannel given is null.");
 		}

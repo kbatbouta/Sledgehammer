@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.interfaces.LogListener;
+import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.module.Module;
 import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
@@ -33,7 +33,7 @@ public class ModuleVanilla extends Module {
 
 	private Map<String, String> mapContexts;
 	private CommandListener commandListener;
-	private LogListener logListener;
+	private LogEventListener logListener;
 
 	public ModuleVanilla() {
 		// Adding contexts to this class for exposure & modification purposes. (This is
