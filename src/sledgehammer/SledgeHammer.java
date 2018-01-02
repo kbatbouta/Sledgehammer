@@ -34,7 +34,6 @@ This file is part of Sledgehammer.
 */
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
@@ -48,8 +47,8 @@ import sledgehammer.event.Event;
 import sledgehammer.event.PlayerCreatedEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.interfaces.ExceptionListener;
-import sledgehammer.interfaces.LogListener;
+import sledgehammer.interfaces.ThrowableListener;
+import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
@@ -58,8 +57,6 @@ import sledgehammer.manager.core.NPCManager;
 import sledgehammer.manager.core.PermissionsManager;
 import sledgehammer.manager.core.PlayerManager;
 import sledgehammer.manager.core.PluginManager;
-import sledgehammer.interfaces.ContextListener;
-import sledgehammer.module.core.CoreContextListener;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -74,69 +71,46 @@ import zombie.sledgehammer.SledgeHelper;
  * Main class of operations for SledgeHammer.
  * 
  * This class is used to initialize all components of SledgeHammer, and act as a
- * proxy to access most components in SledgeHammer.
+ * approximation to access most components in SledgeHammer.
+ * 
+ * TODO: Document.
  * 
  * @author Jab
  */
 public class SledgeHammer extends Printable {
 
-	/**
-	 * The version of SledgeHammer release.
-	 */
+	/** Singleton instance of the SledgeHammer engine. */
+	public static SledgeHammer instance;
+	/** The version of SledgeHammer release. */
 	public static final String VERSION = "4.0";
-	/**
-	 * Debug boolean for the SledgeHammer engine. Used for verbose output.
-	 */
+	/** Debug boolean for the SledgeHammer engine. Used for verbose output. */
 	public static boolean DEBUG = false;
 	/**
 	 * Boolean to load SledgeHammer for testing a module, without ProjectZomboid
 	 * code being invoked directly. Used for Module test classes.
 	 */
 	public static boolean TESTMODULE = false;
-	/**
-	 * Singleton instance of the SledgeHammer engine.
-	 */
-	public static SledgeHammer instance;
-	/**
-	 * The MongoDB Database instance for the SledgeHammer instance.
-	 */
+
+	/** The MongoDB Database instance for the SledgeHammer instance. */
 	private SledgehammerDatabase database;
-	/**
-	 * Manager instance to handle NPC operations.
-	 */
+	/** Manager instance to handle NPC operations. */
 	private NPCManager managerNPC;
-	/**
-	 * Manager instance to handle Plugin operations.
-	 */
+	/** Manager instance to handle Plug-in operations. */
 	private PluginManager managerPlugin;
-	/**
-	 * Manager instance to handle Permissions operations.
-	 */
+	/** Manager instance to handle Permissions operations. */
 	private PermissionsManager managerPermissions;
-	/**
-	 * Manager to handle Events.
-	 */
+	/** Manager to handle Events. */
 	private EventManager managerEvent;
-	/**
-	 * Manager to handle logging of Players and Player data.
-	 */
+	/** Manager to handle logging of Players and Player data. */
 	private PlayerManager managerPlayer;
 	/**
-	 * UdpEngine pointer for the Project Zomboid GameServer UdpEngine instance, to
+	 * UdpEngine pointer for the ProjectZomboid GameServer UdpEngine instance, to
 	 * communicate with connections.
 	 */
 	private UdpEngine udpEngine;
-	/**
-	 * The name of the server running SledgeHammer.
-	 */
+	/** The name of the server running SledgeHammer. */
 	private String publicServerName;
-	/**
-	 * TODO: Document.
-	 */
-	private ContextListener translator;
-	/**
-	 * Flag for whether or not the SledgeHammer instance has started.
-	 */
+	/** Flag for whether or not the SledgeHammer instance has started. */
 	private boolean started = false;
 
 	/**
@@ -157,7 +131,6 @@ public class SledgeHammer extends Printable {
 	 * Main constructor.
 	 */
 	public SledgeHammer() {
-		translator = new CoreContextListener();
 		new File("plugins" + File.separator).mkdirs();
 		Settings.getInstance();
 	}
@@ -172,7 +145,6 @@ public class SledgeHammer extends Printable {
 	 */
 	public void init() {
 		try {
-			translator = new CoreContextListener();
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			// Initialize the Chat Engine.
 			managerEvent = new EventManager();
@@ -233,17 +205,27 @@ public class SledgeHammer extends Printable {
 		started = false;
 	}
 
-	public Player getPlayerDirty(String username) {
-		// Search by username.
-		Player player = getPlayerByUsername(username);
+	/**
+	 * Returns a <Player> with a given nickname or user-name, or a fragment of that
+	 * name. User-names are checked before Nicknames are checked.
+	 * 
+	 * @param nameFragment
+	 *            The <String> name or fragment of the of the user-name or nickname
+	 *            of the Player.
+	 * @return Returns a <Player>. If a <Player> is not identified with the given
+	 *         <String> fragment, null is returned.
+	 */
+	public Player getPlayerDirty(String nameFragment) {
+		// Search by user-name.
+		Player player = getPlayerByUsername(nameFragment);
 		// Search by nickname.
 		if (player == null) {
-			player = getPlayerByNickname(username);
+			player = getPlayerByNickname(nameFragment);
 		}
-		// Search dirty for username.
+		// Search dirty for user-name.
 		if (player == null) {
 			for (Player nextPlayer : getPlayers()) {
-				if (nextPlayer.getUsername().toLowerCase().contains(username.toLowerCase())) {
+				if (nextPlayer.getUsername().toLowerCase().contains(nameFragment.toLowerCase())) {
 					player = nextPlayer;
 					break;
 				}
@@ -251,13 +233,18 @@ public class SledgeHammer extends Printable {
 		}
 		// Search dirty for nickname.
 		if (player == null) {
-			for (Player nextPlayer : getPlayers()) {
-				if (nextPlayer.getNickname().toLowerCase().contains(username.toLowerCase())) {
-					player = nextPlayer;
+			// Go through each Player.
+			for (Player playerNext : getPlayers()) {
+				// Grab and format the next Player's nickname.
+				String playerNextNickname = playerNext.getNickname().toLowerCase();
+				// If the next Player in the list contains part of the
+				if (playerNextNickname.contains(nameFragment.toLowerCase())) {
+					player = playerNext;
 					break;
 				}
 			}
 		}
+		// Return the result Player.
 		return player;
 	}
 
@@ -265,37 +252,62 @@ public class SledgeHammer extends Printable {
 	 * Sends a Send LuaTable Object to a given Player.
 	 * 
 	 * @param send
+	 *            The sent <LuaObject>.
 	 * @param player
+	 *            The <Player> the <Send> is sent to.
 	 */
 	public void send(Send send, Player player) {
+		// Make sure the Player is online before attempting to send to the Player.
 		if (player.isConnected()) {
 			if (DEBUG) {
 				println("Sending to player: " + player + ", send=" + send);
 			}
+			// Send the packet using the native packet code.
 			GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(),
 					player.getConnection());
 		}
 	}
 
+	/**
+	 * @param nickname
+	 *            The <String> nickname of the <Player>.
+	 * @return Returns a <Player> with a given <String> nickname. If no online
+	 *         Players have this nickname, then null is returned.
+	 */
 	public Player getPlayerByNickname(String nickname) {
+		// The Player to returned.
 		Player returned = null;
+		// Go through each online Player.
 		for (Player player : getPlayers()) {
 			if (player.getNickname().equalsIgnoreCase(nickname)) {
+				// Set the returned Player and break out of the loop to save computation.
 				returned = player;
 				break;
 			}
 		}
+		// Return the result.
 		return returned;
 	}
 
+	/**
+	 * @param username
+	 *            The <String> user-name of the <Player>.
+	 * @return Returns a <Player> with a given <String> user-name. If no online
+	 *         Players have this nickname, then null is returned.
+	 */
 	public Player getPlayerByUsername(String username) {
+		// The Player to return.
 		Player returned = null;
+		// Go through each online Player.
 		for (Player player : getPlayers()) {
+			// If the Player's registered username matches the one given,
 			if (player.getUsername().equalsIgnoreCase(username)) {
+				// Set the returned Player and break out of the loop to save computation.
 				returned = player;
 				break;
 			}
 		}
+		// Return the result.
 		return returned;
 	}
 
@@ -320,7 +332,7 @@ public class SledgeHammer extends Printable {
 	 * Returns a non-cached <Player> object to represent an Offline player.
 	 * 
 	 * @param username
-	 *            The <String> username of the Player.
+	 *            The <String> user-name of the Player.
 	 * @return Returns a <Player> object if the player exists in the database.
 	 *         Returns null if the Player does not exist.
 	 */
@@ -348,7 +360,7 @@ public class SledgeHammer extends Printable {
 	}
 
 	/**
-	 * Updates the scoreboard for every player that is online.
+	 * Updates the score-board for every player that is online.
 	 */
 	public void updateScoreboard() {
 		for (UdpConnection connection : getConnections()) {
@@ -448,10 +460,6 @@ public class SledgeHammer extends Printable {
 		return getUdpEngine().getConnections();
 	}
 
-	public void broadcastMessage(String line) {
-		// TODO: Implement.
-	}
-
 	/**
 	 * @return Returns Project Zomboid's UdpEngine instance.
 	 */
@@ -510,7 +518,7 @@ public class SledgeHammer extends Printable {
 	 * @param command
 	 * @param listener
 	 */
-	public void register(LogListener listener) {
+	public void register(LogEventListener listener) {
 		getEventManager().registerLogListener(listener);
 	}
 
@@ -519,7 +527,7 @@ public class SledgeHammer extends Printable {
 	 * 
 	 * @param listener
 	 */
-	public void register(ExceptionListener listener) {
+	public void register(ThrowableListener listener) {
 		getEventManager().registerExceptionListener(listener);
 	}
 
@@ -585,10 +593,12 @@ public class SledgeHammer extends Printable {
 	}
 
 	/**
-	 * TODO: Document.
+	 * Passes a <Command> to be handled by registered <CommandListener>'s with the
+	 * Command's.
 	 * 
 	 * @param command
-	 * @return
+	 *            The <Command> executed.
+	 * @return Returns the result <CommandEvent>.
 	 */
 	public CommandEvent handleCommand(Command command) {
 		return getEventManager().handleCommand(new CommandEvent(command), true);
@@ -603,48 +613,95 @@ public class SledgeHammer extends Printable {
 		this.udpEngine = udpEngine;
 	}
 
+	/**
+	 * @param name
+	 *            The name of the <Player>'s native Object.
+	 * @return Returns the native <IsoPlayer> Object with the <String> name of the
+	 *         Player.
+	 */
 	public IsoPlayer getIsoPlayer(String name) {
 		return SledgeHelper.getIsoPlayer(name);
 	}
 
-	public IsoPlayer getIsoPlayerDirty(String name) {
-		return SledgeHelper.getIsoPlayerDirty(name);
+	/**
+	 * @param nameFragment
+	 *            The <String> name-fragment of the <Player>.
+	 * @return Returns the native <IsoPlayer> Object of the <Player>.
+	 */
+	public IsoPlayer getIsoPlayerDirty(String nameFragment) {
+		return SledgeHelper.getIsoPlayerDirty(nameFragment);
 	}
 
+	/**
+	 * @param username
+	 *            The <String> user-name of the <Player>.
+	 * @return Returns the native <IsoPlayer> Object with the <String> user-name of
+	 *         the <Player>.
+	 */
 	public IsoPlayer getIsoPlayerByUsername(String username) {
 		return SledgeHelper.getIsoPlayerByUsername(username);
 	}
 
-	public IsoPlayer getIsoPlayerByUsernameDirty(String username) {
-		return SledgeHelper.getIsoPlayerByUsernameDirty(username);
+	/**
+	 * @param usernameFragment
+	 *            The
+	 * @return Returns the native <IsoPlayer> with a given <String>
+	 *         user-name-fragment. If no Player's use-rname contains the fragment,
+	 *         null is returned.
+	 */
+	public IsoPlayer getIsoPlayerByUsernameDirty(String usernameFragment) {
+		return SledgeHelper.getIsoPlayerByUsernameDirty(usernameFragment);
 	}
 
+	/**
+	 * @param nickname
+	 *            The <String> nickname of the <Player>.
+	 * @return Returns the native <IsoPlayer> Object for a <Player> with the given
+	 *         nickname. If no Player has this nickname, null is returned.
+	 */
 	public IsoPlayer getIsoPlayerByNickname(String nickname) {
 		return SledgeHelper.getIsoPlayerByNickname(nickname);
 	}
 
-	public IsoPlayer getIsoPlayerByNicknameDirty(String nickname) {
-		return SledgeHelper.getIsoPlayerByNicknameDirty(nickname);
+	/**
+	 * @param nicknameFragment
+	 *            The <String> nickname fragment of a <Player>.
+	 * @return Returns the native <IsoPlayer> Object for a <Player> with the
+	 *         <String> nickname-fragment. If no Player's nickname contains the
+	 *         fragment, null is returned. returned.
+	 */
+	public IsoPlayer getIsoPlayerByNicknameDirty(String nicknameFragment) {
+		return SledgeHelper.getIsoPlayerByNicknameDirty(nicknameFragment);
 	}
 
+	/**
+	 * Unregisters a <CommandListener>.
+	 * 
+	 * @param listener
+	 *            the <CommandListener> to unregister.
+	 */
 	public void unregister(CommandListener listener) {
 		getEventManager().unregister(listener);
 	}
 
-	public void unregister(LogListener listener) {
+	/**
+	 * Unregisters a <LogListener>.
+	 * 
+	 * @param listener
+	 *            The <LogListener> to unregister.
+	 */
+	public void unregister(LogEventListener listener) {
 		getEventManager().unregister(listener);
 	}
 
+	/**
+	 * Unregisters a EventListener.
+	 * 
+	 * @param listener
+	 *            The <EventListener> to unregister.
+	 */
 	public void unregister(EventListener listener) {
 		getEventManager().unregister(listener);
-	}
-
-	public ContextListener getStringModifier() {
-		return translator;
-	}
-
-	public void setStringModifier(ContextListener stringModifier) {
-		this.translator = stringModifier;
 	}
 
 	/**
@@ -671,52 +728,110 @@ public class SledgeHammer extends Printable {
 		GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());
 	}
 
+	/**
+	 * Updates a Player's Lua data.
+	 * 
+	 * @param player
+	 *            The <Player> to update.
+	 */
 	public void updatePlayer(Player player) {
 		getPluginManager().getCoreModule().updatePlayer(player);
 	}
 
+	/**
+	 * Checks if a Player exists with a given <UUID>.
+	 * 
+	 * @param playerId
+	 *            The <UUID> of the <Player>.
+	 * @return Returns true if a <Player> exists with the given <UUID>.
+	 */
 	public boolean playerExists(UUID playerId) {
 		return getDatabase().playerExists(playerId);
 	}
 
+	/**
+	 * Adds a <Player> to the <List> of online Players.
+	 * 
+	 * @param player
+	 *            The <Player> being added to the <PlayerManager>.
+	 */
 	public void addPlayer(Player player) {
 		getPlayerManager().addPlayer(player);
 	}
 
+	/**
+	 * @return Returns a <List> of the online <Player>'s.
+	 */
 	public List<Player> getPlayers() {
 		return getPlayerManager().getPlayers();
 	}
 
+	/**
+	 * @param username
+	 *            The <String> user-name of a <Player>.
+	 * @return Returns a <Player> with the given <String> user-name. If a <Player>
+	 *         does not have this user-name, null is returned.
+	 */
 	public Player getPlayer(String username) {
 		return getPlayerManager().getPlayer(username);
 	}
 
+	/**
+	 * @param uniqueId
+	 *            The <UUID> of a <Player>.
+	 * @return Returns a <Player> with the given <UUID>. If no <Player> has this
+	 *         uniqueId, null is returned.
+	 */
 	public Player getPlayer(UUID uniqueId) {
 		return getPlayerManager().getPlayer(uniqueId);
 	}
 
+	/**
+	 * 
+	 * @param line
+	 */
+	public void broadcastMessage(String line) {
+		// TODO: Implement.
+	}
+
+	/**
+	 * @return Returns the path to the Sledgehammer.jar.
+	 */
 	public static String getJarFileLocation() {
-		String location = null;
+		// The path to return.
+		String path = null;
 		try {
-			location = SledgeHammer.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+			// Grab the URI path from the Java library from the Class library.
+			path = SledgeHammer.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-		return location;
+		// Return the result path.
+		return path;
 	}
 
+	/**
+	 * @return Returns the Sledgehammer.Jar as a <File> Object.
+	 */
 	public static File getJarFile() {
 		return new File(getJarFileLocation());
 	}
 
+	/**
+	 * @return Returns the <Player> Object of the administrator account.
+	 */
 	public static Player getAdministrator() {
 		return Player.admin;
 	}
 
-	public static void main(String[] args) throws IOException, NoSuchFieldException, SecurityException,
-			IllegalArgumentException, IllegalAccessException {
+	/**
+	 * Entry point of execution for the Sledgehammer server framework.
+	 * 
+	 * @param args
+	 *            The Java arguments.
+	 */
+	public static void main(String[] args) {
 		instance = new SledgeHammer();
 		GameServer.main(args);
 	}
-
 }
