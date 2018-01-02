@@ -18,26 +18,48 @@ package sledgehammer.lua.faction;
 
 import java.util.UUID;
 
+import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.faction.MongoFactionInvite;
+import sledgehammer.lua.MongoLuaObject;
 
 /**
  * Class container for <MongoFactionInvite>.
  * 
  * @author Jab
  */
-public class FactionInvite {
-
-	/** The <MongoDocument>. */
-	private MongoFactionInvite mongoFactionInvite;
+public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 
 	/**
 	 * Main constructor.
 	 * 
-	 * @param mongoFactionInvite
+	 * @param mongoDocument
 	 *            The <MongoDocument> container.
 	 */
-	public FactionInvite(MongoFactionInvite mongoFactionInvite) {
-		setMongoDocument(mongoFactionInvite);
+	public FactionInvite(MongoFactionInvite mongoDocument) {
+		super(mongoDocument, "FactionInvite");
+	}
+
+	/**
+	 * Lua load constructor.
+	 * 
+	 * @param mongoDocument
+	 *            The <MongoDocument> container.
+	 * @param table
+	 *            The <KahluaTable> to load.
+	 */
+	public FactionInvite(MongoFactionInvite mongoDocument, KahluaTable table) {
+		super(mongoDocument, "FactionInvite");
+		onLoad(table);
+	}
+
+	@Override
+	public void onLoad(KahluaTable table) {
+		// TODO: Implement.
+	}
+
+	@Override
+	public void onExport() {
+		// TODO: Implement.
 	}
 
 	/**
@@ -80,27 +102,9 @@ public class FactionInvite {
 	}
 
 	/**
-	 * @return Returns the <MongoFactionInvite> document.
-	 */
-	public MongoFactionInvite getMongoDocument() {
-		return this.mongoFactionInvite;
-	}
-
-	/**
-	 * Sets the <MongoFactionInvite> document.
-	 * 
-	 * @param mongoFactionInvite
-	 *            The <MongoFactionInvite> document to set.
-	 */
-	private void setMongoDocument(MongoFactionInvite mongoFactionInvite) {
-		this.mongoFactionInvite = mongoFactionInvite;
-	}
-
-	/**
 	 * @return Returns the <UUID> identifier for the Invite.
 	 */
 	public UUID getUniqueId() {
 		return getMongoDocument().getUniqueId();
 	}
-
 }
