@@ -418,7 +418,7 @@ public class LanguagePackage {
 		if (player == null) {
 			throw new IllegalArgumentException("CommandSender given is null.");
 		}
-		player.sendChatMessage(lines);
+		player.sendChatMessages(lines);
 	}
 
 	/**
@@ -435,7 +435,7 @@ public class LanguagePackage {
 		}
 		String[] array = toStringArray(lines);
 		if (array != null) {
-			player.sendChatMessage(array);
+			player.sendChatMessages(array);
 		}
 	}
 

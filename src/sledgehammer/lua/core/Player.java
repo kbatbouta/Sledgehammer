@@ -28,7 +28,7 @@ import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.event.AliveEvent;
 import sledgehammer.event.DeathEvent;
 import sledgehammer.event.PlayerCreatedEvent;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.module.chat.ModuleChat;
@@ -38,29 +38,55 @@ import zombie.network.ServerOptions;
 import zombie.sledgehammer.SledgeHelper;
 
 /**
- * TODO: Document.
+ * MongoLuaObject to store player data and handle player operations and
+ * utilities for the Sledgehammer engine.
  * 
  * @author Jab
  */
-public class Player extends LuaTable {
+public class Player extends MongoLuaObject<MongoPlayer> {
 
-	public static final Player admin = new Player(SledgeHammer.instance.getSettings().getAdministratorPassword(),
-			false);
+	/** The <Player> instance of the Administrator account. */
+	public static final Player admin;
 
+	/**
+	 * The <Map> of meta-data properties, stored using <String> keys and <String>
+	 * values.
+	 */
 	private Map<String, String> mapProperties;
-	private MongoPlayer mongoPlayer;
+	/** The native <UdpConnection> Object of the <Player>. */
 	private UdpConnection connection;
+	/** The native <IsoPlayer> Object of the <Player>. */
 	private IsoPlayer iso;
+	/** The <String> user-name of the <Player>. */
 	private String username;
+	/** The <String> nickname of the <Player>. */
 	private String nickname;
+	/** The <Color> LuaTable representing the <Player>. */
 	private Color color;
+	/** The <Vector3f> position of the <Player>. */
 	private Vector3f position;
-	private Vector2f metaPosition;
+	/** The <Vector2f> meta-position of the <Player>. */
+	private Vector2f positionMeta;
+	/**
+	 * The <Long> time-stamp in milliseconds since the <Player>'s last in-game
+	 * character dies.
+	 */
 	private long sinceDeath = 0L;
+	/** The <Boolean> flag to signify if the <Player> account is new. */
 	private boolean isNewAccount = false;
+	/**
+	 * The <Boolean> flag to signify if the <Player>'s in-game character is a new
+	 * character.
+	 */
 	private boolean isNewCharacter = false;
+	/** The <Boolean> flag to signify if the <Player> is currently alive in-game. */
 	private boolean isAlive = true;
-	private boolean hasInit = false;
+	/** The <Boolean> flag to signify if the <Player> Object has initialized. */
+	private boolean initialized = false;
+	/**
+	 * The <Boolean> flag to signify if the <PlayerCreatEvent> has dispatched after
+	 * the <Player> Object is initialized.
+	 */
 	private boolean created = false;
 
 	/**
@@ -70,15 +96,15 @@ public class Player extends LuaTable {
 	 *            The <UdpConnection> of the Player.
 	 */
 	public Player(UdpConnection connection) {
-		super("Player");
+		super(null, "Player");
 		if (connection == null) {
 			throw new IllegalArgumentException("UdpConnection instance given is null!");
 		}
-		this.connection = connection;
-		this.iso = SledgeHelper.getIsoPlayer(connection);
-		position = new Vector3f(0, 0, 0);
-		metaPosition = new Vector2f(0, 0);
-		color = Color.WHITE;
+		setConnection(connection);
+		setIso(SledgeHelper.getIsoPlayer(connection));
+		setPosition(new Vector3f(0, 0, 0));
+		setMetaPosition(new Vector2f(0, 0));
+		setColor(Color.WHITE);
 	}
 
 	/**
@@ -86,48 +112,53 @@ public class Player extends LuaTable {
 	 * access.
 	 * 
 	 * @param password
+	 *            The <String> password of the <Player>.
 	 * @param isNotActuallyAParameter
+	 *            (This is used to differentiate between constructors that use the
+	 *            same Class-type parameter)
 	 */
 	private Player(String password, boolean isNotActuallyAParameter) {
-		super("Player");
-		username = "admin";
-		mongoPlayer = SledgeHammer.instance.getDatabase().getMongoPlayer("admin");
-		if (mongoPlayer == null) {
-			mongoPlayer = SledgeHammer.instance.getDatabase().createPlayer("admin", password);
+		super(null, "Player");
+		setUsername("admin");
+		MongoPlayer mongoDocument = SledgeHammer.instance.getDatabase().getMongoPlayer("admin");
+		if (mongoDocument == null) {
+			mongoDocument = SledgeHammer.instance.getDatabase().createPlayer("admin", password);
 		}
-		mongoPlayer.setAdministrator(true);
-		mongoPlayer.setEncryptedPassword(password);
-		mongoPlayer.save();
+		mongoDocument.setAdministrator(true);
+		mongoDocument.setEncryptedPassword(password);
+		mongoDocument.save();
+		setMongoDocument(mongoDocument);
 	}
 
 	/**
 	 * Constructor for arbitrarily defining with only a player name. The constructor
 	 * attempts to locate the UdpConnection instance, and the IsoPlayer instance,
-	 * using the username given.
+	 * using the user-name given.
 	 * 
 	 * @param username
+	 *            The <String> username of the <Player>.
 	 */
 	public Player(String username) {
-		super("Player");
+		super(null, "Player");
 		if (username == null || username.isEmpty()) {
 			throw new IllegalArgumentException("Username given is null or empty!");
 		}
-		// Set the username of the Player instance to the parameter given.
-		this.username = username;
+		// Set the user-name of the Player instance to the parameter given.
+		setUsername(username);
 		// Tries to get a Player instance. Returns null if invalid.
-		this.iso = SledgeHammer.instance.getIsoPlayerDirty(username);
+		setIso(SledgeHammer.instance.getIsoPlayerDirty(username));
 		// Go through each connection.
 		for (UdpConnection conn : SledgeHammer.instance.getConnections()) {
-			// If the username on the UdpConnection instance matches,
+			// If the user-name on the UdpConnection instance matches,
 			if (conn.username != null && conn.username.equalsIgnoreCase(username)) {
 				// Set this connection as the instance of the Player.
-				this.connection = conn;
+				setConnection(conn);
 				// Break out of the loop to save computation time.
 				break;
 			}
 		}
-		position = new Vector3f(0, 0, 0);
-		metaPosition = new Vector2f(0, 0);
+		setPosition(new Vector3f(0, 0, 0));
+		setMetaPosition(new Vector2f(0, 0));
 	}
 
 	/**
@@ -136,23 +167,37 @@ public class Player extends LuaTable {
 	 * @param mongoPlayer
 	 *            The <MongoPlayer> database object.
 	 */
-	public Player(MongoPlayer mongoPlayer) {
-		super("Player");
-		setMongoPlayer(mongoPlayer);
-		username = mongoPlayer.getUsername();
+	public Player(MongoPlayer mongoDocument) {
+		super(mongoDocument, "Player");
+		setUsername(mongoDocument.getUsername());
 	}
 
 	@Override
 	public void onLoad(KahluaTable table) {
-		// Players will only be authored by the server.
+		// (Note: Players will only be authored by the server.)
+		throw new IllegalStateException("Player objects cannot be loaded from Lua.");
 	}
 
 	@Override
 	public void onExport() {
-		set("id", getUniqueId().toString());
-		set("username", getUsername());
-		set("nickname", getNickname());
-		set("color", getColor());
+		// @formatter:off
+		set("id"      , getUniqueId().toString());
+		set("username", getUsername()           );
+		set("nickname", getNickname()           );
+		set("color"   , getColor()              );
+		// @formatter:on
+	}
+
+	@Override
+	public void setMongoDocument(MongoPlayer mongoPlayer) {
+		super.setMongoDocument(mongoPlayer);
+		if (!isCreated()) {
+			if (SledgeHammer.instance.isStarted()) {
+				PlayerCreatedEvent event = new PlayerCreatedEvent(this);
+				SledgeHammer.instance.handle(event);
+				setCreated(true);
+			}
+		}
 	}
 
 	@Override
@@ -177,23 +222,32 @@ public class Player extends LuaTable {
 		return getName();
 	}
 
+	/**
+	 * Initializes the <Player>.
+	 */
 	public void init() {
-		position = new Vector3f(0, 0, 0);
-		metaPosition = new Vector2f(0, 0);
-		if (!hasInit) {
-			IsoPlayer player = getIso();
-			if (player != null)
-				username = getIso().getUsername();
-			if (username == null)
-				username = connection.username;
+		setPosition(new Vector3f(0, 0, 0));
+		setMetaPosition(new Vector2f(0, 0));
+		if (!hasInitialized()) {
+			IsoPlayer iso = getIso();
+			if (iso != null) {
+				setUsername(iso.getUsername());
+			}
+			if (getUsername() == null) {
+				setUsername(connection.username);
+			}
 			initProperties();
-			hasInit = true;
+			setInitialized(true);
 		}
 	}
 
+	/**
+	 * Initializes the <Player>'s meta-data properties.
+	 */
 	public void initProperties() {
-		if (getProperty("muteglobal") == null)
+		if (getProperty("muteglobal") == null) {
 			setProperty("muteglobal", "0");
+		}
 		if (getProperty("alive") == null || getProperty("alive").equalsIgnoreCase("0")) {
 			this.isNewCharacter = true;
 			this.isAlive = false;
@@ -201,27 +255,10 @@ public class Player extends LuaTable {
 	}
 
 	/**
-	 * FIXME: Possible condition bug with not setting alive property.
-	 * 
-	 * @param flag
+	 * Updates the <Player> in <ModuleCore> for the Core plug-in.
 	 */
-	public void setAlive(boolean flag) {
-		if (isAlive && !flag) {
-			isAlive = false;
-			setProperty("alive", "0");
-			DeathEvent event = new DeathEvent(this);
-			boolean announce = ServerOptions.instance.getBoolean("AnnounceDeath").booleanValue();
-			event.announce(announce);
-			SledgeHammer.instance.handle(event);
-			sinceDeath = System.currentTimeMillis();
-		}
-		// Async protection against flipping between alive and death states.
-		if (!isAlive && flag && (System.currentTimeMillis() - sinceDeath) > 5000L) {
-			isAlive = true;
-			setProperty("alive", "1");
-			AliveEvent event = new AliveEvent(this);
-			SledgeHammer.instance.handle(event);
-		}
+	public void update() {
+		SledgeHammer.instance.updatePlayer(this);
 	}
 
 	/**
@@ -295,33 +332,24 @@ public class Player extends LuaTable {
 		sendChatMessageToAllChatChannels(chatMessage);
 	}
 
-	public UdpConnection getConnection() {
-		if (connection == null) {
-			for (UdpConnection next : SledgeHammer.instance.getConnections()) {
-				if (next.username.equalsIgnoreCase(getUsername())) {
-					setConnection(connection);
-					break;
-				}
-			}
-		}
-		return connection;
-	}
-
-	public MongoPlayer getMongoPlayer() {
-		return this.mongoPlayer;
-	}
-
-	public void setMongoPlayer(MongoPlayer mongoPlayer) {
-		this.mongoPlayer = mongoPlayer;
-		if (!created) {
-			if (SledgeHammer.instance.isStarted()) {
-				PlayerCreatedEvent event = new PlayerCreatedEvent(this);
-				SledgeHammer.instance.handle(event);
-				created = true;
-			}
+	/**
+	 * Sends <ChatMessage>'s to a <Player>, with a given <String> Array of lines.
+	 * 
+	 * @param lines
+	 *            The <String> Array of messages to send.
+	 */
+	public void sendChatMessages(String[] lines) {
+		for (String line : lines) {
+			sendChatMessage(line);
 		}
 	}
 
+	/**
+	 * @param other
+	 *            The <Player> to measure.
+	 * @return Returns true if the <Player> is less than or equal to the defined
+	 *         range in the PZ server for local chat.
+	 */
 	public boolean isWithinLocalRange(Player other) {
 		if (other.equals(this)) {
 			return true;
@@ -333,6 +361,9 @@ public class Player extends LuaTable {
 		return false;
 	}
 
+	/**
+	 * @return Returns true if the <Player> is currently on the server.
+	 */
 	public boolean isOnline() {
 		if (connection == null) {
 			return false;
@@ -352,10 +383,10 @@ public class Player extends LuaTable {
 	 *         the raw permission, use 'hasRawPermission(String node)...'.
 	 */
 	public boolean hasPermission(String node, boolean ignoreAdmin) {
-		if (!ignoreAdmin && isAdmin()) {
+		if (!ignoreAdmin && isAdministrator()) {
 			return true;
 		}
-		return hasRawPermission(node);
+		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(this, node);
 	}
 
 	/**
@@ -372,147 +403,461 @@ public class Player extends LuaTable {
 		return hasPermission(node, false);
 	}
 
-	public IsoPlayer getIso() {
-		return iso;
-	}
-
-	public boolean isConnected() {
-		return connection != null && connection.connected;
-	}
-
-	public boolean isInGame() {
-		return isConnected() && connection.isFullyConnected();
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public boolean isUsername(String username) {
-		return getUsername().equalsIgnoreCase(username);
-	}
-
-	public boolean isUsernameDirty(String username) {
-		return getUsername().contains(username);
-	}
-
-	public boolean isNickname(String nickname) {
-		return getNickname().equalsIgnoreCase(nickname);
-	}
-
-	public boolean isNicknameDirty(String nickname) {
-		return getNickname().equalsIgnoreCase(nickname);
-	}
-
-	public boolean isName(String name) {
-		return isUsername(name) || isNickname(name);
-	}
-
-	public boolean isNameDirty(String name) {
-		return isUsername(name) || isNickname(name) || isUsernameDirty(name) || isNicknameDirty(name);
-	}
-
-	public boolean isAdmin() {
-		return getIso() == null ? username.equalsIgnoreCase("admin") : getIso().accessLevel.equals("admin");
-	}
-
-	public void setConnection(UdpConnection connection) {
-		this.connection = connection;
-	}
-
-	public Map<String, String> getProperties() {
-		return mapProperties;
-	}
-
-	public void setProperties(Map<String, String> mapProperties) {
-		this.mapProperties = mapProperties;
-	}
-
-	public void setProperty(String property, String content) {
-		setProperty(property, content, true);
-	}
-
-	public void setProperty(String property, String content, boolean save) {
-		getMongoPlayer().setMetaData(property, content, save);
-	}
-
-	public void saveProperties() {
-		saveProperties();
-	}
-
-	public String getProperty(String property) {
-		return getMongoPlayer().getMetaData(property);
-	}
-
-	public void set(IsoPlayer iso) {
-		this.iso = iso;
-	}
-
-	public String getNickname() {
-		if (nickname == null)
-			return username;
-		return nickname;
-	}
-
-	public boolean isNewAccount() {
-		return isNewAccount;
-	}
-
-	public void setNewAccount(boolean flag) {
-		this.isNewAccount = flag;
-	}
-
-	public boolean isNewCharacter() {
-		return isNewCharacter;
-	}
-
-	public void setNewCharacter(boolean flag) {
-		this.isNewCharacter = flag;
-	}
-
-	public Vector3f getPosition() {
-		return this.position;
-	}
-
-	public Vector2f getMetaPosition() {
-		return this.metaPosition;
-	}
-
-	public boolean hasRawPermission(String node) {
-		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(this, node);
-	}
-
-	public Color getColor() {
-		return this.color;
-	}
-
-	public void setColor(Color color) {
-		this.color = color;
-	}
-
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
-
-	private ModuleChat getChatModule() {
-		return SledgeHammer.instance.getPluginManager().getChatModule();
-	}
-
-	public void update() {
-		SledgeHammer.instance.updatePlayer(this);
-	}
-
+	/**
+	 * Sets a <String> permission-node for a Player with the explicitly-defined
+	 * <Boolean> flag.
+	 * 
+	 * @param node
+	 *            The <String> permission-node to set.
+	 * @param flag
+	 *            The <Boolean> flag to set.
+	 */
 	public void setPermission(String node, boolean flag) {
 		SledgeHammer.instance.getPermissionsManager().setRawPermission(this, node, flag);
 	}
 
-	public UUID getUniqueId() {
-		return getMongoPlayer().getUniqueId();
+	/**
+	 * @param username
+	 *            The <String> user-name to test. (Non-Case-Sensitive)
+	 * @return Returns true if the given <String> user-name matches the one for the
+	 *         <Player>.
+	 */
+	public boolean isUsername(String username) {
+		return getUsername().equalsIgnoreCase(username);
 	}
 
-	public void sendChatMessage(String[] lines) {
-		for(String line: lines) {
-			sendChatMessage(line);
+	/**
+	 * @param usernameFragment
+	 *            The <String> user-name to test. (Non-Case-Sensitive)
+	 * @return Returns true if the <String> user-name of the <Player> contains the
+	 *         String user-name fragment given.
+	 */
+	public boolean isUsernameDirty(String usernameFragment) {
+		return getUsername().toLowerCase().contains(usernameFragment.toLowerCase());
+	}
+
+	/**
+	 * @param nickname
+	 *            The <String> nickname to test. (Non-Case-Sensitive)
+	 * @return Returns true if the given <String> nickname matches the one for the
+	 *         <Player>.
+	 */
+	public boolean isNickname(String nickname) {
+		return getNickname().equalsIgnoreCase(nickname);
+	}
+
+	/**
+	 * @param nicknameFragment
+	 *            The <String> nickname fragment to test. (Non-Case-Sensitive)
+	 * @return Returns true if the <String> nickname of the <Player> contains the
+	 *         String nickname fragment given.
+	 */
+	public boolean isNicknameDirty(String nicknameFragment) {
+		return getNickname().toLowerCase().contains(nicknameFragment);
+	}
+
+	/**
+	 * @param name
+	 *            The <String> user-name or nickname to test. (Non-Case Sensitive)
+	 * @return Returns true if the given <String> user-name or nickname matches the
+	 *         one for the <Player>. The String user-name is checked first. The
+	 *         String nickname is checked second.
+	 */
+	public boolean isName(String name) {
+		return isUsername(name) || isNickname(name);
+	}
+
+	/**
+	 * @param nameFragment
+	 *            The <String> user-name or nickname fragment to test.
+	 *            (Non-Case-Sensitive)
+	 * @return Returns true if the <String> user-name or String nick-name of the
+	 *         <Player> contains the String name fragment given. The user-name is
+	 *         checked first. The nickname is checked second. strict comparisons are
+	 *         checked before dirty comparisons.
+	 */
+	public boolean isNameDirty(String nameFragment) {
+		return isUsername(nameFragment) || isNickname(nameFragment) || isUsernameDirty(nameFragment)
+				|| isNicknameDirty(nameFragment);
+	}
+
+	/**
+	 * @return Returns true if the <Player> is flagged as an Administrator with full
+	 *         privileges.
+	 */
+	public boolean isAdministrator() {
+		return getIso() == null ? username.equalsIgnoreCase("admin") : getIso().accessLevel.equals("admin");
+	}
+
+	/**
+	 * Sets a given meta-data <String> property value with a <String> key to
+	 * identify. This change is automatically saved to the MongoDB database.
+	 * 
+	 * @param property
+	 *            The <String> key to identify.
+	 * @param content
+	 *            The <String> value to set.
+	 * @return Returns the old <String> property value if this operation replaces a
+	 *         previous value.
+	 */
+	public String setProperty(String property, String content) {
+		return setProperty(property, content, true);
+	}
+
+	/**
+	 * Sets a given meta-data <String> property value with a <String> key to
+	 * identify.
+	 * 
+	 * @param property
+	 *            The <String> key to identify.
+	 * @param content
+	 *            The <String> value to set.
+	 * @param save
+	 *            Flag to save the MongoDocument after applying the changes.
+	 * @return Returns the old <String> property value if this operation replaces a
+	 *         previous value.
+	 */
+	public String setProperty(String property, String content, boolean save) {
+		String propertyOld = getProperty(property);
+		getMongoDocument().setMetaData(property, content, save);
+		return propertyOld;
+	}
+
+	/**
+	 * @param property
+	 *            The <String> key to identify the meta-data property definition.
+	 * @return Returns the <String> definition of a meta-data property. If no
+	 *         property is defined under the String key given, null is returned.
+	 */
+	public String getProperty(String property) {
+		return getMongoDocument().getMetaData(property);
+	}
+
+	/**
+	 * Sets the native <IsoPlayer> Object for the <Player>.
+	 * 
+	 * @param iso
+	 *            The native <IsoPlayer> Object to set.
+	 */
+	public void set(IsoPlayer iso) {
+		this.iso = iso;
+	}
+
+	/**
+	 * @return Returns true if the <Player> is a new account.
+	 */
+	public boolean isNewAccount() {
+		return isNewAccount;
+	}
+
+	/**
+	 * Sets the <Boolean> flag for the <Player> account being new.
+	 * 
+	 * @param flag
+	 *            The flag to set.
+	 */
+	public void setNewAccount(boolean flag) {
+		this.isNewAccount = flag;
+	}
+
+	/**
+	 * @return Returns true if the <Player>'s in-game character is a new character.
+	 */
+	public boolean isNewCharacter() {
+		return isNewCharacter;
+	}
+
+	/**
+	 * Sets the <Boolean> flag for the <Player>'s in-game character being a new
+	 * character.
+	 * 
+	 * @param flag
+	 *            The flag to set.
+	 */
+	public void setNewCharacter(boolean flag) {
+		this.isNewCharacter = flag;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Approximate method for 'SledgeHammer.instance.getChatModule()'.
+	 * 
+	 * @return
+	 */
+	private ModuleChat getChatModule() {
+		return SledgeHammer.instance.getChatModule();
+	}
+
+	/**
+	 * @return Returns true if the <Player> is connected to the PZ server.
+	 */
+	public boolean isConnected() {
+		return connection != null && connection.connected;
+	}
+
+	/**
+	 * @return Returns true if the <Player> has successfully logged into the PZ
+	 *         server and is still connected.
+	 */
+	public boolean isInGame() {
+		return isConnected() && connection.isFullyConnected();
+	}
+
+	/**
+	 * @return Returns true if the <Player>'s in-game character is alive.
+	 */
+	public boolean isAlive() {
+		return this.isAlive;
+	}
+
+	/**
+	 * Sets the <Boolean> Alive flag for the <Player> Object.
+	 * 
+	 * FIXME: Possible condition bug with not setting alive property.
+	 * 
+	 * @param flag
+	 *            The flag to set.
+	 */
+	public void setAlive(boolean flag) {
+		if (isAlive() && !flag) {
+			this.isAlive = false;
+			setProperty("alive", "0");
+			DeathEvent event = new DeathEvent(this);
+			boolean announce = ServerOptions.instance.getBoolean("AnnounceDeath").booleanValue();
+			event.announce(announce);
+			SledgeHammer.instance.handle(event);
+			sinceDeath = System.currentTimeMillis();
 		}
+		// Asynchronous protection against flips between alive and death states.
+		if (!isAlive() && flag && (System.currentTimeMillis() - sinceDeath) > 5000L) {
+			this.isAlive = true;
+			setProperty("alive", "1");
+			AliveEvent event = new AliveEvent(this);
+			SledgeHammer.instance.handle(event);
+		}
+	}
+
+	/**
+	 * @return Returns true if the <Player> Object has initialized.
+	 */
+	public boolean hasInitialized() {
+		return this.initialized;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Boolean> flag for the <Player> Object being initialized.
+	 * 
+	 * @param flag
+	 *            The flag to set.
+	 */
+	private void setInitialized(boolean flag) {
+		this.initialized = flag;
+	}
+
+	/**
+	 * @return Returns true if the <Player> account has passed a
+	 *         <PlayerCreatedEvent> to the Sledgehammer engine.
+	 */
+	public boolean isCreated() {
+		return this.created;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Boolean> flag for the <Player> Object is created and a
+	 * <PlayerCreatedEvent> has passed through the Sledgehammer engine.
+	 * 
+	 * @param flag
+	 *            The <Boolean> flag to set.
+	 */
+	private void setCreated(boolean flag) {
+		this.created = flag;
+	}
+
+	/**
+	 * @return Returns a meta-data property <Map> with <String> keys and <String>
+	 *         values set arbitrarily by <Module>'s.
+	 */
+	public Map<String, String> getProperties() {
+		return mapProperties;
+	}
+
+	/**
+	 * Sets the entire meta-data property <Map> with <String> keys and <String>
+	 * values for the <Player>.
+	 * 
+	 * @param mapProperties
+	 *            The <Map> to set.
+	 */
+	public void setProperties(Map<String, String> mapProperties) {
+		this.mapProperties = mapProperties;
+	}
+
+	/**
+	 * @return Returns the <Color> LuaTable representing the <Player>.
+	 */
+	public Color getColor() {
+		return this.color;
+	}
+
+	/**
+	 * Sets the <Color> LuaTable representing the <Player>.
+	 * 
+	 * @param color
+	 *            The <Color> LuaTable to set.
+	 */
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	/**
+	 * @return Returns the <Vector3f> meta-position of the <Player>.
+	 */
+	public Vector2f getMetaPosition() {
+		return this.positionMeta;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Vector2f> meta-position of the <Player>.
+	 * 
+	 * @param positionMeta
+	 *            The <Vector2f> to set.
+	 */
+	private void setMetaPosition(Vector2f positionMeta) {
+		this.positionMeta = positionMeta;
+	}
+
+	/**
+	 * @return Returns the <Vector3f> position of the <Player>.
+	 */
+	public Vector3f getPosition() {
+		return this.position;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Vector3f> position of the <Player>.
+	 * 
+	 * @param vector3f
+	 *            The <Vector3f> to set.
+	 */
+	private void setPosition(Vector3f position) {
+		this.position = position;
+	}
+
+	/**
+	 * @return Returns the set <String> nickname of the <Player>. If a nickname is
+	 *         not defined, the Player's user-name is returned instead.
+	 */
+	public String getNickname() {
+		return this.nickname != null ? this.nickname : getUsername();
+	}
+
+	/**
+	 * Sets the <String> nickname to represent the <Player>.
+	 * 
+	 * @param nickname
+	 *            The <String> nickname to set.
+	 */
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	/**
+	 * @return Returns the <String> account user-name the <Player> registered for
+	 *         the PZ server.
+	 */
+	public String getUsername() {
+		return this.username;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <String> user-name of the <Player>.
+	 * 
+	 * @param username
+	 *            The <String> user-name to set.
+	 */
+	private void setUsername(String username) {
+		this.username = username;
+	}
+
+	/**
+	 * @return Returns the native <IsoPlayer> Object of the <Player> in the PZ
+	 *         server.
+	 */
+	public IsoPlayer getIso() {
+		return this.iso;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the native <IsoPlayer> Object for the <Player>.
+	 * 
+	 * @param iso
+	 *            The native <IsoPlayer> Object to set.
+	 */
+	private void setIso(IsoPlayer iso) {
+		this.iso = iso;
+	}
+
+	/**
+	 * @return Returns the native <UdpConnection> Object for the <Player>, if the
+	 *         Player is connected to the server.
+	 */
+	public UdpConnection getConnection() {
+		if (this.connection == null) {
+			setConnection(findConnection(getUsername()));
+		}
+		return this.connection;
+	}
+
+	/**
+	 * Sets the native <UdpConnection> Object for the <Player>.
+	 * 
+	 * @param connection
+	 *            The native <UdpConnection> Object to set.
+	 */
+	public void setConnection(UdpConnection connection) {
+		this.connection = connection;
+	}
+
+	/**
+	 * @return Returns the <UUID> of the the <Player>. This is the uniqueId that
+	 *         identifies the Player in the MongoDB, as well as any additional data
+	 *         storage for <Module>'s.
+	 */
+	public UUID getUniqueId() {
+		return getMongoDocument().getUniqueId();
+	}
+
+	/**
+	 * @param username
+	 *            The <String> user-name to identify the <UdpConnection>.
+	 * @return Returns a <UdpConnection> with the given <String> user-name. If no
+	 *         UdpConnection uses the given String user-name, null is returned.
+	 */
+	public static UdpConnection findConnection(String username) {
+		UdpConnection returned = null;
+		for (UdpConnection connectionNext : SledgeHammer.instance.getConnections()) {
+			if (connectionNext.username.equalsIgnoreCase(username)) {
+				returned = connectionNext;
+				break;
+			}
+		}
+		return returned;
+	}
+
+	static {
+		admin = new Player(SledgeHammer.instance.getSettings().getAdministratorPassword(), false);
 	}
 }

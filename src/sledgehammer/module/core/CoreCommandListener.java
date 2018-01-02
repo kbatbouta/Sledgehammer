@@ -194,7 +194,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			}
 		} else if (command.startsWith("warn")) {
 			if (commander.hasPermission(getPermissionNode("warn"))) {
-				if (commander.isAdmin()) {
+				if (commander.isAdministrator()) {
 					if (args.length >= 2) {
 						String playerName = args[0];
 						String msg = "";

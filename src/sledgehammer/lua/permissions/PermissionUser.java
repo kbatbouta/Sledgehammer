@@ -136,7 +136,7 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 		// If the Player is null at this point, the Player does not exist.
 		//
 		// Check if the Player is an administrator.
-		if (player != null && player.isAdmin()) {
+		if (player != null && player.isAdministrator()) {
 			// If so, set returned to true.
 			returned = true;
 		}
