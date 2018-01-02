@@ -17,8 +17,6 @@ This file is part of Sledgehammer.
 package sledgehammer.util;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.LogEvent;
-import sledgehammer.event.LogEvent.LogType;
 
 /**
  * TODO: Document.
@@ -31,7 +29,7 @@ public class Response {
 	private Result result;
 
 	private String log;
-	private LogEvent.LogType logType = LogEvent.LogType.INFO;
+	private LogType logType = LogType.INFO;
 	private boolean logImportant = false;
 	private boolean handled = false;
 
@@ -55,7 +53,7 @@ public class Response {
 		this.log = log;
 	}
 
-	public void log(LogEvent.LogType logType, String log) {
+	public void log(LogType logType, String log) {
 		this.log = log;
 		this.logType = logType;
 	}

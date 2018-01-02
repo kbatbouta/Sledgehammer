@@ -21,9 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
-import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Broadcast;
 import sledgehammer.lua.core.Player;
@@ -32,6 +30,7 @@ import sledgehammer.manager.PermissionsManager;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Command;
+import sledgehammer.util.LogType;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
 import sledgehammer.util.Result;
@@ -180,7 +179,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						chatMessage.setChannelId(moduleChat.getPMsChatChannel().getUniqueId(), false);
 						playerDirty.sendChatMessage(chatMessage);
 						r.set(Result.SUCCESS, "Message sent.");
-						r.log(LogEvent.LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName()
+						r.log(LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName()
 								+ " with message: \"" + msg + "\".");
 					}
 					return;
@@ -208,12 +207,13 @@ public class CoreCommandListener extends Printable implements CommandListener {
 						if (playerDirty != null) {
 							if (playerDirty.isConnected()) {
 
-								ChatMessage chatMessage = module.createChatMessage("You have been warned. Reason: " + msg);
+								ChatMessage chatMessage = module
+										.createChatMessage("You have been warned. Reason: " + msg);
 								chatMessage.setPlayerId(commander.getUniqueId(), false);
 								playerDirty.sendChatMessageToAllChatChannels(chatMessage);
 								response = "Player warned.";
 								r.set(Result.SUCCESS, response);
-								r.log(LogEvent.LogType.STAFF,
+								r.log(LogType.STAFF,
 										"WARNED " + playerDirty.getName() + " with message: \"" + msg + "\".");
 								return;
 							} else {
@@ -244,7 +244,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 			if (commander.hasPermission(getPermissionNode("broadcast"))) {
 				if (args.length > 1) {
 					String color = ChatTags.getColor(args[0]);
-					if (color == null) {						
+					if (color == null) {
 						color = COLOR_LIGHT_RED;
 					}
 					Broadcast broadcast = new Broadcast(args[0] + args[1]);
@@ -252,7 +252,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 					SledgeHammer.instance.send(sendBroadcast);
 					response = "Broadcast sent.";
 					r.set(Result.SUCCESS, response);
-					r.log(LogEvent.LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
+					r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
 					return;
 				} else {
 					response = "/broadcast \"color\" \"message\"...";
@@ -272,7 +272,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				}
 				response = "Done.";
 				r.set(Result.SUCCESS, response);
-				r.log(LogEvent.LogType.INFO, commander.getUsername() + " commited suicide.");
+				r.log(LogType.INFO, commander.getUsername() + " commited suicide.");
 
 				return;
 			} else {
@@ -304,7 +304,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 					}
 
 					r.set(Result.SUCCESS, response);
-					r.log(LogEvent.LogType.INFO,
+					r.log(LogType.INFO,
 							username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
 
 				} else {
@@ -456,7 +456,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);
-				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
+				r.log(LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
 				return;
 			}
 
@@ -484,7 +484,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);
-				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
+				r.log(LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			}
 			if (!bUsername) {
@@ -519,7 +519,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				response = "IP-Banned Player.";
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);
-				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
+				r.log(LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
 				return;
 
 			} else if (bSteamID) {
@@ -553,7 +553,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);
-				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
+				r.log(LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
 				return;
 			} else {
 				if (reason == null) {
@@ -567,7 +567,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);
-				r.log(LogEvent.LogType.STAFF, commander + " banned " + username + ".");
+				r.log(LogType.STAFF, commander + " banned " + username + ".");
 				return;
 			}
 		} else {
@@ -577,7 +577,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		}
 
 	}
-
 
 	private void unban(Command com, Response r, String[] args) throws SQLException {
 		boolean bUsername = false;
@@ -630,7 +629,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		}
 		r.set(Result.SUCCESS, response);
 		r.setLoggedImportant(true);
-		r.log(LogEvent.LogType.STAFF, commander + " unbanned " + username + ".");
+		r.log(LogType.STAFF, commander + " unbanned " + username + ".");
 		return;
 	}
 

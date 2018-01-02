@@ -21,13 +21,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionMember;
 import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.Command;
+import sledgehammer.util.LogType;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
 import sledgehammer.util.Result;
@@ -213,7 +213,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				// @formatter:on
 				fresponse = actions.createFaction(name, tag, password, player);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -223,7 +223,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 			if (player.hasPermission(getPermissionNode("faction disband"))) {
 				fresponse = actions.disbandFaction(player);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -244,7 +244,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 				fresponse = actions.joinFaction(faction, player, password);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -254,7 +254,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 			if (player.hasPermission(getPermissionNode("faction leave"))) {
 				fresponse = actions.leaveFaction(player);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -290,7 +290,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				// Attempt to invite the Player.
 				fresponse = actions.inviteToFaction(player, playerInvited);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				// Prompt the user the proper arguments.
@@ -311,7 +311,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 				fresponse = actions.acceptInvite(player, faction);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -335,7 +335,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 				fresponse = actions.rejectInvites(player, faction);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -362,7 +362,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 				fresponse = actions.kickFromFaction(player, playerKick);
 				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+				r.log(LogType.INFO, fresponse.getLogMessage());
 				return;
 			} else {
 				r.deny();
@@ -419,7 +419,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 					}
 					fresponse = actions.changeFactionPassword(player, args[1], args[2]);
 					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+					r.log(LogType.INFO, fresponse.getLogMessage());
 					return;
 				} else {
 					r.deny();
@@ -444,7 +444,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				if (player.hasPermission(getPermissionNode("faction change tag"))) {
 					fresponse = actions.changeFactionTag(player, value);
 					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+					r.log(LogType.INFO, fresponse.getLogMessage());
 					return;
 				} else {
 					r.deny();
@@ -454,7 +454,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				if (player.hasPermission(getPermissionNode("faction change name"))) {
 					fresponse = actions.changeFactionName(player, value);
 					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+					r.log(LogType.INFO, fresponse.getLogMessage());
 					return;
 				} else {
 					r.deny();
@@ -464,14 +464,13 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				if (player.hasPermission(getPermissionNode("faction change color"))) {
 					fresponse = actions.changeFactionColor(player, value);
 					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogEvent.LogType.INFO, fresponse.getLogMessage());
+					r.log(LogType.INFO, fresponse.getLogMessage());
 					return;
 				} else {
 					r.deny();
 					return;
 				}
 			}
-
 			if (hasAnyPermission) {
 				response = onTooltip(player, new Command(command + " " + property, null));
 				r.set(result, response);
@@ -487,5 +486,4 @@ public class FactionsCommandListener extends Printable implements CommandListene
 	public String getName() {
 		return "Factions";
 	}
-
 }
