@@ -21,34 +21,61 @@ import org.lwjgl.util.vector.Vector3f;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * PlayerEvent that handles the transmission of a <Player>'s position, and
+ * meta-position.
+ * 
+ * @author Jab
+ */
 public class PlayerInfoEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "PlayerInfoEvent";
-	private String log = null;
 
+	/** The <String> logged message for the <PlayerInfoEvent>. */
+	private String logMessage = null;
+
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> being updated.
+	 */
 	public PlayerInfoEvent(Player player) {
 		super(player);
 	}
 
 	@Override
 	public String getLogMessage() {
-		return this.log;
-	}
-
-	public void setLogMessage(String log) {
-		this.log = log;
-	}
-
-	public Vector3f getPosition() {
-		return getPlayer().getPosition();
-	}
-
-	public Vector2f getMetaPosition() {
-		return getPlayer().getMetaPosition();
+		return this.logMessage;
 	}
 
 	@Override
 	public String getID() {
 		return ID;
+	}
+
+	/**
+	 * Sets the <String> logged message for the <PlayerInfoEvent>.
+	 * 
+	 * @param logMessage
+	 *            The <String logged message to set.
+	 */
+	public void setLogMessage(String logMessage) {
+		this.logMessage = logMessage;
+	}
+
+	/**
+	 * @return Returns the <Vector3f> position of the <Player>.
+	 */
+	public Vector3f getPosition() {
+		return getPlayer().getPosition();
+	}
+
+	/**
+	 * @return Returns the <Vector2f> meta-position of the <Player>.
+	 */
+	public Vector2f getMetaPosition() {
+		return getPlayer().getMetaPosition();
 	}
 }
