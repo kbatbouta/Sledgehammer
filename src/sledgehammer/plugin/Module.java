@@ -30,9 +30,9 @@ import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.core.EventManager;
-import sledgehammer.manager.core.PermissionsManager;
-import sledgehammer.manager.core.PluginManager;
+import sledgehammer.manager.EventManager;
+import sledgehammer.manager.PermissionsManager;
+import sledgehammer.manager.PluginManager;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.Printable;
 
@@ -424,18 +424,6 @@ public abstract class Module extends Printable {
 	}
 
 	/**
-	 * Approximate method for 'SledgeHammer.instance.register(listener)'.
-	 * 
-	 * Registers a <CommandListener>.
-	 * 
-	 * @param listener
-	 *            The <CommandListener> to register.
-	 */
-	public void register(CommandListener listener) {
-		SledgeHammer.instance.register(listener);
-	}
-
-	/**
 	 * Approximate method for 'SledgeHammer.instance.register(command, listener)'.
 	 * 
 	 * Registers a <CommandListener> to a given <String> command.
@@ -447,6 +435,18 @@ public abstract class Module extends Printable {
 	 */
 	public void register(String command, CommandListener listener) {
 		SledgeHammer.instance.register(command, listener);
+	}
+
+	/**
+	 * Approximate method for 'SledgeHammer.instance.register(listener)'.
+	 * 
+	 * Registers a <CommandListener>.
+	 * 
+	 * @param listener
+	 *            The <CommandListener> to register.
+	 */
+	public void register(CommandListener listener) {
+		SledgeHammer.instance.register(listener);
 	}
 
 	/**

@@ -17,7 +17,7 @@ This file is part of Sledgehammer.
 package sledgehammer.util;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.manager.core.EventManager;
+import sledgehammer.manager.EventManager;
 
 /**
  * TODO: Document

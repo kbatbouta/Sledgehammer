@@ -14,7 +14,7 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.manager.core;
+package sledgehammer.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,7 +26,6 @@ import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.Manager;
 import sledgehammer.module.npc.ModuleNPC;
 import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.ActionAttackCharacter;

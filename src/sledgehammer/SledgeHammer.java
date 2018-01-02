@@ -52,11 +52,11 @@ import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.core.EventManager;
-import sledgehammer.manager.core.NPCManager;
-import sledgehammer.manager.core.PermissionsManager;
-import sledgehammer.manager.core.PlayerManager;
-import sledgehammer.manager.core.PluginManager;
+import sledgehammer.manager.EventManager;
+import sledgehammer.manager.NPCManager;
+import sledgehammer.manager.PermissionsManager;
+import sledgehammer.manager.PlayerManager;
+import sledgehammer.manager.PluginManager;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -355,7 +355,7 @@ public class SledgeHammer extends Printable {
 
 	public void register(CommandListener listener) {
 		for (String command : listener.getCommands()) {
-			getEventManager().registerCommandListener(command, listener);
+			getEventManager().register(command, listener);
 		}
 	}
 
@@ -489,7 +489,7 @@ public class SledgeHammer extends Printable {
 	 * @param listener
 	 */
 	public void register(String type, EventListener listener) {
-		getEventManager().registerEventListener(type, listener);
+		getEventManager().register(type, listener);
 	}
 
 	/**
@@ -499,7 +499,7 @@ public class SledgeHammer extends Printable {
 	 * @param listener
 	 */
 	public void register(EventListener listener) {
-		getEventManager().registerEventListener(listener);
+		getEventManager().register(listener);
 	}
 
 	/**
@@ -509,7 +509,7 @@ public class SledgeHammer extends Printable {
 	 * @param listener
 	 */
 	public void register(String command, CommandListener listener) {
-		getEventManager().registerCommandListener(command, listener);
+		getEventManager().register(command, listener);
 	}
 
 	/**
@@ -519,7 +519,7 @@ public class SledgeHammer extends Printable {
 	 * @param listener
 	 */
 	public void register(LogEventListener listener) {
-		getEventManager().registerLogListener(listener);
+		getEventManager().register(listener);
 	}
 
 	/**
@@ -528,7 +528,7 @@ public class SledgeHammer extends Printable {
 	 * @param listener
 	 */
 	public void register(ThrowableListener listener) {
-		getEventManager().registerExceptionListener(listener);
+		getEventManager().register(listener);
 	}
 
 	/**

@@ -3,7 +3,7 @@ package sledgehammer.test;
 import java.util.UUID;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.lua.Node;
+import sledgehammer.lua.permissions.Node;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
 import sledgehammer.module.permissions.ModulePermissions;

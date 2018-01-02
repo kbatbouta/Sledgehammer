@@ -14,11 +14,12 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.lua;
+package sledgehammer.lua.core.request;
 
 import java.util.Map;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.core.Player;
 
 /**

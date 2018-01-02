@@ -14,10 +14,11 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.lua;
+package sledgehammer.lua.permissions;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.document.MongoNode;
+import sledgehammer.lua.LuaTable;
 
 /**
  * Class designed to load and store node data and operations.

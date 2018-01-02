@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.permissions.MongoPermissionGroup;
-import sledgehammer.lua.Node;
 
 /**
  * Class designed to handle Permission-Group operations.

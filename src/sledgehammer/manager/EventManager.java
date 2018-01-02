@@ -14,7 +14,7 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.manager.core;
+package sledgehammer.manager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,9 +29,8 @@ import sledgehammer.event.LogEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ThrowableListener;
-import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.Manager;
+import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.module.core.CoreCommandListener;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Command;
@@ -45,32 +44,20 @@ import static sledgehammer.util.ChatTags.*;
 /**
  * Manager class designed to organize EventListeners and execution of Events.
  * 
- * TODO: Document.
- * 
  * @author Jab
  */
 public class EventManager extends Manager {
 
+	/** Name of the Manager. */
 	public static final String NAME = "EventManager";
 
-	/**
-	 * Map for registered EventListener interfaces.
-	 */
+	/** Map for registered EventListener interfaces. */
 	private Map<String, List<EventListener>> mapEventListeners;
-
-	/**
-	 * Map for registered CommandListener interfaces.
-	 */
+	/** Map for registered CommandListener interfaces. */
 	private Map<String, List<CommandListener>> mapCommandListeners;
-
-	/**
-	 * List for registered LogListener interfaces.
-	 */
+	/** List for registered LogListener interfaces. */
 	private List<LogEventListener> listLogListeners;
-
-	/**
-	 * List for registered ExceptionListneer interfaces.
-	 */
+	/** List for registered ExceptionListneer interfaces. */
 	private List<ThrowableListener> listExceptionListeners;
 
 	/**
@@ -93,9 +80,10 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Method executing the '/help' command.
+	 * Resolves all tool-tips for each registered <Command>.
 	 * 
-	 * @param command
+	 * @param c
+	 *            The <CommandEvent> requesting the tool-tips.
 	 */
 	private void help(CommandEvent c) {
 		Command command = c.getCommand();
@@ -159,36 +147,34 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Executes EventListeners from a given Event instance.
-	 * 
-	 * This method is a simplified version of:
-	 * <code> handleEvent(event, true); </code>,
-	 * 
-	 * The Event is logged.
+	 * Handles a <Event> and logs it as a <LogEvent>.
 	 * 
 	 * @param event
+	 *            The <Event> to handle.
 	 * 
-	 * @return
+	 * @return Returns the passed <Event>.
 	 */
 	public Event handleEvent(Event event) {
 		return handleEvent(event, true);
 	}
 
 	/**
-	 * Executes EventListeners from a given Event instance. Logging is optional.
+	 * Handles a <Event>.
 	 * 
 	 * @param event
+	 *            The <Event> to handle.
 	 * 
 	 * @param logEvent
+	 *            Flag to log the <Event> as a <LogEvent>.
 	 * 
-	 * @return
+	 * @return Returns the passed <Event>.
 	 */
 	public Event handleEvent(Event event, boolean logEvent) {
 		SledgeHammer sledgeHammer = SledgeHammer.instance;
 		try {
-			if (event == null)
+			if (event == null) {
 				throw new IllegalArgumentException("Event is null!");
-
+			}
 			if (event.getID() == CommandEvent.ID) {
 				return (handleCommand((CommandEvent) event, logEvent));
 			}
@@ -200,10 +186,12 @@ public class EventManager extends Manager {
 						if (listener != coreEventListener) {
 							listener.onEvent(event);
 						}
-						if (event.canceled())
+						if (event.canceled()) {
 							return event;
-						if (event.handled())
+						}
+						if (event.handled()) {
 							break;
+						}
 					}
 				}
 				for (EventListener listener : listEventListeners) {
@@ -211,10 +199,12 @@ public class EventManager extends Manager {
 						if (listener != coreEventListener) {
 							listener.onEvent(event);
 						}
-						if (event.canceled())
+						if (event.canceled()) {
 							return event;
-						if (event.handled())
+						}
+						if (event.handled()) {
 							break;
+						}
 					}
 				}
 			}
@@ -237,16 +227,19 @@ public class EventManager extends Manager {
 		} catch (Exception e) {
 			stackTrace("Error handling event " + event + ": " + e.getMessage(), e);
 		}
+		// Return the result Event.
 		return event;
 	}
 
 	/**
-	 * Handles an Exception, passing it to all registered ExceptionListener's, with
-	 * a reason String given.
+	 * Handles a thrown Exception, passing it to all registered
+	 * <ThrowableListener>'s with a <String> reason.
 	 * 
 	 * @param reason
+	 *            The <String> reason provided from the code.
 	 * 
 	 * @param throwable
+	 *            The thrown <Throwable> being passed to the <ThrowableListener>.
 	 */
 	public void handleException(String reason, Throwable throwable) {
 		for (ThrowableListener listener : listExceptionListeners) {
@@ -256,6 +249,12 @@ public class EventManager extends Manager {
 		}
 	}
 
+	/**
+	 * Processes a <LogEvent>.
+	 * 
+	 * @param logEvent
+	 *            The <LogEvent> to process.
+	 */
 	private void log(LogEvent logEvent) {
 		try {
 			Event event = logEvent.getEvent();
@@ -289,11 +288,13 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Logs a Event, running through each LogListener interface.
+	 * Logs a <Event> as a <LogEvent>, running through each <LogListener> interface.
 	 * 
 	 * @param event
+	 *            The <Event> to log.
 	 * 
 	 * @param important
+	 *            Flag to note the importance of the <LogEvent>.
 	 */
 	public void logEvent(Event event, boolean important) {
 		LogEvent logEvent = new LogEvent(event);
@@ -302,9 +303,10 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Logs a Event, running through each LogListener interface.
+	 * Logs a <Event> as a <LogEvent>, running through each <LogListener> interface.
 	 * 
 	 * @param event
+	 *            The <Event> to log.
 	 */
 	public void logEvent(Event event) {
 		LogEvent logEvent = new LogEvent(event);
@@ -312,11 +314,13 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Handles a command.
+	 * Handles a command, and logs it.
 	 * 
 	 * @param connection
+	 *            The native <UdpConnection> representing the origin of the sender.
 	 * @param input
-	 * @return
+	 *            The <String> input given. This is a pre-<Command> as a raw input.
+	 * @return Returns the result <CommandEvent>.
 	 */
 	public CommandEvent handleCommand(UdpConnection connection, String input) {
 		return handleCommand(connection, input, true);
@@ -326,9 +330,12 @@ public class EventManager extends Manager {
 	 * Handles a command.
 	 * 
 	 * @param connection
+	 *            The native <UdpConnection> representing the origin of the sender.
 	 * @param input
+	 *            The <String> input given. This is a pre-<Command> as a raw input.
 	 * @param logEvent
-	 * @return
+	 *            Flag to log the <CommandEvent>.
+	 * @return Returns the result <CommandEvent>.
 	 */
 	public CommandEvent handleCommand(UdpConnection connection, String input, boolean logEvent) {
 		SledgeHammer sledgeHammer = SledgeHammer.instance;
@@ -351,8 +358,10 @@ public class EventManager extends Manager {
 	 * Handles a CommandEvent.
 	 * 
 	 * @param c
+	 *            The <CommandEvent> to handle.
 	 * @param logEvent
-	 * @return
+	 *            Flag to log the <CommandEvent>.
+	 * @return Returns the given <CommandEvent>.
 	 */
 	public CommandEvent handleCommand(CommandEvent c, boolean logEvent) {
 		synchronized (this) {
@@ -421,13 +430,14 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Registers an EventListener interface, with a Event ID, given as a String.
+	 * Registers an <EventListener> for a given <Event> type.
 	 * 
 	 * @param type
-	 * 
+	 *            The type of an <Event>. (Event.getID() or Event.ID)
 	 * @param listener
+	 *            The <EventListener> to register.
 	 */
-	public void registerEventListener(String type, EventListener listener) {
+	public void register(String type, EventListener listener) {
 		// Validate the EventListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -443,12 +453,12 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Registers an EventListener interface, with all Event IDs listed in the
-	 * interface as String[] getTypes().
+	 * Registers all Events defined in the EventListener.
 	 * 
 	 * @param listener
+	 *            The <EventListener> being registered.
 	 */
-	public void registerEventListener(EventListener listener) {
+	public void register(EventListener listener) {
 		// Validate the EventListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -457,18 +467,19 @@ public class EventManager extends Manager {
 		if (types == null)
 			throw new IllegalArgumentException("listener.getTypes() array is null!");
 		for (String type : types) {
-			registerEventListener(type, listener);
+			register(type, listener);
 		}
 	}
 
 	/**
-	 * Registers a CommandListener interface, with a command, given as a String.
+	 * Registers a <CommandListener> to a given <String> command.
 	 * 
 	 * @param command
-	 * 
+	 *            The <String> command to register under.
 	 * @param listener
+	 *            The <CommandListener> to register.
 	 */
-	public void registerCommandListener(String command, CommandListener listener) {
+	public void register(String command, CommandListener listener) {
 		// Validate the CommandListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -485,13 +496,49 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Unregisters a given CommandListener.
-	 * 
-	 * @param command
+	 * Registers a <LogEventListener> for <LogEvent>'s.
 	 * 
 	 * @param listener
+	 *            The <LogEventListener> to register.
 	 */
-	public void unregisterCommandListener(String command, CommandListener listener) {
+	public void register(LogEventListener listener) {
+		// Validate the LogListener argument.
+		if (listener == null) {
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		// Make sure that the listener isn't registered twice.
+		if (!listLogListeners.contains(listener)) {
+			listLogListeners.add(listener);
+		}
+	}
+
+	/**
+	 * Registers a <ThrowableListener> to handle thrown Exceptions in the scope of
+	 * the Sledgehammer engine.
+	 * 
+	 * @param listener
+	 *            The <ThrowableListener> to register.
+	 */
+	public void register(ThrowableListener listener) {
+		// Validate the ExceptionListener argument.
+		if (listener == null) {
+			throw new IllegalArgumentException("Listener is null!");
+		}
+		// Make sure that the listener isn't registered twice.
+		if (!listExceptionListeners.contains(listener)) {
+			listExceptionListeners.add(listener);
+		}
+	}
+
+	/**
+	 * Unregisters a <CommandListener> from a Command.
+	 * 
+	 * @param command
+	 *            The <String> command to unregister.
+	 * @param listener
+	 *            The <CommandListener> to unregister.
+	 */
+	public void unregister(String command, CommandListener listener) {
 		// Validate the CommandListener argument.
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener is null!");
@@ -505,41 +552,10 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Registers a LogListener interface.
+	 * Unregisters a <EventListener>.
 	 * 
 	 * @param listener
-	 */
-	public void registerLogListener(LogEventListener listener) {
-		// Validate the LogListener argument.
-		if (listener == null) {
-			throw new IllegalArgumentException("Listener is null!");
-		}
-		// Make sure that the listener isn't registered twice.
-		if (!listLogListeners.contains(listener)) {
-			listLogListeners.add(listener);
-		}
-	}
-
-	/**
-	 * Registers a ExceptionListener interface.
-	 * 
-	 * @param listener
-	 */
-	public void registerExceptionListener(ThrowableListener listener) {
-		// Validate the ExceptionListener argument.
-		if (listener == null) {
-			throw new IllegalArgumentException("Listener is null!");
-		}
-		// Make sure that the listener isn't registered twice.
-		if (!listExceptionListeners.contains(listener)) {
-			listExceptionListeners.add(listener);
-		}
-	}
-
-	/**
-	 * Unregisters a given EventListener.
-	 * 
-	 * @param listener
+	 *            The <EventListener> to unregister.
 	 */
 	public void unregister(EventListener listener) {
 		// Validate the EventListener argument.
@@ -563,9 +579,10 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Unregisters a given CommandListener.
+	 * Unregisters a <CommandListener>.
 	 * 
 	 * @param listener
+	 *            The <CommandListener> to unregister.
 	 */
 	public void unregister(CommandListener listener) {
 		// Validate the CommandListener argument.
@@ -578,8 +595,10 @@ public class EventManager extends Manager {
 	}
 
 	/**
+	 * Unregisters a <LogEventListener>.
 	 * 
 	 * @param listener
+	 *            The <LogEventListener> to unregister.
 	 */
 	public void unregister(LogEventListener listener) {
 		// Validate the LogListener argument.
@@ -590,8 +609,10 @@ public class EventManager extends Manager {
 	}
 
 	/**
+	 * Unregisters a <ThrowableListener>.
 	 * 
 	 * @param listener
+	 *            The <ThrowableListener> to unregister.
 	 */
 	public void unregister(ThrowableListener listener) {
 		// Validate the ExceptionListener argument.
@@ -602,37 +623,29 @@ public class EventManager extends Manager {
 	}
 
 	/**
-	 * Returns the map of EventListener interfaces registered.
-	 * 
-	 * @return
+	 * @return Returns the map of EventListener interfaces registered.
 	 */
 	public Map<String, List<EventListener>> getEventListeners() {
 		return this.mapEventListeners;
 	}
 
 	/**
-	 * Returns the List of registered LogListeners.
-	 * 
-	 * @return
+	 * @return Returns the List of registered LogListeners.
 	 */
 	public List<LogEventListener> getLogListeners() {
 		return this.listLogListeners;
 	}
 
 	/**
-	 * Returns the List of registered ExceptionListeners.
-	 * 
-	 * @return
+	 * @return Returns the List of registered ExceptionListeners.
 	 */
 	public List<ThrowableListener> getExceptionListeners() {
 		return this.listExceptionListeners;
 	}
 
 	/**
-	 * Returns the Map of registered CommandListeners, organized as Lists with the
-	 * given command as a key, in lowercase.
-	 * 
-	 * @return
+	 * @return Returns the Map of registered CommandListeners, organized as Lists
+	 *         with the given command as a key, in lower-case.
 	 */
 	public Map<String, List<CommandListener>> getCommandListeners() {
 		return this.mapCommandListeners;

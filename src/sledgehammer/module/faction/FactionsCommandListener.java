@@ -26,7 +26,7 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionMember;
-import sledgehammer.manager.core.PermissionsManager;
+import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;

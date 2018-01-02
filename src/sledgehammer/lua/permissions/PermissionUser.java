@@ -21,7 +21,6 @@ import java.util.UUID;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.module.permissions.MongoPermissionUser;
-import sledgehammer.lua.Node;
 import sledgehammer.lua.core.Player;
 
 /**

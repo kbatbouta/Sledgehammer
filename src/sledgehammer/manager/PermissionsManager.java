@@ -14,12 +14,11 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.manager.core;
+package sledgehammer.manager;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.Manager;
 
 /**
  * Manager class designed to handle permissions for modules and core functions.

@@ -29,7 +29,7 @@ import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.chat.request.RequestChatChannels;
 import sledgehammer.lua.chat.request.RequestChatHistory;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.core.PermissionsManager;
+import sledgehammer.manager.PermissionsManager;
 import sledgehammer.plugin.MongoModule;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;

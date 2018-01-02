@@ -14,7 +14,7 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer.manager.core;
+package sledgehammer.manager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
-import sledgehammer.manager.Manager;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.faction.ModuleFactions;
