@@ -21,17 +21,14 @@ import java.util.Map;
 import sledgehammer.lua.LuaTable;
 
 /**
- * Class to store and define <Module> properties.
- * 
- * TODO: Document
+ * LuaTable to store and define <Module> properties.
  * 
  * @author Jab
  */
 @SuppressWarnings("rawtypes")
 public class ModuleProperties extends LuaTable {
 
-	public static final boolean DEBUG = true;
-	
+	/** The defined properties for the plug-in. */
 	private PluginProperties pluginProperties;
 	/** The <String> name of the <Module>. */
 	private String name;
@@ -41,7 +38,7 @@ public class ModuleProperties extends LuaTable {
 	private String moduleLocation;
 	/** The <String> description of the <Module>. */
 	private String description;
-
+	/** The <String> client ID of the Module for Lua communication. */
 	private String clientModuleId;
 
 	/**
@@ -73,6 +70,9 @@ public class ModuleProperties extends LuaTable {
 	 * Debug constructor.
 	 * 
 	 * @param name
+	 *            The <String> name of the <Module>.
+	 * @param map
+	 *            The <Map> definitions of the <Module>.
 	 */
 	public ModuleProperties(String name, Map map) {
 		super("ModuleProperties");
@@ -91,6 +91,14 @@ public class ModuleProperties extends LuaTable {
 		setModuleLocation("unknown");
 	}
 
+	/**
+	 * Loads the properties for the <Module>.
+	 * 
+	 * @param name
+	 *            The <String> name of the <Module>.
+	 * @param map
+	 *            The <Map> definitions of the <Module>.
+	 */
 	private void loadProperties(String name, Map map) {
 		setModuleName(name);
 		// Default variables
@@ -135,10 +143,21 @@ public class ModuleProperties extends LuaTable {
 		setClientModuleId(clientModuleId);
 	}
 
+	/**
+	 * @return Returns the client ID of the <Module> for Lua communication.
+	 */
 	public String getClientModuleId() {
 		return this.clientModuleId;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the client ID of the <Module> for Lua communication.
+	 * 
+	 * @param clientModuleId
+	 *            The <String> client ID to set.
+	 */
 	private void setClientModuleId(String clientModuleId) {
 		this.clientModuleId = clientModuleId;
 	}
@@ -151,7 +170,7 @@ public class ModuleProperties extends LuaTable {
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
 	 * Sets the <String> name of the <Module>.
 	 * 
@@ -170,27 +189,31 @@ public class ModuleProperties extends LuaTable {
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
+	 * Sets the <Module>'s <String> version.
 	 * 
 	 * @param version
+	 *            The <String> version to set.
 	 */
 	private void setModuleVersion(String version) {
 		this.version = version;
 	}
 
 	/**
-	 * @return Returns the <String> module location of the <Module> class.
+	 * @return Returns the <String> location of the <Module>'s Class in Java..
 	 */
 	public String getModuleLocation() {
 		return this.moduleLocation;
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
+	 * Sets the <String> location of the <Module>'s Class in Java.
 	 * 
 	 * @param moduleLocation
+	 *            The <String> location to set.
 	 */
 	private void setModuleLocation(String moduleLocation) {
 		this.moduleLocation = moduleLocation;
@@ -204,18 +227,30 @@ public class ModuleProperties extends LuaTable {
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
+	 * 
+	 * Sets the <String> description of the <Module>.
 	 * 
 	 * @param description
+	 *            The <String> description to set.
 	 */
 	private void setModuleDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 * @return Returns the properties of the <Plugin> containing the <Module>.
+	 */
 	public PluginProperties getPluginProperties() {
 		return this.pluginProperties;
 	}
 
+	/**
+	 * Sets the properties of the <Plugin> containing the <Module>.
+	 * 
+	 * @param pluginProperties
+	 *            The <PluginProperties> to set.
+	 */
 	public void setPluginProperties(PluginProperties pluginProperties) {
 		this.pluginProperties = pluginProperties;
 	}
