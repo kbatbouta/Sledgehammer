@@ -17,47 +17,65 @@ This file is part of Sledgehammer.
 package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
+import sledgehammer.util.DisconnectType;
 import zombie.core.raknet.UdpConnection;
 
+/**
+ * PlayerEvent to pass when a <Player> disconnects from the PZ Server.
+ * 
+ * @author Jab
+ */
 public class DisconnectEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "DisconnectEvent";
 
+	/** The message Sent to the Player for being disconnected. */
 	private String message;
+	/** The <DisconnectType> type of disconnection the <Player> received. */
 	private DisconnectType disconnectType = DisconnectType.DISCONNECT_MISC;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> that being disconnected.
+	 */
 	public DisconnectEvent(Player player) {
 		super(player);
 	}
 
+	/**
+	 * Alternative constructor for providing a <String> message to the <Player>
+	 * being disconnected.
+	 * 
+	 * @param player
+	 *            The <Player> being disconnected.
+	 * @param message
+	 *            The <String> message sent to the <Player>.
+	 */
 	public DisconnectEvent(Player player, String message) {
 		super(player);
-		this.message = message;
+		setMessage(message);
 	}
 
-	public DisconnectEvent(Player player, DisconnectType type) {
+	/**
+	 * Alternative constructor for providing the type of disconnection of the
+	 * <Player>.
+	 * 
+	 * @param player
+	 *            The <Player> being disconnected.
+	 * @param disconnectType
+	 *            The <DisconnectType> type of disconnection.
+	 */
+	public DisconnectEvent(Player player, DisconnectType disconnectType) {
 		super(player);
-		if (player == null)
+		if (player == null) {
 			throw new IllegalArgumentException("Player is null!");
-		this.disconnectType = type;
+		}
+		setDisconnectType(disconnectType);
 	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public String getMessage() {
-		return this.message;
-	}
-
-	public static enum DisconnectType {
-		DISCONNECT_USERNAME_ALREADY_LOGGED_IN, DISCONNECT_USERNAME_EMPTY, DISCONNECT_USERNAME_BANNED, DISCONNECT_SERVER_FULL, DISCONNECT_IP_BANNED, DISCONNECT_STEAM_BANNED, DISCONNECT_KICKED, DISCONNECT_EXITED_GAME, DISCONNECT_MISC,
-	}
-
-	public DisconnectType getDisconnectType() {
-		return this.disconnectType;
-	}
-
+	
 	@Override
 	public String getLogMessage() {
 		Player player = getPlayer();
@@ -85,5 +103,43 @@ public class DisconnectEvent extends PlayerEvent {
 	@Override
 	public String getID() {
 		return ID;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <DisconnectType> for the <DisconnectEvent>.
+	 * 
+	 * @param disconnectType
+	 *            The <DisconnectType> to set.
+	 */
+	private void setDisconnectType(DisconnectType disconnectType) {
+		this.disconnectType = disconnectType;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <String> message sent to the <Player>.
+	 * 
+	 * @param message
+	 *            The <String> message to set.
+	 */
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	/**
+	 * @return Returns the <String> message sent to the <Player>.
+	 */
+	public String getMessage() {
+		return this.message;
+	}
+
+	/**
+	 * @return Returns the <DisconnectType> type of the <DisconnectEvent>.
+	 */
+	public DisconnectType getDisconnectType() {
+		return this.disconnectType;
 	}
 }
