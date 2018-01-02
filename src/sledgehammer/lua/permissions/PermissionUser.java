@@ -24,14 +24,13 @@ import sledgehammer.database.module.permissions.MongoPermissionUser;
 import sledgehammer.lua.core.Player;
 
 /**
- * Class to store and handle permission information for a <Player>
+ * PermissionObject to handle permission-user data and operations for the
+ * Permissions Module.
  * 
  * @author Jab
  */
 public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 
-	/** The <MongoDocument> storing the data. */
-	private MongoPermissionUser mongoPermissionUser;
 	/**
 	 * The <PermissionGroup> that the user is assigned to, if any. If not, the
 	 * reference will be null.
@@ -46,7 +45,6 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 	 */
 	public PermissionUser(MongoPermissionUser mongoDocument) {
 		super(mongoDocument, "PermissionUser");
-		setMongoDocument(mongoDocument);
 	}
 
 	@Override
@@ -111,12 +109,12 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 
 	@Override
 	public void onLoad(KahluaTable table) {
-		// TODO: Load from Kahlua Table.
+		// TODO: Implement.
 	}
 
 	@Override
 	public void onExport() {
-		// TODO: Save to Kahlua Table.
+		// TODO: Implement.
 	}
 
 	/**
@@ -153,13 +151,17 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 	}
 
 	/**
-	 * Sets the <PermissionGroup> that the user is assigned to. To set the user to
-	 * no group, use null.
+	 * Sets the <PermissionGroup> that the <PermissionUser> is assigned to. To set
+	 * the PermissionUser to not have an assigned PermissionGroup, use null.
+	 * 
+	 * (Note: If the <PermissionUser> does not have a <PermissionGroup> assigned,
+	 * the PermissionUser will refer to the default PermissionGroup in the
+	 * Permissions Module.
 	 * 
 	 * @param permissionGroup
 	 *            The <PermissionGroup> to set.
 	 * @param save
-	 *            Flag to save the <MongoDocument> after setting the group.
+	 *            The flag to save the document.
 	 */
 	public void setPermissionGroup(PermissionGroup permissionGroup, boolean save) {
 		this.permissionGroup = permissionGroup;
@@ -171,32 +173,15 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
 	}
 
 	/**
-	 * @return Returns the <MongoDocument> storing the data for the user.
-	 */
-	public MongoPermissionUser getMongoDocument() {
-		return this.mongoPermissionUser;
-	}
-
-	/**
-	 * (Internal Method)
-	 * 
-	 * Sets the <MongoDocument> storing the data for the user.
-	 * 
-	 * @param mongoPermissionUser
-	 */
-	private void setMongoDocument(MongoPermissionUser mongoPermissionUser) {
-		this.mongoPermissionUser = mongoPermissionUser;
-	}
-
-	/**
-	 * @return Returns the <UUID> identifier associated with the User's <Player>.
+	 * @return Returns the <UUID> identifier associated with the <PermissionUser>'s
+	 *         <Player>.
 	 */
 	public UUID getUniqueId() {
 		return getMongoDocument().getUniqueId();
 	}
 
 	/**
-	 * @return Returns the <UUID> identifier associated with the user's
+	 * @return Returns the <UUID> identifier associated with the <PermissionUser>'s
 	 *         <PermissionGroup>.
 	 */
 	public UUID getGroupId() {
