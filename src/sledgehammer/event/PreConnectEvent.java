@@ -16,22 +16,31 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.event;
 
+/**
+ * Event that is passed when a <Player> attempts to connect to the PZ server.
+ * 
+ * @author Jab
+ */
 public class PreConnectEvent extends Event {
 
+	/** The String ID of the Event. */
 	public static final String ID = "LoginUsernameDefinedEvent";
 
+	/**
+	 * The <String> user-name of the <Player> attempting to connect to the PZ
+	 * server.
+	 */
 	private String username;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param username
+	 *            The <String> user-name of the <Player> that is attempting to
+	 *            connect to the PZ server.
+	 */
 	public PreConnectEvent(String username) {
-		this.username = username;
-	}
-
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
+		setUsername(username);
 	}
 
 	@Override
@@ -44,4 +53,22 @@ public class PreConnectEvent extends Event {
 		return ID;
 	}
 
+	/**
+	 * @return Returns the <String> user-name of the <Player> that is attempting to
+	 *         connect to the PZ server.
+	 */
+	public String getUsername() {
+		return username;
+	}
+
+	/**
+	 * (Private Method) Sets the <String> user-name of the <Player> that is
+	 * attempting to connect to the PZ server.
+	 * 
+	 * @param username
+	 *            The <String> user-name to set.
+	 */
+	private void setUsername(String username) {
+		this.username = username;
+	}
 }
