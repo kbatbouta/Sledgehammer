@@ -39,30 +39,69 @@ import sledgehammer.util.Printable;
 import sledgehammer.util.YamlUtil;
 import zombie.sledgehammer.util.MD5;
 
+/**
+ * Class to load and manage the settings for the Sledgehammer engine.
+ * 
+ * @author Jab
+ */
 @SuppressWarnings("rawtypes")
 public class Settings extends Printable {
 
+	/** The Java OS definition for the new-line operator. */
 	private static final String NEW_LINE = System.getProperty("line.separator");
+	/** The singleton instance of the Settings class. */
 	private static Settings instance;
 
+	/** The raw YAML <Map> data for the config.yml File. */
 	private Map map;
+	/**
+	 * The <String> names of the <Player> accounts to exempt from the check to
+	 * remove inactive accounts.
+	 */
 	private List<String> listAccountsExcluded;
+	/** The File Object of the config.yml File. */
 	private File fileConfig;
+	/**
+	 * The set directory to the vanilla distribution installation of the
+	 * ProjectZomboid Dedicated Server.
+	 */
 	private String pzServerDirectory;
+	/** The set <String> message when a permission is denied. */
 	private String permissionDeniedMessage;
+	/** The name of the YAML File. */
 	private String fileConfigName = "config.yml";
+	/** The <String> password for the Administrator account. */
 	private String administratorPassword;
+	/** The <String> URL pointing at the MongoDB storing data for Sledgehammer. */
 	private String databaseURL;
-	private String databaseUsername;
-	private String databasePassword;
-	private String databaseDatabase;
-	private int accountIdleExpireTime;
-	private int explosionRadiusMaximum;
+	/** The <String> PORT the MongoDB server listens on. */
 	private int databasePORT;
+	/** The <String> username of the Sledgehammer account for MongoDB. */
+	private String databaseUsername;
+	/** The <String> password of the Sledgehammer account for MongoDB. */
+	private String databasePassword;
+	/** The <String> database the Sledgehammer account is defined in. */
+	private String databaseDatabase;
+	/**
+	 * The <Integer> amount of days an account has until it is considered expired.
+	 * Set to 0 to disable the utility.
+	 */
+	private int accountIdleExpireTime;
+	/**
+	 * The maximum <Integer> radius an explosion is allowed for a server. Anything
+	 * above this limit is registered is cancelled, and invokes a <CheaterEvent>.
+	 */
+	private int explosionRadiusMaximum;
+	/** The Debug flag for the Sledgehammer engine. */
 	private boolean debug = false;
+	/** Flag to enable the native RCON utility for the PZ server. */
 	private boolean allowRCON = false;
+	/** Flag to enable Helicopter events on the PZ server. */
 	private boolean allowHelicopters;
 
+	/**
+	 * Main constructor.
+	 */
 	public Settings() {
 		fileConfig = new File("config.yml");
 		if (!fileConfig.exists()) {
@@ -87,6 +126,11 @@ public class Settings extends Printable {
 		return "Sledgehammer->config.yml";
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Reads and interprets the YAML from the config.yml File.
+	 */
 	private void loadConfig() {
 		try {
 			FileInputStream fis = new FileInputStream(fileConfig);
@@ -103,12 +147,25 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * (Private Method)
+	 *
+	 * Parses and interprets the YAML setting sections.
+	 */
 	private void parseConfig() {
 		parseGeneralConfig((Map) map.get("general"));
 		parseSecurityConfig((Map) map.get("security"));
 		parseDatabaseConfig((Map) map.get("mongo_db"));
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Parses and interprets the general section.
+	 * 
+	 * @param general
+	 *            The <Map> definition.
+	 */
 	private void parseGeneralConfig(Map general) {
 		if (general == null) {
 			return;
@@ -175,6 +232,14 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Parses and interprets the security section.
+	 * 
+	 * @param general
+	 *            The <Map> definition.
+	 */
 	private void parseSecurityConfig(Map security) {
 		// (String) security.administrator_password
 		Object oAdministratorPassword = security.get("administrator_password");
@@ -215,6 +280,14 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Parses and interprets the MongoDB database section.
+	 * 
+	 * @param general
+	 *            The <Map> definition.
+	 */
 	private void parseDatabaseConfig(Map mongoDB) {
 		// (String) database.url
 		Object oDatabaseURL = mongoDB.get("url");
@@ -280,7 +353,13 @@ public class Settings extends Printable {
 		}
 	}
 
-	private void setAllowHelicopters(boolean allowHelicopters, boolean save) {
+	/**
+	 * Sets the flag for allowing Helicopters.
+	 * 
+	 * @param save
+	 *            Flag to save the setting.
+	 */
+	public void setAllowHelicopters(boolean allowHelicopters, boolean save) {
 		this.allowHelicopters = allowHelicopters;
 		if (save) {
 			List<String> lines = readConfigFile();
@@ -300,6 +379,14 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> message to send when a permission request is denied.
+	 * 
+	 * @param permissionMessageDenied
+	 *            The <String> message to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setPermissionMessageDenied(String permissionMessageDenied, boolean save) {
 		this.permissionDeniedMessage = permissionMessageDenied;
 		if (save) {
@@ -321,6 +408,15 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> directory path to the vanilla distribution of the
+	 * ProjectZomboid Dedicated Server.
+	 * 
+	 * @param pzServerDirectory
+	 *            The <String> directory path to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setPZServerDirectory(String pzServerDirectory, boolean save) {
 		this.pzServerDirectory = pzServerDirectory;
 		if (save) {
@@ -341,6 +437,15 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> password of the Administrator Player account for the
+	 * Sledgehammer engine.
+	 * 
+	 * @param administratorPassword
+	 *            The <String> password to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setAdministratorPassword(String administratorPassword, boolean save) {
 		this.administratorPassword = administratorPassword;
 		if (save) {
@@ -361,6 +466,14 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> URL to the MongoDB server.
+	 * 
+	 * @param databaseURL
+	 *            The <String> URL to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setDatabaseURL(String databaseURL, boolean save) {
 		this.databaseURL = databaseURL;
 		if (save) {
@@ -381,6 +494,14 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> PORT to the MongoDB server.
+	 * 
+	 * @param databasePORT
+	 *            The <String> PORT to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setDatabasePort(int databasePORT, boolean save) {
 		this.databasePORT = databasePORT;
 		if (save) {
@@ -401,6 +522,15 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> user-name for the Sledgehammer account in the MongoDB
+	 * server.
+	 * 
+	 * @param databaseUsername
+	 *            The <String> user-name to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setDatabaseUsername(String databaseUsername, boolean save) {
 		this.databaseUsername = databaseUsername;
 		if (save) {
@@ -421,6 +551,15 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> password for the Sledgehammer account in the MongoDB
+	 * server.
+	 * 
+	 * @param databasePassword
+	 *            The <String> password to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setDatabasePassword(String databasePassword, boolean save) {
 		this.databasePassword = databasePassword;
 		if (save) {
@@ -441,6 +580,15 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> database for the Sledgehammer account in the MongoDB
+	 * server.
+	 * 
+	 * @param databaseDatabase
+	 *            The <String> database to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setDatabaseDatabase(String databaseDatabase, boolean save) {
 		this.databaseDatabase = databaseDatabase;
 		if (save) {
@@ -461,6 +609,14 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * Sets the <String> message sent to a Player when a permission is denied.
+	 * 
+	 * @param permissionDeniedMessage
+	 *            The <String> message to set.
+	 * @param save
+	 *            Flag to save the setting.
+	 */
 	public void setPermissionDeniedMessage(String permissionDeniedMessage, boolean save) {
 		this.permissionDeniedMessage = permissionDeniedMessage;
 		if (save) {
@@ -482,64 +638,132 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * @return Returns the <String> directory path to the vanilla Project Zomboid
+	 *         Dedicated Server installation.
+	 */
 	public String getPZServerDirectory() {
 		return this.pzServerDirectory;
 	}
 
+	/**
+	 * @return Returns the <String> database in the MongoDB server that defines the
+	 *         Sledgehammer account.
+	 */
 	public String getDatabaseDatabase() {
 		return this.databaseDatabase;
 	}
 
+	/**
+	 * @return Returns the <String> password for the Sledgehammer MongoDB account.
+	 */
 	public String getDatabasePassword() {
 		return this.databasePassword;
 	}
 
+	/**
+	 * @return Returns the <String> user-name for the Sledgehammer MongoDB account.
+	 */
 	public String getDatabaseUsername() {
 		return this.databaseUsername;
 	}
 
+	/**
+	 * @return Returns the <Integer> PORT that the MongoDB service listens on.
+	 */
 	public int getDatabasePort() {
 		return this.databasePORT;
 	}
 
+	/**
+	 * @return Returns the <String> URL that points to the MongoDB service.
+	 */
 	public String getDatabaseURL() {
 		return this.databaseURL;
 	}
 
+	/**
+	 * @return Returns true if the native RCON utility is allowed to run on the PZ
+	 *         server.
+	 */
 	public boolean allowRCON() {
 		return this.allowRCON;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @param flag
+	 *            The <Boolean> flag to set.
+	 */
 	private void setAllowRCON(boolean flag) {
 		this.allowRCON = flag;
 	}
 
+	/**
+	 * @return Returns the maximum <Integer> radius an explosion is allowed for a
+	 *         server. Anything above this limit is registered is cancelled, and
+	 *         invokes a <CheaterEvent>.
+	 */
 	public int getMaximumExplosionRadius() {
 		return this.explosionRadiusMaximum;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the maximum <Integer> radius an explosion is allowed for a server.
+	 * Anything above this limit is registered is cancelled, and invokes a
+	 * <CheaterEvent>.
+	 * 
+	 * @param explosionRadiusMaximum
+	 *            The <Integer> radius to set.
+	 */
 	private void setMaximumExplosionRadius(int explosionRadiusMaximum) {
 		this.explosionRadiusMaximum = explosionRadiusMaximum;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Saves the template of the config.yml in the Sledgehammer.jar to the server
+	 * folder.
+	 */
 	private void saveDefaultConfig() {
 		File file = SledgeHammer.getJarFile();
 		write(file, fileConfigName, new File(fileConfigName));
 	}
 
+	/**
+	 * @return Returns true if Sledgehammer is set in debug-mode.
+	 */
 	public boolean isDebug() {
 		return this.debug;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the debug flag for Sledgehammer.
+	 * 
+	 * @param debug
+	 *            The <Boolean> flag to set.
+	 */
 	private void setDebug(boolean debug) {
 		this.debug = debug;
 		SledgeHammer.DEBUG = debug;
 	}
 
+	/**
+	 * @return Returns the <String> password for the Administrator account.
+	 */
 	public String getAdministratorPassword() {
 		return this.administratorPassword;
 	}
 
+	/**
+	 * Generates a new <String> password for the Administrator Player account.
+	 */
 	public void generateAdministratorPassword() {
 		System.out.println("A password has been generated for the 'admin' account.");
 		System.out.println("The password is located in the config.yml and can be ");
@@ -551,26 +775,58 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * @return Returns the <String> message when a permission is denied.
+	 */
 	public String getPermissionDeniedMessage() {
 		return this.permissionDeniedMessage;
 	}
 
+	/**
+	 * Sets the expiration time in days for inactive accounts to be removed.
+	 * 
+	 * @param accountIdleExpireTime
+	 *            The <Integer> time in days to set.
+	 * @param save
+	 *            Flag to save the Setting.
+	 */
 	public void setAccountIdleExpireTime(int accountIdleExpireTime, boolean save) {
 		this.accountIdleExpireTime = accountIdleExpireTime;
+		if (save) {
+			// TODO: Implement save.
+		}
 	}
 
+	/**
+	 * @return Returns the <Integer> time in days for inactive accounts to be
+	 *         removed.
+	 */
 	public int getAccountIdleExpireTime() {
 		return this.accountIdleExpireTime;
 	}
 
+	/**
+	 * @return Returns a <List> of <String> account names that are excluded from the
+	 *         inactive-account-removal utility.
+	 */
 	public List<String> getExcludedIdleAccounts() {
 		return this.listAccountsExcluded;
 	}
 
+	/**
+	 * @return Returns true if Helicopter events are allows on the PZ server.
+	 */
 	public boolean allowHelicopters() {
 		return this.allowHelicopters;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Reads the config.yml file as a <List> of <String> lines.
+	 * 
+	 * @return Returns a <List> of <String> lines.
+	 */
 	private static List<String> readConfigFile() {
 		try {
 			List<String> listString = new LinkedList<>();
@@ -588,6 +844,14 @@ public class Settings extends Printable {
 		return null;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Writes the config.yml File with a <List> of <String> lines.
+	 * 
+	 * @param lines
+	 *            The <List> of <String> lines to save.
+	 */
 	private static void writeConfigFile(List<String> lines) {
 		try {
 			FileWriter fw = new FileWriter("config.yml");
@@ -603,6 +867,15 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @param object
+	 *            The <Object> being interpreted.
+	 * @return Returns true if the Object identifies as a literal boolean primitive,
+	 *         a packaged <Boolean> Object, or a <String> that matches "1", "true",
+	 *         "yes", or "on".
+	 */
 	private static boolean getBoolean(Object object) {
 		if (object instanceof Boolean) {
 			return ((Boolean) object).booleanValue();
@@ -612,6 +885,11 @@ public class Settings extends Printable {
 		}
 	}
 
+	/**
+	 * @return Returns the singleton instance of the Settings class. If the
+	 *         singleton is not loaded, it is instantiated and loaded before
+	 *         returning the instance.
+	 */
 	public static Settings getInstance() {
 		if (instance == null) {
 			instance = new Settings();
@@ -619,6 +897,13 @@ public class Settings extends Printable {
 		return instance;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @param length
+	 *            The <Integer> count of spaces to add to the returned <String>.
+	 * @return Returns a valid YAML character sequence of spaces as a <String>.
+	 */
 	private static String getSpaces(int length) {
 		if (length < 0) {
 			throw new IllegalArgumentException("length given is less than 0.");
@@ -630,6 +915,14 @@ public class Settings extends Printable {
 		return string;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @param string
+	 *            The <String> being interpreted.
+	 * @return Returns the <Integer> count of spaces in front of any text in the
+	 *         given <String> line.
+	 */
 	private static int getLeadingSpaceCount(String string) {
 		if (string == null) {
 			throw new IllegalArgumentException("String given is null.");
@@ -649,6 +942,11 @@ public class Settings extends Printable {
 		return spaces;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @return Returns the <String> input from the console.
+	 */
 	private static String requestDatabaseURL() {
 		String databaseURL = null;
 		String input = null;
@@ -667,6 +965,11 @@ public class Settings extends Printable {
 		return databaseURL;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @return Returns the <String> input from the console.
+	 */
 	private static int requestDatabasePORT() {
 		Integer databasePORT = null;
 		String input = null;
@@ -700,6 +1003,11 @@ public class Settings extends Printable {
 		return databasePORT;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @return Returns the <String> input from the console.
+	 */
 	private static String requestDatabaseUsername() {
 		String databaseUsername = null;
 		String input = null;
@@ -718,6 +1026,11 @@ public class Settings extends Printable {
 		return databaseUsername;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @return Returns the <String> input from the console.
+	 */
 	private static String requestDatabasePassword() {
 		String databasePassword = null;
 		String input = null;
@@ -736,6 +1049,11 @@ public class Settings extends Printable {
 		return databasePassword;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @return Returns the <String> input from the console.
+	 */
 	private static String requestDatabaseDatabase() {
 		String databaseDatabase = null;
 		String input = null;
@@ -754,6 +1072,11 @@ public class Settings extends Printable {
 		return databaseDatabase;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @return Returns the <String> input from the console.
+	 */
 	private static String requestPZDedicatedServerDirectory() {
 		String pzDirectory = null;
 		String input = null;
@@ -778,10 +1101,32 @@ public class Settings extends Printable {
 		return pzDirectory.replace("\\", "/");
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * @param jar
+	 *            The <File> Object of the Jar File.
+	 * @param source
+	 *            The <String> source path inside the Jar File.
+	 * @return Returns a <InputStream> of the Jar File Entry.
+	 * @throws IOException
+	 */
 	private static InputStream getStream(File jar, String source) throws IOException {
 		return new URL("jar:file:" + jar.getAbsolutePath() + "!/" + source).openStream();
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Writes a Jar File Entry to the given destination File.
+	 * 
+	 * @param jar
+	 *            The <File> Object of the Jar File.
+	 * @param source
+	 *            The <String> source path inside the Jar File to the Entry.
+	 * @param destination
+	 *            The <File> destination to write the Jar File Entry.
+	 */
 	public static void write(File jar, String source, File destination) {
 		try {
 			InputStream is = getStream(jar, source);
