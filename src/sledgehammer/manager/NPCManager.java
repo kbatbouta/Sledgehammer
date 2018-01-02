@@ -21,18 +21,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.event.ConnectEvent;
-import sledgehammer.event.DisconnectEvent;
-import sledgehammer.event.Event;
-import sledgehammer.interfaces.EventListener;
-import sledgehammer.lua.core.Player;
+import sledgehammer.SledgeHammer;
 import sledgehammer.module.npc.ModuleNPC;
+import sledgehammer.module.npc.NPCConnectionListener;
 import sledgehammer.npc.action.Action;
 import sledgehammer.npc.action.ActionAttackCharacter;
 import sledgehammer.npc.action.ActionFollowTargetDirect;
 import sledgehammer.npc.action.ActionGrabItemOnGround;
-import zombie.core.raknet.UdpConnection;
-import zombie.network.GameServer;
 import zombie.sledgehammer.PacketHelper;
 import zombie.sledgehammer.npc.NPC;
 import zombie.sledgehammer.npc.action.ActionFollowTargetPath;
@@ -40,192 +35,39 @@ import zombie.sledgehammer.npc.action.ActionFollowTargetPath;
 /**
  * Manager class designed to handle NPC components, as well as update them.
  * 
- * TODO: Re-implement.
+ * TODO: Rewrite NPCs and remove the NPCManager.
  * 
  * @author Jab
  */
 public class NPCManager extends Manager {
 
+	/** The <String> name of the <Manager>. */
 	public static final String NAME = "NPCManager";
 
-	/**
-	 * Map containing all actions to influence NPCs.
-	 */
+	/** <Map> storing <Action>'s for <NPC>'s. */
 	private Map<String, Action> mapActions;
-
-	/**
-	 * Long variable to measure update-tick deltas.
-	 */
+	/** Long variable to measure update-tick deltas. */
 	private long timeThen;
-
-	/**
-	 * List of live NPC instances on the server.
-	 */
+	/** <List> of <NPC>'s alive on the server. */
 	private List<NPC> listNPCs;
-
+	/** The <ModuleNPC> instance in the Core plug-in. */
 	private ModuleNPC moduleNPC;
 
 	/**
 	 * EventListener to handle sending NPC data to connecting players.
 	 */
-	ConnectionListener connectionListener = null;
+	NPCConnectionListener connectionListener = null;
 
 	/**
 	 * Main constructor.
 	 */
 	public NPCManager() {
-
 		// Initialize Lists.
 		listNPCs = new ArrayList<>();
-
-		/*
-		 * // Initializes the NPC Core Actions. initializeActions();
-		 * 
-		 * // Event Listener for joining. SledgeHammer sledgeHammer =
-		 * SledgeHammer.instance; connectionListener = new ConnectionListener(this);
-		 * sledgeHammer.register(connectionListener);
-		 * 
-		 * moduleNPC = new ModuleNPC();
-		 * sledgeHammer.getModuleManager().registerModule(moduleNPC);
-		 */
-	}
-
-	/**
-	 * Initializes all default Actions for Behavior classes to use for NPCs.
-	 */
-	void initializeActions() {
-
-		// Initialize the Map.
-		mapActions = new HashMap<>();
-
-		// Register all Actions by the static 'NAME' field.
-		addAction(ActionAttackCharacter.NAME, new ActionAttackCharacter());
-		addAction(ActionGrabItemOnGround.NAME, new ActionGrabItemOnGround());
-		addAction(ActionFollowTargetPath.NAME, new ActionFollowTargetPath());
-		addAction(ActionFollowTargetDirect.NAME, new ActionFollowTargetDirect());
-
-	}
-
-	/**
-	 * Registers a NPC instance to the NPCManager.
-	 * 
-	 * @param npc
-	 * 
-	 * @return
-	 */
-	public NPC addNPC(NPC npc) {
-		npc = PacketHelper.addNPC(npc);
-		listNPCs.add(npc);
-		return npc;
-	}
-
-	/**
-	 * Destroys a NPC, unregistering it, and killing it in-game.
-	 * 
-	 * @param npc
-	 */
-	public void destroyNPC(NPC npc) {
-		PacketHelper.destroyNPC(npc);
-		listNPCs.remove(npc);
-	}
-
-	/**
-	 * Adds an Action instance to the list of Actions that a NPC can call to Act on.
-	 * 
-	 * @param name
-	 * 
-	 * @param action
-	 */
-	public void addAction(String name, Action action) {
-		mapActions.put(name, action);
-	}
-
-	/**
-	 * Returns an Action instance, based on the name given.
-	 * 
-	 * @param name
-	 * 
-	 * @return
-	 */
-	public Action getAction(String name) {
-		return mapActions.get(name);
-	}
-
-	/**
-	 * Returns the List of all the NPCs registered.
-	 * 
-	 * @return
-	 */
-	public List<NPC> getNPCS() {
-		return this.listNPCs;
-	}
-
-	/**
-	 * Destroys all active NPCs registered.
-	 */
-	public void destroyNPCs() {
-
-		for (NPC npc : listNPCs) {
-			destroyNPC(npc);
-		}
-
-	}
-
-	public ModuleNPC getModule() {
-		return moduleNPC;
-	}
-
-	/**
-	 * Implemented EventListener to assist the NPCManager to send NPC player info to
-	 * connecting Players, since NPCs do not have a UDPConnection instance.
-	 * 
-	 * @author Jab
-	 */
-	private class ConnectionListener implements EventListener {
-
-		NPCManager npcManager = null;
-
-		private ConnectionListener(NPCManager engine) {
-			this.npcManager = engine;
-		}
-
-		@Override
-		public String[] getTypes() {
-			return new String[] { ConnectEvent.ID, DisconnectEvent.ID };
-		}
-
-		@Override
-		public void onEvent(Event event) {
-			if (event.getID() == ConnectEvent.ID) {
-
-				ConnectEvent connectEvent = (ConnectEvent) event;
-
-				Player player = connectEvent.getPlayer();
-				UdpConnection connection = player.getConnection();
-
-				for (NPC npc : npcManager.getNPCS()) {
-					GameServer.sendPlayerConnect(npc, connection);
-				}
-			}
-		}
-
-		@Override
-		public boolean runSecondary() {
-			return false;
-		}
-	}
-
-	@Override
-	public String getName() {
-		return NAME;
-	}
-
-	@Override
-	public void onLoad(boolean debug) {
-	}
-
-	@Override
-	public void onStart() {
+		// Initializes the NPC Core Actions. initializeActions();
+		// Event Listener for joining.
+		connectionListener = new NPCConnectionListener(this);
+		SledgeHammer.instance.register(connectionListener);
 	}
 
 	/**
@@ -233,9 +75,7 @@ public class NPCManager extends Manager {
 	 */
 	@Override
 	public void onUpdate() {
-
 		List<NPC> listDead = new ArrayList<>();
-
 		for (int index = 0; index < listNPCs.size(); index++) {
 			NPC npc = listNPCs.get(index);
 			if (npc.isDead()) {
@@ -246,25 +86,106 @@ public class NPCManager extends Manager {
 				npc.postupdate();
 			}
 		}
-
 		// Remove the dead NPCs from the list.
 		for (NPC npc : listDead) {
 			listNPCs.remove(npc);
 		}
-
 		long timeNow = System.currentTimeMillis();
-
 		// Update the NPCs every 200ms.
 		if (timeNow - timeThen > 200) {
-
 			// Set the last time updated to now.
 			timeThen = timeNow;
-
 			PacketHelper.updateNPCs(listNPCs);
 		}
 	}
 
 	@Override
-	public void onShutDown() {
+	public String getName() {
+		return NAME;
+	}
+
+	/**
+	 * Initializes all default Actions for Behavior classes to use for NPCs.
+	 */
+	void initializeActions() {
+		// Initialize the Map.
+		mapActions = new HashMap<>();
+		// Register all Actions by the static 'NAME' field. @formatter:off
+		addAction(ActionAttackCharacter.NAME   , new ActionAttackCharacter()   );
+		addAction(ActionGrabItemOnGround.NAME  , new ActionGrabItemOnGround()  );
+		addAction(ActionFollowTargetPath.NAME  , new ActionFollowTargetPath()  );
+		addAction(ActionFollowTargetDirect.NAME, new ActionFollowTargetDirect());
+		// @formatter:on
+	}
+
+	/**
+	 * Registers a <NPC> Object to the <NPCManager>.
+	 * 
+	 * @param npc
+	 *            The <NPC> to add.
+	 * 
+	 * @return Returns the <NPC> given.
+	 */
+	public NPC addNPC(NPC npc) {
+		npc = PacketHelper.addNPC(npc);
+		listNPCs.add(npc);
+		return npc;
+	}
+
+	/**
+	 * Destroys a <NPC>, unregistering it and killing it in-game.
+	 * 
+	 * @param npc
+	 *            The <NPC> to destroy.
+	 */
+	public void destroyNPC(NPC npc) {
+		PacketHelper.destroyNPC(npc);
+		listNPCs.remove(npc);
+	}
+
+	/**
+	 * Adds an <Action> to the <Map> of Actions that a <NPC> can call to act on.
+	 * 
+	 * @param name
+	 *            The <String> name of the <Action>.
+	 * 
+	 * @param action
+	 *            The <Action> to add.
+	 */
+	public void addAction(String name, Action action) {
+		mapActions.put(name, action);
+	}
+
+	/**
+	 * @param name
+	 *            The <String> name of the Action.
+	 * 
+	 * @return Returns an Action instance, based on the name given.
+	 */
+	public Action getAction(String name) {
+		return mapActions.get(name);
+	}
+
+	/**
+	 * @return Returns a <List> of all <NPC>s registered in the <NPCManager>.
+	 */
+	public List<NPC> getNPCS() {
+		return this.listNPCs;
+	}
+
+	/**
+	 * Destroys all active <NPC>'s registered in the <NPCManager>.
+	 */
+	public void destroyNPCs() {
+		for (NPC npc : listNPCs) {
+			destroyNPC(npc);
+		}
+	}
+
+	/**
+	 * @return Returns the <ModuleNPC> instance in the Core plug-in.
+	 */
+	public ModuleNPC getModule() {
+		return moduleNPC;
 	}
 }
