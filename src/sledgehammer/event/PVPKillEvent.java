@@ -18,25 +18,31 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * Event to dispatch when a <Player> kills another <Player>.
+ * 
+ * @author Jab
+ */
 public class PVPKillEvent extends Event {
 
+	/** The String ID of the Event. */
 	public static final String ID = "PVPKillEvent";
 
+	/** The <Player> killed by the other <Player>. */
 	private Player playerKiller;
+	/** The <Player> killing the other <Player>. */
 	private Player playerKilled;
 
-	public PVPKillEvent(Player killer, Player killed) {
+	/**
+	 * Main constructor.
+	 * 
+	 * @param playerKiller
+	 * @param playerKilled
+	 */
+	public PVPKillEvent(Player playerKiller, Player playerKilled) {
 		super();
-		this.playerKiller = killer;
-		this.playerKilled = killed;
-	}
-
-	public Player getKiller() {
-		return this.playerKiller;
-	}
-
-	public Player getKilled() {
-		return this.playerKilled;
+		setKiller(playerKiller);
+		setKilled(playerKilled);
 	}
 
 	@Override
@@ -54,4 +60,42 @@ public class PVPKillEvent extends Event {
 	public String getID() {
 		return ID;
 	}
+
+	/**
+	 * @return Returns the <Player> killing the other Player.
+	 */
+	public Player getKiller() {
+		return this.playerKiller;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Player> killing the other Player.
+	 * 
+	 * @param playerKiller
+	 */
+	private void setKiller(Player playerKiller) {
+		this.playerKiller = playerKiller;
+	}
+
+	/**
+	 * @return Returns the <Player> killed by the other Player.
+	 */
+	public Player getKilled() {
+		return this.playerKilled;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Player> killed by the other Player.
+	 * 
+	 * @param playerKilled
+	 *            The <Player> to set.
+	 */
+	private void setKilled(Player playerKilled) {
+		this.playerKilled = playerKilled;
+	}
+
 }
