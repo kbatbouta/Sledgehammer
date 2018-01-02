@@ -251,6 +251,9 @@ public class SledgeHammer extends Printable {
 		return returned;
 	}
 
+	/**
+	 * @return Returns the <String> message to send when a permission is denied.
+	 */
 	public String getPermissionDeniedMessage() {
 		return Settings.getInstance().getPermissionDeniedMessage();
 	}
@@ -857,7 +860,7 @@ public class SledgeHammer extends Printable {
 	public void sendServerCommand(Player player, String module, String command, KahluaTable kahluaTable) {
 		GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());
 	}
-	
+
 	/**
 	 * Sets the <PermissionListener> that handles Permission checks and assignments.
 	 * 
