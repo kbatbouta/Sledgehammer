@@ -18,10 +18,22 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * PlayerEvent that is passed when a <Player> connected to the PZ server.
+ * 
+ * @author Jab
+ */
 public class ConnectEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "ConnectEvent";
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> connecting to the PZ server.
+	 */
 	public ConnectEvent(Player player) {
 		super(player);
 	}
@@ -35,5 +47,4 @@ public class ConnectEvent extends PlayerEvent {
 	public String getID() {
 		return ID;
 	}
-
 }
