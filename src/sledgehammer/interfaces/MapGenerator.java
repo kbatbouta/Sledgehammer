@@ -22,6 +22,4 @@ package sledgehammer.interfaces;
  * @author Jab
  */
 public interface MapGenerator {
-	// public Chunk generateChunk(int x, int y);
-	// public Cell generateCell(int wx, int wy);
 }
