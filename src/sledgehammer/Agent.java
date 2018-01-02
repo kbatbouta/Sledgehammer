@@ -29,21 +29,42 @@ import java.util.jar.JarFile;
 
 import sledgehammer.util.CreateJarFile;
 
+/**
+ * Java-Agent to handle Craftboid assembly of the ProjectZomboid envrionment for
+ * Sledgehammer.
+ * 
+ * @author Jab
+ */
 public class Agent {
 
+	/**
+	 * Premain entry point for Sledgehammer. Handles the pre-main operations for
+	 * Craftboid.
+	 * 
+	 * @param args
+	 *            The Java arguments.
+	 * @param inst
+	 *            The Java Instrumentation Object passed to the pre-main Agent
+	 *            exclusively.
+	 */
 	public static void premain(String args, Instrumentation inst) {
-		new File("natives/").mkdirs();
-		new File("saves/").mkdirs();
-		new File("plugins/").mkdirs();
-		new File("settings/").mkdirs();
+		// Make sure that the Sledgehammer folders exist. @formatter:off
+		new File("natives/"  ).mkdirs();
+		new File("saves/"    ).mkdirs();
+		new File("plugins/"  ).mkdirs();
+		new File("settings/" ).mkdirs();
 		new File("steamapps/").mkdirs();
+		// @formatter:on
 		File craftboid = new File("natives/CraftBoid.jar");
-		Settings.getInstance();
-		String pzDirectory = Settings.getInstance().getPZServerDirectory();
+		// Load the Settings for Sledgehammer.
+		Settings settings = Settings.getInstance();
+		// Grab the PZ dedicated server directory.
+		String pzDirectory = settings.getPZServerDirectory();
 		pzDirectory = pzDirectory.replace("\\", "/");
 		if (pzDirectory.endsWith("/")) {
 			pzDirectory = pzDirectory.substring(0, pzDirectory.length() - 1);
 		}
+		// Tell the console the registered PZ directory.
 		System.out.println("CraftBoid: PZDirectory: \"" + pzDirectory + "\"");
 		String _classDir = pzDirectory + "/java";
 		String _nativeDir = pzDirectory + "/natives";
@@ -58,7 +79,6 @@ public class Agent {
 				new File(pzDirectory + "/steamclient64.dll"), new File(pzDirectory + "/tier0_s.dll"),
 				new File(pzDirectory + "/tier0_s64.dll"), new File(pzDirectory + "/vstdlib_s.dll"),
 				new File(pzDirectory + "/vstdlib_s64.dll"),
-
 				// JARS
 				new File(_classDir + "/jinput.jar"), new File(_classDir + "/lwjgl.jar"),
 				new File(_classDir + "/lwjgl_util.jar"), new File(_classDir + "/sqlite-jdbc-3.8.10.1.jar"),
@@ -106,7 +126,7 @@ public class Agent {
 						System.out.println("Craftboid: Copied " + file + "...");
 					}
 				} else {
-					copyFolder(from, dest, pzDirectory);
+					copyFolder(from, dest);
 				}
 			}
 		} catch (IOException e) {
@@ -114,7 +134,16 @@ public class Agent {
 		}
 	}
 
-	public static void copyFolder(File src, File dest, String slice) throws IOException {
+	/**
+	 * Copies a <File> source directory to a <File> destination directory.
+	 * 
+	 * @param src
+	 *            The <File> source directory to copy.
+	 * @param dest
+	 *            The <File> destination directory to copy to.
+	 * @throws IOException
+	 */
+	public static void copyFolder(File src, File dest) throws IOException {
 		if (src.isDirectory()) {
 			// if directory not exists, create it
 			if (!dest.exists()) {
@@ -128,7 +157,7 @@ public class Agent {
 				File srcFile = new File(src, file);
 				File destFile = new File(dest, file);
 				// recursive copy
-				copyFolder(srcFile, destFile, slice);
+				copyFolder(srcFile, destFile);
 			}
 		} else {
 			if (!dest.exists() || dest.length() != src.length()) {
