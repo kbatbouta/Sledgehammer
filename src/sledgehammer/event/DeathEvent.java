@@ -18,10 +18,22 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * PlayerEvent to pass when a <Player> dies.
+ * 
+ * @author Jab
+ */
 public class DeathEvent extends PlayerEvent {
 
+	/** The String ID of the Event. */
 	public static final String ID = "DeathEvent";
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> that died.
+	 */
 	public DeathEvent(Player player) {
 		super(player);
 	}
@@ -35,5 +47,4 @@ public class DeathEvent extends PlayerEvent {
 	public String getID() {
 		return ID;
 	}
-
 }
