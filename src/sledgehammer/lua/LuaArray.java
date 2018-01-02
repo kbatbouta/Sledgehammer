@@ -22,31 +22,48 @@ import java.util.List;
 import se.krka.kahlua.vm.KahluaTable;
 
 /**
- * TODO: Document.
+ * A very convenient <LuaObject> that stores elements as an <ArrayList>,
+ * allowing exporting into proper <KahluaTable>'s without any boilerplate code.
  * 
  * @author Jab
  *
  * @param <T>
+ *            The Serialized Class to be defined for the Array.
  */
 public class LuaArray<T> extends LuaObject {
 
+	/** The <List> to store the Elements. */
 	private List<T> array;
 
+	/**
+	 * Main constructor.
+	 */
 	public LuaArray() {
 		super("Array");
 		array = new LinkedList<>();
 	}
 
+	/**
+	 * Clone constructor.
+	 * 
+	 * @param other
+	 *            The other <List> to shallow-copy.
+	 */
 	public LuaArray(List<T> other) {
 		super("Array");
 		array = new LinkedList<>(other);
 	}
 
+	/**
+	 * KahluaTable constructor.
+	 * 
+	 * @param table
+	 *            The <KahluaTable> to convert to a <LuaArray>.
+	 */
 	@SuppressWarnings("unchecked")
 	public LuaArray(KahluaTable table) {
 		super("Array");
 		array = new LinkedList<>();
-
 		for (int index = 0; index < table.size(); index++) {
 			Object nextObject = table.rawget(index);
 			if (nextObject != null) {
@@ -55,6 +72,12 @@ public class LuaArray<T> extends LuaObject {
 		}
 	}
 
+	/**
+	 * Primitive Array constructor.
+	 * 
+	 * @param args
+	 *            The Array of values to convert to a <LuaArray>.
+	 */
 	public LuaArray(T[] args) {
 		super("Array");
 		for (T t : args) {
@@ -62,29 +85,8 @@ public class LuaArray<T> extends LuaObject {
 		}
 	}
 
-	public void add(T t) {
-		if (!array.contains(t)) {
-			array.add(t);
-		}
-	}
-
-	public void remove(T t) {
-		if (array.contains(t)) {
-			array.remove(t);
-		}
-	}
-
-	public T get(int index) {
-		return array.get(index);
-	}
-
 	@Override
 	public KahluaTable export() {
-
-		if (DEBUG) {
-			println("Exporting LuaArray: " + getName());
-		}
-
 		KahluaTable outTable = newTable();
 		for (int index = 0; index < array.size(); index++) {
 			Object value = processValue(array.get(index));
@@ -93,21 +95,69 @@ public class LuaArray<T> extends LuaObject {
 		return outTable;
 	}
 
+	/**
+	 * Adds an Element to the <LuaArray>.
+	 * 
+	 * @param t
+	 *            The element to add.
+	 */
+	public void add(T t) {
+		if (!array.contains(t)) {
+			array.add(t);
+		}
+	}
+
+	/**
+	 * Removes an element from the <LuaArray>.
+	 * 
+	 * @param t
+	 *            The element to remove.
+	 */
+	public void remove(T t) {
+		if (array.contains(t)) {
+			array.remove(t);
+		}
+	}
+
+	/**
+	 * @param index
+	 *            The int offset in the Array.
+	 * @return Returns the element located at the index of the Array. If nothing is
+	 *         defined at this index, null is returned.
+	 */
+	public T get(int index) {
+		return array.get(index);
+	}
+
+	/**
+	 * @return Returns the <Integer> length of the <LuaArray>.
+	 */
 	public int size() {
 		return array.size();
 	}
 
-	@SuppressWarnings("unchecked")
-	public T[] toArray() {
+	/**
+	 * @return Returns a primitive Array of the elements stored in the <LuaArray>.
+	 */
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public <T> T[] toArray() {
 		Object[] array = new Object[this.array.size()];
 		array = this.array.toArray(array);
 		return (T[]) array;
 	}
-	
+
+	/**
+	 * @param element
+	 *            The element being tested.
+	 * @return Returns true if the element given is contained within the <LuaArray>.
+	 */
 	public boolean contains(T element) {
 		return array.contains(element);
 	}
 
+	/**
+	 * Clears the <LuaArray>.
+	 */
 	public void clear() {
 		array.clear();
 	}
