@@ -81,5 +81,4 @@ public abstract class Manager extends Printable {
 	public ModuleCore getCoreModule() {
 		return SledgeHammer.instance.getPluginManager().getCoreModule();
 	}
-
 }
