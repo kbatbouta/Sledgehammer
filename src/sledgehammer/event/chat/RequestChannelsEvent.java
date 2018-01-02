@@ -14,11 +14,12 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 */
-package sledgehammer.event;
+package sledgehammer.event.chat;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import sledgehammer.event.PlayerEvent;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 

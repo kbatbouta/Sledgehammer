@@ -32,6 +32,7 @@ public class PostConnectEvent extends PlayerEvent {
 	 * Main constructor.
 	 * 
 	 * @param player
+	 *            The <Player> connected to the PZ server.
 	 */
 	public PostConnectEvent(Player player) {
 		super(player);

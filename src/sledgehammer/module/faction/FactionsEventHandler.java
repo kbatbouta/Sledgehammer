@@ -23,7 +23,7 @@ import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.PlayerCreatedEvent;
-import sledgehammer.event.RequestChannelsEvent;
+import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Color;

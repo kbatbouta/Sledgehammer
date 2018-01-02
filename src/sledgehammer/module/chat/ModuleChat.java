@@ -20,7 +20,7 @@ import sledgehammer.event.ClientEvent;
 import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.RequestChannelsEvent;
+import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.chat.ChatChannel;
