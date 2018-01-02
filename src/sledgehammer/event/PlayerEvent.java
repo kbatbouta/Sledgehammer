@@ -18,21 +18,50 @@ package sledgehammer.event;
 
 import sledgehammer.lua.core.Player;
 
+/**
+ * Abstract <Event> that associates a <Player> with player-oriented Events in
+ * the Sledgehammer engine.
+ * 
+ * @author Jab
+ */
 public abstract class PlayerEvent extends Event {
 
+	/** The String ID of the Event. */
 	public static final String ID = "PlayerEvent";
 
+	/** The <Player> associated with the <PlayerEvent>. */
 	private Player player;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param player
+	 *            The <Player> associated with the <PlayerEvent>.
+	 */
 	public PlayerEvent(Player player) {
 		super();
-		if (player == null)
+		if (player == null) {
 			throw new IllegalArgumentException("Player is null!");
-		this.player = player;
+		}
+		setPlayer(player);
 	}
 
+	/**
+	 * @return Returns the <Player> associated with the <PlayerEvent>.
+	 */
 	public Player getPlayer() {
 		return this.player;
 	}
 
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <Player> associated with the <PlayerEvent>.
+	 * 
+	 * @param player
+	 *            The <Player> to set.
+	 */
+	private void setPlayer(Player player) {
+		this.player = player;
+	}
 }
