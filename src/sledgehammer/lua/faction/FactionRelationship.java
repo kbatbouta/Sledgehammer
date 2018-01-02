@@ -18,20 +18,26 @@ package sledgehammer.lua.faction;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.faction.MongoFactionRelationship;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.MongoLuaObject;
 
 /**
+ * MongoLuaObject that handles faction relationships data and operations for the
+ * Factions Module.
+ * 
  * TODO: Implement.
  * 
  * @author Jab
  */
-public class FactionRelationship extends LuaTable {
+public class FactionRelationship extends MongoLuaObject<MongoFactionRelationship> {
 
-	private MongoFactionRelationship mongoFactionRelationship;
-
-	public FactionRelationship(MongoFactionRelationship mongoFactionRelationship) {
-		super("FactionRelationship");
-		setMongoDocument(mongoFactionRelationship);
+	/**
+	 * Main constructor.
+	 * 
+	 * @param mongoDocument
+	 *            The <MongoDocument> to set.
+	 */
+	public FactionRelationship(MongoFactionRelationship mongoDocument) {
+		super(mongoDocument, "FactionRelationship");
 	}
 
 	@Override
@@ -42,13 +48,5 @@ public class FactionRelationship extends LuaTable {
 	@Override
 	public void onExport() {
 		// TODO: Implement
-	}
-
-	public MongoFactionRelationship getMongoDocument() {
-		return this.mongoFactionRelationship;
-	}
-
-	private void setMongoDocument(MongoFactionRelationship mongoFactionRelationship) {
-		this.mongoFactionRelationship = mongoFactionRelationship;
 	}
 }
