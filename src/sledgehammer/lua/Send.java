@@ -19,36 +19,66 @@ package sledgehammer.lua;
 import se.krka.kahlua.vm.KahluaTable;
 
 /**
- * TODO: Document.
+ * LuaTable sub-class to identify the <String> Client ID of the <Module> being
+ * interfaced and the String command to identify the sub-routine to interface.
  * 
  * @author Jab
  */
 public abstract class Send extends LuaTable {
 
+	/** The <String> Client ID of the <Module>. */
 	private String module;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param module
+	 *            The <String> Client ID of the <Module>.
+	 * @param command
+	 *            The <String> command to identify the sub-routine to interface.
+	 */
 	public Send(String module, String command) {
 		super(command);
 		setModule(module);
 	}
 
-	private void setModule(String module) {
-		this.module = module;
-	}
-
-	public String getModule() {
-		return this.module;
-	}
-
-	public String getCommand() {
-		return getName();
-	}
-
+	@Override
 	public String toString() {
 		return this.getClass().getSimpleName() + ": Module=" + getModule() + "; Command=" + getCommand() + ";";
 	}
 
-	// Server authored only.
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <String> Client ID of the <Module>.
+	 * 
+	 * @param module
+	 *            The <String> module to set.
+	 */
+	private void setModule(String module) {
+		this.module = module;
+	}
+
+	/**
+	 * @return Returns the <String> Client ID of the <Module>.
+	 */
+	public String getModule() {
+		return this.module;
+	}
+
+	/**
+	 * @return Returns the <String> command to identify the sub-routine to
+	 *         interface.
+	 */
+	public String getCommand() {
+		return getName();
+	}
+
+	/**
+	 * Loads a sent <LuaObject> as a <KahluaTable>.
+	 * 
+	 * (Note: Server authored only)
+	 */
 	public void onLoad(KahluaTable table) {
 	}
 }
