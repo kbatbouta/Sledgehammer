@@ -33,36 +33,58 @@ import java.util.Map;
 import zombie.GameWindow;
 
 /**
- * TODO: Document.
+ * Module sub-class to handle SQLite operations and utilities.
  * 
  * @author Jab
  */
 public abstract class SQLiteModule extends Module {
-	private Connection connection = null;
 
-	public static final String SQL_STORAGE_CLASS_NULL = "NULL";
-	public static final String SQL_STORAGE_CLASS_TEXT = "TEXT";
-	public static final String SQL_STORAGE_CLASS_REAL = "REAL";
+	// @formatter:off
+	public static final String SQL_STORAGE_CLASS_NULL    = "NULL"   ;
+	public static final String SQL_STORAGE_CLASS_TEXT    = "TEXT"   ;
+	public static final String SQL_STORAGE_CLASS_REAL    = "REAL"   ;
 	public static final String SQL_STORAGE_CLASS_INTEGER = "INTEGER";
-	public static final String SQL_STORAGE_CLASS_BLOB = "BLOB";
-
-	public static final String SQL_AFFINITY_TYPE_TEXT = "TEXT";
+	public static final String SQL_STORAGE_CLASS_BLOB    = "BLOB"   ;
+	public static final String SQL_AFFINITY_TYPE_TEXT    = "TEXT"   ;
 	public static final String SQL_AFFINITY_TYPE_NUMERIC = "NUMERIC";
 	public static final String SQL_AFFINITY_TYPE_INTEGER = "INTEGER";
-	public static final String SQL_AFFINITY_TYPE_REAL = "REAL";
-	public static final String SQL_STORAGE_CLASS_NONE = "NONE";
+	public static final String SQL_AFFINITY_TYPE_REAL    = "REAL"   ;
+	public static final String SQL_STORAGE_CLASS_NONE    = "NONE"   ;
+	// @formatter:on
 
+	/** The <File> Object of the SQLIte database File. */
+	private File dbFile;
+
+	/** The SQLite connection. */
+	private Connection connection = null;
+
+	/**
+	 * Main constructor.
+	 * 
+	 * @param connection
+	 *            The <Connection> of the SQLite database File.
+	 */
 	public SQLiteModule(Connection connection) {
 		this.connection = connection;
 	}
 
-	private File dbFile;
-
+	/**
+	 * Alternative constructor.
+	 * 
+	 * @param fileName
+	 *            The <String> path to the SQLite database File.
+	 */
 	public SQLiteModule(String fileName) {
 		super();
 		establishConnection(fileName);
 	}
 
+	/**
+	 * Alternative constructor.
+	 * 
+	 * @param file
+	 *            The <File> Object of the SQLite database File.
+	 */
 	public SQLiteModule(File file) {
 		if (file == null) {
 			throw new IllegalArgumentException("File is null!");
@@ -70,6 +92,13 @@ public abstract class SQLiteModule extends Module {
 		dbFile = file;
 	}
 
+	/**
+	 * Establishes the <Connection> handle for the SQLite database File.
+	 * 
+	 * @param fileName
+	 *            The <String> name of the <File> Object for the SQLite database
+	 *            File.
+	 */
 	public void establishConnection(String fileName) {
 		if (fileName == null || fileName.isEmpty()) {
 			throw new IllegalArgumentException("Database File name is null or empty!");
@@ -89,9 +118,14 @@ public abstract class SQLiteModule extends Module {
 		establishConnection();
 	}
 
+	/**
+	 * Establishes the <Connection> handle for the SQLite database File defined for
+	 * the SQLiteModule.
+	 */
 	public void establishConnection() {
-		if (dbFile == null)
+		if (dbFile == null) {
 			throw new IllegalStateException("Database File has not been defined yet!");
+		}
 		dbFile.setReadable(true, false);
 		dbFile.setExecutable(true, false);
 		dbFile.setWritable(true, false);
@@ -107,6 +141,11 @@ public abstract class SQLiteModule extends Module {
 		setConnection(connection);
 	}
 
+	/**
+	 * Returns the schema version of the SQLite database File.
+	 * 
+	 * @return Returns the <Integer> value of the schema version.
+	 */
 	public int getSchemaVersion() {
 		PreparedStatement statement;
 		try {
@@ -122,6 +161,14 @@ public abstract class SQLiteModule extends Module {
 		return -1;
 	}
 
+	/**
+	 * Sets the schema version of the SQLite database File.
+	 * 
+	 * @param version
+	 *            The <Integer> version to set.
+	 * @return Returns true if the schema version is successfully applied to the
+	 *         SQLite database File.
+	 */
 	public boolean setSchemaVersion(int version) {
 		try {
 			PreparedStatement statement = prepareStatement("PRAGMA user_version = " + version);
@@ -134,15 +181,29 @@ public abstract class SQLiteModule extends Module {
 		return false;
 	}
 
+	/**
+	 * @param table
+	 *            The SQLite table to count.
+	 * @return Returns the <Integer> amount of rows in the given SQLite table.
+	 * @throws SQLException
+	 */
 	public int getRowCount(String table) throws SQLException {
 		PreparedStatement statement = prepareStatement("SELECT COUNT(*) FROM " + table);
 		ResultSet set = statement.executeQuery();
 		int count = 0;
-		while (set.next())
+		while (set.next()) {
 			count++;
+		}
 		return count;
 	}
 
+	/**
+	 * @param table
+	 *            The 2D String Array of the table definition to check.
+	 * @param fieldName
+	 *            The <String> field name to test.
+	 * @return Returns true if the field exists in the given SQLite table.
+	 */
 	public boolean doesFieldExist(String[][] table, String fieldName) {
 		for (String[] field : table) {
 			if (field != null && field[0] != null && field[0].equalsIgnoreCase(fieldName)) {
@@ -152,6 +213,16 @@ public abstract class SQLiteModule extends Module {
 		return false;
 	}
 
+	/**
+	 * @param table
+	 *            The 2D String Array of the table definition to check.
+	 * @param fieldName
+	 *            The <String> field name to test.
+	 * @param type
+	 *            The <String> type to verify.
+	 * @return Returns true if the field exists in the given SQLite table, and that
+	 *         it is the type given.
+	 */
 	public boolean doesFieldExistWithType(String[][] table, String fieldName, String type) {
 		for (String[] field : table) {
 			if (field != null && field[0] != null && field[0].equalsIgnoreCase(fieldName)) {
@@ -161,21 +232,52 @@ public abstract class SQLiteModule extends Module {
 		return false;
 	}
 
+	/**
+	 * Adds a column to the given table if it does not exists.
+	 * 
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param fieldName
+	 *            The <String> field name of the column being tested.
+	 * @param type
+	 *            The <String> type the column represents in the SQLite table.
+	 * @throws SQLException
+	 */
 	public void addTableColumnIfNotExists(String tableName, String fieldName, String type) throws SQLException {
 		String[][] tableDefinition = getTableDefinitions(tableName);
 		if (!doesFieldExistWithType(tableDefinition, fieldName, type)) {
-			Statement statement = createStatement();
-			statement.executeUpdate("ALTER TABLE " + tableName + " ADD COLUMN " + fieldName + " " + type);
-			statement.close();
+			addTableColumn(tableName, fieldName, type);
 		}
 	}
 
+	/**
+	 * Adds a column to the given table.
+	 * 
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param fieldName
+	 *            The <String> field name of the column being tested.
+	 * @param type
+	 *            The <String> type the column represents in the SQLite table.
+	 * @throws SQLException
+	 */
 	public void addTableColumn(String tableName, String fieldName, String type) throws SQLException {
 		Statement statement = createStatement();
 		statement.executeUpdate("ALTER TABLE " + tableName + " ADD COLUMN " + fieldName + " " + type);
 		statement.close();
 	}
 
+	/**
+	 * Renames a column on a SQLite table.
+	 * 
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param fieldName
+	 *            The <String> name of the column to change.
+	 * @param fieldNameNew
+	 *            The <String> name to set for the column.
+	 * @throws SQLException
+	 */
 	public void renameTableColumn(String tableName, String fieldName, String fieldNameNew) throws SQLException {
 		String[][] table = getTableDefinitions(tableName);
 		String tableNameBackup = tableName + "_backup";
@@ -218,6 +320,11 @@ public abstract class SQLiteModule extends Module {
 		statement.close();
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @return Returns a 2D <String> Array definition of the SQlite table.
+	 */
 	public String[][] getTableDefinitions(String tableName) {
 		List<String[]> arrayBuilder = new ArrayList<>();
 		PreparedStatement statement = null;
@@ -251,6 +358,16 @@ public abstract class SQLiteModule extends Module {
 		}
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param targetName
+	 *            The <String> column name in the SQLite table to grab for each row
+	 *            definition.
+	 * @return Returns a <List> of <String> definitions for each row in the SQLite
+	 *         table column targeted.
+	 * @throws SQLException
+	 */
 	public List<String> getAll(String tableName, String targetName) throws SQLException {
 		PreparedStatement statement;
 		List<String> list = new ArrayList<>();
@@ -264,6 +381,16 @@ public abstract class SQLiteModule extends Module {
 		return list;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param targetNames
+	 *            The <List> of <String> names of the target columns in the SQLite
+	 *            table to grab.
+	 * @return Returns a <Map> of <String> column names, that points to a <List> of
+	 *         <String> definitions for each row in the SQLite table.
+	 * @throws SQLException
+	 */
 	public Map<String, List<String>> getAll(String tableName, String[] targetNames) throws SQLException {
 		// Create a Map to store each field respectively in lists.
 		Map<String, List<String>> map = new HashMap<>();
@@ -296,13 +423,15 @@ public abstract class SQLiteModule extends Module {
 	 * Returns a map of the first matched row of a given table.
 	 * 
 	 * @param tableName
-	 * 
+	 *            The <String> name of the SQLite table.
 	 * @param matchName
-	 * 
+	 *            The <String> name of the column of the table to search for the
+	 *            value given.
 	 * @param matchValue
-	 * 
-	 * @return
-	 * 
+	 *            The <String> value given for the column to match.
+	 * @return Returns the <Map> definition of the row definition in the SQLite
+	 *         table with each <String> column as the key, and the <String>
+	 *         definition as the value.
 	 * @throws SQLException
 	 */
 	public Map<String, String> getRow(String tableName, String matchName, String matchValue) throws SQLException {
@@ -333,9 +462,15 @@ public abstract class SQLiteModule extends Module {
 	 * Returns a map of the first matched row of a given table.
 	 * 
 	 * @param tableName
-	 * @param matchName
-	 * @param matchValue
-	 * @return
+	 *            The <String> name of the SQLite table.
+	 * @param matchNames
+	 *            A <List> of <String> names of the columns of the table to match.
+	 * @param matchValues
+	 *            The <List> of <String> values of the columns to match. (This must
+	 *            be the same length as the <List> prior.
+	 * @return Returns a <Map> of the first row that matches the column definitions
+	 *         given with each <String> column as the key, and the <String>
+	 *         definition as the value.
 	 * @throws SQLException
 	 */
 	public Map<String, String> getRow(String tableName, String[] matchNames, String[] matchValues) throws SQLException {
@@ -366,6 +501,21 @@ public abstract class SQLiteModule extends Module {
 		return map;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column of the table to match.
+	 * @param matchValue
+	 *            The <String> value of the column to match.
+	 * @param targetNames
+	 *            A <String> Array of target columns to retrieve definitions.
+	 * @return Returns a <Map> of all rows with the target column matching the value
+	 *         given. The Map stores each targeted column as the key to a List of
+	 *         <String> definitions for each defined column in the given Array
+	 *         sequentially.
+	 * @throws SQLException
+	 */
 	public Map<String, List<String>> getAll(String tableName, String matchName, String matchValue, String[] targetNames)
 			throws SQLException {
 		// Create a Map to store each field respectively in lists.
@@ -397,6 +547,18 @@ public abstract class SQLiteModule extends Module {
 		return map;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column name to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @param targetName
+	 *            The <String> target column definition to return.
+	 * @return Returns a <List> of <String> definitions for the target column.
+	 * @throws SQLException
+	 */
 	public List<String> getAll(String tableName, String matchName, String matchValue, String targetName)
 			throws SQLException {
 		PreparedStatement statement;
@@ -412,6 +574,19 @@ public abstract class SQLiteModule extends Module {
 		return list;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @param targetName
+	 *            The <String> targeted column to return.
+	 * @return Returns the <String> value of the first matched row in the table with
+	 *         the given column target with the value provided.
+	 * @throws SQLException
+	 */
 	public String get(String tableName, String matchName, String matchValue, String targetName) throws SQLException {
 		PreparedStatement statement;
 		statement = prepareStatement(
@@ -428,6 +603,17 @@ public abstract class SQLiteModule extends Module {
 		return null;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @return Returns true if the table contains a row that matches the value
+	 *         without being case-sensitive.
+	 * @throws SQLException
+	 */
 	public boolean hasIgnoreCase(String tableName, String matchName, String matchValue) throws SQLException {
 		PreparedStatement statement;
 		if (matchValue == null) {
@@ -448,6 +634,17 @@ public abstract class SQLiteModule extends Module {
 		return false;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @return Returns true if the table contains a row that matches the value.
+	 *         (Case-Sensitive)
+	 * @throws SQLException
+	 */
 	public boolean has(String tableName, String matchName, String matchValue) throws SQLException {
 		PreparedStatement statement;
 		if (matchValue == null) {
@@ -466,6 +663,18 @@ public abstract class SQLiteModule extends Module {
 		return false;
 	}
 
+	/**
+	 * @param tableName
+	 *            The <String> name of the SQLite table.
+	 * @param matchNames
+	 *            A <String> Array of the columns to match.
+	 * @param matchValues
+	 *            A <String> Array of the definitions to match. (The Array must be
+	 *            the same length of the prior)
+	 * @return Returns true if the table contains a row that matches all columns and
+	 *         the definitions provided.
+	 * @throws SQLException
+	 */
 	public boolean has(String tableName, String[] matchNames, String[] matchValues) throws SQLException {
 		PreparedStatement statement;
 		if (matchNames == null) {
@@ -496,6 +705,22 @@ public abstract class SQLiteModule extends Module {
 		return false;
 	}
 
+	/**
+	 * Sets a definition for each SQLite table row with the provided required column
+	 * definitions.
+	 * 
+	 * @param table
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @param targetName
+	 *            The <String> targeted column to define.
+	 * @param targetValue
+	 *            The <String> definition to set.
+	 * @throws SQLException
+	 */
 	public void set(String table, String matchName, String matchValue, String targetName, String targetValue)
 			throws SQLException {
 		if (has(table, matchName, matchValue)) {
@@ -505,24 +730,54 @@ public abstract class SQLiteModule extends Module {
 		}
 	}
 
-	public void set(String table, String identifierField, String identifierValue, String[] fields, String[] values)
+	/**
+	 * Sets a list of definitions for each SQLite table row with the provided
+	 * required column definitions
+	 * 
+	 * @param table
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @param fields
+	 *            A <String> Array of columns to define.
+	 * @param values
+	 *            A <String> Array of definitions to set.
+	 * @throws SQLException
+	 */
+	public void set(String table, String matchName, String matchValue, String[] fields, String[] values)
 			throws SQLException {
-		if (has(table, identifierField, identifierValue)) {
-			update(table, identifierField, identifierValue, fields, values);
+		if (has(table, matchName, matchValue)) {
+			update(table, matchName, matchValue, fields, values);
 		} else {
 			insert(table, fields, values);
 		}
 	}
 
-	private void update(String table, String identifierField, String identifierValue, String[] fields,
-			String[] values) {
+	/**
+	 * Updates all rows on a SQLite table that matches the column definitions with
+	 * the definitions provided.
+	 * 
+	 * @param table
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @param fields
+	 *            A <String> Array of columns to define.
+	 * @param values
+	 *            A <String> Array of definitions to set.
+	 */
+	private void update(String table, String matchName, String matchValue, String[] fields, String[] values) {
 		String setString = "";
 		for (int index = 0; index < fields.length; index++) {
 			setString += fields[index] + " = \"" + values[index] + "\",";
 		}
 		setString = setString.substring(0, setString.length() - 1);
-		String query = "UPDATE " + table + " SET " + setString + " WHERE " + identifierField.length() + " = \""
-				+ identifierValue.length() + ";";
+		String query = "UPDATE " + table + " SET " + setString + " WHERE " + matchName.length() + " = \""
+				+ matchValue.length() + ";";
 		PreparedStatement statement = null;
 		try {
 			statement = prepareStatement(query);
@@ -539,6 +794,22 @@ public abstract class SQLiteModule extends Module {
 		}
 	}
 
+	/**
+	 * Updates all rows on a SQLite table that matches the column definitions with
+	 * the definitions provided.
+	 * 
+	 * @param table
+	 *            The <String> name of the SQLite table.
+	 * @param matchName
+	 *            The <String> column to match.
+	 * @param matchValue
+	 *            The <String> definition to match.
+	 * @param targetName
+	 *            The <String> column to define.
+	 * @param targetValue
+	 *            The <String> definition to set.
+	 * @throws SQLException
+	 */
 	public void update(String table, String matchName, String matchValue, String targetName, String targetValue)
 			throws SQLException {
 		String stringStatement = "UPDATE " + table + " SET " + targetName + " = ? WHERE " + matchName + " = ?";
@@ -549,6 +820,17 @@ public abstract class SQLiteModule extends Module {
 		statement.close();
 	}
 
+	/**
+	 * Inserts a row into a SQLite table.
+	 * 
+	 * @param table
+	 *            The <String> name of the SQLite table.
+	 * @param names
+	 *            The <String> columns to define.
+	 * @param values
+	 *            The <String> definitions to set.
+	 * @throws SQLException
+	 */
 	public void insert(String table, String[] names, String[] values) throws SQLException {
 		String nameBuild = "(";
 		for (String name : names) {
@@ -569,22 +851,48 @@ public abstract class SQLiteModule extends Module {
 		statement.close();
 	}
 
-	public void setConnection(Connection connection) {
-		this.connection = connection;
-	}
-
-	public String getDBCacheDirectory() {
-		return GameWindow.getCacheDir() + File.separator + "db" + File.separator;
-	}
-
+	/**
+	 * @return Returns the <Connection> to the SQLite database File.
+	 */
 	public Connection getConnection() {
 		return this.connection;
 	}
 
+	/**
+	 * Sets the <Connection> to the SQLite database File.
+	 * 
+	 * @param connection
+	 *            The <Connection> to set.
+	 */
+	public void setConnection(Connection connection) {
+		this.connection = connection;
+	}
+
+	/**
+	 * @return Returns the <String> path to the SQLite database directory.
+	 */
+	public String getDBCacheDirectory() {
+		return GameWindow.getCacheDir() + File.separator + "db" + File.separator;
+	}
+
+	/**
+	 * Short-hand of a PreparedStatement declaration.
+	 * 
+	 * @param query
+	 *            The <String> SQL query.
+	 * @return Returns a <PreparedStatement> Object.
+	 * @throws SQLException
+	 */
 	public PreparedStatement prepareStatement(String query) throws SQLException {
 		return getConnection().prepareStatement(query);
 	}
 
+	/**
+	 * Short-hand of a Statement declaration.
+	 * 
+	 * @return Returns a <Statement> Object.
+	 * @throws SQLException
+	 */
 	public Statement createStatement() throws SQLException {
 		return getConnection().createStatement();
 	}
