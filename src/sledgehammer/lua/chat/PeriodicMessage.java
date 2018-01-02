@@ -47,7 +47,9 @@ public class PeriodicMessage extends LuaTable {
 	 * Main constructor.
 	 * 
 	 * @param name
+	 *            The <String> identifier of the <PeriodicMessage>.
 	 * @param content
+	 *            The <String> content of the <PeriodicMessage>.
 	 */
 	public PeriodicMessage(String name, String content) {
 		super("PeriodicMessage");
@@ -67,7 +69,7 @@ public class PeriodicMessage extends LuaTable {
 	}
 
 	/**
-	 * @return Returns whether or not this message is enabled.
+	 * @return Returns whether or not the <PerodicMessage> is enabled.
 	 */
 	public boolean isEnabled() {
 		return this.enabled;
@@ -77,21 +79,22 @@ public class PeriodicMessage extends LuaTable {
 	 * Sets the enabled flag for this message.
 	 * 
 	 * @param flag
+	 *            The flag to set.
 	 */
 	public void setEnabled(boolean flag) {
 		this.enabled = flag;
 	}
 
 	/**
-	 * @return Returns this message's content.
+	 * @return Returns the <String> content of the <PeriodicMessage>.
 	 */
 	public String getMessage() {
 		return this.content;
 	}
 
 	/**
-	 * @return Returns the name associated with this message. (the ID of the
-	 *         message)
+	 * @return Returns the <String> name associated with this message. (the ID of
+	 *         the message)
 	 */
 	public String getName() {
 		return this.name;
@@ -105,9 +108,10 @@ public class PeriodicMessage extends LuaTable {
 	}
 
 	/**
-	 * Sets the time (in minutes), this message waits until execution.
+	 * Sets the <Integer> time (in minutes), this message waits until execution.
 	 * 
 	 * @param time
+	 *            The <Integer> time to set.
 	 */
 	public void setTime(int time) {
 		this.time = time;
@@ -124,20 +128,21 @@ public class PeriodicMessage extends LuaTable {
 	 * Sets whether or not this message is broadcasted on the screen.
 	 * 
 	 * @param flag
+	 *            The flag to set.
 	 */
 	public void setBroadcasted(boolean flag) {
 		this.broadcast = flag;
 	}
 
 	/**
-	 * @return Returns the <String> Color of the PeriodicMessage.
+	 * @return Returns the <String> Color of the <PeriodicMessage>.
 	 */
 	public String getColor() {
 		return color;
 	}
 
 	/**
-	 * Sets the <String> Color of the PeriodicMessage.
+	 * Sets the <String> Color of the <PeriodicMessage>.
 	 * 
 	 * @param color
 	 *            The <String> Color to set.
