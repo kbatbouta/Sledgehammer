@@ -21,7 +21,8 @@ import sledgehammer.database.document.MongoNode;
 import sledgehammer.lua.LuaTable;
 
 /**
- * Class designed to load and store node data and operations.
+ * LuaTable designed to handle Node data and operations for the Permissions
+ * Module.
  * 
  * @author Jab
  */
@@ -207,22 +208,45 @@ public class Node extends LuaTable {
 		return returned;
 	}
 
+	/**
+	 * @return Returns the <String> format of the <Node>.
+	 */
 	public String getNode() {
 		return getMongoDocument().getNode();
 	}
 
+	/**
+	 * @return Returns the explicitly-defined <Boolean> flag for the node.
+	 */
 	public boolean getFlag() {
 		return getMongoDocument().getFlag();
 	}
 
+	/**
+	 * Sets the explicitly-defined <Boolean> flag for the node.
+	 * 
+	 * @param flag
+	 *            The <Boolean> flag to set.
+	 * @param save
+	 *            The flag to save the Document.
+	 */
 	public void setFlag(boolean flag, boolean save) {
 		getMongoDocument().setFlag(flag, save);
 	}
 
+	/**
+	 * @return Returns the <MongoNode> document.
+	 */
 	public MongoNode getMongoDocument() {
 		return this.mongoNode;
 	}
 
+	/**
+	 * Sets the <MongoNode> document.
+	 * 
+	 * @param mongoNode
+	 *            The <MongoNode> to set.
+	 */
 	private void setMongoDocument(MongoNode mongoNode) {
 		this.mongoNode = mongoNode;
 	}
