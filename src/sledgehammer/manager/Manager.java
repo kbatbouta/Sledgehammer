@@ -67,9 +67,7 @@ public abstract class Manager extends Printable {
 	}
 
 	/**
-	 * Returns a list of active connections.
-	 * 
-	 * @return
+	 * @return Returns a list of active connections.
 	 */
 	public List<UdpConnection> getConnections() {
 		return SledgeHammer.instance.getConnections();
