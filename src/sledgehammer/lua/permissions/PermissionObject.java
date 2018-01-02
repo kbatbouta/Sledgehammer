@@ -19,51 +19,36 @@ package sledgehammer.lua.permissions;
 import java.util.ArrayList;
 import java.util.Collection;
 
-/*
-This file is part of Sledgehammer.
-
-   Sledgehammer is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Lesser General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Sledgehammer is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import sledgehammer.database.document.MongoNode;
 import sledgehammer.database.document.MongoUniqueNodeDocument;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.MongoLuaObject;
 
 /**
- * Generic Object to handle generic operations for permission objects.
+ * MongoLuaObject to handle general permission-object data and operations for
+ * the Permissions Module.
  * 
  * @author Jab
  */
-public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extends LuaTable {
+public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extends MongoLuaObject<M> {
 
 	/** The <Map> containing the context permissions. */
 	private Map<String, Node> mapPermissionNodes;
 
-	/** The <MongoDocument> storing the data. */
-	private M mongoDocument;
-
 	/**
 	 * Main constructor.
 	 * 
+	 * @param mongoDocument
+	 *            The <MongoDocument> to set as the MongoDB Document for the
+	 *            <PermissionObject>.
 	 * @param name
+	 *            The <String> name to set for the <LuaTable>.
 	 */
 	public PermissionObject(M mongoDocument, String name) {
-		super(name);
+		super(mongoDocument, name);
 		mapPermissionNodes = new HashMap<>();
 		setMongoDocument(mongoDocument);
 	}
@@ -77,11 +62,11 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	 * @param flag
 	 *            The flag to set for the <Node>.
 	 * @param save
-	 *            Flag to save the <MongoDocument> after setting the node.
+	 *            The flag to save the Document.
 	 * @return Returns the result <Node> with the flag set.
 	 */
 	public Node setPermission(String nodeAsString, boolean flag, boolean save) {
-		if(nodeAsString == null) {
+		if (nodeAsString == null) {
 			throw new IllegalArgumentException("String node given is null.");
 		}
 		Node returned = this.getExplicitPermissionNode(nodeAsString);
@@ -122,12 +107,10 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	}
 
 	/**
-	 * Returns a <List> of any <PermissionNodes> that are a sub-node to the <String>
-	 * node given.
-	 * 
 	 * @param node
 	 *            The <String> node used to test the PermissionNodes assigned
-	 * @return
+	 * @return Returns a <List> of any <PermissionNodes> that are a sub-node to the
+	 *         <String> node given.
 	 */
 	public List<Node> getSubPermissions(String node) {
 		// Make sure the node argument is valid.
@@ -286,7 +269,6 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		return this.mapPermissionNodes.get(node);
 	}
 
-
 	/**
 	 * @param nodes
 	 *            The <List> of <Node>s being tested.
@@ -352,10 +334,12 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	}
 
 	/**
-	 * TODO: Document
+	 * Adds a permission <Node> to the <PermissionObject>
 	 * 
 	 * @param node
+	 *            The permission <Node> to add.
 	 * @param save
+	 *            The flag to save the Document.
 	 */
 	public void addNode(Node node, boolean save) {
 		// Validate the node argument.
@@ -382,7 +366,6 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	 *            The <Node> to remove.
 	 * @param save
 	 *            Flag for saving the document after removing the node.
-	 * @return
 	 */
 	public void removeNode(Node node, boolean save) {
 		// Validate the node argument.
@@ -403,11 +386,12 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
 	 * Constructs the <Node> containers from the <MongoUniqueNodeDocument>.
 	 * 
 	 * @param mongoDocument
+	 *            The <MongoDocument> to load the <Node>'s.
 	 */
 	public void loadNodes(M mongoDocument) {
 		// Empty the map for the Nodes.
@@ -421,9 +405,8 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		}
 	}
 
-
 	/**
-	 * (Internal Method)
+	 * (Protected Method)
 	 * 
 	 * Sets the <MOngoUniqueNodeDocument> strong the data for the
 	 * <PermissionObject>, and loads the <Node> containers for the <MongoNodes>
@@ -432,22 +415,21 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 	 * @param mongoDocument
 	 *            The <MongoUniqueNodeDocument> to set.
 	 */
-	private void setMongoDocument(M mongoDocument) {
+	@Override
+	protected void setMongoDocument(M mongoDocument) {
 		// Validate MongoDocument argument.
 		if (mongoDocument == null) {
 			throw new IllegalArgumentException("MongoDocument given is null.");
 		}
-		// Make sure the document is not the exact same already set.
-		if (this.mongoDocument == null || !this.mongoDocument.equals(mongoDocument)) {
-			// Set the new document.
-			this.mongoDocument = mongoDocument;
+		if (mongoDocument == null || mongoDocument.equals(getMongoDocument())) {
+			super.setMongoDocument(mongoDocument);
 			// Load the nodes from the document.
-			loadNodes(this.mongoDocument);
+			loadNodes(mongoDocument);
 		}
 	}
 
 	/**
-	 * 
+	 * Saves the <MongoDocument> for the <PermissionObject>.
 	 */
 	public void save() {
 		M mongoDocument = getMongoDocument();
@@ -457,19 +439,19 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
 		mongoDocument.save();
 	}
 
+	/**
+	 * @return Returns the <Map> of <Node> entries for the <PermissionObject>,
+	 *         identified by the <String> Node format.
+	 */
 	public Map<String, Node> getPermissionMap() {
 		return this.mapPermissionNodes;
 	}
-	
-	public Collection<Node> getPermissionNodes() {
-		return getPermissionMap().values();
-	}
 
 	/**
-	 * @return Returns the <MongoUniqueNodeDocument> storing the data for the
+	 * @return Returns a <Collection> of the <Nodes> assigned to the
 	 *         <PermissionObject>.
 	 */
-	public M getMongoDocument() {
-		return this.mongoDocument;
+	public Collection<Node> getPermissionNodes() {
+		return getPermissionMap().values();
 	}
 }
