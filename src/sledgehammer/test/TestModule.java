@@ -3,7 +3,7 @@ package sledgehammer.test;
 import java.util.Scanner;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.module.Module;
+import sledgehammer.plugin.Module;
 import sledgehammer.util.Printable;
 import zombie.core.Core;
 

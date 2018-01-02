@@ -21,7 +21,7 @@ import java.util.Map;
 
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.LogEventListener;
-import sledgehammer.module.Module;
+import sledgehammer.plugin.Module;
 import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
 /**

@@ -14,7 +14,7 @@ This file is part of Sledgehammer.
    You should have received a copy of the GNU Lesser General Public License
    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
  */
-package sledgehammer;
+package sledgehammer.plugin;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,9 +33,7 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import sledgehammer.lua.core.ModuleProperties;
-import sledgehammer.lua.core.PluginProperties;
-import sledgehammer.module.Module;
+import sledgehammer.SledgeHammer;
 import sledgehammer.util.Printable;
 
 /**

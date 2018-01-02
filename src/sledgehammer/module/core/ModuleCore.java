@@ -39,8 +39,8 @@ import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.SendPlayer;
-import sledgehammer.module.Module;
 import sledgehammer.module.chat.ModuleChat;
+import sledgehammer.plugin.Module;
 import sledgehammer.util.Command;
 import zombie.network.ServerWorldDatabase;
 

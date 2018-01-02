@@ -19,7 +19,7 @@ package sledgehammer.event;
 import java.util.HashMap;
 import java.util.Map;
 
-import sledgehammer.module.Module;
+import sledgehammer.plugin.Module;
 
 /**
  * This is an Event sub-type that allows Modules to author commands, and send

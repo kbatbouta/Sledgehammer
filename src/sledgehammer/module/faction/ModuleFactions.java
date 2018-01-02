@@ -37,7 +37,7 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionInvite;
 import sledgehammer.lua.faction.FactionMember;
-import sledgehammer.module.MongoModule;
+import sledgehammer.plugin.MongoModule;
 import sledgehammer.util.Response;
 import sledgehammer.util.Result;
 

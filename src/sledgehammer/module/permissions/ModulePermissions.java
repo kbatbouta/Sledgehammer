@@ -30,7 +30,7 @@ import sledgehammer.database.module.permissions.MongoPermissionUser;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
-import sledgehammer.module.MongoModule;
+import sledgehammer.plugin.MongoModule;
 
 /**
  * Module class that handles operations for Permissions.

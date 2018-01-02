@@ -23,16 +23,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sledgehammer.Plugin;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.manager.Manager;
-import sledgehammer.module.Module;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
+import sledgehammer.plugin.Module;
+import sledgehammer.plugin.Plugin;
 
 /**
  * TODO: Document
