@@ -12,6 +12,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
@@ -29,7 +30,6 @@ import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.chat.request.RequestChatChannels;
 import sledgehammer.lua.chat.request.RequestChatHistory;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.PermissionsManager;
 import sledgehammer.plugin.MongoModule;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
@@ -68,12 +68,10 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		collectionChannels = database.createMongoCollection("sledgehammer_chat_channels");
 		collectionMessages = database.createMongoCollection("sledgehammer_chat_messages");
 		// Handle chat command initializations.
-		PermissionsManager managerPermissions = getPermissionsManager();
-		// Set the default permission nodes for the chat module. @formatter:off
-		managerPermissions.addDefaultPlayerPermission("sledgehammer.chat.global"  );
-		managerPermissions.addDefaultPlayerPermission("sledgehammer.chat.local"   );
-		managerPermissions.addDefaultPlayerPermission("sledgehammer.chat.pm"      );
-		managerPermissions.addDefaultPlayerPermission(getPermissionNode("espanol"));
+		addDefaultPermission("sledgehammer.chat.global");
+		addDefaultPermission("sledgehammer.chat.local");
+		addDefaultPermission("sledgehammer.chat.pm");
+		addDefaultPermission(getPermissionNode("espanol"));
 		// @formatter:on
 	}
 
@@ -300,14 +298,14 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		boolean saveHistory;
 		boolean canSpeak;
 		// Create the wild-card ChatChannel.
-		channelName           = "*";
-		channelDescription    = "Wildcard channel for the server. Sends messages to all spoken channels.";
+		channelName = "*";
+		channelDescription = "Wildcard channel for the server. Sends messages to all spoken channels.";
 		channelPermissionNode = null;
-		isGlobalChannel       = false;
-		isPublicChannel       = false;
-		isCustomChannel       = false;
-		saveHistory           = false;
-		canSpeak              = false;
+		isGlobalChannel = false;
+		isPublicChannel = false;
+		isCustomChannel = false;
+		saveHistory = false;
+		canSpeak = false;
 		// Create the MongoDocument.
 		MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName, channelDescription,
 				channelPermissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
@@ -315,14 +313,14 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		// Create the global ChatChannel.
 		ChatChannel global = getChatChannel("Global");
 		if (global == null) {
-			channelName           = "Global";
-			channelDescription    = "Global channel for the server.";
+			channelName = "Global";
+			channelDescription = "Global channel for the server.";
 			channelPermissionNode = "sledgehammer.chat.global";
-			isGlobalChannel       = true;
-			isPublicChannel       = true;
-			isCustomChannel       = false;
-			saveHistory           = true;
-			canSpeak              = true;
+			isGlobalChannel = true;
+			isPublicChannel = true;
+			isCustomChannel = false;
+			saveHistory = true;
+			canSpeak = true;
 			global = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		}
@@ -333,27 +331,27 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		// Create the local ChatChannel.
 		ChatChannel local = getChatChannel("Local");
 		if (local == null) {
-			channelName           = "Local";
-			channelDescription    = "Local channel for the server.";
+			channelName = "Local";
+			channelDescription = "Local channel for the server.";
 			channelPermissionNode = "sledgehammer.chat.local";
-			isGlobalChannel       = false;
-			isPublicChannel       = true;
-			isCustomChannel       = false;
-			saveHistory           = false;
-			canSpeak              = true;
+			isGlobalChannel = false;
+			isPublicChannel = true;
+			isCustomChannel = false;
+			saveHistory = false;
+			canSpeak = true;
 			local = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);
 		}
 		// Create the PM's ChatChannel.
 		ChatChannel pms = getChatChannel("PM's");
 		if (pms == null) {
-			channelName           = "PM's";
-			channelDescription    = "PM channel for the server.";
+			channelName = "PM's";
+			channelDescription = "PM channel for the server.";
 			channelPermissionNode = "sledgehammer.chat.pm";
-			isGlobalChannel       = false;
-			isPublicChannel       = true;
-			isCustomChannel       = false;
-			saveHistory           = false;
+			isGlobalChannel = false;
+			isPublicChannel = true;
+			isCustomChannel = false;
+			saveHistory = false;
 			canSpeak = false;
 			pms = createChatChannel(channelName, channelDescription, channelPermissionNode, isGlobalChannel,
 					isPublicChannel, isCustomChannel, saveHistory, canSpeak);

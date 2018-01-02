@@ -25,7 +25,6 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionMember;
-import sledgehammer.manager.PermissionsManager;
 import sledgehammer.util.Command;
 import sledgehammer.util.LogType;
 import sledgehammer.util.Printable;
@@ -52,8 +51,6 @@ public class FactionsCommandListener extends Printable implements CommandListene
 	private Map<String, String> mapContexts;
 	private Map<String, String> mapTooltips = new HashMap<>();
 
-	// private boolean doHeader = false;
-
 	public FactionsCommandListener(ModuleFactions module) {
 		this.module = module;
 		// @formatter:off
@@ -73,11 +70,9 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		mapContexts.put("faction change name"    , "sledgehammer.factions.change.name"    );
 		mapContexts.put("faction change color"   , "sledgehammer.factions.change.color"   );
 		mapContexts.put("faction change password", "sledgehammer.factions.change.password");
-		
 		String params = "Make sure to put quote-tags around parameters! (\")";
 		int tagCharactersMinimum = module.getTagMinimumCharacterCount();
 		int tagCharactersMaximum = module.getTagMaximumCharacterCount();
-		
 		mapTooltips.put("faction"                , "Type \"/faction help\" for a list of faction commands.");
 		mapTooltips.put("faction create"         , "Creates a faction. "                                                             + params + NEW_LINE + " /faction create \"name\" \"tag[" + tagCharactersMinimum + "-" + tagCharactersMaximum + " characer range]\" [password]");
 		mapTooltips.put("faction disband"        , "Disbands a Faction. All players from this Faction will be removed as well."               + NEW_LINE + " /faction disband");
@@ -91,24 +86,22 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		mapTooltips.put("faction change tag"     , "Changes the tag shown for a faction. (Must be owner!) "                          + params + NEW_LINE + " /faction change tag \"tag[" + tagCharactersMinimum + "-" + tagCharactersMaximum + " characer range]\"");
 		mapTooltips.put("faction change password", "Changes the password for a faction. (Must be owner!) "                           + params + NEW_LINE + " /faction change password \"old password\" \"new password\"");
 		mapTooltips.put("faction change color"   , "Changes the color of the faction tag. (Must be owner!) "                         + params + NEW_LINE + " /faction change color \"color\"");
-	
 		// Add all commands to the default permissions list.
-		PermissionsManager managerPermissions = module.getPermissionsManager();
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction"                ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction help"           ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction create"         ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction disband"        ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction join"           ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction leave"          ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction invite"         ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction accept"         ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction reject"         ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction kick"           ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction change"         ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction change tag"     ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction change name"    ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction change color"   ));
-		managerPermissions.addDefaultPlayerPermission(mapContexts.get("faction change password"));
+		module.addDefaultPermission(mapContexts.get("faction"                ));
+		module.addDefaultPermission(mapContexts.get("faction help"           ));
+		module.addDefaultPermission(mapContexts.get("faction create"         ));
+		module.addDefaultPermission(mapContexts.get("faction disband"        ));
+		module.addDefaultPermission(mapContexts.get("faction join"           ));
+		module.addDefaultPermission(mapContexts.get("faction leave"          ));
+		module.addDefaultPermission(mapContexts.get("faction invite"         ));
+		module.addDefaultPermission(mapContexts.get("faction accept"         ));
+		module.addDefaultPermission(mapContexts.get("faction reject"         ));
+		module.addDefaultPermission(mapContexts.get("faction kick"           ));
+		module.addDefaultPermission(mapContexts.get("faction change"         ));
+		module.addDefaultPermission(mapContexts.get("faction change tag"     ));
+		module.addDefaultPermission(mapContexts.get("faction change name"    ));
+		module.addDefaultPermission(mapContexts.get("faction change color"   ));
+		module.addDefaultPermission(mapContexts.get("faction change password"));
 		// @formatter:on
 	}
 

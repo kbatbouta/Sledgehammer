@@ -26,7 +26,6 @@ import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Broadcast;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendBroadcast;
-import sledgehammer.manager.PermissionsManager;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Command;
@@ -88,10 +87,9 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
-		PermissionsManager managerPermissions = module.getPermissionsManager();
-		managerPermissions.addDefaultPlayerPermission(getPermissionNode("pm"));
-		managerPermissions.addDefaultPlayerPermission(getPermissionNode("colors"));
-		managerPermissions.addDefaultPlayerPermission(getPermissionNode("commitsuicide"));
+		module.addDefaultPermission(getPermissionNode("pm"));
+		module.addDefaultPermission(getPermissionNode("colors"));
+		module.addDefaultPermission(getPermissionNode("commitsuicide"));
 		// @formatter:on
 	}
 

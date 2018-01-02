@@ -386,7 +386,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
 		if (!ignoreAdmin && isAdministrator()) {
 			return true;
 		}
-		return SledgeHammer.instance.getPermissionsManager().hasRawPermission(this, node);
+		return SledgeHammer.instance.hasPermission(this, node);
 	}
 
 	/**
@@ -413,7 +413,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
 	 *            The <Boolean> flag to set.
 	 */
 	public void setPermission(String node, boolean flag) {
-		SledgeHammer.instance.getPermissionsManager().setRawPermission(this, node, flag);
+		SledgeHammer.instance.setPermission(this, node, flag);
 	}
 
 	/**

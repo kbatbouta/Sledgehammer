@@ -49,12 +49,12 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ThrowableListener;
 import sledgehammer.interfaces.LogEventListener;
+import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.NPCManager;
-import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PlayerManager;
 import sledgehammer.manager.PluginManager;
 import sledgehammer.module.chat.ModuleChat;
@@ -78,8 +78,6 @@ import zombie.sledgehammer.SledgeHelper;
  * This class is used to initialize all components of SledgeHammer, and act as a
  * approximation to access most components in SledgeHammer.
  * 
- * TODO: Document.
- * 
  * @author Jab
  */
 public class SledgeHammer extends Printable {
@@ -102,8 +100,6 @@ public class SledgeHammer extends Printable {
 	private NPCManager managerNPC;
 	/** Manager instance to handle Plug-in operations. */
 	private PluginManager managerPlugin;
-	/** Manager instance to handle Permissions operations. */
-	private PermissionsManager managerPermissions;
 	/** Manager to handle Events. */
 	private EventManager managerEvent;
 	/** Manager to handle logging of Players and Player data. */
@@ -113,6 +109,8 @@ public class SledgeHammer extends Printable {
 	 * communicate with connections.
 	 */
 	private UdpEngine udpEngine;
+	/** The <PermissionListener> used to query permission requests. */
+	private PermissionListener permissionListener;
 	/** The name of the server running SledgeHammer. */
 	private String publicServerName;
 	/** Flag for whether or not the SledgeHammer instance has started. */
@@ -153,7 +151,6 @@ public class SledgeHammer extends Printable {
 			publicServerName = ServerOptions.instance.getOption("PublicName");
 			// Initialize the Chat Engine.
 			managerEvent = new EventManager();
-			managerPermissions = new PermissionsManager();
 			managerPlugin = new PluginManager();
 			managerPlayer = new PlayerManager();
 			// Initialize the NPC Engine.
@@ -208,6 +205,106 @@ public class SledgeHammer extends Printable {
 			stackTrace("An Error occured while stopping Sledgehammer.", e);
 		}
 		started = false;
+	}
+
+	/**
+	 * Checks if a <Player> has a <String> permission-node.
+	 * 
+	 * @param player
+	 *            The <Player> to test.
+	 * @param node
+	 *            The <String> permission-node to test.
+	 * @return Returns true if the <Player> is granted the given <String>
+	 *         permission-node.
+	 */
+	public boolean hasPermission(Player player, String node) {
+		// Validate the Player argument.
+		if (player == null) {
+			throw new IllegalArgumentException("Player given is null");
+		}
+		// Validate the node argument.
+		if (node == null || node.isEmpty()) {
+			throw new IllegalArgumentException("Node given is null or empty.");
+		}
+		// Format the node.
+		node = node.toLowerCase();
+		// The flag to return.
+		boolean returned = false;
+		if (hasPermissionListener()) {
+			PermissionListener permissionListener = getPermissionListener();
+			try {
+				returned = permissionListener.hasPermission(player, node);
+				if (!returned) {
+					returned = permissionListener.hasDefaultPermission(node);
+				}
+			} catch (Exception e) {
+				errorln("The assigned PermissionListener failed to execute properly.");
+				if (DEBUG) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			throw new IllegalStateException(
+					"No PermissionHandlers are registered for SledgeHammer, so permissions cannot be tested.");
+		}
+		// If no permissions handler identified as true, return false.
+		return returned;
+	}
+
+	public String getPermissionDeniedMessage() {
+		return Settings.getInstance().getPermissionDeniedMessage();
+	}
+
+	/**
+	 * Adds a <String> permission-node to the default <PermissionGroup>, allowing
+	 * all <Player>'s to be granted the permission-node.
+	 * 
+	 * @param node
+	 *            The <String> node to add.
+	 */
+	public void addDefaultPermission(String node) {
+		addDefaultPermission(node, true);
+	}
+
+	/**
+	 * Adds a <String> permission-node to the default <PermissionGroup> with a given
+	 * <Boolean> flag. All <PermissionUser>'s with a specific definition will
+	 * override this.
+	 * 
+	 * @param node
+	 *            The <String> node to add.
+	 * @param flag
+	 *            The <Boolean> flag to set.
+	 */
+	public void addDefaultPermission(String node, boolean flag) {
+		getPermissionListener().addDefaultPermission(node, flag);
+	}
+
+	private PermissionListener getPermissionListener() {
+		return this.permissionListener;
+	}
+
+	private boolean hasPermissionListener() {
+		return this.permissionListener != null;
+	}
+
+	public void setPermission(Player player, String node, boolean flag) {
+		// Validate the Player argument.
+		if (player == null) {
+			throw new IllegalArgumentException("Player given is null");
+		}
+		// Validate the node argument.
+		if (node == null || node.isEmpty()) {
+			throw new IllegalArgumentException("Node given is null or empty.");
+		}
+		// Format the node.
+		node = node.toLowerCase();
+		if (hasPermissionListener()) {
+			getPermissionListener().setPermission(player, node, flag);
+		} else {
+			throw new IllegalStateException(
+					"No PermissionHandlers are registered for SledgeHammer, so permissions cannot be set.");
+		}
 	}
 
 	/**
@@ -419,13 +516,6 @@ public class SledgeHammer extends Printable {
 	 */
 	public NPCManager getNPCManager() {
 		return this.managerNPC;
-	}
-
-	/**
-	 * @return Returns the <PermissionsManager> instance.
-	 */
-	public PermissionsManager getPermissionsManager() {
-		return managerPermissions;
 	}
 
 	/**
@@ -767,6 +857,16 @@ public class SledgeHammer extends Printable {
 	public void sendServerCommand(Player player, String module, String command, KahluaTable kahluaTable) {
 		GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());
 	}
+	
+	/**
+	 * Sets the <PermissionListener> that handles Permission checks and assignments.
+	 * 
+	 * @param permissionListener
+	 *            The <PermissionListener> to set.
+	 */
+	public void setPermissionListener(PermissionListener permissionListener) {
+		this.permissionListener = permissionListener;
+	}
 
 	/**
 	 * Updates a Player's Lua data.
@@ -826,10 +926,6 @@ public class SledgeHammer extends Printable {
 		return getPlayerManager().getPlayer(uniqueId);
 	}
 
-	/**
-	 * 
-	 * @param line
-	 */
 	public void broadcastMessage(String line) {
 		// TODO: Implement.
 	}

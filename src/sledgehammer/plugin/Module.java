@@ -31,7 +31,6 @@ import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.manager.EventManager;
-import sledgehammer.manager.PermissionsManager;
 import sledgehammer.manager.PluginManager;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.util.Printable;
@@ -510,7 +509,36 @@ public abstract class Module extends Printable {
 	 *            The <PermissionListener> to set.
 	 */
 	public void setPermissionListener(PermissionListener permissionListener) {
-		getPermissionsManager().setPermissionListener(permissionListener);
+		SledgeHammer.instance.setPermissionListener(permissionListener);
+	}
+
+	/**
+	 * Approximate Method to 'SledgeHammer.instance.addDefaultPermission(node)'.
+	 * 
+	 * Adds a <String> permission-node to the default <PermissionGroup>, allowing
+	 * all <Player>'s to be granted the permission-node.
+	 * 
+	 * @param node
+	 *            The <String> node to add.
+	 */
+	public void addDefaultPermission(String node) {
+		SledgeHammer.instance.addDefaultPermission(node);
+	}
+
+	/**
+	 * Approximate Method to 'SledgeHammer.instance.addDefaultPermission(node)'.
+	 * 
+	 * Adds a <String> permission-node to the default <PermissionGroup> with a given
+	 * <Boolean> flag. All <PermissionUser>'s with a specific definition will
+	 * override this.
+	 * 
+	 * @param node
+	 *            The <String> node to add.
+	 * @param flag
+	 *            The <Boolean> flag to set.
+	 */
+	public void addDefaultPermission(String node, boolean flag) {
+		SledgeHammer.instance.addDefaultPermission(node, flag);
 	}
 
 	/**
@@ -531,7 +559,7 @@ public abstract class Module extends Printable {
 	 * @return Returns the <String> response to a denied permission check.
 	 */
 	public String getPermissionDeniedMessage() {
-		return SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
+		return SledgeHammer.instance.getPermissionDeniedMessage();
 	}
 
 	/**
@@ -576,16 +604,8 @@ public abstract class Module extends Printable {
 	}
 
 	/**
-	 * @return Returns the <PermissionsManager> instance for the Sledgehammer
-	 *         engine.
-	 */
-	public PermissionsManager getPermissionsManager() {
-		return SledgeHammer.instance.getPermissionsManager();
-	}
-
-	/**
-	 * @return Returns the <String> name of the ProjectZomboid server displayed
-	 *         publically.
+	 * @return Returns the <String> name of the ProjectZomboid server displayed in
+	 *         public.
 	 */
 	public String getPublicServerName() {
 		return SledgeHammer.instance.getPublicServerName();

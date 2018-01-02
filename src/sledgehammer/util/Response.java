@@ -60,7 +60,7 @@ public class Response {
 
 	public void deny() {
 		this.result = Result.FAILURE;
-		this.response = SledgeHammer.instance.getPermissionsManager().getPermissionDeniedMessage();
+		this.response = SledgeHammer.instance.getPermissionDeniedMessage();
 		this.setHandled(true);
 	}
 

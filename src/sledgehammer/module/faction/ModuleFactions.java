@@ -99,7 +99,7 @@ public class ModuleFactions extends MongoModule {
 		// Create the Lua Objects to contain the Mongo information.
 		createLuaObjects();
 		// Add the chat permission as default.
-		getPermissionsManager().addDefaultPlayerPermission("sledgehammer.factions.chat");
+		addDefaultPermission("sledgehammer.factions.chat");
 	}
 
 	@Override
