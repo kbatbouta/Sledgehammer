@@ -24,7 +24,7 @@ public class ChatHistory extends LuaTable {
 	private LinkedList<ChatMessage> listMessages;
 	/** The <ChatChannel> using this ChatHistory. */
 	private ChatChannel chatChannel;
-
+	/** The <Send> Object to send the <ChatMessage>'s. */
 	private SendChatMessages sendChatMessages;
 
 	/**
