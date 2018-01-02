@@ -23,33 +23,46 @@ import java.util.UUID;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.module.faction.MongoFaction;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.StringUtils;
 
 /**
- * TODO: Document
+ * MongoLuaObject that handles faction data and operations.
  * 
  * @author Jab
  */
-public class Faction extends LuaTable {
+public class Faction extends MongoLuaObject<MongoFaction> {
 
-	private MongoFaction mongoFaction;
-
+	/** The <List> of <FactionMembers> in the <Faction>. */
 	private List<FactionMember> listMembers;
-
+	/** The <ChatChannel> assigned to the <FactionMembers> for the <Faction>. */
 	private ChatChannel chatChannel;
 
-	public Faction(MongoFaction mongoFaction) {
-		super("Faction");
-		setMongoDocument(mongoFaction);
+	/**
+	 * Main constructor.
+	 * 
+	 * @param mongoDocument
+	 *            The <MongoFaction> document in the MongoDB server.
+	 */
+	public Faction(MongoFaction mongoDocument) {
+		super(mongoDocument, "Faction");
 		listMembers = new ArrayList<>();
 	}
 
-	public Faction(KahluaTable table) {
-		super("Faction", table);
+	/**
+	 * Lua load constructor.
+	 * 
+	 * @param mongoDocument
+	 *            The <MongoFaction> document in the MongoDB server.
+	 * @param table
+	 *            The <KahluaTable> storing the data for the <Faction>.
+	 */
+	public Faction(MongoFaction mongoDocument, KahluaTable table) {
+		super(mongoDocument, "Faction");
+		onLoad(table);
 	}
 
 	@Override
@@ -62,11 +75,22 @@ public class Faction extends LuaTable {
 		// TODO: Implement.
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		boolean returned = false;
+		if (other instanceof Faction) {
+			returned = ((Faction) other).getUniqueId().equals(getUniqueId());
+		}
+		return returned;
+	}
+
 	/**
-	 * TODO: Document
+	 * Adds a <FactionMember> to the <Faction>.
 	 * 
 	 * @param factionMember
-	 * @return
+	 *            The <FactionMember> to add.
+	 * @return Returns true if the <FactionMember> is successfully added to the
+	 *         <Faction>.
 	 */
 	public boolean addMember(FactionMember factionMember) {
 		boolean returned = false;
@@ -97,14 +121,6 @@ public class Faction extends LuaTable {
 		if (player != null) {
 			getChatChannel().removePlayer(player);
 		}
-	}
-
-	@Override
-	public boolean equals(Object other) {
-		if (other instanceof Faction) {
-			return ((Faction) other).getUniqueId().equals(getUniqueId());
-		}
-		return false;
 	}
 
 	/**
@@ -140,6 +156,14 @@ public class Faction extends LuaTable {
 		return passwordActualEncrypted.equals(passwordEncrypted);
 	}
 
+	/**
+	 * Sets the <String> name of the <Faction>.
+	 * 
+	 * @param factionName
+	 *            The <String> name to set.
+	 * @param save
+	 *            The flag to save the document.
+	 */
 	public void setFactionName(String factionName, boolean save) {
 		getMongoDocument().setFactionName(factionName, save);
 		ChatChannel chatChannel = getChatChannel();
@@ -148,6 +172,14 @@ public class Faction extends LuaTable {
 		}
 	}
 
+	/**
+	 * Sets the <String> tag of the <Faction>.
+	 * 
+	 * @param tag
+	 *            The <String> tag to set.
+	 * @param save
+	 *            The flag to save the document.
+	 */
 	public void setFactionTag(String tag, boolean save) {
 		getMongoDocument().setFactionTag(tag, save);
 		for (FactionMember factionMember : listMembers) {
@@ -158,6 +190,14 @@ public class Faction extends LuaTable {
 		}
 	}
 
+	/**
+	 * Sets the <String> color of the <Faction>.
+	 * 
+	 * @param colorNew
+	 *            The <String> color to set.
+	 * @param save
+	 *            The flag to save the document.
+	 */
 	public void setFactionColor(String colorNew, boolean save) {
 		getMongoDocument().setFactionColorString(colorNew, save);
 		Color color = Color.getColor(colorNew);
@@ -175,12 +215,15 @@ public class Faction extends LuaTable {
 	 * @param password
 	 *            The <String> password to set.
 	 * @param save
-	 *            Whether or not to save the changes.
+	 *            The flag to save the document.
 	 */
 	public void setPassword(String password, boolean save) {
 		getMongoDocument().setPassword(password, save);
 	}
 
+	/**
+	 * @return Returns the <String> password in encrypted format.
+	 */
 	private String getEncryptedPassword() {
 		return getMongoDocument().getEncryptedPassword();
 	}
@@ -215,58 +258,102 @@ public class Faction extends LuaTable {
 		this.chatChannel = chatChannel;
 	}
 
+	/**
+	 * @return Returns the <String> name of the <Faction>.
+	 */
 	public String getFactionName() {
 		return getMongoDocument().getFactionName();
 	}
 
+	/**
+	 * @return Returns the <UUID> of the <Faction>.
+	 */
 	public UUID getUniqueId() {
 		return getMongoDocument().getUniqueId();
 	}
 
+	/**
+	 * Sets the <UUID> of the <Faction>.
+	 * 
+	 * @param uniqueId
+	 *            The <UUID> to set.
+	 * @param save
+	 *            The flag to save the document.
+	 */
 	public void setUniqueId(UUID uniqueId, boolean save) {
 		getMongoDocument().setUniqueId(uniqueId, save);
 	}
 
-	public MongoFaction getMongoDocument() {
-		return this.mongoFaction;
-	}
-
-	public void setMongoDocument(MongoFaction mongoFaction) {
-		this.mongoFaction = mongoFaction;
-	}
-
+	/**
+	 * @return Returns the <UUID> of the <Player> who owns the <Faction>.
+	 */
 	public UUID getOwnerId() {
 		return getMongoDocument().getOwnerId();
 	}
 
+	/**
+	 * @param player
+	 *            The <Player> to test.
+	 * @return Returns true if the <Player> given is the owner of the <Faction>.
+	 */
 	public boolean isOwner(Player player) {
 		return isOwner(player.getUniqueId());
 	}
 
+	/**
+	 * @param factionMember
+	 * @return Returns true if the <FactionMember>'s <UUID> for the <Player> matches
+	 *         the ownerId of the <FactioN>.
+	 */
 	public boolean isOwner(FactionMember factionMember) {
 		return isOwner(factionMember.getPlayerId());
 	}
 
+	/**
+	 * @param playerId
+	 *            The <Player>'s <UUID> to test.
+	 * @return Returns true if the <UUID> matches the ownerId of the <Faction>.
+	 */
 	public boolean isOwner(UUID playerId) {
 		return playerId.equals(getOwnerId());
 	}
 
+	/**
+	 * @return Returns the <String> tag of the <Faction>.
+	 */
 	public String getFactionTag() {
 		return getMongoDocument().getFactionTag();
 	}
 
+	/**
+	 * @return Returns the <String> color of the <Faction>.
+	 */
 	public String getFactionColor() {
 		return getMongoDocument().getFactionColor();
 	}
 
+	/**
+	 * @return Returns a <List> of <FactionMember>'s in the <Faction>
+	 */
 	public List<FactionMember> getMembers() {
 		return this.listMembers;
 	}
 
+	/**
+	 * Sets the <UUID> ownerId of the <Faction> with the <FactionMember>'s playerId.
+	 * 
+	 * @param factionMember
+	 *            The <FactionPlayer> to set as the owner.
+	 * @param save
+	 *            The flag to save the document.
+	 */
 	public void setOwner(FactionMember factionMember, boolean save) {
 		getMongoDocument().setOwnerId(factionMember.getPlayerId(), save);
 	}
 
+	/**
+	 * @return Returns the <String> encoded-color of the <Faction>.
+	 */
 	public String getFactionRawColor() {
 		return getMongoDocument().getFactionRawColor();
 	}
