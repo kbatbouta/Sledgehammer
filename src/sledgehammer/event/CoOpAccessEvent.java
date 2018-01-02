@@ -16,6 +16,8 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.event;
 
+import sledgehammer.util.AccessResult;
+
 /**
  * CoOpEvent to handle Access requests to the PZ server.
  * 
@@ -26,33 +28,33 @@ public class CoOpAccessEvent extends CoOpEvent {
 	/** The String ID of the Event. */
 	public static final String ID = "CoOpAccessEvent";
 
-	/** The <Result> of the CopAccessEvent. */
-	private Result result = null;
-	/** The <String> reason provided for the <Result>. */
+	/** The <AccessResult> of the CopAccessEvent. */
+	private AccessResult accessResult = null;
+	/** The <String> reason provided for the <AccessResult>. */
 	private String reason = null;
 
 	/**
 	 * Main constructor.
 	 * 
 	 * @param result
-	 *            The <Result> of the Co-Op Access Request.
+	 *            The <AccessResult> of the Co-Op Access Request.
 	 */
-	public CoOpAccessEvent(Result result) {
-		this.result = result;
+	public CoOpAccessEvent(AccessResult result) {
+		this.accessResult = result;
 	}
 
 	/**
-	 * Alternative constructor for providing a <String> reason for the <Result>
-	 * given.
+	 * Alternative constructor for providing a <String> reason for the
+	 * <AccessResult> given.
 	 * 
-	 * @param result
-	 *            The <Result> of the Co-Op Access Request.
+	 * @param accessResult
+	 *            The <AccessResult> of the Co-Op Access Request.
 	 * @param reason
-	 *            The <String> reason for the <Result> given.
+	 *            The <String> reason for the <AccessResult> given.
 	 */
-	public CoOpAccessEvent(Result result, String reason) {
-		this.result = result;
-		this.reason = reason;
+	public CoOpAccessEvent(AccessResult accessResult, String reason) {
+		setAccessResult(accessResult);
+		setReason(reason);
 	}
 
 	@Override
@@ -66,60 +68,39 @@ public class CoOpAccessEvent extends CoOpEvent {
 	}
 
 	/**
-	 * @return Returns the <String> reason for the <Result> given.
+	 * @return Returns the <String> reason for the <AccessResult> given.
 	 */
 	public String getReason() {
-		return reason;
+		return this.reason;
 	}
 
 	/**
-	 * @return Returns the <Result> of the Co-Op Access Request.
-	 */
-	public Result getResult() {
-		return result;
-	}
-
-	/**
-	 * Enumeration for CoOpAccessEvent results.
+	 * (Private Method)
 	 * 
-	 * @author Jab
+	 * Sets the <String> reason for the <AccessResult> given.
+	 * 
+	 * @param reason
 	 */
-	public static enum Result {
-		// @formatter:off
-		GRANTED(0),
-		DENIED(1);
-		// @formatter:on
+	private void setReason(String reason) {
+		this.reason = reason;
+	}
 
-		/** The <Integer> Id of the <Result>. */
-		private int id;
+	/**
+	 * @return Returns the <AccessResult> of the Co-Op Access Request.
+	 */
+	public AccessResult getAccessResult() {
+		return this.accessResult;
+	}
 
-		/**
-		 * Main constructor.
-		 * 
-		 * @param id
-		 *            The <Integer> id of the <Result>.
-		 */
-		private Result(int id) {
-			setId(id);
-		}
-
-		/**
-		 * @return Returns the <Integer> id of the <Result>.
-		 */
-		public int getId() {
-			return this.id;
-		}
-
-		/**
-		 * (Private Method)
-		 * 
-		 * Sets the <Integer> id of the <Result>.
-		 * 
-		 * @param id
-		 *            The <Integer> id to set.
-		 */
-		private void setId(int id) {
-			this.id = id;
-		}
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <AccessResult> of the Co-Op Access Request.
+	 * 
+	 * @param accessResult
+	 *            The <AccessResult> to set.
+	 */
+	private void setAccessResult(AccessResult accessResult) {
+		this.accessResult = accessResult;
 	}
 }
