@@ -28,13 +28,15 @@ import se.krka.kahlua.vm.KahluaTable;
  * not efficient with data storage.
  * 
  * @author Jab
- *
  */
 public abstract class LuaTable extends LuaObject {
 
-	public static final byte COPY_OVERWRITE = (byte) 0;
+	// @formatter:off
+	public static final byte COPY_OVERWRITE  = (byte) 0;
 	public static final byte COPY_UNDERWRITE = (byte) 1;
+	// @formatter:on
 
+	/** Flag to mark the <LuaObject> as dirty for exporting. */
 	private boolean dirty = true;
 
 	/**
@@ -46,7 +48,7 @@ public abstract class LuaTable extends LuaObject {
 	 * Main constructor.
 	 * 
 	 * @param name
-	 *            Name of the LuaObject.
+	 *            The <String> name of the <LuaObject>.
 	 */
 	public LuaTable(String name) {
 		super(name);
@@ -54,6 +56,14 @@ public abstract class LuaTable extends LuaObject {
 		this.data = new HashMap<>();
 	}
 
+	/**
+	 * Alternative constructor for importing a <KahluaTable>.
+	 * 
+	 * @param name
+	 *            The <String> name of the <LuaObject>.
+	 * @param table
+	 *            The <KahluaTable> to import.
+	 */
 	public LuaTable(String name, KahluaTable table) {
 		super(name);
 		// Initialize the raw data Map.
@@ -62,6 +72,9 @@ public abstract class LuaTable extends LuaObject {
 		onLoad(table);
 	}
 
+	/**
+	 * Exports the <LuaObject> as a <KahluaTable>.
+	 */
 	public KahluaTable export() {
 		KahluaTable outTable;
 		// Call 'onExport()' to make sure the data is accurate.
@@ -96,7 +109,9 @@ public abstract class LuaTable extends LuaObject {
 	 * Copies data from another LuaObject
 	 * 
 	 * @param other
+	 *            The <LuaObject> to copy.
 	 * @param flag
+	 *            The <Byte> flag to set for what kind of COPY to perform.
 	 */
 	public void copy(LuaTable other, byte flag) {
 		// Check to make sure that LuaObjects are the same.
@@ -125,7 +140,9 @@ public abstract class LuaTable extends LuaObject {
 	 * Sets a field's data.
 	 * 
 	 * @param field
+	 *            The <String> field to set the <Object> value at.
 	 * @param value
+	 *            The <Object> value to set.
 	 */
 	public void set(String field, Object value) {
 		// All Lua values must be Doubles.
@@ -142,7 +159,9 @@ public abstract class LuaTable extends LuaObject {
 	 * Sets the value at a given index.
 	 * 
 	 * @param index
+	 *            The <Integer> index to set the <Object> value at.
 	 * @param value
+	 *            The <Object> value to set.
 	 */
 	public void set(int index, Object value) {
 		// All Lua values must be Doubles.
@@ -160,7 +179,8 @@ public abstract class LuaTable extends LuaObject {
 	 * Creates a shallow copy of a KahluaTable instance.
 	 * 
 	 * @param other
-	 * @return
+	 *            The <KahluaTable> to copy/
+	 * @return Returns a shallow copy of the given <KahluaTable>.
 	 */
 	public static KahluaTable copyTable(KahluaTable other) {
 		// Create a new table.
@@ -187,10 +207,10 @@ public abstract class LuaTable extends LuaObject {
 	}
 
 	/**
-	 * Returns a field's data.
-	 * 
 	 * @param field
-	 * @return
+	 *            The <Object> key paired with the Object returned.
+	 * @return Returns a field's data. If no <Object> is defined with the given
+	 *         Object key, null is returned.
 	 */
 	public Object get(Object key) {
 		return this.data.get(key);
@@ -211,28 +231,22 @@ public abstract class LuaTable extends LuaObject {
 	}
 
 	/**
-	 * Returns the raw dataset for the LuaObject.
-	 * 
-	 * @return
+	 * @return Returns the raw dataset for the LuaObject.
 	 */
 	public Map<Object, Object> getData() {
 		return this.data;
 	}
 
 	/**
-	 * Returns whether or not the LuaTable is considered dirty (Data has changed
-	 * without saving it).
-	 * 
-	 * @return
+	 * @return Returns whether or not the LuaTable is considered dirty (Data has
+	 *         changed without saving it).
 	 */
 	public boolean isDirty() {
 		return this.dirty;
 	}
 
 	/**
-	 * returns the size of the table.
-	 * 
-	 * @return
+	 * @return Returns the size of the table.
 	 */
 	public int getSize() {
 		return data.size();
