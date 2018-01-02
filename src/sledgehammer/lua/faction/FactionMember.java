@@ -21,25 +21,31 @@ import java.util.UUID;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.module.faction.MongoFactionMember;
-import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
 import sledgehammer.module.faction.ModuleFactions;
 
 /**
- * TODO: Document.
+ * MongoLuaObject to handle faction-member data and operations for the Factions
+ * Module.
  * 
  * @author Jab
  */
-public class FactionMember extends LuaTable {
+public class FactionMember extends MongoLuaObject<MongoFactionMember> {
 
-	private MongoFactionMember mongoFactionMember;
-
+	/** The <Faction> the <FactionMember> is in. */
 	private Faction faction;
 
-	public FactionMember(MongoFactionMember mongoFactionMember) {
-		super("FactionMember");
-		setMongoDocument(mongoFactionMember);
+	/**
+	 * Main constructor.
+	 * 
+	 * @param mongoDocument
+	 *            The <MongoDocument> container.
+	 */
+	public FactionMember(MongoFactionMember mongoDocument) {
+		super(mongoDocument, "FactionMember");
+		setMongoDocument(mongoDocument);
 	}
 
 	@Override
@@ -52,31 +58,13 @@ public class FactionMember extends LuaTable {
 		// TODO: implement.
 	}
 
-	public MongoFactionMember getMongoDocument() {
-		return this.mongoFactionMember;
-	}
-
-	private void setMongoDocument(MongoFactionMember mongoFactionMember) {
-		this.mongoFactionMember = mongoFactionMember;
-	}
-
-	public UUID getPlayerId() {
-		return getMongoDocument().getPlayerId();
-	}
-
-	public UUID getFactionId() {
-		return getMongoDocument().getFactionId();
-	}
-
-	public Faction getFaction() {
-		return this.faction;
-	}
-
 	/**
 	 * Sets the new Faction.
 	 * 
 	 * @param faction
+	 *            The <Faction> to set.
 	 * @param save
+	 *            The flag to save the Document.
 	 */
 	public void setFaction(Faction faction, boolean save) {
 		boolean success = false;
@@ -118,4 +106,24 @@ public class FactionMember extends LuaTable {
 		moduleFactions.removeFactionMember(this);
 	}
 
+	/**
+	 * @return Returns the <UUID> of the <Player> as the <FactionMember>.
+	 */
+	public UUID getPlayerId() {
+		return getMongoDocument().getPlayerId();
+	}
+
+	/**
+	 * @return Returns the <UUID> of the <Faction> the <FactionMember> is in.
+	 */
+	public UUID getFactionId() {
+		return getMongoDocument().getFactionId();
+	}
+
+	/**
+	 * @return Returns the <Faction> the <FactionMember> is in.
+	 */
+	public Faction getFaction() {
+		return this.faction;
+	}
 }
