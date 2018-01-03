@@ -22,12 +22,13 @@ import zombie.sledgehammer.PacketHelper;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * TODO: Document.
+ * Action that executes <NPC>'s Attacking another <IsoGameCharacter>.
  * 
  * @author Jab
  */
 public class ActionAttackCharacter extends Action {
 
+	/** The <String> name of the <Action>. */
 	public static final String NAME = "Action->AttackCharacter";
 
 	@Override
@@ -48,5 +49,4 @@ public class ActionAttackCharacter extends Action {
 	public String getName() {
 		return NAME;
 	}
-
 }
