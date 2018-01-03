@@ -1,4 +1,7 @@
-.metadata
+## Project Zomboid
+#
+# Legal exclusion of class files.
+src/main/java/zombie/
 
 # Production builds
 prod/
@@ -13,6 +16,39 @@ local.properties
 .settings/
 .loadpath
 .recommenders
+
+target/
+
+# User-specific stuff:
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+
+# Sensitive or high-churn files:
+.idea/**/dataSources/
+.idea/**/dataSources.ids
+.idea/**/dataSources.xml
+.idea/**/dataSources.local.xml
+.idea/**/sqlDataSources.xml
+.idea/**/dynamic.xml
+.idea/**/uiDesigner.xml
+
+# Mongo Explorer plugin:
+.idea/**/mongoSettings.xml
+
+## File-based project format:
+*.iws
+
+## Plugin-specific files:
+
+# IntelliJ
+out/
+
+# mpeltonen/sbt-idea plugin
+.idea_modules/
+
+# JIRA plugin
+atlassian-ide-plugin.xml
 
 # Eclipse Core
 .project
@@ -59,15 +95,3 @@ bin/
 
 # NodeJS folder.
 node_modules/
-
-## Project Zomboid
-#
-# Legal exclusion of class files.
-src/zombie
-src/zombieold
-src/zombie3711
-src/zombie3712
-src/zombie3710
-src/zombie3709
-src/zombie3822
-src/sledgehammer/modules/vanilla/VanillaCommandListener.java
