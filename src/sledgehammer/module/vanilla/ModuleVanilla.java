@@ -19,65 +19,68 @@ package sledgehammer.module.vanilla;
 import java.util.HashMap;
 import java.util.Map;
 
-import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.plugin.Module;
 import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
 /**
- * TODO: Document.
+ * Module to handle Vanilla data and operations for the Core Plug-in.
  * 
  * @author Jab
  */
 public class ModuleVanilla extends Module {
 
-	private Map<String, String> mapContexts;
-	private CommandListener commandListener;
+	/**
+	 * The <Map> of <String> permission-nodes identified by the <String> commands
+	 * they represent.
+	 */
+	private Map<String, String> mapPermissionNodes;
+	/** The <CommandListener> instance for the <Module>. */
+	private VanillaCommandListener commandListener;
 	private LogEventListener logListener;
 
 	public ModuleVanilla() {
 		// Adding contexts to this class for exposure & modification purposes. (This is
-		// not in vanilla).
-		// Otherwise, this would be defined in the CommandHandler.
+		// not in vanilla) Otherwise, this would be defined in the CommandHandler.
 		// @formatter:off
-		mapContexts = new HashMap<>();
-		mapContexts.put("roll"                   , "base.command.player.rolldice"              );
-		mapContexts.put("changepwd"              , "base.command.player.changepwd"             );
-		mapContexts.put("card"                   , "base.command.player.card"                  );
-		mapContexts.put("addalltowhitelist"      , "base.command.admin.addalltowhitelist"      );
-		mapContexts.put("additem"                , "base.command.admin.additem"                );
-		mapContexts.put("adduser"                , "base.command.admin.adduser"                );
-		mapContexts.put("addusertowhitelist"     , "base.command.admin.addusertowhitelist"     );
-		mapContexts.put("addxp"                  , "base.command.admin.addxp"                  );
-		mapContexts.put("alarm"                  , "base.command.admin.alarm"                  );
-		mapContexts.put("changeoption"           , "base.command.admin.changeoption"           );
-		mapContexts.put("chopper"                , "base.command.admin.chopper"                );
-		mapContexts.put("createhorde"            , "base.command.admin.createhorde"            );
-		mapContexts.put("disconnect"             , "base.command.admin.disconnect"             );
-		mapContexts.put("godmod"                 , "base.command.admin.godmod"                 );
-		mapContexts.put("grantadmin"             , "base.command.admin.grantadmin"             );
-		mapContexts.put("gunshot"                , "base.command.admin.gunshot"                );
-		mapContexts.put("invisible"              , "base.command.admin.invisible"              );
-		mapContexts.put("kickuser"               , "base.command.admin.kickuser"               );
-		mapContexts.put("noclip"                 , "base.command.admin.noclip"                 );
-		mapContexts.put("players"                , "base.command.admin.players"                );
-		mapContexts.put("quit"                   , "base.command.admin.quit"                   );
-		mapContexts.put("reloadlua"              , "base.command.admin.reloadlua"              );
-		mapContexts.put("reload"                 , "base.command.admin.reload"                 );
-		mapContexts.put("reloadoptions"          , "base.command.admin.reloadoptions"          );
-		mapContexts.put("removeadmin"            , "base.command.admin.removeadmin"            );
-		mapContexts.put("removeuserfromwhitelist", "base.command.admin.removeuserfromwhitelist");
-		mapContexts.put("save"                   , "base.command.admin.save"                   );
-		mapContexts.put("sendpulse"              , "base.command.admin.sendpulse"              );
-		mapContexts.put("showoptions"            , "base.command.admin.showoptions"            );
-		mapContexts.put("startrain"              , "base.command.admin.startrain"              );
-		mapContexts.put("stoprain"               , "base.command.admin.stoprain"               );
-		mapContexts.put("teleport"               , "base.command.admin.teleport"               );
-		mapContexts.put("thunder"                , "base.command.admin.thunder"                );
-		mapContexts.put("banuser"                , "base.command.admin.banuser"                );
-		mapContexts.put("unbanuser"              , "base.command.admin.unbanuser"              );
-		mapContexts.put("banid"                  , "base.command.admin.banid"                  );
-		mapContexts.put("unbanid"                , "base.command.admin.unbanid"                );
+		mapPermissionNodes = new HashMap<>();
+		mapPermissionNodes.put("roll"                   , "base.command.player.rolldice"              );
+		mapPermissionNodes.put("changepwd"              , "base.command.player.changepwd"             );
+		mapPermissionNodes.put("card"                   , "base.command.player.card"                  );
+		mapPermissionNodes.put("addalltowhitelist"      , "base.command.admin.addalltowhitelist"      );
+		mapPermissionNodes.put("additem"                , "base.command.admin.additem"                );
+		mapPermissionNodes.put("adduser"                , "base.command.admin.adduser"                );
+		mapPermissionNodes.put("addusertowhitelist"     , "base.command.admin.addusertowhitelist"     );
+		mapPermissionNodes.put("addxp"                  , "base.command.admin.addxp"                  );
+		mapPermissionNodes.put("alarm"                  , "base.command.admin.alarm"                  );
+		mapPermissionNodes.put("changeoption"           , "base.command.admin.changeoption"           );
+		mapPermissionNodes.put("chopper"                , "base.command.admin.chopper"                );
+		mapPermissionNodes.put("createhorde"            , "base.command.admin.createhorde"            );
+		mapPermissionNodes.put("disconnect"             , "base.command.admin.disconnect"             );
+		mapPermissionNodes.put("godmod"                 , "base.command.admin.godmod"                 );
+		mapPermissionNodes.put("grantadmin"             , "base.command.admin.grantadmin"             );
+		mapPermissionNodes.put("gunshot"                , "base.command.admin.gunshot"                );
+		mapPermissionNodes.put("invisible"              , "base.command.admin.invisible"              );
+		mapPermissionNodes.put("kickuser"               , "base.command.admin.kickuser"               );
+		mapPermissionNodes.put("noclip"                 , "base.command.admin.noclip"                 );
+		mapPermissionNodes.put("players"                , "base.command.admin.players"                );
+		mapPermissionNodes.put("quit"                   , "base.command.admin.quit"                   );
+		mapPermissionNodes.put("reloadlua"              , "base.command.admin.reloadlua"              );
+		mapPermissionNodes.put("reload"                 , "base.command.admin.reload"                 );
+		mapPermissionNodes.put("reloadoptions"          , "base.command.admin.reloadoptions"          );
+		mapPermissionNodes.put("removeadmin"            , "base.command.admin.removeadmin"            );
+		mapPermissionNodes.put("removeuserfromwhitelist", "base.command.admin.removeuserfromwhitelist");
+		mapPermissionNodes.put("save"                   , "base.command.admin.save"                   );
+		mapPermissionNodes.put("sendpulse"              , "base.command.admin.sendpulse"              );
+		mapPermissionNodes.put("showoptions"            , "base.command.admin.showoptions"            );
+		mapPermissionNodes.put("startrain"              , "base.command.admin.startrain"              );
+		mapPermissionNodes.put("stoprain"               , "base.command.admin.stoprain"               );
+		mapPermissionNodes.put("teleport"               , "base.command.admin.teleport"               );
+		mapPermissionNodes.put("thunder"                , "base.command.admin.thunder"                );
+		mapPermissionNodes.put("banuser"                , "base.command.admin.banuser"                );
+		mapPermissionNodes.put("unbanuser"              , "base.command.admin.unbanuser"              );
+		mapPermissionNodes.put("banid"                  , "base.command.admin.banid"                  );
+		mapPermissionNodes.put("unbanid"                , "base.command.admin.unbanid"                );
 		// @formatter:on
 	}
 
@@ -93,15 +96,30 @@ public class ModuleVanilla extends Module {
 		unregister(logListener);
 	}
 
-	public CommandListener getCommandListener() {
+	/**
+	 * @return Returns the <VanillaCommandListener> for the Vanilla Module.
+	 */
+	public VanillaCommandListener getCommandListener() {
 		return commandListener;
 	}
 
-	public void setCommandListener(CommandListener listener) {
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <VanillaCommandListener> for the Vanilla Module.
+	 * 
+	 * @param listener
+	 *            The <VanillaCommandListener> to set.
+	 */
+	public void setCommandListener(VanillaCommandListener listener) {
 		this.commandListener = listener;
 	}
 
-	public Map<String, String> getContexts() {
-		return this.mapContexts;
+	/**
+	 * @return Returns the <Map> of <String> permission-nodes identified by the
+	 *         <String> commands they represent.
+	 */
+	public Map<String, String> getCommandPermissionNodes() {
+		return this.mapPermissionNodes;
 	}
 }
