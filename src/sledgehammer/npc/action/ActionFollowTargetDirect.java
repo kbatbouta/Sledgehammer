@@ -23,12 +23,13 @@ import zombie.network.GameServer;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * TODO: Document.
+ * Action that executes <NPC>'s following a targeted location directly.
  * 
  * @author Jab
  */
 public class ActionFollowTargetDirect extends Action {
 
+	/** The <String> name of the <Action>. */
 	public static final String NAME = "Action->FollowTargetDirect";
 
 	@Override
