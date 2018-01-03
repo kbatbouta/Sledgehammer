@@ -22,12 +22,13 @@ import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * TODO: Document.
+ * Action that executes <NPC>'s grabbing an item that is on the ground.
  * 
  * @author Jab
  */
 public class ActionGrabItemOnGround extends Action {
 
+	/** The <String> name of the <Action>. */
 	public static final String NAME = "Action->GrabItemOnGround";
 
 	@Override
