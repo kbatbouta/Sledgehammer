@@ -20,150 +20,63 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.interfaces.CommandListener;
-import sledgehammer.lua.core.Player;
-import sledgehammer.npc.behavior.BehaviorSurvive;
 import sledgehammer.plugin.Module;
-import sledgehammer.util.Command;
-import sledgehammer.util.Response;
-import sledgehammer.util.Result;
-import sledgehammer.util.ZUtil;
 import zombie.characters.IsoGameCharacter;
-import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.SurvivorFactory;
 import zombie.iso.IsoCell;
-import zombie.iso.IsoGridSquare;
-import zombie.network.ServerMap;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * TODO: Implement.
+ * Module to handle NPC data and operations for the Core Plug-in of
+ * Sledgehammer.
  * 
- * TODO: Document.
+ * TODO: Rewrite NPCs and remove the NPCManager.
  * 
  * @author Jab
  */
 public class ModuleNPC extends Module {
 
+	/** Debug flag for the <Module>. */
 	public static final boolean DEBUG = true;
 
-	private Map<NPC, IsoGameCharacter> mapSpawners;
-	private CommandListener commandListener = null;
+	/**
+	 * The <Map> of native <IsoGameCharacter> Objects, identified by the
+	 * Sledgehammer <NPC> wrapper.
+	 */
+	protected Map<NPC, IsoGameCharacter> mapSpawners;
 
+	/** The <CommandListener> implementation for the <Module>. */
+	private NPCCommandListener commandListener = null;
+
+	@Override
 	public void onLoad() {
 		mapSpawners = new HashMap<>();
-		// LuaManager.exposer.exposeClass(NPC.class);
-
-		commandListener = new CommandListener() {
-
-			public String[] getCommands() {
-				return new String[] { "addnpc", "destroynpcs" };
-			}
-
-			public void onCommand(Command c, Response r) {
-				String command = c.getCommand();
-				String[] args = c.getArguments();
-				Player commander = c.getPlayer();
-				if (command.equalsIgnoreCase("addnpc")) {
-					if (commander.hasPermission(getPermissionNode("addnpc"))) {
-						if (args.length == 1) {
-							IsoPlayer player = c.getPlayer().getIso();
-							IsoGridSquare square = null;
-							float x = 0, y = 0, z = 0;
-							if (player != null) {
-
-								int attempts = 0;
-								int maxAttempts = 50;
-
-								while (square == null) {
-									x = player.x + ZUtil.random.nextInt(11) - 5;
-									y = player.y + ZUtil.random.nextInt(11) - 5;
-									z = player.z;
-									square = ServerMap.instance.getGridSquare((int) Math.floor(x), (int) Math.floor(y),
-											(int) Math.floor(z));
-									if (attempts >= maxAttempts) {
-										x = player.x;
-										y = player.y;
-										z = player.z;
-										square = ServerMap.instance.getGridSquare((int) Math.floor(x),
-												(int) Math.floor(y), (int) Math.floor(z));
-										if (square == null) {
-											r.set(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
-											return;
-										}
-									}
-									attempts++;
-								}
-							}
-							String name = args[0];
-							NPC fakePlayer = createFakePlayer(name, x, y, z);
-							println("Adding fake player \"" + name + " at (" + x + "," + y + "," + z
-									+ "). PlayerIndex: " + fakePlayer.PlayerIndex + " OnlineID: "
-									+ fakePlayer.OnlineID);
-
-							BehaviorSurvive behavior = new BehaviorSurvive(fakePlayer);
-							behavior.setDefaultTarget(player);
-							behavior.setActive(true);
-							fakePlayer.addBehavior(behavior);
-
-							mapSpawners.put(fakePlayer, player);
-
-							r.set(Result.SUCCESS, "NPC created.");
-							return;
-						} else {
-							r.set(Result.FAILURE, onTooltip(c.getPlayer(), c));
-							return;
-						}
-					} else {
-						r.set(Result.FAILURE, getPermissionDeniedMessage());
-						return;
-					}
-				} else if (command.equalsIgnoreCase("destroynpcs")) {
-					if (commander.hasPermission(getPermissionNode("destroynpcs"))) {
-						SledgeHammer.instance.getNPCManager().destroyNPCs();
-						r.set(Result.SUCCESS, "NPCs destroyed.");
-					} else {
-						r.set(Result.FAILURE, getPermissionDeniedMessage());
-						return;
-					}
-				}
-			}
-
-			public String onTooltip(Player player, Command command) {
-				if (player.hasPermission(getPermissionNode(command.getCommand()))) {
-					if (command.getCommand().equalsIgnoreCase("addnpc")) {
-						return "Adds a fake player at current location. ex: /addnpc \"name\"";
-					} else if (command.getCommand().equalsIgnoreCase("destroynpcs")) {
-						return "Destroys all active NPCs.";
-					}
-				}
-				return null;
-			}
-
-			public String getPermissionNode(String command) {
-				if (command.equalsIgnoreCase("addnpc")) {
-					return "sledgehammer.npc.add";
-				} else if (command.equalsIgnoreCase("destroynpcs")) {
-					return "sledgehammer.npc.remove";
-				}
-				return null;
-			}
-
-		};
-
+		commandListener = new NPCCommandListener(this);
 		register(commandListener);
 	}
 
+	@Override
 	public void onUnload() {
 		unregister(commandListener);
 	}
 
+	/**
+	 * @param name
+	 *            The <String> name of the <NPC>.
+	 * @param x
+	 *            The <Float> x-coordinate to spawn the <NPC>.
+	 * @param y
+	 *            The <Float> y-coordinate to spawn the <NPC>.
+	 * @param z
+	 *            The <Float> z-coordinate to spawn the <NPC>.
+	 * @return Returns a <NPC> instance with the <String> name, spawned at the given
+	 *         <Float> coordinates.
+	 */
 	public NPC createFakePlayer(String name, float x, float y, float z) {
 		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
 		System.out.println("SurvivorDesc ID: " + desc.getID());
 		NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
 		return SledgeHammer.instance.getNPCManager().addNPC(npc);
 	}
-
 }
