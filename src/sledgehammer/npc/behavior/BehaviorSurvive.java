@@ -87,6 +87,7 @@ public class BehaviorSurvive extends Behavior {
 				return;
 			}
 			float distToHit = 2F;
+			NPC npc = getNPC();
 			HandWeapon weapon = npc.getPrimaryWeapon();
 			if (weapon != null) {
 				distToHit = weapon.getMinRange() * 2;
@@ -156,6 +157,7 @@ public class BehaviorSurvive extends Behavior {
 			}
 		}
 		if (!foundJob) {
+			NPC npc = getNPC();
 			IsoObject target = npc.getPrimaryTarget();
 			if (target != null) {
 				setFollow(true);
