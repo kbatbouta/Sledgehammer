@@ -22,9 +22,7 @@ import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
 
 /**
- * TODO: Implement.
- * 
- * TODO: Document.
+ * PermissionListener for the Permissions Module for the Core plug-in.
  * 
  * @author Jab
  */
@@ -62,17 +60,14 @@ public class PermissionsListener implements PermissionListener {
 			// Trim the node string to exclude the operator.
 			node = node.substring(0, node.length() - 2);
 		}
-		System.out.println("Wildcard: " + wildcard);
 		// Check the default permissions first.
 		PermissionGroup permissionGroupDefault = module.getDefaultPermissionGroup();
 		granted = wildcard ? permissionGroupDefault.hasAnyPermission(node) : permissionGroupDefault.hasPermission(node);
-		System.out.println("Default permission for node \"" + node + "\": " + granted);
 		// If the player is assigned as a permission user, then override the default
 		// flag.
 		PermissionUser permissionUser = module.getPermissionUser(player);
 		if (permissionUser != null) {
 			granted = wildcard ? permissionUser.hasAnyPermission(node) : permissionUser.hasPermission(node);
-			System.out.println("User permission for node \"" + node + "\": " + granted);
 		}
 		return granted;
 	}
@@ -90,30 +85,11 @@ public class PermissionsListener implements PermissionListener {
 		// Grab the PermissionUser.
 		PermissionUser permissionUser = module.getPermissionUser(player);
 		// If the PermissionUser does not exist, create it.
-		if(permissionUser == null) {
+		if (permissionUser == null) {
 			permissionUser = module.createPermissionUser(player.getUniqueId());
 		}
 		// Set the Permission for the user.
 		permissionUser.setPermission(node, flag, true);
-	}
-
-	/**
-	 * @return Returns the <ModulePermissions> instance using the listener.
-	 */
-	public ModulePermissions getModule() {
-		return this.module;
-	}
-
-	/**
-	 * (Internal Method)
-	 * 
-	 * Sets the <ModulePermissions> instance using the listener.
-	 * 
-	 * @param module
-	 *            The <ModulePermissions> instance to set.
-	 */
-	private void setModule(ModulePermissions module) {
-		this.module = module;
 	}
 
 	@Override
@@ -124,8 +100,26 @@ public class PermissionsListener implements PermissionListener {
 
 	@Override
 	public boolean hasDefaultPermission(String node) {
-		PermissionGroup permissionGroupDefault = module.getDefaultPermissionGroup();		
+		PermissionGroup permissionGroupDefault = module.getDefaultPermissionGroup();
 		return permissionGroupDefault.hasPermission(node);
 	}
 
+	/**
+	 * @return Returns the <ModulePermissions> instance using the listener.
+	 */
+	public ModulePermissions getModule() {
+		return this.module;
+	}
+
+	/**
+	 * (Private Method)
+	 * 
+	 * Sets the <ModulePermissions> instance using the listener.
+	 * 
+	 * @param module
+	 *            The <ModulePermissions> instance to set.
+	 */
+	private void setModule(ModulePermissions module) {
+		this.module = module;
+	}
 }
