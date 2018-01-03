@@ -1,4 +1,4 @@
-package sledgehammer.util;
+package sledgehammer.enums;
 
 /**
  * Enumeration for ProjectZomboid's Lua Event types.

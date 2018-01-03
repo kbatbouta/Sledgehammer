@@ -1,13 +1,13 @@
 package sledgehammer.module.npc;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.enums.Result;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.npc.behavior.BehaviorSurvive;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
-import sledgehammer.util.Result;
 import sledgehammer.util.ZUtil;
 import zombie.characters.IsoPlayer;
 import zombie.iso.IsoGridSquare;

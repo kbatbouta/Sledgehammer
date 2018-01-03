@@ -16,7 +16,7 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.event;
 
-import sledgehammer.util.AccessResult;
+import sledgehammer.enums.AccessResult;
 
 /**
  * CoOpEvent to handle Access requests to the PZ server.

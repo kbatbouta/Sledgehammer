@@ -17,6 +17,7 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
+import sledgehammer.enums.Result;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.ConnectEvent;
 import sledgehammer.event.DisconnectEvent;
@@ -33,7 +34,6 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.plugin.MongoModule;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
-import sledgehammer.util.Result;
 
 /**
  * TODO: Document.

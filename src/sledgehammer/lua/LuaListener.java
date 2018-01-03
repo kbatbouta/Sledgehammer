@@ -17,10 +17,10 @@ This file is part of Sledgehammer.
 package sledgehammer.lua;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.enums.LuaEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.ScriptEvent;
 import sledgehammer.interfaces.EventListener;
-import sledgehammer.util.LuaEvent;
 import sledgehammer.util.Printable;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoLivingCharacter;

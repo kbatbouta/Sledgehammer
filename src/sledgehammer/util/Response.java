@@ -17,6 +17,8 @@ This file is part of Sledgehammer.
 package sledgehammer.util;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.enums.LogType;
+import sledgehammer.enums.Result;
 
 /**
  * TODO: Document.

@@ -31,6 +31,7 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.database.module.faction.MongoFaction;
 import sledgehammer.database.module.faction.MongoFactionInvite;
 import sledgehammer.database.module.faction.MongoFactionMember;
+import sledgehammer.enums.Result;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
@@ -39,7 +40,6 @@ import sledgehammer.lua.faction.FactionInvite;
 import sledgehammer.lua.faction.FactionMember;
 import sledgehammer.plugin.MongoModule;
 import sledgehammer.util.Response;
-import sledgehammer.util.Result;
 
 /**
  * Module responsible for managing factions.

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.enums.Result;
 import sledgehammer.event.ChatEvent;
 import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
@@ -34,7 +35,6 @@ import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.module.core.CoreCommandListener;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Command;
-import sledgehammer.util.Result;
 import zombie.core.logger.LoggerManager;
 import zombie.core.raknet.UdpConnection;
 

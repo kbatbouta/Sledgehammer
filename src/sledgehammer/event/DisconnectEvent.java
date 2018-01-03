@@ -16,8 +16,8 @@ This file is part of Sledgehammer.
 */
 package sledgehammer.event;
 
+import sledgehammer.enums.DisconnectType;
 import sledgehammer.lua.core.Player;
-import sledgehammer.util.DisconnectType;
 import zombie.core.raknet.UdpConnection;
 
 /**

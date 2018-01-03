@@ -21,15 +21,15 @@ import java.util.Map;
 import java.util.UUID;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.enums.LogType;
+import sledgehammer.enums.Result;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionMember;
 import sledgehammer.util.Command;
-import sledgehammer.util.LogType;
 import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
-import sledgehammer.util.Result;
 
 //Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;

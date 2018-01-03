@@ -37,13 +37,13 @@ This file is part of Sledgehammer.
 
 import java.util.UUID;
 
+import sledgehammer.enums.Result;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionInvite;
 import sledgehammer.lua.faction.FactionMember;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Response;
-import sledgehammer.util.Result;
 
 /**
  * TODO: Document

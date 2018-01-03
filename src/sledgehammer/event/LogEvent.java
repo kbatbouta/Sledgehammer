@@ -16,8 +16,8 @@ This file is part of Sledgehammer.
 */
 package sledgehammer.event;
 
+import sledgehammer.enums.LogType;
 import sledgehammer.lua.core.Player;
-import sledgehammer.util.LogType;
 
 /**
  * Event to store and manage logging data for other Events, as well as any

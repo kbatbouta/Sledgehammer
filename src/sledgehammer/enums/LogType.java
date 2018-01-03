@@ -1,4 +1,4 @@
-package sledgehammer.util;
+package sledgehammer.enums;
 
 /**
  * Enumeration to handle types of <LogEvents> with their <Integer> ids.

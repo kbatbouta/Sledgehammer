@@ -1,4 +1,4 @@
-package sledgehammer.util;
+package sledgehammer.enums;
 
 public enum DisconnectType {
 	// @formatter:off
