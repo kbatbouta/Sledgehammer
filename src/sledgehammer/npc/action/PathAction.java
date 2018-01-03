@@ -21,15 +21,33 @@ import zombie.ai.astar.Path;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * TODO: Implement.
+ * Action that handles native <Path> and <Mover> operations for <NPC>'s.
  * 
  * @author Jab
  */
 public abstract class PathAction extends Action {
 
+	/**
+	 * Fired when the <NPC> has successfully reached the destination of the <Path>.
+	 * 
+	 * @param npc
+	 *            The <NPC> to act.
+	 * @param mover
+	 *            The <Mover> that is executing the path-finding process.
+	 * @param path
+	 *            The <Path> that is projected for the <NPC> to move.
+	 */
 	public void onPathSuccess(NPC npc, Mover mover, Path path) {
 	}
 
+	/**
+	 * Fired when the <NPC> fails to reach the destination of the <Path>.
+	 * 
+	 * @param npc
+	 *            The <NPC> to act.
+	 * @param mover
+	 *            The <Mover> that is executing the path-finding process.
+	 */
 	public void onPathFailure(NPC npc, Mover mover) {
 	}
 }
