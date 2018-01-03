@@ -290,7 +290,7 @@ public abstract class Module extends Printable {
 	public File getModuleDirectory() {
 		PluginManager managerPlugin = getModuleManager();
 		if (directory == null) {
-			directory = new File(managerPlugin.getDirectory(), getModuleName());
+			directory = new File(managerPlugin.getPluginDirectory(), getModuleName());
 			if (!directory.exists()) {
 				directory.mkdirs();
 			}
