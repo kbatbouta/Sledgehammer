@@ -53,13 +53,11 @@ public class ModulePermissions extends MongoModule {
 	private Map<UUID, PermissionGroup> mapPermissionGroups;
 	/** The <Map> storing the <Permissionuser> containers. */
 	private Map<UUID, PermissionUser> mapPermissionUsers;
-
 	/**
 	 * The <PermissionListener> implementation to hook into Sledgehammer's core when
 	 * checking permissions.
 	 */
 	private PermissionsListener permissionsListener;
-
 	/**
 	 * The default <PermissionGroup> to base decisions for players not assigned to
 	 * groups.
@@ -87,11 +85,9 @@ public class ModulePermissions extends MongoModule {
 		loadPermissionUsers();
 		// Connect the data from groups to users.
 		assignObjects();
-
 		// Create the Default PermissionGroup.
 		MongoPermissionGroup mongoPermissionGroupDefault = new MongoPermissionGroup(collectionGroups, "default");
 		permissionGroupDefault = new PermissionGroup(mongoPermissionGroupDefault);
-		
 		permissionsListener = new PermissionsListener(this);
 		setPermissionListener(permissionsListener);
 	}
@@ -108,7 +104,7 @@ public class ModulePermissions extends MongoModule {
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
 	 * Loads the MongoDocuments, and the Lua containers for permission groups.
 	 */
@@ -138,7 +134,7 @@ public class ModulePermissions extends MongoModule {
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
 	 * Loads the MongoDocuments, and the Lua containers for permission users.
 	 */
@@ -168,7 +164,7 @@ public class ModulePermissions extends MongoModule {
 	}
 
 	/**
-	 * (Internal Method)
+	 * (Private Method)
 	 * 
 	 * Pairs up <PermissionUser> to <PermissionGroup> and vice versa.
 	 */
@@ -390,6 +386,9 @@ public class ModulePermissions extends MongoModule {
 		return this.mapPermissionUsers.get(playerId);
 	}
 
+	/**
+	 * @return Returns the default <PermissionGroup> instance.
+	 */
 	public PermissionGroup getDefaultPermissionGroup() {
 		return this.permissionGroupDefault;
 	}
