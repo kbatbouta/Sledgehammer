@@ -31,24 +31,36 @@ import zombie.sledgehammer.npc.NPC;
 import zombie.sledgehammer.npc.action.ActionFollowTargetPath;
 
 /**
- * TODO: Document.
+ * Behavior to handle a <NPC> to survive in the game-world by finding weapons
+ * and killing zombies.
  * 
  * @author Jab
  */
 public class BehaviorSurvive extends Behavior {
 
+	/** The <List> of noted nearby <IsoZombie>'s to the <NPC>. */
 	private List<IsoZombie> listNearbyZombies = null;
+	/** <Long> time-stamp to note the last time items were searched. */
 	private long timeThenItemSearch = 0L;
+	/** <Long> time-stamp to note the last time zombies were looked up. */
 	private long timeThenNearbyZombieLookup = 0L;
+	/** <Long> time-stamp to optimize item searches. */
 	private long deltaItemSearch = 1000L;
+	/** <Long> time-stamp to optimize zombie lookup. */
 	private long deltaNearbyZombieLookup = 1000L;
-	/**
-	 * Hold a maximum of 2 of a certain item.
-	 */
+	/** Hold a maximum of 2 of a certain item. */
 	private int maximumIdenticalItemsToCarry = 2;
+	/** The flag to note if a valuable item has been spotted. */
 	private boolean seesItemWorth = false;
+	/** the flag to note if the <NPC> is attacking an <IsoZombie>. */
 	private boolean isAttackingZombie = false;
 
+	/**
+	 * Main constructor.
+	 * 
+	 * @param npc
+	 *            The <NPC> to influence.
+	 */
 	public BehaviorSurvive(NPC npc) {
 		super(npc);
 	}
@@ -167,10 +179,13 @@ public class BehaviorSurvive extends Behavior {
 		}
 	}
 
+	/**
+	 * Checks to see if there's valuable items nearby on the ground to grab.
+	 */
 	public void scanForValuableItems() {
 		// If the NPC is already going to pick up another item, then there's no
 		// need to scan, until the item is picked up.
-		if (getWorldItemTarget() != null) {			
+		if (getWorldItemTarget() != null) {
 			return;
 		}
 		// Scan for nearby items on the ground.
