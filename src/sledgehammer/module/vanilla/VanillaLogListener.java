@@ -22,12 +22,14 @@ import sledgehammer.util.Printable;
 import zombie.core.logger.LoggerManager;
 
 /**
- * TODO: Document.
+ * LogListener that forwards <LogEvent>'s to ProjectZomboid's administrator
+ * <ZLogger> instance.
  * 
  * @author Jab
  */
 public class VanillaLogListener extends Printable implements LogEventListener {
 
+	/** The <String> name of the <Module>. */
 	public static final String NAME = "VanillaLogListener";
 
 	@Override
