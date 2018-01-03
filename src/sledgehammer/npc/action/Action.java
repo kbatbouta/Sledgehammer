@@ -20,11 +20,18 @@ import sledgehammer.util.Printable;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * TODO: Document.
+ * Abstract Class to execute Actioned tasks for <NPC>'s.
  * 
  * @author Jab
  */
 public abstract class Action extends Printable {
-	public abstract boolean act(NPC npc);
 
+	/**
+	 * Executes an Action for a given <NPC>.
+	 * 
+	 * @param npc
+	 *            The <NPC> to act.
+	 * @return Returns true if the <Action> is successful.
+	 */
+	public abstract boolean act(NPC npc);
 }
