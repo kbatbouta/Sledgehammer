@@ -16,6 +16,7 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.module.permissions;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +28,7 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.database.module.permissions.MongoPermissionGroup;
 import sledgehammer.database.module.permissions.MongoPermissionUser;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
@@ -58,11 +60,13 @@ public class ModulePermissions extends MongoModule {
 	 * checking permissions.
 	 */
 	private PermissionsListener permissionsListener;
+	private PermissionsCommandListener permissionsCommandListener;
 	/**
 	 * The default <PermissionGroup> to base decisions for players not assigned to
 	 * groups.
 	 */
 	private PermissionGroup permissionGroupDefault;
+	private LanguagePackage lang;
 
 	/**
 	 * Main constructor.
@@ -73,6 +77,11 @@ public class ModulePermissions extends MongoModule {
 
 	@Override
 	public void onLoad() {
+        // Make sure that the core language file(s) are provided.
+        saveResourceAs("lang/permissions_en.yml", new File(getLanguageDirectory(), "permissions_en.yml"), false);
+        // Load the LanguagePackage.
+        lang = new LanguagePackage(getLanguageDirectory(), "permissions");
+        lang.load();
 		// Grab the database we are using to store permission data.
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		// Grab the collection for permission groups.
@@ -90,10 +99,13 @@ public class ModulePermissions extends MongoModule {
 		permissionGroupDefault = new PermissionGroup(mongoPermissionGroupDefault);
 		permissionsListener = new PermissionsListener(this);
 		setPermissionListener(permissionsListener);
+        permissionsCommandListener = new PermissionsCommandListener(this);
+        register(permissionsCommandListener);
 	}
 
 	@Override
 	public void onUnload() {
+	    unregister(permissionsCommandListener);
 		mapMongoPermissionGroups.clear();
 		mapMongoPermissionUsers.clear();
 		mapPermissionGroups.clear();
@@ -401,4 +413,11 @@ public class ModulePermissions extends MongoModule {
 	public PermissionGroup getPermissionGroup(UUID groupId) {
 		return this.mapPermissionGroups.get(groupId);
 	}
+
+    /**
+     * @return Returns the LanguagePackage for the Permissions Module.
+     */
+    public LanguagePackage getLanguagePackage() {
+        return this.lang;
+    }
 }

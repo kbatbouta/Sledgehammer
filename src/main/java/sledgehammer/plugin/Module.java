@@ -368,6 +368,26 @@ public abstract class Module extends Printable {
 		plugin.saveResourceAs(jarPath, file);
 	}
 
+    /**
+     * Saves a File resource stored in the Plug-in Jar file to the absolute File path provided.. If the File exists in the location given and
+     * overwrite is set to false, the File will not be saved.
+     *
+     * @param jarPath
+     *            The <String> path to the File inside the Jar File.
+     * @param absolutePath
+     *            The absolute File location to save the file. (This is not a directory, but a full file path)
+     * @param overwrite
+     *            Flag to set if the File is to be overwritten, regardless of it's
+     *            state.
+     */
+    public void saveResourceAs(String jarPath, File absolutePath, boolean overwrite) {
+        if (!overwrite && absolutePath.exists()) {
+            return;
+        }
+        Plugin plugin = getPlugin();
+        plugin.saveResourceAs(jarPath, absolutePath);
+    }
+
 	/**
 	 * Approximate method for 'SledgeHammer.instance.register(type, listener)'.
 	 * 
@@ -719,6 +739,13 @@ public abstract class Module extends Printable {
 	public boolean isStarted() {
 		return this.started;
 	}
+
+    /**
+     * @return Returns the File path to the language directory.
+     */
+	public File getLanguageDirectory() {
+	    return SledgeHammer.instance.getLanguageDirectory();
+    }
 
 	/**
 	 * Fired when the <Module> is loaded.

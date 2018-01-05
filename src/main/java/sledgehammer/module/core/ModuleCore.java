@@ -60,14 +60,13 @@ public class ModuleCore extends Module {
 
 	private Map<String, MongoPeriodicMessage> mapPeriodicMessages;
 	private List<MongoPeriodicMessage> listPeriodicMessages;
-
 	private CoreCommandListener commandListener;
 	private CoreEventListener eventListener;
 	private MongoCollection collectionPeriodicMessages;
 	private SendPlayer sendPlayer;
-
 	private LanguagePackage lang;
-
+	private File directory;
+	private File directoryLang;
 	private long timeThenPeriodicMessages = 0L;
 	private long timeThenCheckAccountExpire = 0L;
 	private long delayCheckAccountExpire = LONG_DAY;
@@ -75,20 +74,11 @@ public class ModuleCore extends Module {
 
 	@Override
 	public void onLoad() {
-
-		File directory = getModuleDirectory();
-		if (!directory.exists()) {
-			directory.mkdirs();
-		}
-		File directoryLang = new File(directory, "lang");
-		if(!directoryLang.exists()) {
-			directoryLang.mkdirs();
-		}
-		saveResourceAs("lang/core_en.yml", "lang/core_en.yml", false);
-
-		lang = new LanguagePackage(directoryLang, "core");
+		// Make sure that the core language file(s) are provided.
+		saveResourceAs("lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), false);
+		// Load the LanguagePackage.
+		lang = new LanguagePackage(getLanguageDirectory(), "core");
 		lang.load();
-
 		sendPlayer = new SendPlayer();
 		SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
 		collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
@@ -226,9 +216,7 @@ public class ModuleCore extends Module {
 	}
 
 	/**
-	 * FIXME: Convert to MongoDB.
-	 * 
-	 * @throws SQLException
+	 * Loads the PeriodicMessages from the MongoDB database.
 	 */
 	private void loadPeriodicMessages() {
 		DBCursor cursor = collectionPeriodicMessages.find();

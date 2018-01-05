@@ -32,7 +32,7 @@ require "Util"
 -- @author Jab
 -- @license LGPL3
 ----------------------------------------------------------------
-ChatWindow = Window:derive("Chat");
+ChatWindow = Window:derive("ChatWindow");
 
 ----------------------------------------------------------------
 -- 
@@ -100,8 +100,8 @@ function ChatWindow:createTabPanel()
 	tab_panel:initialise();
 	-- Set method to focus on the text input.
 	tab_panel.onTabFocus = function(panel)
-		if Chat.instance ~= nil and Chat.instance.input ~= nil then
-			Chat.instance.input:focus();
+		if ChatWindow.instance ~= nil and ChatWindow.instance.input ~= nil then
+			ChatWindow.instance.input:focus();
 		end
 	end
 	return tab_panel;

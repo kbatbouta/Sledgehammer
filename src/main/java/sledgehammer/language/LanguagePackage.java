@@ -215,6 +215,7 @@ public class LanguagePackage {
 		LanguageFile file = mapLanguageFiles.get(language);
 		if (file != null) {
 			value = file.get(key);
+			value = processString(value, this, language);
 		}
 		return value;
 	}
@@ -357,6 +358,7 @@ public class LanguagePackage {
 					in = false;
 					index += 1;
 					key = key.toLowerCase().trim();
+					System.out.println(" Next Key: " + key);
 					valNext = mapStrings.get(key);
 					if (valNext == null) {
 						for (EntryField entryNext : entries) {

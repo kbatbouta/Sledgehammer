@@ -1,0 +1,24 @@
+#   _____                           _
+#  |     |___ _____ _____ ___ ___ _| |___
+#  |   --| . |     |     | .'|   | . |_ -|
+#  |_____|___|_|_|_|_|_|_|__,|_|_|___|___|
+#
+## General
+boolean: "[true,1|false,0]"
+
+## Tool-Tips
+command_tooltip_permissions_header: "Permissions commands:"
+command_tooltip_permissions: "/permissions [group|user]"
+command_tooltip_permissions_group: "/permissions group [create|delete|set]"
+command_tooltip_permissions_group_create: "/permissions group create \"name\""
+command_tooltip_permissions_group_delete: "/permissions group delete \"name\""
+command_tooltip_permissions_group_rename: "/permissions group rename \"group-name\" \"new-name\""
+command_tooltip_permissions_group_set: "/permissions group set [context|parent]"
+command_tooltip_permissions_group_set_node: "/permissions group set node \"group-name\" \"permission-node\" {{boolean}}"
+command_tooltip_permissions_group_set_parent: "/permissions group set parent \"group-name\" \"parent-group-name\""
+command_tooltip_permissions_user: "/permissions user [create|delete|set]"
+command_tooltip_permissions_user_create: "/permissions user create \"user-name\""
+command_tooltip_permissions_user_delete: "/permissions user delete \"user-name\""
+command_tooltip_permissions_user_set: "/permissions user set [node|group]"
+command_tooltip_permissions_user_set_node: "/permissions user set node \"username\" \"permission-node\" {{boolean}}"
+command_tooltip_permissions_user_set_group: "/permissions user set group \"username\" \"groupname\""

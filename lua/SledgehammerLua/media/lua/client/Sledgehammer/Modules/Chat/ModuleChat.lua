@@ -106,7 +106,7 @@ function Module_Chat:requestChannels()
 			chat_channel:initialize(table_channel);
 			moduleChat:addChatChannel(chat_channel);
 		end
-		self.gui.tab_panel:setActiveTab(0);
+		self.gui.tab_panel:setActiveTab("Global");
 		-- After initializing the data, set the chat to visible.
 		self.gui:setVisible(true);
 		self:requestChannelsHistory();

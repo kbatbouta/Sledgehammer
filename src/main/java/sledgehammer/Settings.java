@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -237,7 +238,7 @@ public class Settings extends Printable {
 	 * 
 	 * Parses and interprets the security section.
 	 * 
-	 * @param general
+	 * @param security
 	 *            The <Map> definition.
 	 */
 	private void parseSecurityConfig(Map security) {
@@ -285,7 +286,7 @@ public class Settings extends Printable {
 	 * 
 	 * Parses and interprets the MongoDB database section.
 	 * 
-	 * @param general
+	 * @param mongoDB
 	 *            The <Map> definition.
 	 */
 	private void parseDatabaseConfig(Map mongoDB) {
@@ -829,15 +830,16 @@ public class Settings extends Printable {
 	 */
 	private static List<String> readConfigFile() {
 		try {
-			List<String> listString = new LinkedList<>();
 			FileReader fr = new FileReader("config.yml");
 			BufferedReader br = new BufferedReader(fr);
-			for (Object oLine : br.lines().toArray()) {
-				listString.add((String) oLine);
+			List<String> lines = new ArrayList<>();
+			String line;
+			while((line = br.readLine()) != null) {
+				lines.add(line);
 			}
 			br.close();
 			fr.close();
-			return listString;
+			return lines;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
