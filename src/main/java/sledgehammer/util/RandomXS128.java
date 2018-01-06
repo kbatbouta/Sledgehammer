@@ -1,4 +1,4 @@
-/*******************************************************************************
+/* ******************************************************************************
  * Copyright 2011 See AUTHORS file.
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
  * limitations under the License.
  ******************************************************************************/
 
-/**
+/*
  * NOTE: This is an external library, and the source is available. This is under
  * the copyright above, not the license of Sledgehammer. 
  * 

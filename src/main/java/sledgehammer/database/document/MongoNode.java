@@ -35,15 +35,15 @@ public class MongoNode extends MongoDocumentElement {
 	/**
 	 * New constructor.
 	 * 
-	 * @param collection
-	 *            The <DBCollection> storing the document. This can be null for
+	 * @param mongoDocument
+	 *            The MongoDocument to set. This can be null for
 	 *            temporary objects, and set later. Until a valid document is set,
 	 *            the object cannot be saved with 'save()' and cannot be deleted
 	 *            with 'delete()'.
 	 * @param node
-	 *            The <String> ID of the <MongoNode>
+	 *            The String ID of the MongoNode
 	 * @param flag
-	 *            The state <Boolean> flag.
+	 *            The state Boolean flag.
 	 */
 	public MongoNode(MongoDocument mongoDocument, String node, boolean flag) {
 		super(mongoDocument, "node");
@@ -56,8 +56,11 @@ public class MongoNode extends MongoDocumentElement {
 	/**
 	 * MongoDB constructor.
 	 * 
-	 * @param collection
-	 *            The <DBCollection> storing the document.
+	 * @param mongoDocument
+	 *            The MongoDocument to set. This can be null for
+	 *            temporary objects, and set later. Until a valid document is set,
+	 *            the object cannot be saved with 'save()' and cannot be deleted
+	 *            with 'delete()'.
 	 */
 	public MongoNode(MongoDocument mongoDocument) {
 		super(mongoDocument, "node");

@@ -1,7 +1,7 @@
 package sledgehammer.enums;
 
 public enum DisconnectType {
-	// @formatter:off
+    // @formatter:off
 	DISCONNECT_EXITED_GAME(0),
 	DISCONNECT_SERVER_FULL(1),
 	DISCONNECT_USERNAME_ALREADY_LOGGED_IN(2),
@@ -13,35 +13,35 @@ public enum DisconnectType {
 	DISCONNECT_MISC(8);
 	// @formatter:on
 
-	/** The <Integer> id of the <DisconnectType>. */
-	private int id;
+    /**
+     * The id of the DisconnectType.
+     */
+    private int id;
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param id
-	 *            The <Integer> id of the <DisconnectType>.
-	 */
-	private DisconnectType(int id) {
-		setId(id);
-	}
+    /**
+     * Main constructor.
+     *
+     * @param id The id of the DisconnectType.
+     */
+    private DisconnectType(int id) {
+        setId(id);
+    }
 
-	/**
-	 * @return Returns the <Integer> id of the <DisconnectType>.
-	 */
-	public int getId() {
-		return this.id;
-	}
+    /**
+     * @return Returns the id of the DisconnectType.
+     */
+    public int getId() {
+        return this.id;
+    }
 
-	/**
-	 * (Private Method)
-	 * 
-	 * Sets the <Integer> id of the <DisconnectType>.
-	 * 
-	 * @param id
-	 *            The <Integer> id to set.
-	 */
-	private void setId(int id) {
-		this.id = id;
-	}
+    /**
+     * (Private Method)
+     * <p>
+     * Sets the id of the DisconnectType.
+     *
+     * @param id The id to set.
+     */
+    private void setId(int id) {
+        this.id = id;
+    }
 }

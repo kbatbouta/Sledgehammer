@@ -22,105 +22,105 @@ import zombie.Lua.LuaManager;
 
 /**
  * An abstract utility Class that allows proper organization and export of
- * <KahluaTable>'s for complex data structures.
- * 
+ * KahluaTables for complex data structures.
+ *
  * @author Jab
  */
 public abstract class LuaObject extends Printable {
 
-	/** Global flag for debugging <LuaObject>'s. */
-	public static boolean DEBUG = false;
-	/** Global flag for verbose debugging <LuaObject>'s. */
-	public static boolean VERBOSE = false;
+    /**
+     * Global flag for debugging LuaObjects.
+     */
+    public static boolean DEBUG = false;
+    /**
+     * Global flag for verbose debugging LuaObjects.
+     */
+    public static boolean VERBOSE = false;
 
-	/**
-	 * The <String> name of the <LuaObject>. This is shown as '__name' in the
-	 * exported <KahluaTable>.
-	 */
-	private String name;
+    /**
+     * The String name of the LuaObject. This is shown as '__name' in the
+     * exported KahluaTable.
+     */
+    private String name;
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param name
-	 *            The <String> name of the <LuaObject>. This is shown as '__name' in
-	 *            the exported <KahluaTable>.
-	 */
-	public LuaObject(String name) {
-		this.name = name;
-	}
+    /**
+     * Main constructor.
+     *
+     * @param name The String name of the LuaObject. This is shown as '__name' in
+     *             the exported KahluaTable.
+     */
+    public LuaObject(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * Returns the <String> name of the <LuaObject>. This is shown as '__name' in
-	 * the exported <KahluaTable>.
-	 */
-	public String getName() {
-		return this.name;
-	}
+    /**
+     * Returns the String name of the LuaObject. This is shown as '__name' in
+     * the exported KahluaTable.
+     */
+    public String getName() {
+        return this.name;
+    }
 
-	/**
-	 * Sets the <String> name of the <LuaObject>. This is shown as '__name' in the
-	 * exported <KahluaTable>.
-	 * 
-	 * @param name
-	 *            The <String> name to set.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    /**
+     * Sets the String name of the LuaObject. This is shown as '__name' in the
+     * exported KahluaTable.
+     *
+     * @param name The String name to set.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	/**
-	 * @return Returns an exported version of a <LuaObject> formatted as a
-	 *         <KahluaTable>.
-	 */
-	public abstract KahluaTable export();
+    /**
+     * @return Returns an exported version of a LuaObject formatted as a
+     * KahluaTable.
+     */
+    public abstract KahluaTable export();
 
-	/**
-	 * Validates an <Object> value for KahLua.
-	 * 
-	 * @param value
-	 *            The <Object> value to validate.
-	 * @return Returns the validated <Object>.
-	 */
-	public static Object processValue(Object value) {
-		Object result = value;
-		if (value instanceof Number) {
-			result = toLuaNumber((Number) value);
-		} else if (value instanceof LuaObject) {
-			result = ((LuaObject) value).export();
-		}
-		if (DEBUG && VERBOSE) {
-			if (value == null) {
-				System.out.println("LuaObject: Processed Value is null.");
-			} else {
-				System.out.println("LuaObject: Processed Result of \'" + value.getClass() + "\' = " + value + ": \'"
-						+ result.getClass() + "\' = " + result);
-			}
-		}
-		return result;
-	}
+    /**
+     * Validates an Object value for KahLua.
+     *
+     * @param value The Object value to validate.
+     * @return Returns the validated Object.
+     */
+    public static Object processValue(Object value) {
+        Object result = value;
+        if (value instanceof Number) {
+            result = toLuaNumber((Number) value);
+        } else if (value instanceof LuaObject) {
+            result = ((LuaObject) value).export();
+        }
+        if (DEBUG && VERBOSE) {
+            if (value == null) {
+                System.out.println("LuaObject: Processed Value is null.");
+            } else {
+                System.out.println("LuaObject: Processed Result of \'" + value.getClass() + "\' = " + value + ": \'"
+                        + result.getClass() + "\' = " + result);
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * Formats a given <Number> to a double, as Lua requires all values to be
-	 * doubles.
-	 * 
-	 * @param number
-	 *            The <Number> being formatted for Lua.
-	 * @return Returns a <Double> value as a <Number>.
-	 */
-	public static Number toLuaNumber(Number number) {
-		if (number instanceof Long) {
-			return Double.longBitsToDouble((Long) number);
-		} else {
-			return number.doubleValue();
-		}
-	}
+    /**
+     * Formats a given Number to a double, as Lua requires all values to be
+     * doubles.
+     *
+     * @param number The Number being formatted for Lua.
+     * @return Returns a Double value as a Number.
+     */
+    public static Number toLuaNumber(Number number) {
+        if (number instanceof Long) {
+            return Double.longBitsToDouble((Long) number);
+        } else {
+            return number.doubleValue();
+        }
+    }
 
-	/**
-	 * @return Returns a new <KahluaTable> instance, generated by the <J2SEPlatform>
-	 *         instance for KahLua in the ProjectZomboid <LuaManager>.
-	 */
-	public static KahluaTable newTable() {
-		return LuaManager.platform.newTable();
-	}
+    /**
+     * @return Returns a new KahluaTable instance, generated by the J2SEPlatform
+     * instance for KahLua in the ProjectZomboid LuaManager.
+     */
+    public static KahluaTable newTable() {
+        return LuaManager.platform.newTable();
+    }
 }

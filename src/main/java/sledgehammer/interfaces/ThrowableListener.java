@@ -19,18 +19,16 @@ package sledgehammer.interfaces;
 /**
  * Listener for Exceptions that are thrown within the scope of the Sledgehammer
  * engine.
- * 
+ *
  * @author Jab
  */
 public interface ThrowableListener {
 
-	/**
-	 * Handles <Throwable>'s thrown within the scope of the Sledgehammer engine.
-	 * 
-	 * @param reason
-	 *            The <String> reason provided by the sitation.
-	 * @param throwable
-	 *            The <Throwable> thrown.
-	 */
-	void onError(String reason, Throwable throwable);
+    /**
+     * Handles Throwables thrown within the scope of the Sledgehammer engine.
+     *
+     * @param reason    The String reason provided by the situation.
+     * @param throwable The Throwable thrown.
+     */
+    void onError(String reason, Throwable throwable);
 }

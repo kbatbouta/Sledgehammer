@@ -37,7 +37,7 @@ public class LanguageFile {
 	 * @param language
 	 *            The <Language> that the <LanguageFile> represents.
 	 */
-	public LanguageFile(File file, Language language) {
+	LanguageFile(File file, Language language) {
 		mapEntries = new HashMap<>();
 		setFile(file);
 		setLanguage(language);
@@ -51,16 +51,19 @@ public class LanguageFile {
 		for (Object oKey : map.keySet()) {
 			String key = (String) oKey;
 			Object oValue = map.get(oKey);
-			String value = null;
+			StringBuilder builder = new StringBuilder();
+			String value;
 			if (oValue instanceof List) {
 				for (Object entry : (List) oValue) {
 					String line = entry.toString();
-					if (value == null) {
-						value = line;
+					if (builder.length() == 0) {
+						builder.append(line);
 					} else {
-						value += LanguagePackage.NEW_LINE + line;
+						builder.append(LanguagePackage.NEW_LINE);
+						builder.append(line);
 					}
 				}
+				value = builder.toString();
 			} else {
 				value = oValue.toString();
 			}
@@ -98,8 +101,8 @@ public class LanguageFile {
 	/**
 	 * Adds a <String> entry with the given String id.
 	 * 
-	 * @param id
-	 * @param entry
+	 * @param id The String ID to identify the entry.
+	 * @param entry The String entry to add.
 	 */
 	public void add(String id, String entry) {
 		mapEntries.put(id.toLowerCase(), entry);

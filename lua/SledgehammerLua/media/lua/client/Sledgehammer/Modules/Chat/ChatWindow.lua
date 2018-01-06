@@ -172,9 +172,6 @@ end
 --   when the Player is interfacing the window.
 ----------------------------------------------------------------
 function ChatWindow:updateAlphaFactor()
-
-	-- print("isMouseOver(): "..tostring(self:isMouseOver()));
-
 	if self:isMouseOver() then
 		self.amp = self.amp + 4;
 		if self.amp > 100 then 
@@ -196,7 +193,6 @@ function ChatWindow:updateAlphaFactor()
 			self.alpha_factor = 0.85;
 		end
 	end
-	--print("alpha_factor: "..tostring(self.alpha_factor));
 	for key,panel in pairs(self.tab_panel.panels) do
 		panel.alpha_factor = self.alpha_factor;
 	end
@@ -221,6 +217,7 @@ end
 -- @Override
 ----------------------------------------------------------------
 function ChatWindow:onFocus(x, y)
+	print("onFocus("..tostring(x)..","..tostring(y)..")");
 	-- Grab the Discord button's position.
 	local discord_button_position = self:getDiscordButtonPosition();
 	-- Grab the Alpha button's position.
@@ -263,8 +260,6 @@ function ChatWindow:handleCommand(command_message)
 		__name  = "SendCommand",
 		command = command
 	};
-	-- Print the Command if Sledgehammer is running in Debug-Mode.
-	rPrint(args);
 	-- Send the Command to the server.
 	sendClientCommand("core", "sendCommand", args);
 end
@@ -340,7 +335,6 @@ function ChatWindow:handleMessage(message)
 			__name  = "SendChatMessage",
 			message = lua_table
 		};
-		rPrint(args);
 		-- Send the LuaObject to the server.
 		sendClientCommand("core.chat", "sendChatMessage", args);
 	else

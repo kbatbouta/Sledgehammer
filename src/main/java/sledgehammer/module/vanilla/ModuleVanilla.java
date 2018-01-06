@@ -25,24 +25,24 @@ import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 
 /**
  * Module to handle Vanilla data and operations for the Core Plug-in.
- * 
+ *
  * @author Jab
  */
 public class ModuleVanilla extends Module {
 
-	/**
-	 * The <Map> of <String> permission-nodes identified by the <String> commands
-	 * they represent.
-	 */
-	private Map<String, String> mapPermissionNodes;
-	/** The <CommandListener> instance for the <Module>. */
-	private VanillaCommandListener commandListener;
-	private LogEventListener logListener;
+    /**
+     * The Map of String permission-nodes identified by the String commands
+     * they represent.
+     */
+    private Map<String, String> mapPermissionNodes;
+    /** The CommandListener instance for the Module. */
+    private VanillaCommandListener commandListener;
+    private LogEventListener logListener;
 
-	public ModuleVanilla() {
-		// Adding contexts to this class for exposure & modification purposes. (This is
-		// not in vanilla) Otherwise, this would be defined in the CommandHandler.
-		// @formatter:off
+    public ModuleVanilla() {
+        // Adding contexts to this class for exposure & modification purposes. (This is
+        // not in vanilla) Otherwise, this would be defined in the CommandHandler.
+        // @formatter:off
 		mapPermissionNodes = new HashMap<>();
 		mapPermissionNodes.put("roll"                   , "base.command.player.rolldice"              );
 		mapPermissionNodes.put("changepwd"              , "base.command.player.changepwd"             );
@@ -82,44 +82,43 @@ public class ModuleVanilla extends Module {
 		mapPermissionNodes.put("banid"                  , "base.command.admin.banid"                  );
 		mapPermissionNodes.put("unbanid"                , "base.command.admin.unbanid"                );
 		// @formatter:on
-	}
+    }
 
-	@Override
-	public void onLoad() {
-		commandListener = new VanillaCommandListener(this);
-		logListener = new VanillaLogListener();
-		register(logListener);
-	}
+    @Override
+    public void onLoad() {
+        commandListener = new VanillaCommandListener(this);
+        logListener = new VanillaLogListener();
+        register(logListener);
+    }
 
-	@Override
-	public void onUnload() {
-		unregister(logListener);
-	}
+    @Override
+    public void onUnload() {
+        unregister(logListener);
+    }
 
-	/**
-	 * @return Returns the <VanillaCommandListener> for the Vanilla Module.
-	 */
-	public VanillaCommandListener getCommandListener() {
-		return commandListener;
-	}
+    /**
+     * @return Returns the VanillaCommandListener for the Vanilla Module.
+     */
+    public VanillaCommandListener getCommandListener() {
+        return commandListener;
+    }
 
-	/**
-	 * (Private Method)
-	 * 
-	 * Sets the <VanillaCommandListener> for the Vanilla Module.
-	 * 
-	 * @param listener
-	 *            The <VanillaCommandListener> to set.
-	 */
-	public void setCommandListener(VanillaCommandListener listener) {
-		this.commandListener = listener;
-	}
+    /**
+     * (Private Method)
+     * <p>
+     * Sets the VanillaCommandListener for the Vanilla Module.
+     *
+     * @param listener The VanillaCommandListener to set.
+     */
+    public void setCommandListener(VanillaCommandListener listener) {
+        this.commandListener = listener;
+    }
 
-	/**
-	 * @return Returns the <Map> of <String> permission-nodes identified by the
-	 *         <String> commands they represent.
-	 */
-	public Map<String, String> getCommandPermissionNodes() {
-		return this.mapPermissionNodes;
-	}
+    /**
+     * @return Returns the Map of String permission-nodes identified by the
+     * String commands they represent.
+     */
+    public Map<String, String> getCommandPermissionNodes() {
+        return this.mapPermissionNodes;
+    }
 }

@@ -18,14 +18,11 @@
 
 require "ISUI/ISUIElement"
 require "ISUI/ISPanel"
-
 require "Sledgehammer/Objects/Color"
 
 Component = ISPanel:derive("Component");
-
 Component.__type = "Component";
 Component.__extends = "ISPanel";
-
 renderer = getRenderer();
 
 function Component:new(x, y, w, h)
@@ -46,13 +43,56 @@ function Component:initialise()
 	ISPanel.initialise(self);
 end
 
+function Component:render()
+	if self.parent == nil then
+		self:_render();
+	end
+end
+
+function Component:_renderChildren()
+	for id, child in pairs(self.children) do 
+		if child ~= nil then
+			if child._render ~= nil then
+				child:_render();
+			else
+				child.javaObject:render();
+			end
+		end
+	end
+end
+
+function Component:getLocalMouse()
+	local m  = self:getMouse();
+	local ax = self:getAbsoluteX();
+	local ay = self:getAbsoluteY();
+	return {x = m.x - ax, y = m.y - ay};
+end
+
+function Component:containsPoint(x, y, dimension)
+	if dimension == nil then
+		return ISUIElement.containsPoint(self, x, y);
+	end
+	if x >= dimension.x1 and x <= dimension.x2 and y >= dimension.y1 and y <= dimension.y2 then
+		return true;
+	else
+		return false;
+	end
+end
+
+-- Injected method for scrolling.
+function ISUIElement:scrollToBottom()
+	self:setYScroll(-(self:getScrollHeight() - (self:getScrollAreaHeight())));
+end
+
+function Component:getMouse()
+	return {x = getMouseX(), y = getMouseY()};
+end
+
 function Component:drawLineH(x, y, length, thickness, color)
 	local af = self.alpha_factor;
 	if af == nil then af = 1; end
-
 	local br = self.brightness;
 	if br == nil then br = 1; end
-	
 	local r = (color.r / 255.0) * br;
 	local g = (color.g / 255.0) * br;
 	local b = (color.b / 255.0) * br;
@@ -63,10 +103,8 @@ end
 function Component:drawLineV(x, y, length, thickness, color)
 	local af = self.alpha_factor;
 	if af == nil then af = 1; end
-
 	local br = self.brightness;
 	if br == nil then br = 1; end
-
 	local r = (color.r / 255.0) * br;
 	local g = (color.g / 255.0) * br;
 	local b = (color.b / 255.0) * br;
@@ -77,10 +115,8 @@ end
 function Component:fillRect(x, y, w, h, color)
 	local af = self.alpha_factor;
 	if af == nil then af = 1; end
-
 	local br = self.brightness;
 	if br == nil then br = 1; end
-	
 	local r = (color.r / 255.0) * br;
 	local g = (color.g / 255.0) * br;
 	local b = (color.b / 255.0) * br;
@@ -92,9 +128,7 @@ function Component:alphaGradientH(x, y, w, h, color, alphaStart, alphaStop)
 	local as1 = alphaStart / 255.0;
 	local as2 = alphaStop / 255.0;
 	local step = math.abs(as2 - as1) / w;
-	if alphaStart < alphaStop then
-		step = -step;
-	end
+	if alphaStart < alphaStop then step = -step; end
 	local n = x + w;
 	for nx = x, n, 1 do
 		local nextColor = {};
@@ -110,9 +144,7 @@ function Component:alphaGradientV(x, y, w, h, color, alphaStart, alphaStop)
 	local as1 = alphaStart / 255.0;
 	local as2 = alphaStop / 255.0;
 	local step = math.abs(as2 - as1) / h;
-	if alphaStart < alphaStop then
-		step = -step;
-	end
+	if alphaStart < alphaStop then step = -step; end
 	local n = y + h;
 	for ny = y, n, 1 do
 		local nextColor = {};
@@ -122,17 +154,6 @@ function Component:alphaGradientV(x, y, w, h, color, alphaStart, alphaStop)
 		nextColor.a = (as1 - (math.abs(ny - y) * step)) * 255.0;
 		self:drawLineH(x, ny, w, 1, nextColor);
 	end
-end
-
-function Component:getMouse()
-	return {x = getMouseX(), y = getMouseY()};
-end
-
-function Component:getLocalMouse()
-	local m  = self:getMouse();
-	local ax = self:getAbsoluteX();
-	local ay = self:getAbsoluteY();
-	return {x = m.x - ax, y = m.y - ay};
 end
 
 function Component:drawRect(x, y, w, h, color)
@@ -178,16 +199,13 @@ function Component:drawTab(text, x, y, length, height, textColor, borderColor, f
 end
 
 function Component:drawTab_(text, x, y, length, height, textColor, borderColor, font, active, highlightFactor, shadowText)
-	-- print("drawTab_");
 	local p = self:getParent();
 	local l = length;
 	local h = height;
-
 	local af = self.alpha_factor;
 	if af == nil then af = 1; end
 	local br = self.brightness;
 	if br == nil then br = 1; end
-
 	self:fillRect(x     + 3, y    , l - 6, 1    , borderColor); -- top
 	self:fillRect(x     + 1, y + 1, 2    , 1    , borderColor); -- top-left
 	self:fillRect(x     + 1, y + 1, 1    , 2    , borderColor);
@@ -195,24 +213,17 @@ function Component:drawTab_(text, x, y, length, height, textColor, borderColor, 
 	self:fillRect(x + l - 1, y + 2, 1    , 2    , borderColor);
 	self:fillRect(x        , y + 3, 1    , h    , borderColor);
 	self:fillRect(x + l    , y + 3, 1    , h    , borderColor);
-	
 	self:drawLineH(x + l, y + 3 + h, 2, 1, borderColor);
-
 	if not active then
 		self:fillRect(x, y + h + 3, l + 1, 1, borderColor);
 	end
-	
 	local oldbr = self.br;
-	
 	local br = highlightFactor;
-
 	if shadowText then
 		self:drawText(text, x - p.x + 2, y - p.y - 2 + 2, 0, 0, 0, limit((textColor.a / 255.0)  * af * 0.5, 0, 1), font);
 		self:drawText(text, x - p.x + 1, y - p.y - 2 + 1, limit((textColor.r / 255.0) * br * 0.1, 0, 1), limit((textColor.g / 255.0) * br * 0.1, 0, 1), limit((textColor.b / 255.0) * br * 0.1, 0, 1), limit((textColor.a / 255.0)  * af * 0.8, 0, 1), font);
 	end
-	-- self:drawText("All", 20, 20, 1, 0, 0, 1);
 	self:drawText(text, x - p.x, y - p.y - 2, limit((textColor.r / 255.0) * br, 0, 1), limit((textColor.g / 255.0) * br, 0, 1), limit((textColor.b / 255.0) * br, 0, 1), limit((textColor.a / 255.0)  * af, 0, 1), font);
-
 	return {x1 = x, x2 = x + l, y1 = y, y2 = y + h};
 end
 
@@ -227,40 +238,4 @@ function Component:fillRoundRectFancy(x, y, w, h, color)
 	self:drawRoundRect(x, y, w, h, color);
 end
 
-function Component:containsPoint(x, y, dimension)
-
-	if dimension == nil then
-		return ISUIElement.containsPoint(self, x, y);
-	end
-
-	if x >= dimension.x1 and x <= dimension.x2 and y >= dimension.y1 and y <= dimension.y2 then
-		return true;
-	else
-		return false;
-	end
-end
-
-function Component:render()
-	if self.parent == nil then
-		self:_render();
-	end
-end
-
 function Component:_render() end
-
-function Component:_renderChildren()
-	for id, child in pairs(self.children) do 
-		if child ~= nil then
-			if child._render ~= nil then
-				child:_render();
-			else
-				child.javaObject:render();
-			end
-		end
-	end
-end
-
--- Injected method for scrolling.
-function ISUIElement:scrollToBottom()
-	self:setYScroll(-(self:getScrollHeight() - (self:getScrollAreaHeight())));
-end

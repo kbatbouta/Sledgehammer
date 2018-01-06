@@ -195,12 +195,11 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				if (commander.isAdministrator()) {
 					if (args.length >= 2) {
 						String playerName = args[0];
-						String msg = "";
+						StringBuilder msg = new StringBuilder();
 						for (int x = 1; x < args.length; x++) {
-							msg += args[x] + " ";
+							msg.append(args[x]).append(" ");
 						}
-						msg = msg.substring(0, msg.length() - 1);
-
+						msg = new StringBuilder(msg.substring(0, msg.length() - 1));
 						Player playerDirty = SledgeHammer.instance.getPlayerDirty(playerName);
 						if (playerDirty != null) {
 							if (playerDirty.isConnected()) {
@@ -213,30 +212,24 @@ public class CoreCommandListener extends Printable implements CommandListener {
 								r.set(Result.SUCCESS, response);
 								r.log(LogType.STAFF,
 										"WARNED " + playerDirty.getName() + " with message: \"" + msg + "\".");
-								return;
 							} else {
 								response = "player is not Online: \"" + playerDirty.getName() + "\"";
 								r.set(Result.FAILURE, response);
-								return;
 							}
 						} else {
 							response = "Player not found: " + playerName;
 							r.set(Result.FAILURE, response);
-							return;
 						}
 					} else {
 						response = "/warn [player] [message...]";
 						r.set(Result.FAILURE, response);
-						return;
 					}
 				} else {
 					response = "Permission denied.";
 					r.set(Result.FAILURE, response);
-					return;
 				}
 			} else {
 				r.deny();
-				return;
 			}
 		} else if (command.startsWith("broadcast")) {
 			if (commander.hasPermission(getPermissionNode("broadcast"))) {
@@ -251,15 +244,12 @@ public class CoreCommandListener extends Printable implements CommandListener {
 					response = "Broadcast sent.";
 					r.set(Result.SUCCESS, response);
 					r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
-					return;
 				} else {
 					response = "/broadcast \"color\" \"message\"...";
 					r.set(Result.FAILURE, response);
-					return;
 				}
 			} else {
 				r.deny();
-				return;
 			}
 		} else if (command.startsWith("commitsuicide")) {
 			if (commander.hasPermission(getPermissionNode("commitsuicide"))) {
@@ -271,70 +261,58 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				response = "Done.";
 				r.set(Result.SUCCESS, response);
 				r.log(LogType.INFO, commander.getUsername() + " commited suicide.");
-
-				return;
 			} else {
 				r.deny();
-				return;
 			}
 		} else if (command.equalsIgnoreCase("properties")) {
 			if (commander.hasPermission(getPermissionNode("properties"))) {
 				Player playerProperties = null;
-
-				if (args.length == 0) {
-					playerProperties = commander;
-				} else if (args.length == 1) {
-					playerProperties = SledgeHammer.instance.getPlayer(username);
-				} else {
-					response = onTooltip(com.getPlayer(), com);
-					r.set(Result.FAILURE, response);
-					return;
+				switch (args.length) {
+					case 0:
+						playerProperties = commander;
+						break;
+					case 1:
+						playerProperties = SledgeHammer.instance.getPlayer(username);
+						break;
+					default:
+						response = onTooltip(com.getPlayer(), com);
+						r.set(Result.FAILURE, response);
+						return;
 				}
-
 				if (playerProperties != null) {
 					Map<String, String> properties = playerProperties.getProperties();
-
-					response = "Properties for player \"" + playerProperties + "\":" + ChatTags.NEW_LINE + " ";
-
+					StringBuilder builder = new StringBuilder();
+					builder.append("Properties for player \"").append(playerProperties).append("\":").append(ChatTags.NEW_LINE).append(" ");
 					for (String key : properties.keySet()) {
 						String value = properties.get(key);
-						response += key + ": " + value + ChatTags.NEW_LINE + " ";
+						builder.append(key).append(": ").append(value).append(ChatTags.NEW_LINE).append(" ");
 					}
-
-					r.set(Result.SUCCESS, response);
+					r.set(Result.SUCCESS, builder.toString());
 					r.log(LogType.INFO,
 							username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
-
 				} else {
 					response = onTooltip(com.getPlayer(), com);
 					r.set(Result.FAILURE, response);
-					return;
 				}
-
 			} else {
 				r.deny();
-				return;
 			}
 		} else if (command.equalsIgnoreCase("ban")) {
 			if (commander.hasPermission(getPermissionNode("ban"))) {
 				if (args.length > 0) {
 					ban(com, r, args);
-					return;
 				} else {
 					response = onTooltip(com.getPlayer(), com);
 					r.set(Result.FAILURE, response);
-					return;
 				}
 			} else {
 				r.deny();
-				return;
 			}
 		} else if (command.equalsIgnoreCase("unban")) {
 			if (commander.hasPermission(getPermissionNode("unban"))) {
 				if (args.length > 0) {
 					try {
 						unban(com, r, args);
-						return;
 					} catch (SQLException e) {
 						errorln("Database Error on command: Unban");
 						e.printStackTrace();
@@ -342,11 +320,9 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				} else {
 					response = onTooltip(com.getPlayer(), com);
 					r.set(Result.FAILURE, response);
-					return;
 				}
 			} else {
 				r.deny();
-				return;
 			}
 		}
 	}
@@ -449,8 +425,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				response = "Banned IP." + username != null ? ""
-						: " You must use /unban -I \"" + IP + "\" in order to unban this IP.";
+				response = "Banned. (IP).";
 				kickUser(connectionBanned, reason);
 				r.set(Result.SUCCESS, response);
 				r.setLoggedImportant(true);

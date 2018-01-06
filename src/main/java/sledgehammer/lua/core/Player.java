@@ -47,21 +47,21 @@ import zombie.sledgehammer.SledgeHelper;
 public class Player extends MongoLuaObject<MongoPlayer> {
 
     /**
-     * The <Player> instance of the Administrator account.
+     * The Player instance of the Administrator account.
      */
     public static final Player admin;
 
     /**
-     * The <Map> of meta-data properties, stored using <String> keys and <String>
+     * The Map of meta-data properties, stored using String keys and String
      * values.
      */
     private Map<String, String> mapProperties;
     /**
-     * The native <UdpConnection> Object of the <Player>.
+     * The native UdpConnection Object of the Player.
      */
     private UdpConnection connection;
     /**
-     * The native <IsoPlayer> Object of the <Player>.
+     * The native IsoPlayer Object of the Player.
      */
     private IsoPlayer iso;
     /**
@@ -69,57 +69,57 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     private Language language = Language.English;
     /**
-     * The <String> user-name of the <Player>.
+     * The String user-name of the Player.
      */
     private String username;
     /**
-     * The <String> nickname of the <Player>.
+     * The String nickname of the Player.
      */
     private String nickname;
     /**
-     * The <Color> LuaTable representing the <Player>.
+     * The Color LuaTable representing the Player.
      */
     private Color color;
     /**
-     * The <Vector3f> position of the <Player>.
+     * The Vector3f position of the Player.
      */
     private Vector3f position;
     /**
-     * The <Vector2f> meta-position of the <Player>.
+     * The Vector2f meta-position of the Player.
      */
     private Vector2f positionMeta;
     /**
-     * The <Long> time-stamp in milliseconds since the <Player>'s last in-game
+     * The Long time-stamp in milliseconds since the Player's last in-game
      * character dies.
      */
     private long sinceDeath = 0L;
     /**
-     * The <Boolean> flag to signify if the <Player> account is new.
+     * The Boolean flag to signify if the Player account is new.
      */
     private boolean isNewAccount = false;
     /**
-     * The <Boolean> flag to signify if the <Player>'s in-game character is a new
+     * The Boolean flag to signify if the Player's in-game character is a new
      * character.
      */
     private boolean isNewCharacter = false;
     /**
-     * The <Boolean> flag to signify if the <Player> is currently alive in-game.
+     * The Boolean flag to signify if the Player is currently alive in-game.
      */
     private boolean isAlive = true;
     /**
-     * The <Boolean> flag to signify if the <Player> Object has initialized.
+     * The Boolean flag to signify if the Player Object has initialized.
      */
     private boolean initialized = false;
     /**
-     * The <Boolean> flag to signify if the <PlayerCreatEvent> has dispatched after
-     * the <Player> Object is initialized.
+     * The Boolean flag to signify if the PlayerCreatEvent has dispatched after
+     * the Player Object is initialized.
      */
     private boolean created = false;
 
     /**
      * UdpConnection constructor.
      *
-     * @param connection The <UdpConnection> of the Player.
+     * @param connection The UdpConnection of the Player.
      */
     public Player(UdpConnection connection) {
         super(null, "Player");
@@ -137,7 +137,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * Constructor for 'Console' connections. This includes 3rd-Party console
      * access.
      *
-     * @param password                The <String> password of the <Player>.
+     * @param password                The String password of the Player.
      * @param isNotActuallyAParameter (This is used to differentiate between constructors that use the
      *                                same Class-type parameter)
      */
@@ -159,7 +159,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * attempts to locate the UdpConnection instance, and the IsoPlayer instance,
      * using the user-name given.
      *
-     * @param username The <String> username of the <Player>.
+     * @param username The String username of the Player.
      */
     public Player(String username) {
         super(null, "Player");
@@ -187,7 +187,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * Offline Player constructor.
      *
-     * @param mongoDocument The <MongoPlayer> database object.
+     * @param mongoDocument The MongoPlayer database object.
      */
     public Player(MongoPlayer mongoDocument) {
         super(mongoDocument, "Player");
@@ -246,7 +246,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Initializes the <Player>.
+     * Initializes the Player.
      */
     public void init() {
         setPosition(new Vector3f(0, 0, 0));
@@ -265,7 +265,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Initializes the <Player>'s meta-data properties.
+     * Initializes the Player's meta-data properties.
      */
     public void initProperties() {
         if (getProperty("muteglobal") == null) {
@@ -278,14 +278,14 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Updates the <Player> in <ModuleCore> for the Core plug-in.
+     * Updates the Player in core Module for the Core plug-in.
      */
     public void update() {
         SledgeHammer.instance.updatePlayer(this);
     }
 
     /**
-     * Sends a given <ChatMessage> to the Player on the ChatChannel defined.
+     * Sends a given ChatMessage to the Player on the ChatChannel defined.
      * <p>
      * If a ChatChannel's Id is not defined in the ChatMessage, an
      * IllegalArgumentException is thrown.
@@ -293,7 +293,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * If a ChatChanel is not found with the defined Id in the ChatMessage, an
      * IllegalArgumentException is thrown.
      *
-     * @param message The <ChatMessage> being sent to the Player.
+     * @param message The ChatMessage being sent to the Player.
      */
     public void sendChatMessage(ChatMessage message) {
         // Check and make sure the Message provided is not null.
@@ -320,9 +320,9 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sends a given <ChatMessage> to the PLayer in all available <ChatChannel>'s.
+     * Sends a given ChatMessage to the PLayer in all available ChatChannels.
      *
-     * @param chatMessage The <ChatMessage> to send.
+     * @param chatMessage The ChatMessage to send.
      */
     public void sendChatMessageToAllChatChannels(ChatMessage chatMessage) {
         // Check and make sure the Message provided is not null.
@@ -341,9 +341,9 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sends a <ChatMessage> with provided <String> content to the Player.
+     * Sends a ChatMessage with provided String content to the Player.
      *
-     * @param message The <String> message content to send.
+     * @param message The String message content to send.
      */
     public void sendChatMessage(String message) {
         // Create the ChatMessage using the message content.
@@ -353,9 +353,9 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sends <ChatMessage>'s to a <Player>, with a given <String> Array of lines.
+     * Sends ChatMessages to a Player, with a given String Array of lines.
      *
-     * @param lines The <String> Array of messages to send.
+     * @param lines The String Array of messages to send.
      */
     public void sendChatMessages(String[] lines) {
         for (String line : lines) {
@@ -364,8 +364,8 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param other The <Player> to measure.
-     * @return Returns true if the <Player> is less than or equal to the defined
+     * @param other The Player to measure.
+     * @return Returns true if the Player is less than or equal to the defined
      * range in the PZ server for local chat.
      */
     public boolean isWithinLocalRange(Player other) {
@@ -380,7 +380,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @return Returns true if the <Player> is currently on the server.
+     * @return Returns true if the Player is currently on the server.
      */
     public boolean isOnline() {
         if (connection == null) {
@@ -391,10 +391,10 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param node        The <String> node that is being tested.
-     * @param ignoreAdmin <Boolean> flag for ignoring Administrator check.
-     * @return Returns true if the <Player> is granted the given <String> node
-     * permission. If the <Player> is an administrator and the ignoreAdmin
+     * @param node        The String node that is being tested.
+     * @param ignoreAdmin Boolean flag for ignoring Administrator check.
+     * @return Returns true if the Player is granted the given String node
+     * permission. If the Player is an administrator and the ignoreAdmin
      * flag is set to false, this method will always return true. To grab
      * the raw permission, use 'hasRawPermission(String node)...'.
      */
@@ -406,9 +406,9 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param node The <String> node that is being tested.
-     * @return Returns true if the <Player> is granted the given <String> node
-     * permission. If the <Player> is an administrator, this method will
+     * @param node The String node that is being tested.
+     * @return Returns true if the Player is granted the given String node
+     * permission. If the Player is an administrator, this method will
      * always return true. To grab the raw permission, use
      * 'hasRawPermission(String node)...'.
      */
@@ -417,28 +417,28 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sets a <String> permission-node for a Player with the explicitly-defined
-     * <Boolean> flag.
+     * Sets a String permission-node for a Player with the explicitly-defined
+     * Boolean flag.
      *
-     * @param node The <String> permission-node to set.
-     * @param flag The <Boolean> flag to set.
+     * @param node The String permission-node to set.
+     * @param flag The Boolean flag to set.
      */
     public void setPermission(String node, boolean flag) {
         SledgeHammer.instance.setPermission(this, node, flag);
     }
 
     /**
-     * @param username The <String> user-name to test. (Non-Case-Sensitive)
-     * @return Returns true if the given <String> user-name matches the one for the
-     * <Player>.
+     * @param username The String user-name to test. (Non-Case-Sensitive)
+     * @return Returns true if the given String user-name matches the one for the
+     * Player.
      */
     public boolean isUsername(String username) {
         return getUsername().equalsIgnoreCase(username);
     }
 
     /**
-     * @param usernameFragment The <String> user-name to test. (Non-Case-Sensitive)
-     * @return Returns true if the <String> user-name of the <Player> contains the
+     * @param usernameFragment The String user-name to test. (Non-Case-Sensitive)
+     * @return Returns true if the String user-name of the Player contains the
      * String user-name fragment given.
      */
     public boolean isUsernameDirty(String usernameFragment) {
@@ -446,17 +446,17 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param nickname The <String> nickname to test. (Non-Case-Sensitive)
-     * @return Returns true if the given <String> nickname matches the one for the
-     * <Player>.
+     * @param nickname The String nickname to test. (Non-Case-Sensitive)
+     * @return Returns true if the given String nickname matches the one for the
+     * Player.
      */
     public boolean isNickname(String nickname) {
         return getNickname().equalsIgnoreCase(nickname);
     }
 
     /**
-     * @param nicknameFragment The <String> nickname fragment to test. (Non-Case-Sensitive)
-     * @return Returns true if the <String> nickname of the <Player> contains the
+     * @param nicknameFragment The String nickname fragment to test. (Non-Case-Sensitive)
+     * @return Returns true if the String nickname of the Player contains the
      * String nickname fragment given.
      */
     public boolean isNicknameDirty(String nicknameFragment) {
@@ -464,9 +464,9 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param name The <String> user-name or nickname to test. (Non-Case Sensitive)
-     * @return Returns true if the given <String> user-name or nickname matches the
-     * one for the <Player>. The String user-name is checked first. The
+     * @param name The String user-name or nickname to test. (Non-Case Sensitive)
+     * @return Returns true if the given String user-name or nickname matches the
+     * one for the Player. The String user-name is checked first. The
      * String nickname is checked second.
      */
     public boolean isName(String name) {
@@ -474,10 +474,10 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param nameFragment The <String> user-name or nickname fragment to test.
+     * @param nameFragment The String user-name or nickname fragment to test.
      *                     (Non-Case-Sensitive)
-     * @return Returns true if the <String> user-name or String nick-name of the
-     * <Player> contains the String name fragment given. The user-name is
+     * @return Returns true if the String user-name or String nick-name of the
+     * Player contains the String name fragment given. The user-name is
      * checked first. The nickname is checked second. strict comparisons are
      * checked before dirty comparisons.
      */
@@ -487,7 +487,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @return Returns true if the <Player> is flagged as an Administrator with full
+     * @return Returns true if the Player is flagged as an Administrator with full
      * privileges.
      */
     public boolean isAdministrator() {
@@ -495,12 +495,12 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sets a given meta-data <String> property value with a <String> key to
+     * Sets a given meta-data String property value with a String key to
      * identify. This change is automatically saved to the MongoDB database.
      *
-     * @param property The <String> key to identify.
-     * @param content  The <String> value to set.
-     * @return Returns the old <String> property value if this operation replaces a
+     * @param property The String key to identify.
+     * @param content  The String value to set.
+     * @return Returns the old String property value if this operation replaces a
      * previous value.
      */
     public String setProperty(String property, String content) {
@@ -508,13 +508,13 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sets a given meta-data <String> property value with a <String> key to
+     * Sets a given meta-data String property value with a String key to
      * identify.
      *
-     * @param property The <String> key to identify.
-     * @param content  The <String> value to set.
+     * @param property The String key to identify.
+     * @param content  The String value to set.
      * @param save     Flag to save the MongoDocument after applying the changes.
-     * @return Returns the old <String> property value if this operation replaces a
+     * @return Returns the old String property value if this operation replaces a
      * previous value.
      */
     public String setProperty(String property, String content, boolean save) {
@@ -524,8 +524,8 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param property The <String> key to identify the meta-data property definition.
-     * @return Returns the <String> definition of a meta-data property. If no
+     * @param property The String key to identify the meta-data property definition.
+     * @return Returns the String definition of a meta-data property. If no
      * property is defined under the String key given, null is returned.
      */
     public String getProperty(String property) {
@@ -533,23 +533,23 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sets the native <IsoPlayer> Object for the <Player>.
+     * Sets the native IsoPlayer Object for the Player.
      *
-     * @param iso The native <IsoPlayer> Object to set.
+     * @param iso The native IsoPlayer Object to set.
      */
     public void set(IsoPlayer iso) {
         this.iso = iso;
     }
 
     /**
-     * @return Returns true if the <Player> is a new account.
+     * @return Returns true if the Player is a new account.
      */
     public boolean isNewAccount() {
         return isNewAccount;
     }
 
     /**
-     * Sets the <Boolean> flag for the <Player> account being new.
+     * Sets the Boolean flag for the Player account being new.
      *
      * @param flag The flag to set.
      */
@@ -558,14 +558,14 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @return Returns true if the <Player>'s in-game character is a new character.
+     * @return Returns true if the Player's in-game character is a new character.
      */
     public boolean isNewCharacter() {
         return isNewCharacter;
     }
 
     /**
-     * Sets the <Boolean> flag for the <Player>'s in-game character being a new
+     * Sets the Boolean flag for the Player's in-game character being a new
      * character.
      *
      * @param flag The flag to set.
@@ -579,21 +579,21 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * <p>
      * Approximate method for 'SledgeHammer.instance.getChatModule()'.
      *
-     * @return
+     * @return Returns the chat Module instance.
      */
     private ModuleChat getChatModule() {
         return SledgeHammer.instance.getChatModule();
     }
 
     /**
-     * @return Returns true if the <Player> is connected to the PZ server.
+     * @return Returns true if the Player is connected to the PZ server.
      */
     public boolean isConnected() {
         return connection != null && connection.connected;
     }
 
     /**
-     * @return Returns true if the <Player> has successfully logged into the PZ
+     * @return Returns true if the Player has successfully logged into the PZ
      * server and is still connected.
      */
     public boolean isInGame() {
@@ -601,14 +601,14 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @return Returns true if the <Player>'s in-game character is alive.
+     * @return Returns true if the Player's in-game character is alive.
      */
     public boolean isAlive() {
         return this.isAlive;
     }
 
     /**
-     * Sets the <Boolean> Alive flag for the <Player> Object.
+     * Sets the Boolean Alive flag for the Player Object.
      * <p>
      * FIXME: Possible condition bug with not setting alive property.
      *
@@ -619,8 +619,10 @@ public class Player extends MongoLuaObject<MongoPlayer> {
             this.isAlive = false;
             setProperty("alive", "0");
             DeathEvent event = new DeathEvent(this);
-            boolean announce = ServerOptions.instance.getBoolean("AnnounceDeath").booleanValue();
-            event.announce(announce);
+            Boolean announce = ServerOptions.instance.getBoolean("AnnounceDeath");
+            if (announce != null) {
+                event.announce(announce);
+            }
             SledgeHammer.instance.handle(event);
             sinceDeath = System.currentTimeMillis();
         }
@@ -634,7 +636,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @return Returns true if the <Player> Object has initialized.
+     * @return Returns true if the Player Object has initialized.
      */
     public boolean hasInitialized() {
         return this.initialized;
@@ -643,7 +645,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * (Private Method)
      * <p>
-     * Sets the <Boolean> flag for the <Player> Object being initialized.
+     * Sets the Boolean flag for the Player Object being initialized.
      *
      * @param flag The flag to set.
      */
@@ -652,8 +654,8 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @return Returns true if the <Player> account has passed a
-     * <PlayerCreatedEvent> to the Sledgehammer engine.
+     * @return Returns true if the Player account has passed a
+     * PlayerCreatedEvent to the Sledgehammer engine.
      */
     public boolean isCreated() {
         return this.created;
@@ -662,51 +664,51 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * (Private Method)
      * <p>
-     * Sets the <Boolean> flag for the <Player> Object is created and a
-     * <PlayerCreatedEvent> has passed through the Sledgehammer engine.
+     * Sets the Boolean flag for the Player Object is created and a
+     * PlayerCreatedEvent has passed through the Sledgehammer engine.
      *
-     * @param flag The <Boolean> flag to set.
+     * @param flag The Boolean flag to set.
      */
     private void setCreated(boolean flag) {
         this.created = flag;
     }
 
     /**
-     * @return Returns a meta-data property <Map> with <String> keys and <String>
-     * values set arbitrarily by <Module>'s.
+     * @return Returns a meta-data property Map with String keys and String
+     * values set arbitrarily by Modules.
      */
     public Map<String, String> getProperties() {
         return mapProperties;
     }
 
     /**
-     * Sets the entire meta-data property <Map> with <String> keys and <String>
-     * values for the <Player>.
+     * Sets the entire meta-data property Map with String keys and String
+     * values for the Player.
      *
-     * @param mapProperties The <Map> to set.
+     * @param mapProperties The Map to set.
      */
     public void setProperties(Map<String, String> mapProperties) {
         this.mapProperties = mapProperties;
     }
 
     /**
-     * @return Returns the <Color> LuaTable representing the <Player>.
+     * @return Returns the Color LuaTable representing the Player.
      */
     public Color getColor() {
         return this.color;
     }
 
     /**
-     * Sets the <Color> LuaTable representing the <Player>.
+     * Sets the Color LuaTable representing the Player.
      *
-     * @param color The <Color> LuaTable to set.
+     * @param color The Color LuaTable to set.
      */
     public void setColor(Color color) {
         this.color = color;
     }
 
     /**
-     * @return Returns the <Vector3f> meta-position of the <Player>.
+     * @return Returns the Vector3f meta-position of the Player.
      */
     public Vector2f getMetaPosition() {
         return this.positionMeta;
@@ -715,16 +717,16 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * (Private Method)
      * <p>
-     * Sets the <Vector2f> meta-position of the <Player>.
+     * Sets the Vector2f meta-position of the Player.
      *
-     * @param positionMeta The <Vector2f> to set.
+     * @param positionMeta The Vector2f to set.
      */
     private void setMetaPosition(Vector2f positionMeta) {
         this.positionMeta = positionMeta;
     }
 
     /**
-     * @return Returns the <Vector3f> position of the <Player>.
+     * @return Returns the Vector3f position of the Player.
      */
     public Vector3f getPosition() {
         return this.position;
@@ -733,16 +735,16 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * (Private Method)
      * <p>
-     * Sets the <Vector3f> position of the <Player>.
+     * Sets the Vector3f position of the Player.
      *
-     * @param position The <Vector3f> to set.
+     * @param position The Vector3f to set.
      */
     private void setPosition(Vector3f position) {
         this.position = position;
     }
 
     /**
-     * @return Returns the set <String> nickname of the <Player>. If a nickname is
+     * @return Returns the set String nickname of the Player. If a nickname is
      * not defined, the Player's user-name is returned instead.
      */
     public String getNickname() {
@@ -750,16 +752,16 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sets the <String> nickname to represent the <Player>.
+     * Sets the String nickname to represent the Player.
      *
-     * @param nickname The <String> nickname to set.
+     * @param nickname The String nickname to set.
      */
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
 
     /**
-     * @return Returns the <String> account user-name the <Player> registered for
+     * @return Returns the String account user-name the Player registered for
      * the PZ server.
      */
     public String getUsername() {
@@ -769,16 +771,16 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * (Private Method)
      * <p>
-     * Sets the <String> user-name of the <Player>.
+     * Sets the String user-name of the Player.
      *
-     * @param username The <String> user-name to set.
+     * @param username The String user-name to set.
      */
     private void setUsername(String username) {
         this.username = username;
     }
 
     /**
-     * @return Returns the native <IsoPlayer> Object of the <Player> in the PZ
+     * @return Returns the native IsoPlayer Object of the Player in the PZ
      * server.
      */
     public IsoPlayer getIso() {
@@ -788,16 +790,16 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * (Private Method)
      * <p>
-     * Sets the native <IsoPlayer> Object for the <Player>.
+     * Sets the native IsoPlayer Object for the Player.
      *
-     * @param iso The native <IsoPlayer> Object to set.
+     * @param iso The native IsoPlayer Object to set.
      */
     private void setIso(IsoPlayer iso) {
         this.iso = iso;
     }
 
     /**
-     * @return Returns the native <UdpConnection> Object for the <Player>, if the
+     * @return Returns the native UdpConnection Object for the Player, if the
      * Player is connected to the server.
      */
     public UdpConnection getConnection() {
@@ -808,18 +810,18 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * Sets the native <UdpConnection> Object for the <Player>.
+     * Sets the native UdpConnection Object for the Player.
      *
-     * @param connection The native <UdpConnection> Object to set.
+     * @param connection The native UdpConnection Object to set.
      */
     public void setConnection(UdpConnection connection) {
         this.connection = connection;
     }
 
     /**
-     * @return Returns the <UUID> of the the <Player>. This is the uniqueId that
-     * identifies the Player in the MongoDB, as well as any additional data
-     * storage for <Module>'s.
+     * @return Returns the Unique ID of the the Player. This is the Unique ID that
+     * identifies the Player in MongoDB, as well as any additional data
+     * storage for Modules.
      */
     public UUID getUniqueId() {
         return getMongoDocument().getUniqueId();
@@ -842,8 +844,8 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     }
 
     /**
-     * @param username The <String> user-name to identify the <UdpConnection>.
-     * @return Returns a <UdpConnection> with the given <String> user-name. If no
+     * @param username The String user-name to identify the UdpConnection.
+     * @return Returns a UdpConnection with the given String user-name. If no
      * UdpConnection uses the given String user-name, null is returned.
      */
     public static UdpConnection findConnection(String username) {

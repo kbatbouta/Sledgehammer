@@ -23,7 +23,7 @@ public enum Language {
 	 * @param abbreviation
 	 *            The <String> abbreviation of the <Language>.
 	 */
-	private Language(int id, String abbreviation) {
+	Language(int id, String abbreviation) {
 		setId(id);
 		setAbbreviation(abbreviation);
 	}

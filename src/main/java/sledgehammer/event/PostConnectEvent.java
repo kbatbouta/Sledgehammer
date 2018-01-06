@@ -19,32 +19,33 @@ package sledgehammer.event;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent to send when a <Player> has finished connecting to the PZ server.
- * 
+ * PlayerEvent to send when a Player has finished connecting to the PZ server.
+ *
  * @author Jab
  */
 public class PostConnectEvent extends PlayerEvent {
 
-	/** The String ID of the Event. */
-	public static final String ID = "PostConnectionEvent";
+    /**
+     * The String ID of the Event.
+     */
+    public static final String ID = "PostConnectionEvent";
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param player
-	 *            The <Player> connected to the PZ server.
-	 */
-	public PostConnectEvent(Player player) {
-		super(player);
-	}
+    /**
+     * Main constructor.
+     *
+     * @param player The Player connected to the PZ server.
+     */
+    public PostConnectEvent(Player player) {
+        super(player);
+    }
 
-	@Override
-	public String getLogMessage() {
-		return null;
-	}
+    @Override
+    public String getLogMessage() {
+        return null;
+    }
 
-	@Override
-	public String getID() {
-		return ID;
-	}
+    @Override
+    public String getID() {
+        return ID;
+    }
 }

@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -103,37 +104,37 @@ public class CreateJarFile {
 				break;
 			}
 		}
-		String classPath = "";
+		StringBuilder classPath = new StringBuilder();
 		for (int index = positionBegin; index < split.length; index++) {
-			classPath += split[index] + "/";
+			classPath.append(split[index]);
+			classPath.append("/");
 		}
-		classPath = classPath.substring(0, classPath.length() - 1);
-		return classPath;
+		return classPath.toString().substring(0, classPath.length() - 1);
 	}
 
 	private static File[] getFiles(File directory, String extension) {
-		List<File> listFiles = new ArrayList<File>();
+		List<File> listFiles = new ArrayList<>();
 		if (directory.exists()) {
 			File[] files = directory.listFiles();
-			for (File file : files) {
-				if (file.isDirectory()) {
-					// Recursive cannot iterate over parent directories.
-					if (file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
-						continue;
-					}
-					// Not a part of PZ.
-					if (file.getName().equalsIgnoreCase("rcon")) {
-						continue;
-					}
-					File[] newFiles = getFiles(file, extension);
-					if (newFiles.length > 0) {
-						for (File newFile : newFiles) {
-							listFiles.add(newFile);
+			if(files != null) {
+				for (File file : files) {
+					if (file.isDirectory()) {
+						// Recursive cannot iterate over parent directories.
+						if (file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
+							continue;
 						}
-					}
-				} else {
-					if (file.getName().endsWith(extension)) {
-						listFiles.add(file);
+						// Not a part of PZ.
+						if (file.getName().equalsIgnoreCase("rcon")) {
+							continue;
+						}
+						File[] newFiles = getFiles(file, extension);
+						if (newFiles.length > 0) {
+							Collections.addAll(listFiles, newFiles);
+						}
+					} else {
+						if (file.getName().endsWith(extension)) {
+							listFiles.add(file);
+						}
 					}
 				}
 			}

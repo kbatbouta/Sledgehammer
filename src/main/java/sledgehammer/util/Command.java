@@ -28,225 +28,239 @@ import sledgehammer.lua.core.Player;
 
 /**
  * TODO: Document.
- * 
+ *
  * @author Jab
  */
 public class Command extends LuaTable {
-	private String command;
-	private String[] args = new String[0];
-	private String raw = null;
-	private Player player;
-	private UUID channelId;
+    private String command;
+    private String[] args = new String[0];
+    private String raw = null;
+    private Player player;
+    private UUID channelId;
 
-	public Command(String raw) {
-		super("Command");
-		parse(raw);
-	}
+    public Command(String raw) {
+        super("Command");
+        parse(raw);
+    }
 
-	public Command(String command, String[] args) {
-		super("Command");
-		this.command = command;
-		if (args != null) {
-			this.args = args;
-		}
-	}
+    public Command(String command, String[] args) {
+        super("Command");
+        this.command = command;
+        if (args != null) {
+            this.args = args;
+        }
+    }
 
-	/**
-	 * FIXME: Something's wrong with args assignment.
-	 * 
-	 * @param table
-	 */
-	public Command(KahluaTable table) {
-		super("Command", table);
-	}
+    /**
+     * Lua load constructor.
+     *
+     * @param table The KahluaTable to set the data.
+     */
+    public Command(KahluaTable table) {
+        super("Command", table);
+    }
 
-	@Override
-	public void onLoad(KahluaTable table) {
-		Object raw = table.rawget("raw");
-		Object oChannelId = table.rawget("channel_id");
-		if (oChannelId != null) {
-			setChannelId(UUID.fromString(oChannelId.toString()));
-		}
-		parse(raw.toString());
-	}
+    @Override
+    public void onLoad(KahluaTable table) {
+        Object raw = table.rawget("raw");
+        Object oChannelId = table.rawget("channel_id");
+        if (oChannelId != null) {
+            setChannelId(UUID.fromString(oChannelId.toString()));
+        }
+        parse(raw.toString());
+    }
 
-	@Override
-	public void onExport() {
-		set("raw", raw);
-		set("command", command);
-		set("args", new LuaArray<String>(args));
-		set("player", getPlayer());
+    @Override
+    public void onExport() {
+        LuaArray<String> args = new LuaArray<>(getArguments());
+        // @formatter:off
+	    set("raw"       , getRaw()      );
+		set("command"   , getCommand()  );
+		set("args"      , args          );
+		set("player"    , getPlayer()   );
 		set("channel_id", getChannelId());
-	}
+		// @formatter:on
+    }
 
-	@Override
-	public String toString() {
-		return "(" + getPlayer() + ") " + getRaw();
-	}
+    @Override
+    public String toString() {
+        return "(" + getPlayer() + ") " + getRaw();
+    }
 
-	public String getRaw() {
-		if (raw == null) {
-			raw = "/" + command;
-			for (String arg : args) {
-				if (arg.contains(" ")) {
-					raw += " \"" + arg.trim() + "\"";
-				} else {
-					raw += " " + arg.trim();
-				}
-			}
-		}
-		return raw;
-	}
+    public String getRaw() {
+        if (raw == null) {
+            StringBuilder rawBuilder = new StringBuilder("/");
+            rawBuilder.append(command);
+            for (String arg : args) {
+                if (arg.contains(" ")) {
+                    rawBuilder.append(" \"");
+                    rawBuilder.append(arg.trim());
+                    rawBuilder.append("\"");
+                } else {
+                    rawBuilder.append(" ");
+                    rawBuilder.append(arg.trim());
+                }
+            }
+            raw = rawBuilder.toString();
+        }
+        return raw;
+    }
 
-	public void parse(String raw) {
-		command = new String(raw).replace("/", "").replace("!", "").trim().split(" ")[0].toLowerCase();
-		args = tryAgain(raw);
-		this.raw = raw;
-	}
+    public void parse(String raw) {
+        command = raw.replace("/", "").replace("!", "").trim().split(" ")[0].toLowerCase();
+        args = tryAgain(raw);
+        this.raw = raw;
+    }
 
-	public String getArgumentsAsString() {
-		if (getArguments().length == 0)
-			return null;
-		String raw = getRaw();
-		return raw.substring(command.length() + 2, raw.length());
-	}
+    public String getArgumentsAsString() {
+        if (getArguments().length == 0)
+            return null;
+        String raw = getRaw();
+        return raw.substring(command.length() + 2, raw.length());
+    }
 
-	public void debugPrint() {
-		println("Command: " + getCommand());
-		println("Arguments: " + args.length);
-		for (int index = 0; index < args.length; index++) {
-			String arg = args[index];
-			println("\t[" + index + "]: " + arg);
-		}
-		println("Raw: " + getRaw());
-		println();
-	}
+    public void debugPrint() {
+        println("Command: " + getCommand());
+        println("Arguments: " + args.length);
+        for (int index = 0; index < args.length; index++) {
+            String arg = args[index];
+            println("\t[" + index + "]: " + arg);
+        }
+        println("Raw: " + getRaw());
+        println();
+    }
 
-	public boolean hasArguments() {
-		return this.args != null && this.args.length > 0;
-	}
+    public boolean hasArguments() {
+        return this.args != null && this.args.length > 0;
+    }
 
-	public String getCommand() {
-		return command;
-	}
+    public String getCommand() {
+        return command;
+    }
 
-	public String[] getArguments() {
-		return args;
-	}
+    public String[] getArguments() {
+        return args;
+    }
 
-	public Player getPlayer() {
-		return this.player;
-	}
+    public Player getPlayer() {
+        return this.player;
+    }
 
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 
-	public UUID getChannelId() {
-		return this.channelId;
-	}
+    public UUID getChannelId() {
+        return this.channelId;
+    }
 
-	public void setChannelId(UUID channelId) {
-		this.channelId = channelId;
-	}
+    public void setChannelId(UUID channelId) {
+        this.channelId = channelId;
+    }
 
-	public static String[] tryAgain(String input) {
-		char[] chars = input.toCharArray();
-		List<String> args = new LinkedList<>();
-		String arg = "";
-		boolean in = false;
-		for (char c : chars) {
-			if (c == ' ')
-				if (!in) {
-					args.add(arg);
-					arg = "";
-				} else
-					arg += c;
-			else if (c == '\"')
-				in = !in;
-			else
-				arg += c;
-		}
-		if (!arg.isEmpty())
-			args.add(arg);
-		String[] ret = new String[args.size() - 1];
-		for (int index = 1; index < args.size(); index++) {
-			ret[index - 1] = args.get(index);
-		}
-		return ret;
-	}
+    public static String[] tryAgain(String input) {
+        char[] chars = input.toCharArray();
+        List<String> args = new LinkedList<>();
+        StringBuilder arg = new StringBuilder();
+        boolean in = false;
+        for (char c : chars) {
+            switch (c) {
+                case ' ':
+                    if (!in) {
+                        args.add(arg.toString());
+                        arg = new StringBuilder();
+                    } else {
+                        arg.append(c);
+                    }
+                    break;
+                case '\"':
+                    in = !in;
+                    break;
+                default:
+                    arg.append(c);
+                    break;
+            }
+        }
+        if (arg.length() > 0) {
+            args.add(arg.toString());
+        }
+        String[] ret = new String[args.size() - 1];
+        for (int index = 1; index < args.size(); index++) {
+            ret[index - 1] = args.get(index);
+        }
+        return ret;
+    }
 
-	public static String[] getArguments(String command, String input) {
-		List<String> argCache = new ArrayList<>();
-		String[] args = null;
-		String argCurrent = "";
-		boolean inQuotes = false;
-		char quoteType = '"';
-		char[] chars = input.toCharArray();
-		for (int x = 0; x < chars.length; x++) {
-			char c = chars[x];
-			if (inQuotes) {
-				if (c == quoteType) {
-					argCache.add(argCurrent);
-					argCurrent = "";
-					inQuotes = false;
-					continue;
-				} else
-					argCurrent += c;
-			} else {
-				if (c == '\"') {
-					inQuotes = true;
-					continue;
-				} else if (c == ' ') {
-					if (!argCurrent.isEmpty()) {
-						argCache.add(argCurrent);
-						argCurrent = "";
-						continue;
-					}
-				} else
-					argCurrent += c;
-			}
-		}
-		if (!argCurrent.isEmpty()) {
-			argCache.add(argCurrent);
-		}
-		if (argCache.size() > 0) {
-			String firstArg = argCache.get(0).toLowerCase();
-			if (firstArg.contains(command.toLowerCase())) {
-				args = new String[argCache.size() - 1];
-				for (int x = 1; x < argCache.size(); x++) {
-					args[x - 1] = argCache.get(x);
-				}
-			} else {
-				args = new String[argCache.size()];
-				for (int x = 0; x < argCache.size(); x++) {
-					args[x] = argCache.get(x);
-				}
-			}
-		} else {
-			args = new String[0];
-		}
-		return args;
-	}
+    public static String[] getArguments(String command, String input) {
+        List<String> argCache = new ArrayList<>();
+        String[] args = null;
+        StringBuilder argCurrent = new StringBuilder();
+        boolean inQuotes = false;
+        char quoteType = '"';
+        char[] chars = input.toCharArray();
+        for (char c : chars) {
+            if (inQuotes) {
+                if (c == quoteType) {
+                    argCache.add(argCurrent.toString());
+                    argCurrent = new StringBuilder();
+                    inQuotes = false;
+                } else
+                    argCurrent.append(c);
+            } else {
+                switch (c) {
+                    case '\"':
+                        inQuotes = true;
+                        break;
+                    case ' ':
+                        if (argCurrent.length() > 0) {
+                            argCache.add(argCurrent.toString());
+                            argCurrent = new StringBuilder();
+                        }
+                        break;
+                    default:
+                        argCurrent.append(c);
+                        break;
+                }
+            }
+        }
+        if (argCurrent.length() > 0) {
+            argCache.add(argCurrent.toString());
+        }
+        if (argCache.size() > 0) {
+            String firstArg = argCache.get(0).toLowerCase();
+            if (firstArg.contains(command.toLowerCase())) {
+                args = new String[argCache.size() - 1];
+                for (int x = 1; x < argCache.size(); x++) {
+                    args[x - 1] = argCache.get(x);
+                }
+            } else {
+                args = new String[argCache.size()];
+                for (int x = 0; x < argCache.size(); x++) {
+                    args[x] = argCache.get(x);
+                }
+            }
+        } else {
+            args = new String[0];
+        }
+        return args;
+    }
 
-	public static String[] subArguments(String[] args, int i) {
-		if (i < 0 && i < args.length) {
-			throw new IllegalArgumentException("I must be 0 or greater, and less than the argument.length.");
-		}
-		if (args == null || args.length < 1) {
-			throw new IllegalArgumentException("Args array is invalid!");
-		}
-		String[] newArgs = new String[args.length - i];
-		for (int x = i; x < args.length; x++) {
-			newArgs[x - i] = args[x];
-		}
-		return newArgs;
-	}
+    public static String[] subArguments(String[] args, int i) {
+        if (i < 0) {
+            throw new IllegalArgumentException("I must be 0 or greater, and less than the argument.length.");
+        }
+        if (args == null || args.length < 1) {
+            throw new IllegalArgumentException("Args array is invalid!");
+        }
+        String[] newArgs = new String[args.length - i];
+        System.arraycopy(args, i, newArgs, 0, args.length - i);
+        return newArgs;
+    }
 
-	public static void main(String[] args) {
-		new Command("/test1 arg1 arg2").debugPrint();
-		new Command("/test2 arg1 \"args and stuff\"").debugPrint();
-		new Command("test3", null).debugPrint();
-		new Command("test4", new String[] { "arg1", "arg2" }).debugPrint();
-	}
+    public static void main(String[] args) {
+        new Command("/test1 arg1 arg2").debugPrint();
+        new Command("/test2 arg1 \"args and stuff\"").debugPrint();
+        new Command("test3", null).debugPrint();
+        new Command("test4", new String[]{"arg1", "arg2"}).debugPrint();
+    }
 }

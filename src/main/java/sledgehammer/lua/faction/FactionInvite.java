@@ -23,7 +23,7 @@ import sledgehammer.database.module.faction.MongoFactionInvite;
 import sledgehammer.lua.MongoLuaObject;
 
 /**
- * Class container for <MongoFactionInvite>.
+ * Class container for MongoFactionInvite.
  * 
  * @author Jab
  */
@@ -33,7 +33,7 @@ public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 	 * Main constructor.
 	 * 
 	 * @param mongoDocument
-	 *            The <MongoDocument> container.
+	 *            The MongoDocument container.
 	 */
 	public FactionInvite(MongoFactionInvite mongoDocument) {
 		super(mongoDocument, "FactionInvite");
@@ -43,9 +43,9 @@ public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 	 * Lua load constructor.
 	 * 
 	 * @param mongoDocument
-	 *            The <MongoDocument> container.
+	 *            The MongoDocument container.
 	 * @param table
-	 *            The <KahluaTable> to load.
+	 *            The KahluaTable to load.
 	 */
 	public FactionInvite(MongoFactionInvite mongoDocument, KahluaTable table) {
 		super(mongoDocument, "FactionInvite");
@@ -64,7 +64,7 @@ public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 
 	/**
 	 *
-	 * @return Returns the <Long> UNIX TimeStamp that the Invite was created.
+	 * @return Returns the Long UNIX TimeStamp that the Invite was created.
 	 */
 	public long getTimeInvited() {
 		return getMongoDocument().getTimeInvited();
@@ -72,7 +72,7 @@ public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 
 	/**
 	 * @param timeToLive
-	 *            The <Long> Time in milliseconds that a invite is allowed to live.
+	 *            The Long Time in milliseconds that a invite is allowed to live.
 	 * @return Returns true if the Invite has lived passed the provided time that it
 	 *         is allowed to live.
 	 */
@@ -81,28 +81,28 @@ public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 	}
 
 	/**
-	 * @return Returns the <UUID> representing the Player inviting.
+	 * @return Returns the Unique ID representing the Player inviting.
 	 */
 	public UUID getInviteeId() {
 		return getMongoDocument().getInviteeId();
 	}
 
 	/**
-	 * @return Returns the <UUID> representing the Player invited.
+	 * @return Returns the Unique ID representing the Player invited.
 	 */
 	public UUID getInvitedId() {
 		return getMongoDocument().getInvitedId();
 	}
 
 	/**
-	 * @return Returns the <UUID> representing the <Faction> being invited to.
+	 * @return Returns the Unique ID representing the Faction being invited to.
 	 */
 	public UUID getFactionId() {
 		return getMongoDocument().getFactionId();
 	}
 
 	/**
-	 * @return Returns the <UUID> identifier for the Invite.
+	 * @return Returns the Unique ID identifier for the Invite.
 	 */
 	public UUID getUniqueId() {
 		return getMongoDocument().getUniqueId();

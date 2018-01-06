@@ -70,13 +70,13 @@ function ChatHistory:addChatMessage(chat_message)
 	--   allowed, the messages Array needs to be pruned.
 	if length > ChatHistory.MAX_LINES then
 		-- The new Array to replace the messages Array.
-		local messagesNew    = {};
+		local messagesNew = {};
 		-- This is the starting index for the messages Array.
 		local starting_value = tLength(self.messages);
 		-- This is the ending index for the messages Array.
-		local ending_value   = starting_value - ChatHistory.MAX_LINES;
+		local ending_value = starting_value - ChatHistory.MAX_LINES;
 		-- The index to place into the new Array.
-		local newIndex       = ChatHistory.MAX_LINES;
+		local newIndex = ChatHistory.MAX_LINES;
 		-- Go through each of the last MAX_LINES in the message Array.
 		for index = starting_value, ending_value, -1 do
 			-- Set the position in the new messages Array.

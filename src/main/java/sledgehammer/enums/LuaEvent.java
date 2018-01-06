@@ -2,11 +2,11 @@ package sledgehammer.enums;
 
 /**
  * Enumeration for ProjectZomboid's Lua Event types.
- * 
+ *
  * @author Jab
  */
 public enum LuaEvent {
-	// @formatter:off
+    // @formatter:off
 	OnGameBoot, 
 	OnPreGameStart,
 	OnTick,

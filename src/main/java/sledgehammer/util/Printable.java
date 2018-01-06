@@ -34,24 +34,20 @@ public abstract class Printable {
 	 * @param messages
 	 */
 	public synchronized void println(Object... messages) {
-
 		if (messages.length == 0) {
 			System.out.println();
 		} else {
 			// Grab the name of the instance.
 			String name = getName();
-
 			// Create the header, based on if the name String is null of empty.
 			String header = name == null || name.isEmpty() ? "" : name + ": ";
-
 			// Go through each Object, and print them as a separate line.
-			String compiledString = "";
+			StringBuilder compiledString = new StringBuilder();
 			for (Object message : messages) {
-				compiledString += header + message + newLine;
+				compiledString.append(header).append(message).append(newLine);
 			}
-
 			// Print the result.
-			System.out.print(compiledString);
+			System.out.print(compiledString.toString());
 		}
 	}
 
@@ -72,13 +68,13 @@ public abstract class Printable {
 			String header = name == null || name.isEmpty() ? "" : name + ": ";
 
 			// Go through each Object, and print them as a separate line.
-			String compiledString = "";
+			StringBuilder compiledString = new StringBuilder();
 			for (Object message : messages) {
-				compiledString += header + message + newLine;
+				compiledString.append(header).append(message).append(newLine);
 			}
 
 			// Print the result.
-			System.err.print(compiledString);
+			System.err.print(compiledString.toString());
 		}
 	}
 

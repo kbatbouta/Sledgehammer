@@ -65,7 +65,7 @@ function TextPane:addLine(text)
 		if text == "" then
 			self.text = text;
 		else
-			self.text = self.text .. " <LINE> " .. text;
+			self.text = self.text .. " <LINE> <RGB:1,1,1> " .. text;
 		end
 	end
 	self:paginate();

@@ -19,83 +19,88 @@ package sledgehammer.event;
 import sledgehammer.lua.core.Player;
 
 /**
- * Event to dispatch when a <Player> kills another <Player>.
- * 
+ * Event to dispatch when a Player kills another Player.
+ *
  * @author Jab
  */
 public class PVPKillEvent extends Event {
 
-	/** The String ID of the Event. */
-	public static final String ID = "PVPKillEvent";
+    /**
+     * The String ID of the Event.
+     */
+    public static final String ID = "PVPKillEvent";
 
-	/** The <Player> killed by the other <Player>. */
-	private Player playerKiller;
-	/** The <Player> killing the other <Player>. */
-	private Player playerKilled;
+    /**
+     * The Player killed by the other Player.
+     */
+    private Player playerKiller;
+    /**
+     * The Player killing the other Player.
+     */
+    private Player playerKilled;
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param playerKiller
-	 * @param playerKilled
-	 */
-	public PVPKillEvent(Player playerKiller, Player playerKilled) {
-		super();
-		setKiller(playerKiller);
-		setKilled(playerKilled);
-	}
+    /**
+     * Main constructor.
+     *
+     * @param playerKiller The Player that killed the other Player.
+     * @param playerKilled The Player killed by the other Player.
+     */
+    public PVPKillEvent(Player playerKiller, Player playerKilled) {
+        super();
+        setKiller(playerKiller);
+        setKilled(playerKilled);
+    }
 
-	@Override
-	public String getLogMessage() {
-		String playerKillerName = "Unknown Player (Null)";
-		String playerKilledName = "Unknown Player (Null)";
-		if (playerKiller != null)
-			playerKillerName = playerKiller.getUsername();
-		if (playerKilled != null)
-			playerKilledName = playerKilled.getUsername();
-		return playerKillerName + " killed " + playerKilledName + '.';
-	}
+    @Override
+    public String getLogMessage() {
+        String playerKillerName = "Unknown Player (Null)";
+        String playerKilledName = "Unknown Player (Null)";
+        if (playerKiller != null)
+            playerKillerName = playerKiller.getUsername();
+        if (playerKilled != null)
+            playerKilledName = playerKilled.getUsername();
+        return playerKillerName + " killed " + playerKilledName + '.';
+    }
 
-	@Override
-	public String getID() {
-		return ID;
-	}
+    @Override
+    public String getID() {
+        return ID;
+    }
 
-	/**
-	 * @return Returns the <Player> killing the other Player.
-	 */
-	public Player getKiller() {
-		return this.playerKiller;
-	}
+    /**
+     * @return Returns the Player killing the other Player.
+     */
+    public Player getKiller() {
+        return this.playerKiller;
+    }
 
-	/**
-	 * (Private Method)
-	 * 
-	 * Sets the <Player> killing the other Player.
-	 * 
-	 * @param playerKiller
-	 */
-	private void setKiller(Player playerKiller) {
-		this.playerKiller = playerKiller;
-	}
+    /**
+     * (Private Method)
+     * <p>
+     * Sets the Player killing the other Player.
+     *
+     * @param playerKiller The Player to set.
+     */
+    private void setKiller(Player playerKiller) {
+        this.playerKiller = playerKiller;
+    }
 
-	/**
-	 * @return Returns the <Player> killed by the other Player.
-	 */
-	public Player getKilled() {
-		return this.playerKilled;
-	}
+    /**
+     * @return Returns the Player killed by the other Player.
+     */
+    public Player getKilled() {
+        return this.playerKilled;
+    }
 
-	/**
-	 * (Private Method)
-	 * 
-	 * Sets the <Player> killed by the other Player.
-	 * 
-	 * @param playerKilled
-	 *            The <Player> to set.
-	 */
-	private void setKilled(Player playerKilled) {
-		this.playerKilled = playerKilled;
-	}
+    /**
+     * (Private Method)
+     * <p>
+     * Sets the Player killed by the other Player.
+     *
+     * @param playerKilled The Player to set.
+     */
+    private void setKilled(Player playerKilled) {
+        this.playerKilled = playerKilled;
+    }
 
 }

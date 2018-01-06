@@ -5,9 +5,11 @@
 #
 ## General
 boolean: "[true,1|false,0]"
+green: " <RGB:0.5,1,0.5> "
+white: " <RGB:1,1,1> "
 
 ## Tool-Tips
-command_tooltip_permissions_header: "Permissions commands:"
+command_tooltip_permissions_header: "{{green}}Permissions commands:{{white}}"
 command_tooltip_permissions: "/permissions [group|user]"
 command_tooltip_permissions_group: "/permissions group [create|delete|set]"
 command_tooltip_permissions_group_create: "/permissions group create \"name\""
@@ -20,5 +22,5 @@ command_tooltip_permissions_user: "/permissions user [create|delete|set]"
 command_tooltip_permissions_user_create: "/permissions user create \"user-name\""
 command_tooltip_permissions_user_delete: "/permissions user delete \"user-name\""
 command_tooltip_permissions_user_set: "/permissions user set [node|group]"
-command_tooltip_permissions_user_set_node: "/permissions user set node \"username\" \"permission-node\" {{boolean}}"
-command_tooltip_permissions_user_set_group: "/permissions user set group \"username\" \"groupname\""
+command_tooltip_permissions_user_set_node: "/permissions user set node \"user-name\" \"permission-node\" {{boolean}}"
+command_tooltip_permissions_user_set_group: "/permissions user set group \"user-name\" \"group-name\""

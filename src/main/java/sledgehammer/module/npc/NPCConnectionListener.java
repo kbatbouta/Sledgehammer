@@ -13,45 +13,46 @@ import zombie.sledgehammer.npc.NPC;
 /**
  * EventListener to assist the NPCManager to send NPC player info to connecting
  * Players, since NPCs do not have a UDPConnection instance.
- * 
+ * <p>
  * TODO: Rewrite NPCs and remove the NPCManager.
- * 
+ *
  * @author Jab
  */
 public class NPCConnectionListener implements EventListener {
 
-	/** The <NPCManager> instance. */
-	NPCManager npcManager = null;
+    /**
+     * The NPCManager instance.
+     */
+    NPCManager npcManager = null;
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param npcManager
-	 *            The <NPCManager> instance.
-	 */
-	public NPCConnectionListener(NPCManager npcManager) {
-		this.npcManager = npcManager;
-	}
+    /**
+     * Main constructor.
+     *
+     * @param npcManager The NPCManager instance.
+     */
+    public NPCConnectionListener(NPCManager npcManager) {
+        this.npcManager = npcManager;
+    }
 
-	@Override
-	public void onEvent(Event event) {
-		if (event.getID() == ConnectEvent.ID) {
-			ConnectEvent connectEvent = (ConnectEvent) event;
-			Player player = connectEvent.getPlayer();
-			UdpConnection connection = player.getConnection();
-			for (NPC npc : npcManager.getNPCS()) {
-				GameServer.sendPlayerConnect(npc, connection);
-			}
-		}
-	}
+    @Override
+    public void onEvent(Event event) {
+        if (event.getID() == ConnectEvent.ID) {
+            ConnectEvent connectEvent = (ConnectEvent) event;
+            Player player = connectEvent.getPlayer();
+            UdpConnection connection = player.getConnection();
+            for (NPC npc : npcManager.getNPCS()) {
+                GameServer.sendPlayerConnect(npc, connection);
+            }
+        }
+    }
 
-	@Override
-	public String[] getTypes() {
-		return new String[] { ConnectEvent.ID, DisconnectEvent.ID };
-	}
+    @Override
+    public String[] getTypes() {
+        return new String[]{ConnectEvent.ID, DisconnectEvent.ID};
+    }
 
-	@Override
-	public boolean runSecondary() {
-		return false;
-	}
+    @Override
+    public boolean runSecondary() {
+        return false;
+    }
 }

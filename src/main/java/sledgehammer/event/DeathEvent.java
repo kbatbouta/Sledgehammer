@@ -19,32 +19,33 @@ package sledgehammer.event;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent to pass when a <Player> dies.
- * 
+ * PlayerEvent to pass when a Player dies.
+ *
  * @author Jab
  */
 public class DeathEvent extends PlayerEvent {
 
-	/** The String ID of the Event. */
-	public static final String ID = "DeathEvent";
+    /**
+     * The String ID of the Event.
+     */
+    public static final String ID = "DeathEvent";
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param player
-	 *            The <Player> that died.
-	 */
-	public DeathEvent(Player player) {
-		super(player);
-	}
+    /**
+     * Main constructor.
+     *
+     * @param player The Player that died.
+     */
+    public DeathEvent(Player player) {
+        super(player);
+    }
 
-	@Override
-	public String getLogMessage() {
-		return getPlayer().getUsername() + " has died.";
-	}
+    @Override
+    public String getLogMessage() {
+        return getPlayer().getUsername() + " has died.";
+    }
 
-	@Override
-	public String getID() {
-		return ID;
-	}
+    @Override
+    public String getID() {
+        return ID;
+    }
 }

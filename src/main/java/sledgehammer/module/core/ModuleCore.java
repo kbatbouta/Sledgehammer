@@ -65,12 +65,9 @@ public class ModuleCore extends Module {
 	private MongoCollection collectionPeriodicMessages;
 	private SendPlayer sendPlayer;
 	private LanguagePackage lang;
-	private File directory;
-	private File directoryLang;
 	private long timeThenPeriodicMessages = 0L;
 	private long timeThenCheckAccountExpire = 0L;
 	private long delayCheckAccountExpire = LONG_DAY;
-	private int delayPeriodicMessages = 60000;
 
 	@Override
 	public void onLoad() {
@@ -93,7 +90,8 @@ public class ModuleCore extends Module {
 
 	@Override
 	public void onUpdate(long delta) {
-		eventListener.getPlayerTimeStamps().clear();
+        int delayPeriodicMessages = 60000;
+        eventListener.getPlayerTimeStamps().clear();
 		// Grab the current time.
 		long timeNow = System.currentTimeMillis();
 		// If it has been a minute since the last check.
@@ -150,26 +148,24 @@ public class ModuleCore extends Module {
 	}
 
 	@Override
-	public void onClientCommand(ClientEvent e) {
-		// Cast to proper Event sub-class.
-		ClientEvent event = (ClientEvent) e;
+	public void onClientCommand(ClientEvent event) {
 		// Get event content.
 		// String module = event.getModule();
-		String command = event.getCommand();
+		String clientCommand = event.getCommand();
 		Player player = event.getPlayer();
-		if (command.equalsIgnoreCase("handshake")) {
+		if (clientCommand.equalsIgnoreCase("handshake")) {
 			// We just want to ping back to the client saying we received the request.
 			event.respond();
 			// Create a HandShakeEvent.
 			HandShakeEvent handshakeEvent = new HandShakeEvent(player);
 			// Handle the event.
 			SledgeHammer.instance.handle(handshakeEvent);
-		} else if (command.equalsIgnoreCase("requestInfo")) {
+		} else if (clientCommand.equalsIgnoreCase("requestInfo")) {
 			RequestInfo info = new RequestInfo();
 			info.setSelf(player);
 			event.respond(info);
-		} else if (command.equalsIgnoreCase("sendCommand")) {
-			KahluaTable command_table = (KahluaTable) e.getTable().rawget("command");
+		} else if (clientCommand.equalsIgnoreCase("sendCommand")) {
+			KahluaTable command_table = (KahluaTable) event.getTable().rawget("command");
 			Object oRaw = command_table.rawget("raw");
 			if (oRaw == null) {
 				errorln("Warning: Player " + player.getName() + " sent a undefined command.");
@@ -182,25 +178,21 @@ public class ModuleCore extends Module {
 				return;
 			}
 			UUID channelId = UUID.fromString(command_table.rawget("channel_id").toString());
-			Command _command = new Command(raw);
-			_command.setChannelId(channelId);
-			_command.setPlayer(e.getPlayer());
-			_command.debugPrint();
-			CommandEvent _event = SledgeHammer.instance.handleCommand(_command);
+			Command command = new Command(raw);
+			command.setChannelId(channelId);
+			command.setPlayer(event.getPlayer());
+			command.debugPrint();
+			CommandEvent _event = SledgeHammer.instance.handleCommand(command);
 			ModuleChat moduleChat = getChatModule();
-			Player _player = e.getPlayer();
+			Player commander = event.getPlayer();
 			if (_event.isHandled()) {
 				ChatMessage message = getChatModule().createChatMessage(_event.getResponse().getResponse());
 				message.setPrintedTimestamp(false);
 				message.setOrigin(ChatMessage.ORIGIN_SERVER, false);
-				ChatChannel channel = moduleChat.getChatChannel(channelId);
-				if (channel == null) {
-					channel = moduleChat.getGlobalChatChannel();
-				}
 				message.setChannelId(channelId, false);
-				_player.sendChatMessage(message);
+				commander.sendChatMessage(message);
 			} else {
-				ChatMessage message = createChatMessage("Unknown command: " + command);
+				ChatMessage message = createChatMessage("Unknown command: " + clientCommand);
 				message.setPrintedTimestamp(false);
 				message.setOrigin(ChatMessage.ORIGIN_SERVER, false);
 				// Checks if the origin Channel is available.
@@ -210,7 +202,7 @@ public class ModuleCore extends Module {
 					channel = moduleChat.getGlobalChatChannel();
 				}
 				message.setChannelId(channel.getUniqueId(), false);
-				_player.sendChatMessage(message);
+				commander.sendChatMessage(message);
 			}
 		}
 	}
@@ -235,7 +227,7 @@ public class ModuleCore extends Module {
 	 * Adds a PeriodicMessage to the core, which will be displayed periodically to
 	 * all players who have global-chat enabled.
 	 * 
-	 * @param periodicMessage
+	 * @param periodicMessage The MongoPeriodicMessage to add.
 	 */
 	private void addPeriodicMessage(MongoPeriodicMessage periodicMessage) {
 		String name = periodicMessage.getName();
@@ -253,6 +245,10 @@ public class ModuleCore extends Module {
 		sendPlayer.setPlayer(player);
 		SledgeHammer.instance.send(sendPlayer);
 	}
+
+	public LanguagePackage getLanguagePackage() {
+	    return this.lang;
+    }
 
 	public CoreCommandListener getCommandListener() {
 		return this.commandListener;

@@ -13,9 +13,11 @@ import sledgehammer.lua.chat.ChatMessage;
  * 
  * Exports a LuaTable:
  * {
- *   - "channel": (String) UUID of the Channel.
+ *   - "channel": (String) The Unique ID of the Channel.
  *   - "message": (LuaTable) ChatMessage Object.
  * }
+ *
+ * TODO: change "channel" to "channel_id"
  * 
  * TODO: Document.
  * 
@@ -24,65 +26,68 @@ import sledgehammer.lua.chat.ChatMessage;
 // @formatter:on
 public class SendChatMessages extends Send {
 
-	/** The <LuaArray> of <ChatMessage>'s being sent. */
-	private LuaArray<ChatMessage> listChatMessages;
-	/** The <UUID> of the ChatChannel using this sender. */
-	private UUID channelId;
+    /**
+     * The LuaArray of ChatMessages being sent.
+     */
+    private LuaArray<ChatMessage> listChatMessages;
+    /**
+     * The Unique ID of the ChatChannel using this sender.
+     */
+    private UUID channelId;
 
-	/**
-	 * Main constructor.
-	 */
-	public SendChatMessages(UUID channelId) {
-		super("core.chat", "sendChatMessages");
-		setChannelId(channelId);
-		listChatMessages = new LuaArray<>();
-	}
+    /**
+     * Main constructor.
+     */
+    public SendChatMessages(UUID channelId) {
+        super("core.chat", "sendChatMessages");
+        setChannelId(channelId);
+        listChatMessages = new LuaArray<>();
+    }
 
-	@Override
-	public void onExport() {
-		set("channel_id", getChannelId().toString());
-		set("messages", getChatMessages());
-	}
+    @Override
+    public void onExport() {
+        set("channel_id", getChannelId().toString());
+        set("messages", getChatMessages());
+    }
 
-	public UUID getChannelId() {
-		return this.channelId;
-	}
+    public UUID getChannelId() {
+        return this.channelId;
+    }
 
-	private void setChannelId(UUID channelId) {
-		this.channelId = channelId;
-	}
+    private void setChannelId(UUID channelId) {
+        this.channelId = channelId;
+    }
 
-	public LuaArray<ChatMessage> getChatMessages() {
-		return this.listChatMessages;
-	}
+    public LuaArray<ChatMessage> getChatMessages() {
+        return this.listChatMessages;
+    }
 
-	public void setChatMessages(LuaArray<ChatMessage> listChatMessages) {
-		if (listChatMessages == null) {
-			throw new IllegalArgumentException("LuaArray<ChatMessage> provided is null.");
-		}
-		this.listChatMessages = listChatMessages;
-	}
+    public void setChatMessages(LuaArray<ChatMessage> listChatMessages) {
+        if (listChatMessages == null) {
+            throw new IllegalArgumentException("LuaArray<ChatMessage> provided is null.");
+        }
+        this.listChatMessages = listChatMessages;
+    }
 
-	public void addChatMessages(Collection<ChatMessage> collectionChatMessages) {
-		for (ChatMessage chatMessage : collectionChatMessages) {
-			addChatMessage(chatMessage);
-		}
-	}
+    public void addChatMessages(Collection<ChatMessage> collectionChatMessages) {
+        for (ChatMessage chatMessage : collectionChatMessages) {
+            addChatMessage(chatMessage);
+        }
+    }
 
-	public void addChatMessage(ChatMessage chatMessage) {
-		if (!listChatMessages.contains(chatMessage)) {
-			listChatMessages.add(chatMessage);
-		}
-	}
+    public void addChatMessage(ChatMessage chatMessage) {
+        if (!listChatMessages.contains(chatMessage)) {
+            listChatMessages.add(chatMessage);
+        }
+    }
 
-	public void removeChatMessage(ChatMessage chatMessage) {
-		if (listChatMessages.contains(chatMessage)) {
-			listChatMessages.remove(chatMessage);
-		}
-	}
+    public void removeChatMessage(ChatMessage chatMessage) {
+        if (listChatMessages.contains(chatMessage)) {
+            listChatMessages.remove(chatMessage);
+        }
+    }
 
-	public void clearChatMessages() {
-		listChatMessages.clear();
-	}
-
+    public void clearChatMessages() {
+        listChatMessages.clear();
+    }
 }

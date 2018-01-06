@@ -21,11 +21,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * TODO: Document
@@ -34,11 +30,11 @@ import java.util.Scanner;
 @Deprecated
 public class INI {
 
-	private HashMapINI<String, HashMapINI<String, Object>> mapSections;
-	private Map<String, HashMapINI<String, String>> mapSectionsAsStrings;
-	private Map<String, List<String>> mapSectionComments;
-	private Map<String, HashMapINI<String, List<String>>> mapSectionVariableComments;
-	private List<String> listSections;
+	private HashMapINI<String, HashMapINI<String, Object>> mapSections = new HashMapINI<>("");
+	private Map<String, HashMapINI<String, String>> mapSectionsAsStrings = new HashMap<>();
+	private Map<String, List<String>> mapSectionComments = new HashMap<>();
+	private Map<String, HashMapINI<String, List<String>>> mapSectionVariableComments = new HashMap<>();
+	private List<String> listSections = new ArrayList<>();
 	private File file;
 
 	public INI(File file) {
@@ -47,58 +43,28 @@ public class INI {
 	}
 
 	public void reset() {
-		if (mapSections == null) {
-			mapSections = new HashMapINI<String, HashMapINI<String, Object>>("");
-		} else {
-			mapSections.clear();
-		}
-
-		if (listSections == null) {
-			listSections = new ArrayList<String>();
-		} else {
-			listSections.clear();
-		}
-
-		if (mapSectionsAsStrings == null) {
-			mapSectionsAsStrings = new HashMap<String, HashMapINI<String, String>>();
-		} else {
-			mapSectionsAsStrings.clear();
-		}
-
-		if (mapSectionVariableComments == null) {
-			mapSectionVariableComments = new HashMap<String, HashMapINI<String, List<String>>>();
-		} else {
-			mapSectionVariableComments.clear();
-		}
-
-		if (mapSectionComments == null) {
-			mapSectionComments = new HashMap<String, List<String>>();
-		} else {
-			mapSectionComments.clear();
-		}
-
+		mapSections.clear();
+		listSections.clear();
+		mapSectionsAsStrings.clear();
+		mapSectionVariableComments.clear();
+		mapSectionComments.clear();
 	}
 
 	public void read() throws IOException {
 		Scanner scanner = new Scanner(file);
-
 		HashMapINI<String, Object> mapSection = null;
 		HashMapINI<String, String> mapSectionAsString = null;
-
 		List<String> comment = null;
-
 		HashMapINI<String, List<String>> mapVariableComments = null;
-
 		String mapSectionName = null;
 		String[] variableSplit = null;
-
 		boolean numericalSuccess = false;
 		boolean lastLineComment = false;
 
-		mapSectionAsString = new HashMapINI<String, String>(mapSectionName);
-		mapSection = new HashMapINI<String, Object>(mapSectionName);
+		mapSectionAsString = new HashMapINI<>("");
+		mapSection = new HashMapINI<>("");
 		mapSections.put("", mapSection);
-		mapVariableComments = new HashMapINI<String, List<String>>(mapSectionName);
+		mapVariableComments = new HashMapINI<>("");
 		mapSectionVariableComments.put("", mapVariableComments);
 
 		String newLine = null;
@@ -261,12 +227,10 @@ public class INI {
 				Object o = mapSection.get(variable);
 				if (o == null) {
 					writer.write(variable + "=" + newLine);
-				} else if (o instanceof String) {
-					writer.write(variable + "=" + (String) o + newLine);
+				} else if (o instanceof String || o instanceof Integer) {
+					writer.write(variable + "=" + o + newLine);
 				} else if (o instanceof Boolean) {
 					writer.write(variable + "=" + ((Boolean) o).toString() + newLine);
-				} else if (o instanceof Integer) {
-					writer.write(variable + "=" + ((Integer) o).intValue() + newLine);
 				} else {
 					writer.write(variable + "=" + o.toString() + newLine);
 				}
@@ -289,8 +253,7 @@ public class INI {
 
 	public void setComments(String sectionName, String variable, String... comments) {
 		List<String> listComments = new ArrayList<String>();
-		for (String comment : comments)
-			listComments.add(comment);
+        Collections.addAll(listComments, comments);
 		setComments(sectionName, variable, listComments);
 	}
 
@@ -371,9 +334,7 @@ public class INI {
 
 		if (comments.length > 0) {
 			listComments = new ArrayList<String>();
-			for (String comment : comments) {
-				listComments.add(comment);
-			}
+            Collections.addAll(listComments, comments);
 		}
 
 		setVariable(sectionName, variableName, variable, listComments);
@@ -398,8 +359,7 @@ public class INI {
 		listComments = new ArrayList<String>();
 
 		if (comments.length > 0) {
-			for (String comment : comments)
-				listComments.add(comment);
+            Collections.addAll(listComments, comments);
 		}
 		return createSection(sectionName, listComments);
 	}

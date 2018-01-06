@@ -17,7 +17,7 @@ import sledgehammer.lua.core.Broadcast;
 // @formatter:on
 public class SendBroadcast extends Send {
 
-	/** The <Broadcast> LuaObject being packaged. */
+	/** The Broadcast LuaObject being packaged. */
 	private Broadcast broadcast;
 
 	/**
@@ -33,17 +33,17 @@ public class SendBroadcast extends Send {
 	}
 
 	/**
-	 * @return Returns the <Broadcast> being sent.
+	 * @return Returns the Broadcast being sent.
 	 */
 	public Broadcast getBroadcast() {
 		return this.broadcast;
 	}
 
 	/**
-	 * Sets the <Broadcast> being sent.
+	 * Sets the Broadcast being sent.
 	 * 
 	 * @param broadcast
-	 *            The <Broadcast> to set.
+	 *            The Broadcast to set.
 	 */
 	public void setBroadcast(Broadcast broadcast) {
 		this.broadcast = broadcast;

@@ -30,53 +30,53 @@ import zombie.sledgehammer.npc.NPC;
 /**
  * Module to handle NPC data and operations for the Core Plug-in of
  * Sledgehammer.
- * 
+ * <p>
  * TODO: Rewrite NPCs and remove the NPCManager.
- * 
+ *
  * @author Jab
  */
 public class ModuleNPC extends Module {
 
-	/** Debug flag for the <Module>. */
-	public static final boolean DEBUG = true;
+    /**
+     * Debug flag for the Module.
+     */
+    public static final boolean DEBUG = true;
 
-	/**
-	 * The <Map> of native <IsoGameCharacter> Objects, identified by the
-	 * Sledgehammer <NPC> wrapper.
-	 */
-	protected Map<NPC, IsoGameCharacter> mapSpawners;
+    /**
+     * The Map of native IsoGameCharacter Objects, identified by the
+     * Sledgehammer NPC wrapper.
+     */
+    protected Map<NPC, IsoGameCharacter> mapSpawners;
 
-	/** The <CommandListener> implementation for the <Module>. */
-	private NPCCommandListener commandListener = null;
+    /**
+     * The CommandListener implementation for the Module.
+     */
+    private NPCCommandListener commandListener = null;
 
-	@Override
-	public void onLoad() {
-		mapSpawners = new HashMap<>();
-		commandListener = new NPCCommandListener(this);
-		register(commandListener);
-	}
+    @Override
+    public void onLoad() {
+        mapSpawners = new HashMap<>();
+        commandListener = new NPCCommandListener(this);
+        register(commandListener);
+    }
 
-	@Override
-	public void onUnload() {
-		unregister(commandListener);
-	}
+    @Override
+    public void onUnload() {
+        unregister(commandListener);
+    }
 
-	/**
-	 * @param name
-	 *            The <String> name of the <NPC>.
-	 * @param x
-	 *            The <Float> x-coordinate to spawn the <NPC>.
-	 * @param y
-	 *            The <Float> y-coordinate to spawn the <NPC>.
-	 * @param z
-	 *            The <Float> z-coordinate to spawn the <NPC>.
-	 * @return Returns a <NPC> instance with the <String> name, spawned at the given
-	 *         <Float> coordinates.
-	 */
-	public NPC createFakePlayer(String name, float x, float y, float z) {
-		SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
-		System.out.println("SurvivorDesc ID: " + desc.getID());
-		NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
-		return SledgeHammer.instance.getNPCManager().addNPC(npc);
-	}
+    /**
+     * @param name The String name of the NPC.
+     * @param x    The Float x-coordinate to spawn the NPC.
+     * @param y    The Float y-coordinate to spawn the NPC.
+     * @param z    The Float z-coordinate to spawn the NPC.
+     * @return Returns a NPC instance with the String name, spawned at the given
+     * Float coordinates.
+     */
+    public NPC createFakePlayer(String name, float x, float y, float z) {
+        SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
+        System.out.println("SurvivorDesc ID: " + desc.getID());
+        NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
+        return SledgeHammer.instance.getNPCManager().addNPC(npc);
+    }
 }

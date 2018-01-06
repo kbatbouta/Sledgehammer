@@ -1,13 +1,13 @@
 package sledgehammer.language;
 
 /**
- * Class to store input values for <LanguagePackage>.
+ * Class to store input values for LanguagePackage.
  * 
  * @author Jab
  */
 public class EntryField {
 
-	/** The <String> key of the Entry. (The ID) */
+	/** The String key of the Entry. (The ID) */
 	private String key;
 	/** The Object value of the Entry. */
 	private Object value;
@@ -16,7 +16,7 @@ public class EntryField {
 	 * Main constructor.
 	 * 
 	 * @param key
-	 *            The <String> key of the Entry. (The ID)
+	 *            The String key of the Entry. (The ID)
 	 * @param value
 	 *            The Object value.
 	 */
@@ -45,7 +45,7 @@ public class EntryField {
 	/**
 	 * Sets the <String> key of the Entry.
 	 * 
-	 * @param key
+	 * @param key The String key to set.
 	 */
 	public void setKey(String key) {
 		this.key = key;

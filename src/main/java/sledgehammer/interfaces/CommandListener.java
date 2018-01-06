@@ -21,45 +21,40 @@ import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
 /**
- * Interface that handles the registration and execution of <Command>'s in the
+ * Interface that handles the registration and execution of Commands in the
  * Sledgehammer engine.
- * 
+ *
  * @author Jab
  */
 public interface CommandListener {
 
-	/**
-	 * @return Returns a <String> Array of commands that are interpreted in the
-	 *         <CommandListener>.
-	 */
-	String[] getCommands();
+    /**
+     * @return Returns a String Array of commands that are interpreted in the
+     * CommandListener.
+     */
+    String[] getCommands();
 
-	/**
-	 * Handles a <Command>.
-	 * 
-	 * @param command
-	 *            The <Command> to handle.
-	 * @param response
-	 *            The <Response> to apply the <Result> and any additional
-	 *            information to pass back to the author of the <Command>.
-	 */
-	public void onCommand(Command command, Response response);
+    /**
+     * Handles a Command.
+     *
+     * @param command  The Command to handle.
+     * @param response The Response to apply the Result and any additional
+     *                 information to pass back to the author of the Command.
+     */
+    void onCommand(Command command, Response response);
 
-	/**
-	 * @param player
-	 *            The <Player> requesting the <Command>'s tool-tip description.
-	 * @param command
-	 *            The <Command> issued.
-	 * @return Returns a <String> tool-tip description. If the <Player> is not
-	 *         permitted to use the <Command> issued, then null should be returned.
-	 */
-	public String onTooltip(Player player, Command command);
+    /**
+     * @param player  The Player requesting the Commands tool-tip description.
+     * @param command The Command issued.
+     * @return Returns a String tool-tip description. If the Player is not
+     * permitted to use the Command issued, then null should be returned.
+     */
+    String onTooltip(Player player, Command command);
 
-	/**
-	 * @param command
-	 *            The <String> command to resolve.
-	 * @return Returns a resolved <String> permission-node for the String command
-	 *         given.
-	 */
-	public String getPermissionNode(String command);
+    /**
+     * @param command The String command to resolve.
+     * @return Returns a resolved String permission-node for the String command
+     * given.
+     */
+    String getPermissionNode(String command);
 }

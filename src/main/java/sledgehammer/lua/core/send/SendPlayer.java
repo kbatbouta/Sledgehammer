@@ -21,11 +21,11 @@ import sledgehammer.lua.core.Player;
 
 // @formatter:off
 /**
- * Send Class for sending <Player> Objects.
+ * Send Class for sending Player Objects.
  * 
  * Exports a LuaTable:
  * { 
- *   - "player": (LuaTable) The <Player> being sent. 
+ *   - "player": (LuaTable) The Player being sent.
  * }
  * 
  * @author Jab
@@ -33,35 +33,36 @@ import sledgehammer.lua.core.Player;
 // @formatter:on
 public class SendPlayer extends Send {
 
-	/** The <Player> Object to send. */
-	private Player player;
+    /**
+     * The Player Object to send.
+     */
+    private Player player;
 
-	/**
-	 * Main constructor.
-	 */
-	public SendPlayer() {
-		super("core", "sendPlayer");
-	}
+    /**
+     * Main constructor.
+     */
+    public SendPlayer() {
+        super("core", "sendPlayer");
+    }
 
-	@Override
-	public void onExport() {
-		set("player", getPlayer());
-	}
+    @Override
+    public void onExport() {
+        set("player", getPlayer());
+    }
 
-	/**
-	 * @return Returns the <Player> Object to send.
-	 */
-	public Player getPlayer() {
-		return this.player;
-	}
+    /**
+     * @return Returns the Player Object to send.
+     */
+    public Player getPlayer() {
+        return this.player;
+    }
 
-	/**
-	 * Sets the <Player> Object to send.
-	 * 
-	 * @param player
-	 *            The <Player> Object to set.
-	 */
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
+    /**
+     * Sets the Player Object to send.
+     *
+     * @param player The Player Object to set.
+     */
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }

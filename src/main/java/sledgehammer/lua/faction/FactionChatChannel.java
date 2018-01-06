@@ -24,39 +24,40 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.module.faction.ModuleFactions;
 
 /**
- * Container class for Faction <ChatChannel> operations.
+ * Container class for Faction ChatChannel operations.
  *
  * @author Jab
  */
 public class FactionChatChannel extends ChatChannel {
 
-	/**
-	 * Lua Load constructor.
-	 * 
-	 * @param table
-	 */
-	public FactionChatChannel(MongoChatChannel mongoChatChannel, KahluaTable table) {
-		super(mongoChatChannel, table);
-	}
+    /**
+     * Lua Load constructor.
+     *
+     * @param mongoChatChannel The MongoDocument storing the data on MongoDB.
+     * @param table            The KahluaTable storing the data to load.
+     */
+    public FactionChatChannel(MongoChatChannel mongoChatChannel, KahluaTable table) {
+        super(mongoChatChannel, table);
+    }
 
-	/**
-	 * MongoDB Load constructor.
-	 * 
-	 * @param name
-	 */
-	public FactionChatChannel(MongoChatChannel mongoChatChannel) {
-		super(mongoChatChannel);
-	}
+    /**
+     * MongoDB Load constructor.
+     *
+     * @param mongoChatChannel The MongoDocument storing the data on MongoDB.
+     */
+    public FactionChatChannel(MongoChatChannel mongoChatChannel) {
+        super(mongoChatChannel);
+    }
 
-	@Override
-	public boolean hasAccess(Player player) {
-		return super.hasAccess(player);
-	}
+    @Override
+    public boolean hasAccess(Player player) {
+        return super.hasAccess(player);
+    }
 
-	/**
-	 * @return Returns the loaded <ModuleFactions> instance.
-	 */
-	public ModuleFactions getModule() {
-		return (ModuleFactions) SledgeHammer.instance.getPluginManager().getModule(ModuleFactions.class);
-	}
+    /**
+     * @return Returns the loaded <ModuleFactions> instance.
+     */
+    public ModuleFactions getModule() {
+        return (ModuleFactions) SledgeHammer.instance.getPluginManager().getModule(ModuleFactions.class);
+    }
 }

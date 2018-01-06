@@ -29,16 +29,16 @@ public class CheaterEvent extends PlayerEvent {
 	/** The String ID of the Event. */
 	public static final String ID = "CheaterEvent";
 
-	/** The <String> message to log for the CheaterEvent. */
-	private String logMessage = null;
+	/** The String message to log for the CheaterEvent. */
+	private String logMessage;
 
 	/**
 	 * Main constructor.
 	 * 
 	 * @param player
-	 *            The <Player> detected for cheating.
+	 *            The Player detected for cheating.
 	 * @param logMessage
-	 *            THe <String> message to log for the CheaterEvent.
+	 *            THe String message to log for the CheaterEvent.
 	 */
 	public CheaterEvent(Player player, String logMessage) {
 		super(player);

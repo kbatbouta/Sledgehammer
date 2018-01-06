@@ -107,9 +107,7 @@ public abstract class SQLiteHelper extends Printable {
 		try {
 			Class.forName("org.sqlite.JDBC");
 			connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		setConnection(connection);
@@ -549,8 +547,8 @@ public abstract class SQLiteHelper extends Printable {
 				var6.printStackTrace();
 			}
 			StringBuilder hashString = new StringBuilder();
-			for (int i = 0; i < crypted.length; ++i) {
-				String hex = Integer.toHexString(crypted[i]);
+			for (byte crypt : crypted) {
+				String hex = Integer.toHexString(crypt);
 				if (hex.length() == 1) {
 					hashString.append('0');
 					hashString.append(hex.charAt(hex.length() - 1));

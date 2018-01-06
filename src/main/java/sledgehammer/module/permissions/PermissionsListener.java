@@ -28,14 +28,14 @@ import sledgehammer.lua.permissions.PermissionUser;
  */
 public class PermissionsListener implements PermissionListener {
 
-	/** The <ModulePermissions> using the listener. */
+	/** The ModulePermissions using the listener. */
 	private ModulePermissions module;
 
 	/**
 	 * Main constructor.
 	 * 
 	 * @param module
-	 *            The <ModulePermissions> using the listener.
+	 *            The ModulePermissions using the listener.
 	 */
 	protected PermissionsListener(ModulePermissions module) {
 		setModule(module);
@@ -105,7 +105,7 @@ public class PermissionsListener implements PermissionListener {
 	}
 
 	/**
-	 * @return Returns the <ModulePermissions> instance using the listener.
+	 * @return Returns the ModulePermissions instance using the listener.
 	 */
 	public ModulePermissions getModule() {
 		return this.module;
@@ -114,10 +114,10 @@ public class PermissionsListener implements PermissionListener {
 	/**
 	 * (Private Method)
 	 * 
-	 * Sets the <ModulePermissions> instance using the listener.
+	 * Sets the ModulePermissions instance using the listener.
 	 * 
 	 * @param module
-	 *            The <ModulePermissions> instance to set.
+	 *            The ModulePermissions instance to set.
 	 */
 	private void setModule(ModulePermissions module) {
 		this.module = module;

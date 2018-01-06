@@ -77,16 +77,14 @@ public class CoreEventListener implements EventListener {
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
 		} else if (event.getID() == PVPKillEvent.ID) {
-
-			if (!event.shouldAnnounce())
+			if (!event.shouldAnnounce()) {
 				return;
-
+			}
 			Player killed = ((PVPKillEvent) event).getKilled();
-			if (killed.getIso() instanceof NPC)
+			if (killed.getIso() instanceof NPC) {
 				return;
-
+			}
 			String username = killed.getUsername();
-
 			Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
 			if (timeStamp != null) {
 				event.setHandled(true);
@@ -99,13 +97,12 @@ public class CoreEventListener implements EventListener {
 		}
 	}
 
+    @Override
+    public boolean runSecondary() {
+        return true;
+    }
+
 	public void update() {
 		mapPlayerTimeStamps.clear();
 	}
-
-	@Override
-	public boolean runSecondary() {
-		return true;
-	}
-
 }

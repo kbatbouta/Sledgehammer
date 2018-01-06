@@ -29,10 +29,10 @@ import sledgehammer.event.LogEvent;
 public interface LogEventListener {
 
 	/**
-	 * Handles a <LogEvent>.
+	 * Handles a LogEvent.
 	 * 
 	 * @param logEvent
-	 *            The <LogEvent> to handle.
+	 *            The LogEvent to handle.
 	 */
-	public void onLogEvent(LogEvent logEvent);
+	void onLogEvent(LogEvent logEvent);
 }

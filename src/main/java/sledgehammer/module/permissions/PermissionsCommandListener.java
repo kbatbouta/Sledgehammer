@@ -11,6 +11,11 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
+/**
+ * TODO: Document.
+ *
+ * @author Jab
+ */
 public class PermissionsCommandListener implements CommandListener {
 
     private ModulePermissions module;
@@ -51,19 +56,17 @@ public class PermissionsCommandListener implements CommandListener {
         String[] args = c.getArguments();
         Response moduleResponse = null;
         if (command.equals("permissions")) {
-            if(args.length > 0) {
+            if (args.length > 0) {
                 command = args[0];
                 args = getSubArgs(args, 1);
                 if (command.equals("help")) {
                     processHelpMessage(commander, r);
-                    return;
-                } else if(command.equals("group")) {
+                } else if (command.equals("group")) {
 
                 }
             } else {
                 // No sub-commands exist.
                 processHelpMessage(commander, r);
-                return;
             }
         }
     }
@@ -93,7 +96,8 @@ public class PermissionsCommandListener implements CommandListener {
         ModulePermissions module = getModule();
         LanguagePackage lang = module.getLanguagePackage();
         Language language = commander.getLanguage();
-        String helpString = lang.getString("command_tooltip_permissions_header", language);
+        StringBuilder builder = new StringBuilder();
+        builder.append(lang.getString("command_tooltip_permissions_header", language));
         for (String key : mapPermissionNodes.keySet()) {
             // Grab the PermissionNode.
             String permissionNode = mapPermissionNodes.get(key);
@@ -101,20 +105,19 @@ public class PermissionsCommandListener implements CommandListener {
                 String langString = "command_tooltip_" + key.replaceAll(" ", "_");
                 module.println("langString: " + langString);
                 String langResult = lang.getString(langString, language);
-                if(langResult != null) {
+                if (langResult != null) {
                     langResult = langResult.replaceAll("\n", " <LINE> ");
-                    helpString += " <LINE> " + langResult;
+                    builder.append(" <LINE> ").append(langResult);
                 }
             }
         }
         // If the Commander does not have any of the permission nodes for the commands, send him a denied message.
-        if (helpString.isEmpty()) {
+        if (builder.length() == 0) {
             r.set(Result.FAILURE, module.getPermissionDeniedMessage());
             return;
         }
         // If there are any help responses, return the result help string.
-        r.set(Result.SUCCESS, helpString);
-        return;
+        r.set(Result.SUCCESS, builder.toString());
     }
 
     public ModulePermissions getModule() {
@@ -136,9 +139,7 @@ public class PermissionsCommandListener implements CommandListener {
             throw new IllegalArgumentException("index given to start is beyond the last index of the arguments Array provided.");
         }
         String[] ret = new String[args.length - index];
-        for (int position = 0 + index; position < args.length; position++) {
-            ret[position - index] = args[position];
-        }
+        System.arraycopy(args, index, ret, 0, args.length - index);
         return ret;
     }
 }

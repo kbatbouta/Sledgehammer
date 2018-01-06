@@ -17,10 +17,13 @@ This file is part of Sledgehammer.
 package sledgehammer.enums;
 
 /**
- * TODO: Document.
- * 
+ * Enumeration for Events and Commands.
+ *
  * @author Jab
  */
 public enum Result {
-	SUCCESS, FAILURE;
+    // @formatter:off
+    SUCCESS,
+    FAILURE;
+    // @formatter:on
 }

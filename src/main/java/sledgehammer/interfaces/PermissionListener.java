@@ -19,7 +19,7 @@ package sledgehammer.interfaces;
 import sledgehammer.lua.core.Player;
 
 /**
- * Interface for future alternative <Module> implementations for permissions.
+ * Interface for future alternative Module implementations for permissions.
  * This is to keep the internal design of the default permissions module clean
  * and support open alternatives for handling permissions.
  * 
@@ -28,34 +28,34 @@ import sledgehammer.lua.core.Player;
 public interface PermissionListener {
 
 	/**
-	 * (Interface Method from <PermissionListener>)
+	 * (Interface Method from PermissionListener)
 	 * 
-	 * This method returns whether or not a <Player> is authorized for a given
-	 * <String> permission node.
+	 * This method returns whether or not a Player is authorized for a given
+	 * String permission node.
 	 * 
 	 * @param player
-	 *            The <Player> being tested.
+	 *            The Player being tested.
 	 * @param node
-	 *            The <String> node being tested.
-	 * @return Returns true if the <Player> is authorized with the given <String>
+	 *            The String node being tested.
+	 * @return Returns true if the Player is authorized with the given String
 	 *         node.
 	 */
-	public boolean hasPermission(Player player, String node);
+	boolean hasPermission(Player player, String node);
 
 	/**
-	 * (Interface Method from <PermissionListener>)
+	 * (Interface Method from PermissionListener)
 	 * 
-	 * This method sets a permission for whether or not a <Player> is authorized for
-	 * a given <String> permission node.
+	 * This method sets a permission for whether or not a Player is authorized for
+	 * a given String permission node.
 	 * 
 	 * @param player
-	 *            The <Player> the permission is being set.
+	 *            The Player the permission is being set.
 	 * @param node
-	 *            The <String> node being set.
+	 *            The String node being set.
 	 * @param flag
 	 *            The flag for the node to be explicitly authorized or denied.
 	 */
-	public void setPermission(Player player, String node, boolean flag);
+	void setPermission(Player player, String node, boolean flag);
 
 	/**
 	 * Sets a default permission flag.
@@ -64,16 +64,16 @@ public interface PermissionListener {
 	 * for default players)
 	 * 
 	 * @param node
-	 *            The <String> permission node being set.
+	 *            The String permission node being set.
 	 * @param flag
 	 *            The flag to set for the permission node.
 	 */
-	public void addDefaultPermission(String node, boolean flag);
+	void addDefaultPermission(String node, boolean flag);
 
 	/**
 	 * @param node
-	 *            The <String> permission node being checked.
+	 *            The String permission node being checked.
 	 * @return Returns true if the permission node is granted by default.
 	 */
-	public boolean hasDefaultPermission(String node);
+	boolean hasDefaultPermission(String node);
 }

@@ -22,29 +22,31 @@ import sledgehammer.util.Printable;
 import zombie.core.logger.LoggerManager;
 
 /**
- * LogListener that forwards <LogEvent>'s to ProjectZomboid's administrator
- * <ZLogger> instance.
- * 
+ * LogListener that forwards LogEvents to Project Zomboid's administrator
+ * ZLogger instance.
+ *
  * @author Jab
  */
 public class VanillaLogListener extends Printable implements LogEventListener {
 
-	/** The <String> name of the <Module>. */
-	public static final String NAME = "VanillaLogListener";
+    /**
+     * The String name of the Module.
+     */
+    public static final String NAME = "VanillaLogListener";
 
-	@Override
-	public void onLogEvent(LogEvent logEntry) {
-		String message = logEntry.getLogMessage();
-		boolean important = logEntry.isImportant();
-		if (important) {
-			LoggerManager.getLogger("admin").write(message, "IMPORTANT");
-		} else {
-			LoggerManager.getLogger("admin").write(message);
-		}
-	}
+    @Override
+    public void onLogEvent(LogEvent logEntry) {
+        String message = logEntry.getLogMessage();
+        boolean important = logEntry.isImportant();
+        if (important) {
+            LoggerManager.getLogger("admin").write(message, "IMPORTANT");
+        } else {
+            LoggerManager.getLogger("admin").write(message);
+        }
+    }
 
-	@Override
-	public String getName() {
-		return NAME;
-	}
+    @Override
+    public String getName() {
+        return NAME;
+    }
 }

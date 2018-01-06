@@ -62,6 +62,8 @@ import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
+import sledgehammer.plugin.Module;
+import sledgehammer.plugin.Plugin;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -77,7 +79,7 @@ import zombie.sledgehammer.SledgeHelper;
  * <p>
  * This class is used to initialize all components of SledgeHammer, and act as a
  * approximation to access most components in SledgeHammer.
- *
+ * <p>
  * TODO: Fix documentation.
  *
  * @author Jab
@@ -123,12 +125,12 @@ public class SledgeHammer extends Printable {
      */
     private PlayerManager managerPlayer;
     /**
-     * UdpEngine pointer for the ProjectZomboid GameServer UdpEngine instance, to
+     * UdpEngine pointer for the Project Zomboid GameServer UdpEngine instance, to
      * communicate with connections.
      */
     private UdpEngine udpEngine;
     /**
-     * The <PermissionListener> used to query permission requests.
+     * The PermissionListener used to query permission requests.
      */
     private PermissionListener permissionListener;
     /**
@@ -177,7 +179,7 @@ public class SledgeHammer extends Printable {
     public void init() {
         try {
             directoryLang = new File("lang/");
-            if(!directoryLang.exists()) {
+            if (!directoryLang.exists()) {
                 directoryLang.mkdirs();
             }
             publicServerName = ServerOptions.instance.getOption("PublicName");
@@ -240,11 +242,11 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Checks if a <Player> has a <String> permission-node.
+     * Checks if a Player has a String permission-node.
      *
-     * @param player The <Player> to test.
-     * @param node   The <String> permission-node to test.
-     * @return Returns true if the <Player> is granted the given <String>
+     * @param player The Player to test.
+     * @param node   The String permission-node to test.
+     * @return Returns true if the Player is granted the given String
      * permission-node.
      */
     public boolean hasPermission(Player player, String node) {
@@ -282,29 +284,29 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @return Returns the <String> message to send when a permission is denied.
+     * @return Returns the String message to send when a permission is denied.
      */
     public String getPermissionDeniedMessage() {
         return Settings.getInstance().getPermissionDeniedMessage();
     }
 
     /**
-     * Adds a <String> permission-node to the default <PermissionGroup>, allowing
-     * all <Player>'s to be granted the permission-node.
+     * Adds a String permission-node to the default PermissionGroup, allowing
+     * all Players to be granted the permission-node.
      *
-     * @param node The <String> node to add.
+     * @param node The String node to add.
      */
     public void addDefaultPermission(String node) {
         addDefaultPermission(node, true);
     }
 
     /**
-     * Adds a <String> permission-node to the default <PermissionGroup> with a given
-     * <Boolean> flag. All <PermissionUser>'s with a specific definition will
+     * Adds a String permission-node to the default PermissionGroup with a given
+     * <Boolean> flag. All PermissionUsers with a specific definition will
      * override this.
      *
-     * @param node The <String> node to add.
-     * @param flag The <Boolean> flag to set.
+     * @param node The String node to add.
+     * @param flag The Boolean flag to set.
      */
     public void addDefaultPermission(String node, boolean flag) {
         getPermissionListener().addDefaultPermission(node, flag);
@@ -341,13 +343,13 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Returns a <Player> with a given nickname or user-name, or a fragment of that
+     * Returns a Player with a given nickname or user-name, or a fragment of that
      * name. User-names are checked before Nicknames are checked.
      *
-     * @param nameFragment The <String> name or fragment of the of the user-name or nickname
+     * @param nameFragment The String name or fragment of the of the user-name or nickname
      *                     of the Player.
-     * @return Returns a <Player>. If a <Player> is not identified with the given
-     * <String> fragment, null is returned.
+     * @return Returns a Player. If a Player is not identified with the given
+     * String fragment, null is returned.
      */
     public Player getPlayerDirty(String nameFragment) {
         // Search by user-name.
@@ -385,8 +387,8 @@ public class SledgeHammer extends Printable {
     /**
      * Sends a Send LuaTable Object to a given Player.
      *
-     * @param send   The sent <LuaObject>.
-     * @param player The <Player> the <Send> is sent to.
+     * @param send   The sent LuaObject.
+     * @param player The Player the Send is sent to.
      */
     public void send(Send send, Player player) {
         // Make sure the Player is online before attempting to send to the Player.
@@ -401,8 +403,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param nickname The <String> nickname of the <Player>.
-     * @return Returns a <Player> with a given <String> nickname. If no online
+     * @param nickname The nickname of the Player.
+     * @return Returns a Player with a given String nickname. If no online
      * Players have this nickname, then null is returned.
      */
     public Player getPlayerByNickname(String nickname) {
@@ -421,8 +423,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param username The <String> user-name of the <Player>.
-     * @return Returns a <Player> with a given <String> user-name. If no online
+     * @param username The user-name of the Player.
+     * @return Returns a Player with a given String user-name. If no online
      * Players have this nickname, then null is returned.
      */
     public Player getPlayerByUsername(String username) {
@@ -442,8 +444,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param playerId The <UUID> identifier of the Player.
-     * @return Returns a <Player> object if the player exists in the database.
+     * @param playerId The Unique ID of the Player.
+     * @return Returns a Player object if the player exists in the database.
      * Returns null if the Player does not exist.
      */
     public Player getOfflinePlayer(UUID playerId) {
@@ -456,8 +458,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param username The <String> user-name of the Player.
-     * @return Returns a <Player> object if the player exists in the database.
+     * @param username The user-name of the Player.
+     * @return Returns a Player object if the player exists in the database.
      * Returns null if the Player does not exist.
      */
     public Player getOfflinePlayer(String username) {
@@ -492,7 +494,7 @@ public class SledgeHammer extends Printable {
     /**
      * Sends a Send LuaTable Object to online players.
      *
-     * @param send The <Send> LuaTable Object being sent.
+     * @param send The Send LuaTable being sent.
      */
     public void send(Send send) {
         for (Player player : getPlayers()) {
@@ -501,10 +503,10 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Sends a <Send> LuaTable Object to the given <Collection> of <Player>'s.
+     * Sends a Send LuaTable Object to a Collection of Players.
      *
-     * @param send    The <Send> LuaTable Object being sent.
-     * @param players The <Collection> of <Player>'s being sent the <Send> Object.
+     * @param send    The Send LuaTable Object being sent.
+     * @param players The Collection of Players being sent the Send Object.
      */
     public void send(Send send, Collection<Player> players) {
         for (Player player : players) {
@@ -521,63 +523,63 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @return Returns the <PluginManager> instance for SledgeHammer.
+     * @return Returns the PluginManager instance for SledgeHammer.
      */
     public PluginManager getPluginManager() {
         return this.managerPlugin;
     }
 
     /**
-     * @return Returns the <NPCManager> instance.
+     * @return Returns the NPCManager instance.
      */
     public NPCManager getNPCManager() {
         return this.managerNPC;
     }
 
     /**
-     * @return Returns the <EventManager> instance.
+     * @return Returns the EventManager instance.
      */
     public EventManager getEventManager() {
         return managerEvent;
     }
 
     /**
-     * @return Returns the <PlayerManager> instance.
+     * @return Returns the PlayerManager instance.
      */
     public PlayerManager getPlayerManager() {
         return managerPlayer;
     }
 
     /**
-     * @return Returns the <ModuleChat> instance loaded in the Core plug-in.
+     * @return Returns the ModuleChat instance loaded in the Core plug-in.
      */
     public ModuleFactions getFactionModule() {
         return getPluginManager().getFactionsModule();
     }
 
     /**
-     * @return Returns the <ModuleChat> instance loaded in the Core plug-in.
+     * @return Returns the ModuleChat instance loaded in the Core plug-in.
      */
     public ModuleChat getChatModule() {
         return getPluginManager().getChatModule();
     }
 
     /**
-     * @return Returns the <ModuleCore> instance loaded in the Core plug-in.
+     * @return Returns the ModuleCore instance loaded in the Core plug-in.
      */
     public ModuleVanilla getVanillaModule() {
         return getPluginManager().getVanillaModule();
     }
 
     /**
-     * @return Returns the <ModuleCore> instance loaded in the Core plug-in.
+     * @return Returns the ModuleCore instance loaded in the Core plug-in.
      */
     public ModuleCore getCoreModule() {
         return getPluginManager().getCoreModule();
     }
 
     /**
-     * @return Returns the <ModulePermissions> instance loaded in the Core plug-in.
+     * @return Returns the ModulePermissions instance loaded in the Core plug-in.
      */
     public ModulePermissions getPermissionsModule() {
         return getPluginManager().getPermissionsModule();
@@ -749,11 +751,11 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Passes a <Command> to be handled by registered <CommandListener>'s with the
+     * Passes a Command to be handled by registered CommandListeners with the
      * Command's.
      *
-     * @param command The <Command> executed.
-     * @return Returns the result <CommandEvent>.
+     * @param command The Command executed.
+     * @return Returns the result CommandEvent.
      */
     public CommandEvent handleCommand(Command command) {
         return getEventManager().handleCommand(new CommandEvent(command), true);
@@ -769,8 +771,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param name The name of the <Player>'s native Object.
-     * @return Returns the native <IsoPlayer> Object with the <String> name of the
+     * @param name The name of the Player's native Object.
+     * @return Returns the native IsoPlayer Object with the name of the
      * Player.
      */
     public IsoPlayer getIsoPlayer(String name) {
@@ -778,17 +780,17 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param nameFragment The <String> name-fragment of the <Player>.
-     * @return Returns the native <IsoPlayer> Object of the <Player>.
+     * @param nameFragment The name-fragment of the Player.
+     * @return Returns the native IsoPlayer Object of the Player.
      */
     public IsoPlayer getIsoPlayerDirty(String nameFragment) {
         return SledgeHelper.getIsoPlayerDirty(nameFragment);
     }
 
     /**
-     * @param username The <String> user-name of the <Player>.
-     * @return Returns the native <IsoPlayer> Object with the <String> user-name of
-     * the <Player>.
+     * @param username The String user-name of the Player.
+     * @return Returns the native IsoPlayer Object with the String user-name of
+     * the Player.
      */
     public IsoPlayer getIsoPlayerByUsername(String username) {
         return SledgeHelper.getIsoPlayerByUsername(username);
@@ -796,8 +798,8 @@ public class SledgeHammer extends Printable {
 
     /**
      * @param usernameFragment The
-     * @return Returns the native <IsoPlayer> with a given <String>
-     * user-name-fragment. If no Player's use-rname contains the fragment,
+     * @return Returns the native IsoPlayer with a given
+     * user-name-fragment. If no Player's user-name contains the fragment,
      * null is returned.
      */
     public IsoPlayer getIsoPlayerByUsernameDirty(String usernameFragment) {
@@ -805,8 +807,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param nickname The <String> nickname of the <Player>.
-     * @return Returns the native <IsoPlayer> Object for a <Player> with the given
+     * @param nickname The nickname of the Player.
+     * @return Returns the native IsoPlayer Object for a Player with the given
      * nickname. If no Player has this nickname, null is returned.
      */
     public IsoPlayer getIsoPlayerByNickname(String nickname) {
@@ -814,9 +816,9 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param nicknameFragment The <String> nickname fragment of a <Player>.
-     * @return Returns the native <IsoPlayer> Object for a <Player> with the
-     * <String> nickname-fragment. If no Player's nickname contains the
+     * @param nicknameFragment The String nickname fragment of a Player.
+     * @return Returns the native IsoPlayer Object for a Player with the
+     * String nickname-fragment. If no Player's nickname contains the
      * fragment, null is returned. returned.
      */
     public IsoPlayer getIsoPlayerByNicknameDirty(String nicknameFragment) {
@@ -824,18 +826,18 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Unregisters a <CommandListener>.
+     * Unregisters a CommandListener.
      *
-     * @param listener the <CommandListener> to unregister.
+     * @param listener the CommandListener to unregister.
      */
     public void unregister(CommandListener listener) {
         getEventManager().unregister(listener);
     }
 
     /**
-     * Unregisters a <LogListener>.
+     * Unregisters a LogListener.
      *
-     * @param listener The <LogListener> to unregister.
+     * @param listener The LogListener to unregister.
      */
     public void unregister(LogEventListener listener) {
         getEventManager().unregister(listener);
@@ -844,7 +846,7 @@ public class SledgeHammer extends Printable {
     /**
      * Unregisters a EventListener.
      *
-     * @param listener The <EventListener> to unregister.
+     * @param listener The EventListener to unregister.
      */
     public void unregister(EventListener listener) {
         getEventManager().unregister(listener);
@@ -875,9 +877,9 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Sets the <PermissionListener> that handles Permission checks and assignments.
+     * Sets the PermissionListener that handles Permission checks and assignments.
      *
-     * @param permissionListener The <PermissionListener> to set.
+     * @param permissionListener The PermissionListener to set.
      */
     public void setPermissionListener(PermissionListener permissionListener) {
         this.permissionListener = permissionListener;
@@ -886,41 +888,41 @@ public class SledgeHammer extends Printable {
     /**
      * Updates a Player's Lua data.
      *
-     * @param player The <Player> to update.
+     * @param player The Player to update.
      */
     public void updatePlayer(Player player) {
         getPluginManager().getCoreModule().updatePlayer(player);
     }
 
     /**
-     * Checks if a Player exists with a given <UUID>.
+     * Checks if a Player exists with a given Unique ID.
      *
-     * @param playerId The <UUID> of the <Player>.
-     * @return Returns true if a <Player> exists with the given <UUID>.
+     * @param playerId The Unique ID of the Player.
+     * @return Returns true if a Player exists with the given Unique ID.
      */
     public boolean playerExists(UUID playerId) {
         return getDatabase().playerExists(playerId);
     }
 
     /**
-     * Adds a <Player> to the <List> of online Players.
+     * Adds a Player to the List of online Players.
      *
-     * @param player The <Player> being added to the <PlayerManager>.
+     * @param player The Player being added to the PlayerManager.
      */
     public void addPlayer(Player player) {
         getPlayerManager().addPlayer(player);
     }
 
     /**
-     * @return Returns a <List> of the online <Player>'s.
+     * @return Returns a List of online Players.
      */
     public List<Player> getPlayers() {
         return getPlayerManager().getPlayers();
     }
 
     /**
-     * @param username The <String> user-name of a <Player>.
-     * @return Returns a <Player> with the given <String> user-name. If a <Player>
+     * @param username The user-name of the Player.
+     * @return Returns a Player with the given user-name. If a Player
      * does not have this user-name, null is returned.
      */
     public Player getPlayer(String username) {
@@ -928,8 +930,8 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @param uniqueId The <UUID> of a <Player>.
-     * @return Returns a <Player> with the given <UUID>. If no <Player> has this
+     * @param uniqueId The Unique ID of a Player.
+     * @return Returns a Player with the given Unique ID. If no Player has this
      * uniqueId, null is returned.
      */
     public Player getPlayer(UUID uniqueId) {
@@ -945,6 +947,17 @@ public class SledgeHammer extends Printable {
 
     public void broadcastMessage(String line) {
         // TODO: Implement.
+    }
+
+    /**
+     * Approximate method for "SledgeHammer.instance.getPluginManager().getModule(clazz)".
+     *
+     * @param clazz The Class of the Module.
+     * @return Returns a Module with the given Class.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends Module> T getModule(Class<? extends Module> clazz) {
+        return getPluginManager().getModule(clazz);
     }
 
     /**
@@ -964,14 +977,14 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * @return Returns the Sledgehammer.Jar as a <File> Object.
+     * @return Returns the Sledgehammer.Jar as a File Object.
      */
     public static File getJarFile() {
         return new File(getJarFileLocation());
     }
 
     /**
-     * @return Returns the <Player> Object of the administrator account.
+     * @return Returns the Player Object of the administrator account.
      */
     public static Player getAdministrator() {
         return Player.admin;
