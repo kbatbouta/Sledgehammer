@@ -80,7 +80,7 @@ public class SledgehammerDatabase extends MongoDatabase {
      * Checks to see if a Player exists.
      *
      * @param username The username of the player.
-     * @return
+     * @return Returns true if the Player exists.
      */
     public boolean playerExists(String username) {
         if (username == null || username.isEmpty()) {
@@ -100,7 +100,7 @@ public class SledgehammerDatabase extends MongoDatabase {
      * Checks to see if a Player exists.
      *
      * @param uniqueId The Unique ID of the Player.
-     * @return
+     * @return Returns true if the Player exists.
      */
     public boolean playerExists(UUID uniqueId) {
         if (uniqueId == null) {
@@ -236,14 +236,14 @@ public class SledgehammerDatabase extends MongoDatabase {
     }
 
     /**
-     * Creates an unsaved <MongoBan> document.
+     * Creates an unsaved MongoBan document.
      *
      * @param id       The ID of the Ban.
-     * @param username
-     * @param reason
-     * @param steam
-     * @param banned
-     * @return
+     * @param username The user-name of the Player.
+     * @param reason   The reason for the Ban.
+     * @param steam    True if the Ban is SteamID. False if the Ban is I.P. Address.
+     * @param banned   Flag to set the ban.
+     * @return Returns the created MongoBan.
      */
     public MongoBan createBan(String id, String username, String reason, boolean steam, boolean banned) {
         MongoBan ban = new MongoBan(collectionBans, id, username, reason, steam, banned);

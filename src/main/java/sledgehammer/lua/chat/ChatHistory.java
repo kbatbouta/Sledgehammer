@@ -12,7 +12,7 @@ import sledgehammer.lua.chat.send.SendChatMessages;
 import sledgehammer.lua.core.Player;
 
 /**
- * Chat LuaTable designed to store <ChatMessage> entries for a <ChatChannel>.
+ * Chat LuaTable designed to store ChatMessage entries for a ChatChannel.
  *
  * @author Jab
  */

@@ -282,7 +282,7 @@ public class Color extends LuaTable implements Comparable<Color> {
     }
 
     /**
-     * @return Returns a <String> encoded color tag for Lua.
+     * @return Returns a String encoded color tag for Lua.
      */
     public String toTag() {
         return "<RGB:" + getRed() + "," + getGreen() + "," + getBlue() + ">";
@@ -291,7 +291,7 @@ public class Color extends LuaTable implements Comparable<Color> {
     /**
      * Limits a float value between 0 and 1.
      *
-     * @param value The <Float> value to limit. If the value is lower than 0, 0 will
+     * @param value The Float value to limit. If the value is lower than 0, 0 will
      *              be returned. if the value is larger than 1, then 1 is returned.
      * @return Returns a value between or equal to 0 or 1.
      */
@@ -302,15 +302,15 @@ public class Color extends LuaTable implements Comparable<Color> {
     /**
      * Limits a float value between a given minimum value, and maximum value.
      *
-     * @param value   The <Float> value to limit. If the value is lower than the <Float>
+     * @param value   The Float value to limit. If the value is lower than the Float
      *                minimum value, the minimum value will be returned. if the value is
-     *                larger than the <Float> maximum value, then the maximum value is
+     *                larger than the Float maximum value, then the maximum value is
      *                returned.
-     * @param minimum The <Float> minimum value for the returned Float value to be
+     * @param minimum The Float minimum value for the returned Float value to be
      *                returned.
-     * @param maximum The <Float> maximum value for the returned Float value to be
+     * @param maximum The Float maximum value for the returned Float value to be
      *                returned.
-     * @return Returns the processed <Float> value between the Float minimum and
+     * @return Returns the processed Float value between the Float minimum and
      * Float maximum value given.
      */
     public static float limit(float value, float minimum, float maximum) {
@@ -318,8 +318,8 @@ public class Color extends LuaTable implements Comparable<Color> {
     }
 
     /**
-     * @param color The <String> name of the color.
-     * @return Returns a <Color> Object with the <String> name. If no Color is
+     * @param color The String name of the color.
+     * @return Returns a Color Object with the String name. If no Color is
      * registered with the String name given, null is returned.
      */
     public static Color getColor(String color) {

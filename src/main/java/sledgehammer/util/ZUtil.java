@@ -62,9 +62,7 @@ public class ZUtil {
     }
 
     /**
-     * Returns a String representation of the current time.
-     *
-     * @return
+     * @return Returns a String representation of the current time.
      */
     public static String getHourMinuteSeconds() {
         String hours = Calendar.getInstance().get(11) + "";
@@ -116,9 +114,12 @@ public class ZUtil {
      * calls the Cleaner method of a DirectByteBuffer.
      *
      * @param toBeDestroyed The DirectByteBuffer that will be "cleaned". Utilizes reflection.
+     * @throws IllegalAccessException    Thrown if there's a failure to access the reflected Methods.
+     * @throws InvocationTargetException Thrown if there's a failure to invoke the reflected Methods.
+     * @throws NoSuchMethodException     Thrown if the reflected Methods do not exist.
      */
-    public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) throws IllegalArgumentException,
-            IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException {
+    public static void destroyDirectByteBuffer(ByteBuffer toBeDestroyed) throws
+            IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         // Not sure if needed. JDK8
         // Preconditions.checkArgument(toBeDestroyed.isDirect(), "toBeDestroyed
         // isn't direct!");
@@ -128,7 +129,6 @@ public class ZUtil {
         Method cleanMethod = cleaner.getClass().getMethod("clean");
         cleanMethod.setAccessible(true);
         cleanMethod.invoke(cleaner);
-
     }
 
     public static void addDir(String s) throws IOException {

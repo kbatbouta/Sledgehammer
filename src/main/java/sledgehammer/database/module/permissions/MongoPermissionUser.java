@@ -50,6 +50,7 @@ public class MongoPermissionUser extends MongoUniqueNodeDocument {
      * New constructor.
      *
      * @param collection The MongoCollection storing the document.
+     * @param playerId   the Unique ID of the Player.
      */
     public MongoPermissionUser(MongoCollection collection, UUID playerId) {
         super(collection, playerId);

@@ -295,7 +295,7 @@ public class ModuleFactions extends MongoModule {
     }
 
     /**
-     * Checks & removes expired FactionInvites.
+     * Checks and removes expired FactionInvites.
      */
     public void removeExpiredInvites() {
         // Our count to store the amount of removed invites.
@@ -793,9 +793,9 @@ public class ModuleFactions extends MongoModule {
     }
 
     /**
-     * Deletes & properly removes a FactionInvite, and its representing document.
+     * Deletes and properly removes a FactionInvite, and its representing document.
      *
-     * @param factionInvite The FactionInvite being deleted & removed.
+     * @param factionInvite The FactionInvite being deleted and removed.
      */
     public void deleteInvite(FactionInvite factionInvite) {
         // Grab the MongoDocument.
@@ -846,7 +846,7 @@ public class ModuleFactions extends MongoModule {
     }
 
     /**
-     * Unregisters & removes the ChatChannel associated with the given Faction.
+     * Unregisters and removes the ChatChannel associated with the given Faction.
      *
      * @param faction The Faction that the ChatChannel being unregistered is being
      *                removed.

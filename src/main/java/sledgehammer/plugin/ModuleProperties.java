@@ -21,7 +21,7 @@ import java.util.Map;
 import sledgehammer.lua.LuaTable;
 
 /**
- * LuaTable to store and define <Module> properties.
+ * LuaTable to store and define Module properties.
  *
  * @author Jab
  */

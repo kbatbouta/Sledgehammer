@@ -73,7 +73,7 @@ public class PlayerManager extends Manager {
 
     /**
      * @param uniqueId The Unique ID of the Player.
-     * @return Returns a <Player> with the given Unique ID. If no Player
+     * @return Returns a Player with the given Unique ID. If no Player
      * identifies with the Unique ID, then null is retrned.
      */
     public Player getPlayer(UUID uniqueId) {

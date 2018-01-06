@@ -39,8 +39,8 @@ public abstract class MongoDocumentElement {
     /**
      * Main constructor.
      *
-     * @param mongoDocument
-     * @param name
+     * @param mongoDocument The MongoDocument parent.
+     * @param name          The name of the element.
      */
     public MongoDocumentElement(MongoDocument mongoDocument, String name) {
         setEntryName(name);

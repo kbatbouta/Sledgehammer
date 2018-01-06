@@ -286,7 +286,7 @@ public class FactionActions {
     }
 
     /**
-     * Rejects & deletes FactionInvite invites for the Player. If null is passed
+     * Rejects and deletes FactionInvite invites for the Player. If null is passed
      * on the Faction argument, then all invites that exist (if any), will be
      * rejects and deleted.
      *
@@ -369,7 +369,7 @@ public class FactionActions {
     }
 
     /**
-     * Validates & changes the password for a Faction.
+     * Validates and changes the password for a Faction.
      *
      * @param player           The Player. Will return as a failure if not the owner of a
      *                         Faction.
@@ -402,7 +402,7 @@ public class FactionActions {
     }
 
     /**
-     * Validates & changes the tag for a Faction.
+     * Validates and changes the tag for a Faction.
      *
      * @param player The Player. Will return as a failure if not the owner of a
      *               Faction.

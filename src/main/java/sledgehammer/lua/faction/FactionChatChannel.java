@@ -55,7 +55,7 @@ public class FactionChatChannel extends ChatChannel {
     }
 
     /**
-     * @return Returns the loaded <ModuleFactions> instance.
+     * @return Returns the Factions Module instance.
      */
     public ModuleFactions getModule() {
         return (ModuleFactions) SledgeHammer.instance.getPluginManager().getModule(ModuleFactions.class);

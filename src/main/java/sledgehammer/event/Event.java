@@ -121,7 +121,7 @@ public abstract class Event {
     }
 
     /**
-     * Sets the <Event> to ignore the Core plug-in's EventListeners.
+     * Sets the Event to ignore the Core plug-in's EventListeners.
      *
      * @param flag The flag to set.
      */

@@ -574,6 +574,7 @@ public abstract class Module extends Printable {
      * Returns a registered. Module with the given Class.
      *
      * @param clazz The Class of the Module.
+     * @param <T> The Module Class to return.
      * @return Returns a Module with the given Class.
      */
     @SuppressWarnings("unchecked")
@@ -761,8 +762,8 @@ public abstract class Module extends Printable {
      * Used to execute GenericEvent commands. This will be picked up by modules
      * that @override this this method.
      *
-     * @param type
-     * @param context
+     * @param type The type of event.
+     * @param context The context of the event.
      */
     public void executeCommand(String type, String context) {
     }

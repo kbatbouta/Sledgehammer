@@ -97,7 +97,7 @@ public abstract class MongoUniqueDocument extends MongoDocument {
      * Sets the Unique ID for the MongoDocument.
      *
      * @param uniqueId The Unique ID to set.
-     * @param save
+     * @param save     The flag to save the document.
      */
     public void setUniqueId(UUID uniqueId, boolean save) {
         this.uniqueId = uniqueId;

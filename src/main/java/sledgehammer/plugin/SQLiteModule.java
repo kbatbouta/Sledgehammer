@@ -365,7 +365,7 @@ public abstract class SQLiteModule extends Module {
      * @param targetNames The List of String names of the target columns in the SQLite
      *                    table to grab.
      * @return Returns a Map of String column names, that points to a List of
-     * <String> definitions for each row in the SQLite table.
+     * definitions for each row in the SQLite table.
      * @throws SQLException
      */
     public Map<String, List<String>> getAll(String tableName, String[] targetNames) throws SQLException {

@@ -40,35 +40,63 @@ import sledgehammer.plugin.Plugin;
  */
 public class PluginManager extends Manager {
 
-    /** Debug boolean, used for verbose output. */
+    /**
+     * Debug boolean, used for verbose output.
+     */
     public static boolean DEBUG = true;
 
-    /** The Map of loaded Plug-ins identified by their String name. */
+    /**
+     * The Map of loaded Plug-ins identified by their String name.
+     */
     private Map<String, Plugin> mapPlugins;
-    /** The Core Plug-in. */
+    /**
+     * The Core Plug-in.
+     */
     private Plugin pluginSledgehammer;
 
-    /** The <List> of Plug-ins to load. */
+    /**
+     * The <List> of Plug-ins to load.
+     */
     private List<Plugin> listPluginsToLoad;
-    /** The <List> of Plug-ins to start. */
+    /**
+     * The <List> of Plug-ins to start.
+     */
     private List<Plugin> listPluginsToStart;
-    /** The <List> of Plug-ins that have started. */
+    /**
+     * The <List> of Plug-ins that have started.
+     */
     private List<Plugin> listPluginsStarted;
-    /** The <List> of Plug-ins to unload. */
+    /**
+     * The <List> of Plug-ins to unload.
+     */
     private List<Plugin> listPluginsToUnload;
-    /** The <ModulePermissions> instance in the Core plug-in. */
+    /**
+     * The <ModulePermissions> instance in the Core plug-in.
+     */
     private ModulePermissions modulePermissions;
-    /** The <ModuleCore> instance in the Core plug-in. */
+    /**
+     * The <ModuleCore> instance in the Core plug-in.
+     */
     private ModuleCore moduleCore;
-    /** The <ModuleVanilla> instance in the Core plug-in. */
+    /**
+     * The <ModuleVanilla> instance in the Core plug-in.
+     */
     private ModuleVanilla moduleVanilla;
-    /** The <ModuleChat> instance in the Core plug-in. */
+    /**
+     * The <ModuleChat> instance in the Core plug-in.
+     */
     private ModuleChat moduleChat;
-    /** The <ModuleFactions> instance in the Core plug-in. */
+    /**
+     * The <ModuleFactions> instance in the Core plug-in.
+     */
     private ModuleFactions moduleFactions;
-    /** The <File> Object of the directory for Plug-in's to load. */
+    /**
+     * The <File> Object of the directory for Plug-in's to load.
+     */
     private File directory;
-    /** A <Long> value to store the last time the Plug-in's were updated. */
+    /**
+     * A <Long> value to store the last time the Plug-in's were updated.
+     */
     private long timeThen;
 
     // @formatter:off
@@ -238,6 +266,7 @@ public class PluginManager extends Manager {
      * Returns a registered. Module with the given Class.
      *
      * @param clazz The Class of the Module.
+     * @param <T>   The Class of the Module returned.
      * @return Returns a Module with the given Class.
      */
     @SuppressWarnings("unchecked")

@@ -246,12 +246,12 @@ public class Node extends LuaTable {
      * Creates a Node from a given String node. The node should be formatted as
      * such:
      * <p>
-     * 1) "sledgehammer.node.example" -> this node will automatically be set to true
+     * 1) ("sledgehammer.node.example") this node will automatically be set to true
      * for the flag.
      * <p>
-     * 2) "sledgehammer.node.example:1 -> this node will be set to true.
+     * 2) ("sledgehammer.node.example:1) this node will be set to true.
      * <p>
-     * 3) "sledgehammer.node.example:true -> this also works. (false, and other
+     * 3) ("sledgehammer.node.example:true) this also works. (false, and other
      * entries will be set as false)
      *
      * @param node The String node being packaged into a Node object.

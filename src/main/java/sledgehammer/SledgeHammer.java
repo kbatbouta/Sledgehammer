@@ -302,7 +302,7 @@ public class SledgeHammer extends Printable {
 
     /**
      * Adds a String permission-node to the default PermissionGroup with a given
-     * <Boolean> flag. All PermissionUsers with a specific definition will
+     * Boolean flag. All PermissionUsers with a specific definition will
      * override this.
      *
      * @param node The String node to add.
@@ -721,6 +721,7 @@ public class SledgeHammer extends Printable {
      *
      * @param connection
      * @param input
+     * @param logEvent
      * @return
      */
     public CommandEvent handleCommand(UdpConnection connection, String input, boolean logEvent) {
