@@ -125,7 +125,7 @@ public class MongoBan extends MongoDocument {
     }
 
     /**
-     * (Internal Method)
+     * (Private Method)
      *
      * @return Returns the raw ID of the ban.
      */
@@ -134,7 +134,7 @@ public class MongoBan extends MongoDocument {
     }
 
     /**
-     * (Internal Method)
+     * (Private Method)
      * <p>
      * Sets the ID of the ban.
      *

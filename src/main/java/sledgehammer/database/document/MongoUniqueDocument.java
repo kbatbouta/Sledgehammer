@@ -25,95 +25,90 @@ import com.mongodb.DBObject;
 import sledgehammer.database.MongoCollection;
 
 /**
- * A <MongoDocument> implementation that handles documents with a <UUID> unique
- * identifier.
- * 
+ * A MongoDocument implementation that handles documents with a Unique ID.
+ *
  * @author Jab
  */
 public abstract class MongoUniqueDocument extends MongoDocument {
 
-	/** The identifier for the document. */
-	private UUID uniqueId;
+    /**
+     * The Unique ID for the MongoDocument.
+     */
+    private UUID uniqueId;
 
-	/**
-	 * New constructor.
-	 * 
-	 * @param collection
-	 *            The <MongoCollection> storing the document.
-	 */
-	public MongoUniqueDocument(MongoCollection collection) {
-		super(collection, "id");
-		setUniqueId(UUID.randomUUID(), false);
-	}
+    /**
+     * New constructor.
+     *
+     * @param collection The MongoCollection storing the MongoDocument.
+     */
+    public MongoUniqueDocument(MongoCollection collection) {
+        super(collection, "id");
+        setUniqueId(UUID.randomUUID(), false);
+    }
 
-	/**
-	 * New constructor with provided ID.
-	 * 
-	 * @param collection
-	 *            The <MongoCollection> storing the document.
-	 * @param uniqueId
-	 *            The <UUID> being assigned.
-	 */
-	public MongoUniqueDocument(MongoCollection collection, UUID uniqueId) {
-		super(collection, "id");
-		DBObject query = new BasicDBObject("id", uniqueId.toString());
-		DBCursor cursor = collection.find(query);
-		if (cursor.hasNext()) {
-			cursor.close();
-			throw new IllegalArgumentException(
-					"New Object in collection contains ID that is already in use: \"" + uniqueId.toString() + "\".");
-		}
-		cursor.close();
-		setUniqueId(uniqueId, false);
-	}
+    /**
+     * New constructor with provided Unique ID.
+     *
+     * @param collection The MongoCollection storing the MongoDocument.
+     * @param uniqueId   The Unique ID being assigned.
+     */
+    public MongoUniqueDocument(MongoCollection collection, UUID uniqueId) {
+        super(collection, "id");
+        DBObject query = new BasicDBObject("id", uniqueId.toString());
+        DBCursor cursor = collection.find(query);
+        if (cursor.hasNext()) {
+            cursor.close();
+            throw new IllegalArgumentException(
+                    "New Object in collection contains ID that is already in use: \"" + uniqueId.toString() + "\".");
+        }
+        cursor.close();
+        setUniqueId(uniqueId, false);
+    }
 
-	/**
-	 * MongoDB constructor.
-	 * 
-	 * @param collection
-	 *            The <MongoCollection> storing the document.
-	 * @param object
-	 *            The <DBObject> storing the data.
-	 */
-	public MongoUniqueDocument(MongoCollection collection, DBObject object) {
-		super(collection, "id");
-		// Grab the ID from the object first before loading.
-		UUID uniqueId = null;
-		Object oUniqueId = object.get("id");
-		if(oUniqueId instanceof UUID) {
-			uniqueId = (UUID) oUniqueId;
-		} else if(oUniqueId instanceof String) {
-			uniqueId = UUID.fromString(oUniqueId.toString());
-		}
-		setUniqueId(uniqueId, false);
-	}
+    /**
+     * MongoDB constructor.
+     *
+     * @param collection The MongoCollection storing the MongoDocument.
+     * @param object     The DBObject storing the data.
+     */
+    public MongoUniqueDocument(MongoCollection collection, DBObject object) {
+        super(collection, "id");
+        // Grab the ID from the object first before loading.
+        UUID uniqueId = null;
+        Object oUniqueId = object.get("id");
+        if (oUniqueId instanceof UUID) {
+            uniqueId = (UUID) oUniqueId;
+        } else if (oUniqueId instanceof String) {
+            uniqueId = UUID.fromString(oUniqueId.toString());
+        }
+        setUniqueId(uniqueId, false);
+    }
 
-	/**
-	 * @return Returns the <UUID> uniqueId that represents the document.
-	 */
-	public UUID getUniqueId() {
-		return this.uniqueId;
-	}
+    /**
+     * @return Returns the Unique ID that represents the MongoDocument.
+     */
+    public UUID getUniqueId() {
+        return this.uniqueId;
+    }
 
-	/**
-	 * (Internal Method)
-	 * 
-	 * Sets the <UUID> uniqueId for the document.
-	 * 
-	 * @param uniqueId
-	 *            The <UUID> that will represent the document.
-	 * @param save 
-	 */
-	public void setUniqueId(UUID uniqueId, boolean save) {
-		this.uniqueId = uniqueId;
-		delete();
-		if(save) {
-			save();
-		}
-	}
+    /**
+     * (Private Method)
+     * <p>
+     * Sets the Unique ID for the MongoDocument.
+     *
+     * @param uniqueId The Unique ID to set.
+     * @param save
+     */
+    public void setUniqueId(UUID uniqueId, boolean save) {
+        this.uniqueId = uniqueId;
+        delete();
+        if (save) {
+            save();
+        }
+    }
 
-	@Override
-	public Object getFieldValue() {
-		return getUniqueId();
-	}
+    @Override
+    public Object getFieldValue() {
+        return getUniqueId();
+    }
 }

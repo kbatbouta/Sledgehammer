@@ -29,7 +29,9 @@ import sledgehammer.database.document.MongoDocument;
 import sledgehammer.util.StringUtils;
 
 /**
- * <MongoDocument> Class for Player information.
+ * MongoDocument for Player information.
+ * <p>
+ * TODO: Document
  *
  * @author Jab
  */
@@ -52,7 +54,7 @@ public class MongoPlayer extends MongoDocument {
     /**
      * Empty constructor for lookups. (Steam IDs)
      *
-     * @param collection The <MongoCollection> storing the document.
+     * @param collection The MongoCollection storing the MongoDocument.
      */
     public MongoPlayer(MongoCollection collection) {
         super(collection, "id");
@@ -62,8 +64,8 @@ public class MongoPlayer extends MongoDocument {
     /**
      * Main constructor.
      *
-     * @param collection The <MongoCollection> storing the document.
-     * @param username   The <String> name of the <Player>.
+     * @param collection The MongoCollection storing the MongoDocument.
+     * @param username   The name of the Player.
      */
     public MongoPlayer(MongoCollection collection, String username) {
         super(collection, "id");

@@ -25,63 +25,66 @@ import sledgehammer.database.transaction.MongoDocumentTransactionUpsert;
 
 /**
  * TODO: Document
- * 
+ *
  * @author Jab
  */
 public class MongoCollection {
 
-	/** The <MongoDatabase> to call to */
-	private MongoDatabase database;
-	/** The actual <DBCollection> in the MongoDB API. */
-	private DBCollection collection;
-	/**
-	 * Main constructor.
-	 * 
-	 * @param database
-	 *            The <MongoDatabase> storing the <DBCollection>.
-	 * @param collection
-	 *            The <DBCollection> that is the actual collection.
-	 */
-	public MongoCollection(MongoDatabase database, DBCollection collection) {
-		setMongoDatabase(database);
-		setCollection(collection);
-	}
+    /**
+     * The MongoDatabase to call to
+     */
+    private MongoDatabase database;
+    /**
+     * The actual DBCollection in the MongoDB API.
+     */
+    private DBCollection collection;
 
-	public void upsert(DBObject object, String field, Object lock) {
-		MongoDocumentTransactionUpsert upsert = new MongoDocumentTransactionUpsert(this, object, field, lock);
-		getDatabase().addTransaction(upsert);
-	}
+    /**
+     * Main constructor.
+     *
+     * @param database   The MongoDatabase storing the DBCollection.
+     * @param collection The DBCollection that is the actual collection.
+     */
+    public MongoCollection(MongoDatabase database, DBCollection collection) {
+        setMongoDatabase(database);
+        setCollection(collection);
+    }
 
-	public void delete(String field, Object value) {
-		MongoDocumentTransactionDelete delete = new MongoDocumentTransactionDelete(this, field, value);
-		getDatabase().addTransaction(delete);
-	}
+    public void upsert(DBObject object, String field, Object lock) {
+        MongoDocumentTransactionUpsert upsert = new MongoDocumentTransactionUpsert(this, object, field, lock);
+        getDatabase().addTransaction(upsert);
+    }
 
-	public DBCursor find() {
-		return getDBCollection().find();
-	}
+    public void delete(String field, Object value) {
+        MongoDocumentTransactionDelete delete = new MongoDocumentTransactionDelete(this, field, value);
+        getDatabase().addTransaction(delete);
+    }
 
-	public DBCursor find(DBObject query) {
-		return getDBCollection().find(query);
-	}
+    public DBCursor find() {
+        return getDBCollection().find();
+    }
 
-	public void rename(String newName) {
-		getDBCollection().rename(newName);
-	}
+    public DBCursor find(DBObject query) {
+        return getDBCollection().find(query);
+    }
 
-	public DBCollection getDBCollection() {
-		return this.collection;
-	}
+    public void rename(String newName) {
+        getDBCollection().rename(newName);
+    }
 
-	private void setCollection(DBCollection collection) {
-		this.collection = collection;
-	}
+    public DBCollection getDBCollection() {
+        return this.collection;
+    }
 
-	public MongoDatabase getDatabase() {
-		return this.database;
-	}
+    private void setCollection(DBCollection collection) {
+        this.collection = collection;
+    }
 
-	private void setMongoDatabase(MongoDatabase database) {
-		this.database = database;
-	}
+    public MongoDatabase getDatabase() {
+        return this.database;
+    }
+
+    private void setMongoDatabase(MongoDatabase database) {
+        this.database = database;
+    }
 }

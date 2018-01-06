@@ -24,7 +24,7 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.document.MongoUniqueNodeDocument;
 
 /**
- * MongoDocument class designed to store and process data for <PermissionGroup>.
+ * MongoDocument designed to store and process data for PermissionGroup.
  *
  * @author Jab
  */
@@ -42,7 +42,7 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
     /**
      * MongoDB constructor.
      *
-     * @param collection The MongoCollection storing the document.
+     * @param collection The MongoCollection storing the MongoDocument.
      * @param object     The DBObject storing the data.
      */
     public MongoPermissionGroup(MongoCollection collection, DBObject object) {
@@ -53,7 +53,7 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
     /**
      * New constructor.
      *
-     * @param collection The MongoCollection storing the document.
+     * @param collection The MongoCollection storing the MongoDocument.
      * @param groupName  The String name of the group.
      */
     public MongoPermissionGroup(MongoCollection collection, String groupName) {
@@ -90,21 +90,21 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
     }
 
     /**
-     * (Internal Method)
+     * (Private Method)
      * <p>
-     * Sets the UUID parentId of the PermissionGroup.
+     * Sets the parent Unique ID for the PermissionGroup.
      *
-     * @param uniqueIdAsString The String representation of the UUID.
+     * @param uniqueIdAsString The String representation of the Unique ID.
      */
     private void setParentId(String uniqueIdAsString) {
         setParentId(UUID.fromString(uniqueIdAsString), false);
     }
 
     /**
-     * Sets the UUID parentId of the PermissionGroup.
+     * Sets the parent Unique ID for the PermissionGroup.
      *
-     * @param parentId The UUID identifier of the parent PermissionGroup.
-     * @param save     Flag to save the document after changing the id.
+     * @param parentId The Unique ID of the parent PermissionGroup.
+     * @param save     Flag to save the document after changing the Unique ID.
      */
     public void setParentId(UUID parentId, boolean save) {
         this.parentId = parentId;

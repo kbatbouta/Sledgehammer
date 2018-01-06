@@ -20,19 +20,19 @@ import sledgehammer.database.MongoCollection;
 
 public abstract class MongoDocumentTransaction {
 
-	private MongoCollection mongoCollection;
+    private MongoCollection mongoCollection;
 
-	public MongoDocumentTransaction(MongoCollection mongoCollection) {
-		setMongoCollection(mongoCollection);
-	}
+    public MongoDocumentTransaction(MongoCollection mongoCollection) {
+        setMongoCollection(mongoCollection);
+    }
 
-	public MongoCollection getMongoCollection() {
-		return this.mongoCollection;
-	}
+    public MongoCollection getMongoCollection() {
+        return this.mongoCollection;
+    }
 
-	private void setMongoCollection(MongoCollection mongoCollection) {
-		this.mongoCollection = mongoCollection;
-	}
+    private void setMongoCollection(MongoCollection mongoCollection) {
+        this.mongoCollection = mongoCollection;
+    }
 
-	public abstract void run();
+    public abstract void run();
 }

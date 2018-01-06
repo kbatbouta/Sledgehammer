@@ -26,7 +26,7 @@ import sledgehammer.database.MongoCollection;
 
 /**
  * A class designed to handle common operations of Mongo DBObjects that act as
- * documents in a <DBCollection>.
+ * documents in a DBCollection.
  *
  * @author Jab
  */
