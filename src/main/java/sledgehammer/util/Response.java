@@ -45,6 +45,20 @@ public class Response {
         this.result = result;
     }
 
+    public Response(Response response) {
+        set(response);
+    }
+
+    public void set(Response response) {
+        // Sets the Response fields. @formatter:off
+        this.result       = response.result      ;
+        this.response     = response.response    ;
+        this.handled      = response.handled     ;
+        this.logImportant = response.logImportant;
+        this.log          = response.log         ;
+        // @formatter:on
+    }
+
     public void set(Result result, String message) {
         this.result = result;
         this.response = message;
