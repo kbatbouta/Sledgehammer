@@ -68,7 +68,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
         // The node to get from the parent, if the group has a parent.
         Node parentNodeSpecific = null;
         // The node to get directly from the group, if the node is defined.
-        Node nodeSpecific = null;
+        Node nodeSpecific;
         // If the group has a parent, grab this one first.
         if (hasParent()) {
             // Grab the most specific node that exists from the parent.
@@ -236,7 +236,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
     }
 
     /**
-     * @return Returns the String name of the PermissionGroug.
+     * @return Returns the String name of the PermissionGroup.
      */
     public String getGroupName() {
         return getMongoDocument().getGroupName();

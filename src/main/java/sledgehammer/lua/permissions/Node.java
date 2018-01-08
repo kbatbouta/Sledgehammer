@@ -78,7 +78,7 @@ public class Node extends LuaTable {
         }
         // Grab the node in String format.
         String node = (String) table.rawget("name");
-        // Nodes without flags on import are implictly true.
+        // Nodes without flags on import are implicitly true.
         boolean flag = true;
         // Grab the Object form of the flag.
         Object oFlag = table.rawget("flag");
@@ -238,7 +238,7 @@ public class Node extends LuaTable {
      *
      * @param mongoNode The MongoNode to set.
      */
-    private void setMongoDocument(MongoNode mongoNode) {
+    public void setMongoDocument(MongoNode mongoNode) {
         this.mongoNode = mongoNode;
     }
 

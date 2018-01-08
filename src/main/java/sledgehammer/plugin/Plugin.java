@@ -43,31 +43,51 @@ import sledgehammer.util.Printable;
  */
 public class Plugin extends Printable {
 
-    /** Debug flag for debugging the Plugin class. */
+    /**
+     * Debug flag for debugging the Plugin class.
+     */
     private static final boolean DEBUG = false;
 
-    /** The Map storing the Modules by name. */
+    /**
+     * The Map storing the Modules by name.
+     */
     private Map<String, Module> mapModules;
-    /** The List of Modules to load. */
+    /**
+     * The List of Modules to load.
+     */
     private List<Module> listModulesToLoad;
-    /** The List of Modules already loaded. */
+    /**
+     * The List of Modules already loaded.
+     */
     private List<Module> listModulesLoaded;
-    /** The List of Modules to start. */
+    /**
+     * The List of Modules to start.
+     */
     private List<Module> listModulesToStart;
-    /** The List of Modules already started. */
+    /**
+     * The List of Modules already started.
+     */
     private List<Module> listModulesStarted;
-    /** The List of Modules that are stopped. */
+    /**
+     * The List of Modules that are stopped.
+     */
     private List<Module> listModulesStopped;
-    /** The List of Modules that are unloaded. */
+    /**
+     * The List of Modules that are unloaded.
+     */
     private List<Module> listModulesUnloaded;
-    /** The File Object of the Jar File containing the plug-in. */
+    /**
+     * The File Object of the Jar File containing the plug-in.
+     */
     private File jarFile;
     /**
      * The ClassLoader for the plug-in. This is the System ClassLoader for the
      * core plug-in.
      */
     private ClassLoader classLoader;
-    /** The plug-in properties and definitions. */
+    /**
+     * The plug-in properties and definitions.
+     */
     private PluginProperties properties;
     /**
      * Flag to load the classes in the plug-in. This is false for the core plug-in.
@@ -77,8 +97,7 @@ public class Plugin extends Printable {
     /**
      * Main constructor.
      *
-     * @param file
-     *            The File Object of the Jar File containing the plug-in.
+     * @param file The File Object of the Jar File containing the plug-in.
      */
     public Plugin(File file) {
         setJarFile(file);
@@ -242,8 +261,7 @@ public class Plugin extends Printable {
             if (listModulesToStart.size() > 0) {
                 startModules();
             }
-            List<Module> listModulesToUpdate = new ArrayList<>();
-            listModulesToUpdate.addAll(listModulesStarted);
+            List<Module> listModulesToUpdate = new ArrayList<>(listModulesStarted);
             for (Module module : listModulesToUpdate) {
                 if (!module.isStarted()) {
                     listModulesStopped.add(module);
@@ -318,11 +336,11 @@ public class Plugin extends Printable {
             throw new IllegalArgumentException("Module given is null.");
         }
         if (module.isStarted()) {
-            errorln("Module has already loaded and has started, and cannot be loaded.");
+            errln("Module has already loaded and has started, and cannot be loaded.");
             return true;
         }
         if (module.isLoaded()) {
-            errorln("Module has already loaded and cannot be loaded.");
+            errln("Module has already loaded and cannot be loaded.");
             return true;
         }
         try {
@@ -330,7 +348,7 @@ public class Plugin extends Printable {
             module.loadModule();
             return true;
         } catch (Exception e) {
-            errorln("Failed to load Module: " + module.getModuleName());
+            errln("Failed to load Module: " + module.getModuleName());
             stackTrace(e);
         }
         return false;
@@ -349,11 +367,11 @@ public class Plugin extends Printable {
             throw new IllegalArgumentException("Module given is null.");
         }
         if (!module.isLoaded()) {
-            errorln("Module " + module.getModuleName() + " is not loaded and cannot be started.");
+            errln("Module " + module.getModuleName() + " is not loaded and cannot be started.");
             return false;
         }
         if (module.isStarted()) {
-            errorln("Module " + module.getModuleName() + " has already started.");
+            errln("Module " + module.getModuleName() + " has already started.");
             return true;
         }
         try {
@@ -361,7 +379,7 @@ public class Plugin extends Printable {
             module.startModule();
             return true;
         } catch (Exception e) {
-            errorln("Failed to start Module: " + module.getModuleName());
+            errln("Failed to start Module: " + module.getModuleName());
             stackTrace(e);
             if (module.isLoaded()) {
                 unloadModule(module);
@@ -382,7 +400,7 @@ public class Plugin extends Printable {
             module.updateModule(delta);
             return true;
         } catch (Exception e) {
-            errorln("Failed to update Module: " + module.getModuleName());
+            errln("Failed to update Module: " + module.getModuleName());
             stackTrace(e);
             if (module.isLoaded()) {
                 unloadModule(module);
@@ -401,18 +419,18 @@ public class Plugin extends Printable {
             throw new IllegalArgumentException("Module given is null.");
         }
         if (!module.isLoaded()) {
-            errorln("Module " + module.getModuleName() + " is not loaded and cannot be stopped.");
+            errln("Module " + module.getModuleName() + " is not loaded and cannot be stopped.");
             return;
         }
         if (!module.isStarted()) {
-            errorln("Module " + module.getModuleName() + " has not started and cannot be stopped.");
+            errln("Module " + module.getModuleName() + " has not started and cannot be stopped.");
             return;
         }
         try {
             println("Stopping module " + module.getModuleName() + ".");
             module.stopModule();
         } catch (Exception e) {
-            errorln("Failed to stop Module: " + module.getModuleName());
+            errln("Failed to stop Module: " + module.getModuleName());
             stackTrace(e);
             if (module.isLoaded()) {
                 unloadModule(module);
@@ -430,7 +448,7 @@ public class Plugin extends Printable {
             throw new IllegalArgumentException("Module given is null.");
         }
         if (!module.isLoaded()) {
-            errorln("Module " + module.getModuleName() + " is not loaded and cannot be unloaded.");
+            errln("Module " + module.getModuleName() + " is not loaded and cannot be unloaded.");
             return;
         }
         try {
@@ -440,7 +458,7 @@ public class Plugin extends Printable {
             println("Unloading module " + module.getModuleName() + ".");
             module.unloadModule();
         } catch (Exception e) {
-            errorln("Failed to unload Module: " + module.getModuleName());
+            errln("Failed to unload Module: " + module.getModuleName());
             stackTrace(e);
         }
     }
@@ -594,7 +612,7 @@ public class Plugin extends Printable {
      * <p>
      * Sets the defined Java ClassLoader used by the plug-in.
      *
-     * @param classLoader
+     * @param classLoader The ClassLoader to load the plug-in's classes.
      */
     private void setClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -657,7 +675,7 @@ public class Plugin extends Printable {
      * @param source The String source path of the File to stream.
      * @return Returns a InputStream for a registered File in the given Jar
      * File.
-     * @throws IOException
+     * @throws IOException Thrown when the InputStream fails to establish.
      */
     private static InputStream getStream(File jar, String source) throws IOException {
         return new URL("jar:file:" + jar.getAbsolutePath() + "!/" + source).openStream();

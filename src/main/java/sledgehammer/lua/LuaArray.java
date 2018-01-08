@@ -134,7 +134,7 @@ public class LuaArray<T> extends LuaObject {
      * @return Returns a primitive Array of the elements stored in the LuaArray.
      */
     @SuppressWarnings({"unchecked", "hiding"})
-    public <T> T[] toArray() {
+    public T[] toArray() {
         Object[] array = new Object[this.array.size()];
         array = this.array.toArray(array);
         return (T[]) array;

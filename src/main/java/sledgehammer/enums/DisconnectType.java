@@ -23,7 +23,7 @@ public enum DisconnectType {
      *
      * @param id The id of the DisconnectType.
      */
-    private DisconnectType(int id) {
+    DisconnectType(int id) {
         setId(id);
     }
 

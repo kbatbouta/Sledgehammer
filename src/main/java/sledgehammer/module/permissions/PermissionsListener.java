@@ -51,7 +51,7 @@ public class PermissionsListener implements PermissionListener {
 		if (node == null || node.isEmpty()) {
 			throw new IllegalArgumentException("Node given is null or empty.");
 		}
-		boolean granted = false;
+		boolean granted;
 		boolean wildcard = false;
 		// If the node ends with a '*', this indicates the use of a wildcard operation.
 		if (node.endsWith(".*")) {

@@ -63,7 +63,6 @@ import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
 import sledgehammer.plugin.Module;
-import sledgehammer.plugin.Plugin;
 import sledgehammer.util.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
@@ -98,11 +97,6 @@ public class SledgeHammer extends Printable {
      * Debug boolean for the SledgeHammer engine. Used for verbose output.
      */
     public static boolean DEBUG = false;
-    /**
-     * Boolean to load SledgeHammer for testing a module, without ProjectZomboid
-     * code being invoked directly. Used for Module test classes.
-     */
-    public static boolean TESTMODULE = false;
 
     /**
      * The MongoDB Database instance for the SledgeHammer instance.
@@ -142,6 +136,11 @@ public class SledgeHammer extends Printable {
      */
     private String publicServerName;
     /**
+     * Boolean to load SledgeHammer for testing a module, without ProjectZomboid
+     * code being invoked directly. Used for Module test classes.
+     */
+    private boolean testModule = false;
+    /**
      * Flag for whether or not the SledgeHammer instance has started.
      */
     private boolean started = false;
@@ -149,14 +148,14 @@ public class SledgeHammer extends Printable {
     /**
      * Test-Case constructor. Use this constructor for testing a Module.
      *
-     * @param debug
+     * @param debug Sets Sledgehammer into debug mode.
      */
     public SledgeHammer(boolean debug) {
         // Sets verbose debug mode.
         DEBUG = debug;
-        // Sets TESTMODULE to true, in order to properly load SledgeHammer without
-        // ProjectZomboid.
-        TESTMODULE = true;
+        // Sets to true, in order to properly load SledgeHammer without
+        // Project Zomboid.
+        testModule = true;
         Settings.getInstance();
     }
 
@@ -164,7 +163,6 @@ public class SledgeHammer extends Printable {
      * Main constructor.
      */
     public SledgeHammer() {
-        new File("plugins" + File.separator).mkdirs();
         Settings.getInstance();
     }
 
@@ -179,9 +177,6 @@ public class SledgeHammer extends Printable {
     public void init() {
         try {
             directoryLang = new File("lang/");
-            if (!directoryLang.exists()) {
-                directoryLang.mkdirs();
-            }
             publicServerName = ServerOptions.instance.getOption("PublicName");
             // Initialize the Chat Engine.
             managerEvent = new EventManager();
@@ -190,11 +185,11 @@ public class SledgeHammer extends Printable {
             // Initialize the NPC Engine.
             managerNPC = new NPCManager();
             // Then, load the core modules, and start the Modules.
-            if (!TESTMODULE) {
+            if (!testModule) {
                 managerPlugin.onLoad(false);
             }
         } catch (Exception e) {
-            stackTrace("An Error occured while initializing Sledgehammer.", e);
+            stackTrace("An Error occurred while initializing Sledgehammer.", e);
         }
     }
 
@@ -221,7 +216,7 @@ public class SledgeHammer extends Printable {
                 managerNPC.onUpdate();
             }
         } catch (Exception e) {
-            stackTrace("An Error occured in Sledgehammer's update method.", e);
+            stackTrace("An Error occurred in Sledgehammer's update method.", e);
         }
     }
 
@@ -236,7 +231,7 @@ public class SledgeHammer extends Printable {
                 getDatabase().shutDown();
             }
         } catch (Exception e) {
-            stackTrace("An Error occured while stopping Sledgehammer.", e);
+            stackTrace("An Error occurred while stopping Sledgehammer.", e);
         }
         started = false;
     }
@@ -270,7 +265,7 @@ public class SledgeHammer extends Printable {
                     returned = permissionListener.hasDefaultPermission(node);
                 }
             } catch (Exception e) {
-                errorln("The assigned PermissionListener failed to execute properly.");
+                errln("The assigned PermissionListener failed to execute properly.");
                 if (DEBUG) {
                     e.printStackTrace();
                 }
@@ -644,8 +639,8 @@ public class SledgeHammer extends Printable {
     /**
      * Registers an EventListener interface, with a Event ID, given as a String.
      *
-     * @param type
-     * @param listener
+     * @param type     The Event's ID.
+     * @param listener The EventListener to register.
      */
     public void register(String type, EventListener listener) {
         getEventManager().register(type, listener);
@@ -655,7 +650,7 @@ public class SledgeHammer extends Printable {
      * Registers an EventListener interface, with all Event IDs listed in the
      * interface as String[] getTypes().
      *
-     * @param listener
+     * @param listener The EventListener to register.
      */
     public void register(EventListener listener) {
         getEventManager().register(listener);
@@ -664,8 +659,8 @@ public class SledgeHammer extends Printable {
     /**
      * Registers a CommandListener interface, with a command, given as a String.
      *
-     * @param command
-     * @param listener
+     * @param command  The Command to register under.
+     * @param listener The CommandListener to register.
      */
     public void register(String command, CommandListener listener) {
         getEventManager().register(command, listener);
@@ -674,7 +669,7 @@ public class SledgeHammer extends Printable {
     /**
      * Registers a CommandListener interface, with a command, given as a String.
      *
-     * @param listener
+     * @param listener The LogEventListener to register.
      */
     public void register(LogEventListener listener) {
         getEventManager().register(listener);
@@ -683,7 +678,7 @@ public class SledgeHammer extends Printable {
     /**
      * Registers a ExceptionListener interface.
      *
-     * @param listener
+     * @param listener The ThrowableListener to register.
      */
     public void register(ThrowableListener listener) {
         getEventManager().register(listener);
@@ -697,8 +692,8 @@ public class SledgeHammer extends Printable {
      * <p>
      * The Event is logged.
      *
-     * @param event
-     * @return
+     * @param event The Event to handle.
+     * @return Returns the Event handled.
      */
     public Event handle(Event event) {
         return getEventManager().handleEvent(event);
@@ -707,9 +702,9 @@ public class SledgeHammer extends Printable {
     /**
      * Executes EventListeners from a given Event instance. Logging is optional.
      *
-     * @param event
-     * @param logEvent
-     * @return
+     * @param event    The Event to handle.
+     * @param logEvent Flag to issue a LogEvent after handling the Event.
+     * @return Returns the Event handled.
      */
     public Event handle(Event event, boolean logEvent) {
         return getEventManager().handleEvent(event, logEvent);
@@ -719,10 +714,10 @@ public class SledgeHammer extends Printable {
      * Handles a given CommandEvent, by giving the UdpConnection associated with the
      * raw input String. Logging is optional.
      *
-     * @param connection
-     * @param input
-     * @param logEvent
-     * @return
+     * @param connection The UdpConnection of the Player.
+     * @param input      The raw String input to convert to a Command.
+     * @param logEvent   Flag to issue a LogEvent after handling the Command.
+     * @return Returns the handled CommandEvent.
      */
     public CommandEvent handleCommand(UdpConnection connection, String input, boolean logEvent) {
         return getEventManager().handleCommand(connection, input, logEvent);
@@ -731,21 +726,21 @@ public class SledgeHammer extends Printable {
     /**
      * Handles a given CommandEvent, with the raw input String. Logging is optional.
      *
-     * @param input
-     * @param logEvent
-     * @return
+     * @param input    The raw String input to convert to a Command.
+     * @param logEvent Flag to issue a LogEvent after handling the Command.
+     * @return Returns the handled CommandEvent.
      */
     public CommandEvent handleCommand(String input, boolean logEvent) {
-        return getEventManager().handleCommand((UdpConnection) null, input, logEvent);
+        return getEventManager().handleCommand(null, input, logEvent);
     }
 
     /**
      * Handles a given CommandEvent, by giving the UdpConnection associated with the
      * raw input String. The Event is logged.
      *
-     * @param connection
-     * @param input
-     * @return
+     * @param connection The UdpConnection of the Player.
+     * @param input      The raw String input to convert to a Command.
+     * @return Returns the handled CommandEvent.
      */
     public CommandEvent handleCommand(UdpConnection connection, String input) {
         return getEventManager().handleCommand(connection, input, true);
@@ -765,7 +760,7 @@ public class SledgeHammer extends Printable {
     /**
      * Sets SledgeHammer's reference to Project Zomboid's UdpEngine instance.
      *
-     * @param udpEngine
+     * @param udpEngine The UdpEngine instance on the PZ server.
      */
     public void setUdpEngine(UdpEngine udpEngine) {
         this.udpEngine = udpEngine;
@@ -856,22 +851,22 @@ public class SledgeHammer extends Printable {
     /**
      * Sends a Lua ServerCommand to a given Player.
      *
-     * @param player
-     * @param module
-     * @param command
-     * @param luaObject
+     * @param player   The Player to send.
+     * @param module   The name of the Module.
+     * @param command  The Command in the Module.
+     * @param luaTable The LuaTable containing any data associated with the Command.
      */
-    public void sendServerCommand(Player player, String module, String command, LuaTable luaObject) {
-        sendServerCommand(player, module, command, luaObject.export());
+    public void sendServerCommand(Player player, String module, String command, LuaTable luaTable) {
+        sendServerCommand(player, module, command, luaTable.export());
     }
 
     /**
      * Sends a Lua ServerCommand to a given Player.
      *
-     * @param player
-     * @param module
-     * @param command
-     * @param kahluaTable
+     * @param player      The Player to send.
+     * @param module      The name of the Module.
+     * @param command     The Command in the Module.
+     * @param kahluaTable The KahluaTable containing any data associated with the Command.
      */
     public void sendServerCommand(Player player, String module, String command, KahluaTable kahluaTable) {
         GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());

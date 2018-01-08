@@ -44,23 +44,23 @@ import static sledgehammer.util.ChatTags.*;
 
 /**
  * TODO: Document.
- * 
+ *
  * @author Jab
  */
 public class CoreCommandListener extends Printable implements CommandListener {
 
-	private static final boolean DEBUG = true;
-	public static final Command commandProperties = new Command("properties");
+    private static final boolean DEBUG = true;
+    public static final Command commandProperties = new Command("properties");
 
-	private Map<String, String> mapContexts;
-	private Map<String, String> mapTooltips;
-	private ModuleCore module;
-	private SendBroadcast sendBroadcast;
+    private Map<String, String> mapContexts;
+    private Map<String, String> mapTooltips;
+    private ModuleCore module;
+    private SendBroadcast sendBroadcast;
 
-	public CoreCommandListener(ModuleCore module) {
-		this.module = module;
-		sendBroadcast = new SendBroadcast();
-		// @formatter:off
+    public CoreCommandListener(ModuleCore module) {
+        this.module = module;
+        sendBroadcast = new SendBroadcast();
+        // @formatter:off
 		mapTooltips = new HashMap<>();
 		mapTooltips.put("colors", "Displays all supported colors on this server.");
 		mapTooltips.put("pm", "Private messages a player. ex: /pm \"player\" \"message\"");
@@ -91,27 +91,27 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		module.addDefaultPermission(getPermissionNode("colors"));
 		module.addDefaultPermission(getPermissionNode("commitsuicide"));
 		// @formatter:on
-	}
+    }
 
-	@Override
-	public String onTooltip(Player player, Command c) {
-		String command = c.getCommand();
-		if (player == null)
-			return null;
-		if (command == null || command.isEmpty())
-			return null;
-		command = command.toLowerCase();
-		String context = getPermissionNode(command);
-		boolean hasPermission = player.hasPermission(context);
-		if (hasPermission) {
-			return mapTooltips.get(command);
-		}
-		return null;
-	}
+    @Override
+    public String onTooltip(Player player, Command c) {
+        String command = c.getCommand();
+        if (player == null)
+            return null;
+        if (command == null || command.isEmpty())
+            return null;
+        command = command.toLowerCase();
+        String context = getPermissionNode(command);
+        boolean hasPermission = player.hasPermission(context);
+        if (hasPermission) {
+            return mapTooltips.get(command);
+        }
+        return null;
+    }
 
-	@Override
-	public String[] getCommands() {
-		// @formatter:off
+    @Override
+    public String[] getCommands() {
+        // @formatter:off
 		return new String[] { 
 				"colors", 
 				"pm", 
@@ -123,490 +123,482 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				"unban",
 		};
 		// @formatter:on
-	}
+    }
 
-	@Override
-	public String getPermissionNode(String command) {
-		if (command == null)
-			return null;
-		command = command.toLowerCase().trim();
-		return mapContexts.get(command);
-	}
+    @Override
+    public String getPermissionNode(String command) {
+        if (command == null)
+            return null;
+        command = command.toLowerCase().trim();
+        return mapContexts.get(command);
+    }
 
-	@Override
-	public void onCommand(Command com, Response r) {
-		Player commander = com.getPlayer();
-		String username = commander.getUsername();
-		String command = com.getCommand();
-		String[] args = com.getArguments();
-		String response = null;
+    @Override
+    public void onCommand(Command com, Response r) {
+        Player commander = com.getPlayer();
+        String username = commander.getUsername();
+        String command = com.getCommand();
+        String[] args = com.getArguments();
+        String response;
 
-		if (DEBUG) {
-			println("Command fired by " + username + ": " + com.getRaw());
-		}
-		if (command.startsWith("colors")) {
-			if (commander.hasPermission(getPermissionNode("colors"))) {
-				r.set(Result.SUCCESS, ChatTags.listColors());
-				return;
-			} else {
-				r.deny();
-				return;
-			}
-		}
-		if (command.startsWith("pm")) {
-			if (commander.hasPermission(getPermissionNode("pm"))) {
-				if (args.length >= 2) {
-					String playerName = args[0];
-					IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
-					String commanderName = commander.getNickname();
-					if (commanderName == null) {
-						commanderName = commander.getUsername();
-					}
-					if (playerPM == null) {
-						r.set(Result.FAILURE, "Could not find player: " + playerName);
-						return;
-					}
-					String msg = com.getRaw().split(args[0])[1].trim();
-					Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
-					ModuleChat moduleChat = module.getChatModule();
-					if (playerDirty != null) {
-						// FIXME: Add database entry for PMs.
-						ChatMessage chatMessage = module.createChatMessage(msg);
-						chatMessage.setPlayerId(commander.getUniqueId(), false);
-						chatMessage.setOrigin(ChatMessage.ORIGIN_CLIENT, false);
-						chatMessage.setChannelId(moduleChat.getPMsChatChannel().getUniqueId(), false);
-						playerDirty.sendChatMessage(chatMessage);
-						r.set(Result.SUCCESS, "Message sent.");
-						r.log(LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName()
-								+ " with message: \"" + msg + "\".");
-					}
-					return;
-				} else {
-					response = "/pm [player] [message...]";
-					r.set(Result.SUCCESS, response);
-					return;
-				}
-			} else {
-				r.deny();
-				return;
-			}
-		} else if (command.startsWith("warn")) {
-			if (commander.hasPermission(getPermissionNode("warn"))) {
-				if (commander.isAdministrator()) {
-					if (args.length >= 2) {
-						String playerName = args[0];
-						StringBuilder msg = new StringBuilder();
-						for (int x = 1; x < args.length; x++) {
-							msg.append(args[x]).append(" ");
-						}
-						msg = new StringBuilder(msg.substring(0, msg.length() - 1));
-						Player playerDirty = SledgeHammer.instance.getPlayerDirty(playerName);
-						if (playerDirty != null) {
-							if (playerDirty.isConnected()) {
+        if (DEBUG) {
+            println("Command fired by " + username + ": " + com.getRaw());
+        }
+        if (command.startsWith("colors")) {
+            if (commander.hasPermission(getPermissionNode("colors"))) {
+                r.set(Result.SUCCESS, ChatTags.listColors());
+                return;
+            } else {
+                r.deny();
+                return;
+            }
+        }
+        if (command.startsWith("pm")) {
+            if (commander.hasPermission(getPermissionNode("pm"))) {
+                if (args.length >= 2) {
+                    String playerName = args[0];
+                    IsoPlayer playerPM = SledgeHammer.instance.getIsoPlayerDirty(playerName);
+                    String commanderName = commander.getNickname();
+                    if (commanderName == null) {
+                        commanderName = commander.getUsername();
+                    }
+                    if (playerPM == null) {
+                        r.set(Result.FAILURE, "Could not find player: " + playerName);
+                        return;
+                    }
+                    String msg = com.getRaw().split(args[0])[1].trim();
+                    Player playerDirty = SledgeHammer.instance.getPlayerDirty(username);
+                    ModuleChat moduleChat = module.getChatModule();
+                    if (playerDirty != null) {
+                        // FIXME: Add database entry for PMs.
+                        ChatMessage chatMessage = module.createChatMessage(msg);
+                        chatMessage.setPlayerId(commander.getUniqueId(), false);
+                        chatMessage.setOrigin(ChatMessage.ORIGIN_CLIENT, false);
+                        chatMessage.setChannelId(moduleChat.getPMsChatChannel().getUniqueId(), false);
+                        playerDirty.sendChatMessage(chatMessage);
+                        r.set(Result.SUCCESS, "Message sent.");
+                        r.log(LogType.INFO, commanderName + " Private-Messaged " + playerDirty.getName()
+                                + " with message: \"" + msg + "\".");
+                    }
+                } else {
+                    response = "/pm [player] [message...]";
+                    r.set(Result.SUCCESS, response);
+                }
+            } else {
+                r.deny();
+            }
+        } else if (command.startsWith("warn")) {
+            if (commander.hasPermission(getPermissionNode("warn"))) {
+                if (commander.isAdministrator()) {
+                    if (args.length >= 2) {
+                        String playerName = args[0];
+                        StringBuilder msg = new StringBuilder();
+                        for (int x = 1; x < args.length; x++) {
+                            msg.append(args[x]).append(" ");
+                        }
+                        msg = new StringBuilder(msg.substring(0, msg.length() - 1));
+                        Player playerDirty = SledgeHammer.instance.getPlayerDirty(playerName);
+                        if (playerDirty != null) {
+                            if (playerDirty.isConnected()) {
 
-								ChatMessage chatMessage = module
-										.createChatMessage("You have been warned. Reason: " + msg);
-								chatMessage.setPlayerId(commander.getUniqueId(), false);
-								playerDirty.sendChatMessageToAllChatChannels(chatMessage);
-								response = "Player warned.";
-								r.set(Result.SUCCESS, response);
-								r.log(LogType.STAFF,
-										"WARNED " + playerDirty.getName() + " with message: \"" + msg + "\".");
-							} else {
-								response = "player is not Online: \"" + playerDirty.getName() + "\"";
-								r.set(Result.FAILURE, response);
-							}
-						} else {
-							response = "Player not found: " + playerName;
-							r.set(Result.FAILURE, response);
-						}
-					} else {
-						response = "/warn [player] [message...]";
-						r.set(Result.FAILURE, response);
-					}
-				} else {
-					response = "Permission denied.";
-					r.set(Result.FAILURE, response);
-				}
-			} else {
-				r.deny();
-			}
-		} else if (command.startsWith("broadcast")) {
-			if (commander.hasPermission(getPermissionNode("broadcast"))) {
-				if (args.length > 1) {
-					String color = ChatTags.getColor(args[0]);
-					if (color == null) {
-						color = COLOR_LIGHT_RED;
-					}
-					Broadcast broadcast = new Broadcast(args[0] + args[1]);
-					sendBroadcast.setBroadcast(broadcast);
-					SledgeHammer.instance.send(sendBroadcast);
-					response = "Broadcast sent.";
-					r.set(Result.SUCCESS, response);
-					r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
-				} else {
-					response = "/broadcast \"color\" \"message\"...";
-					r.set(Result.FAILURE, response);
-				}
-			} else {
-				r.deny();
-			}
-		} else if (command.startsWith("commitsuicide")) {
-			if (commander.hasPermission(getPermissionNode("commitsuicide"))) {
-				IsoPlayer iso = commander.getIso();
-				if (iso != null) {
-					iso.setHealth(-1.0F);
-					iso.DoDeath(iso.bareHands, iso, true);
-				}
-				response = "Done.";
-				r.set(Result.SUCCESS, response);
-				r.log(LogType.INFO, commander.getUsername() + " commited suicide.");
-			} else {
-				r.deny();
-			}
-		} else if (command.equalsIgnoreCase("properties")) {
-			if (commander.hasPermission(getPermissionNode("properties"))) {
-				Player playerProperties = null;
-				switch (args.length) {
-					case 0:
-						playerProperties = commander;
-						break;
-					case 1:
-						playerProperties = SledgeHammer.instance.getPlayer(username);
-						break;
-					default:
-						response = onTooltip(com.getPlayer(), com);
-						r.set(Result.FAILURE, response);
-						return;
-				}
-				if (playerProperties != null) {
-					Map<String, String> properties = playerProperties.getProperties();
-					StringBuilder builder = new StringBuilder();
-					builder.append("Properties for player \"").append(playerProperties).append("\":").append(ChatTags.NEW_LINE).append(" ");
-					for (String key : properties.keySet()) {
-						String value = properties.get(key);
-						builder.append(key).append(": ").append(value).append(ChatTags.NEW_LINE).append(" ");
-					}
-					r.set(Result.SUCCESS, builder.toString());
-					r.log(LogType.INFO,
-							username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
-				} else {
-					response = onTooltip(com.getPlayer(), com);
-					r.set(Result.FAILURE, response);
-				}
-			} else {
-				r.deny();
-			}
-		} else if (command.equalsIgnoreCase("ban")) {
-			if (commander.hasPermission(getPermissionNode("ban"))) {
-				if (args.length > 0) {
-					ban(com, r, args);
-				} else {
-					response = onTooltip(com.getPlayer(), com);
-					r.set(Result.FAILURE, response);
-				}
-			} else {
-				r.deny();
-			}
-		} else if (command.equalsIgnoreCase("unban")) {
-			if (commander.hasPermission(getPermissionNode("unban"))) {
-				if (args.length > 0) {
-					try {
-						unban(com, r, args);
-					} catch (SQLException e) {
-						errorln("Database Error on command: Unban");
-						e.printStackTrace();
-					}
-				} else {
-					response = onTooltip(com.getPlayer(), com);
-					r.set(Result.FAILURE, response);
-				}
-			} else {
-				r.deny();
-			}
-		}
-	}
+                                ChatMessage chatMessage = module
+                                        .createChatMessage("You have been warned. Reason: " + msg);
+                                chatMessage.setPlayerId(commander.getUniqueId(), false);
+                                playerDirty.sendChatMessageToAllChatChannels(chatMessage);
+                                response = "Player warned.";
+                                r.set(Result.SUCCESS, response);
+                                r.log(LogType.STAFF,
+                                        "WARNED " + playerDirty.getName() + " with message: \"" + msg + "\".");
+                            } else {
+                                response = "player is not Online: \"" + playerDirty.getName() + "\"";
+                                r.set(Result.FAILURE, response);
+                            }
+                        } else {
+                            response = "Player not found: " + playerName;
+                            r.set(Result.FAILURE, response);
+                        }
+                    } else {
+                        response = "/warn [player] [message...]";
+                        r.set(Result.FAILURE, response);
+                    }
+                } else {
+                    response = "Permission denied.";
+                    r.set(Result.FAILURE, response);
+                }
+            } else {
+                r.deny();
+            }
+        } else if (command.startsWith("broadcast")) {
+            if (commander.hasPermission(getPermissionNode("broadcast"))) {
+                if (args.length > 1) {
+                    String color = ChatTags.getColor(args[0]);
+                    if (color == null) {
+                        color = COLOR_LIGHT_RED;
+                    }
+                    Broadcast broadcast = new Broadcast(color + args[1]);
+                    sendBroadcast.setBroadcast(broadcast);
+                    SledgeHammer.instance.send(sendBroadcast);
+                    response = "Broadcast sent.";
+                    r.set(Result.SUCCESS, response);
+                    r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
+                } else {
+                    response = "/broadcast \"color\" \"message\"...";
+                    r.set(Result.FAILURE, response);
+                }
+            } else {
+                r.deny();
+            }
+        } else if (command.startsWith("commitsuicide")) {
+            if (commander.hasPermission(getPermissionNode("commitsuicide"))) {
+                IsoPlayer iso = commander.getIso();
+                if (iso != null) {
+                    iso.setHealth(-1.0F);
+                    iso.DoDeath(iso.bareHands, iso, true);
+                }
+                response = "Done.";
+                r.set(Result.SUCCESS, response);
+                r.log(LogType.INFO, commander.getUsername() + " commited suicide.");
+            } else {
+                r.deny();
+            }
+        } else if (command.equalsIgnoreCase("properties")) {
+            if (commander.hasPermission(getPermissionNode("properties"))) {
+                Player playerProperties;
+                switch (args.length) {
+                    case 0:
+                        playerProperties = commander;
+                        break;
+                    case 1:
+                        playerProperties = SledgeHammer.instance.getPlayer(username);
+                        break;
+                    default:
+                        response = onTooltip(com.getPlayer(), com);
+                        r.set(Result.FAILURE, response);
+                        return;
+                }
+                if (playerProperties != null) {
+                    Map<String, String> properties = playerProperties.getProperties();
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("Properties for player \"").append(playerProperties).append("\":").append(ChatTags.NEW_LINE).append(" ");
+                    for (String key : properties.keySet()) {
+                        String value = properties.get(key);
+                        builder.append(key).append(": ").append(value).append(ChatTags.NEW_LINE).append(" ");
+                    }
+                    r.set(Result.SUCCESS, builder.toString());
+                    r.log(LogType.INFO,
+                            username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
+                } else {
+                    response = onTooltip(com.getPlayer(), com);
+                    r.set(Result.FAILURE, response);
+                }
+            } else {
+                r.deny();
+            }
+        } else if (command.equalsIgnoreCase("ban")) {
+            if (commander.hasPermission(getPermissionNode("ban"))) {
+                if (args.length > 0) {
+                    ban(com, r, args);
+                } else {
+                    response = onTooltip(com.getPlayer(), com);
+                    r.set(Result.FAILURE, response);
+                }
+            } else {
+                r.deny();
+            }
+        } else if (command.equalsIgnoreCase("unban")) {
+            if (commander.hasPermission(getPermissionNode("unban"))) {
+                if (args.length > 0) {
+                    try {
+                        unban(com, r, args);
+                    } catch (SQLException e) {
+                        errln("Database Error on command: Unban");
+                        e.printStackTrace();
+                    }
+                } else {
+                    response = onTooltip(com.getPlayer(), com);
+                    r.set(Result.FAILURE, response);
+                }
+            } else {
+                r.deny();
+            }
+        }
+    }
 
-	@Override
-	public String getName() {
-		return "Core";
-	}
+    @Override
+    public String getName() {
+        return "Core";
+    }
 
-	private void ban(Command com, Response r, String[] args) {
-		String response = null;
-		String commander = com.getPlayer().getUsername();
+    private void ban(Command com, Response r, String[] args) {
+        String response = null;
+        String commander = com.getPlayer().getUsername();
 
-		if (args.length > 1) {
-			String username = null;
-			String IP = null;
-			String SteamID = null;
-			String reason = null;
-			boolean bUsername = false;
-			boolean bIP = false;
-			boolean bSteamID = false;
+        if (args.length > 1) {
+            String username = null;
+            String IP = null;
+            String SteamID = null;
+            String reason = null;
+            boolean bUsername = false;
+            boolean bIP = false;
+            boolean bSteamID = false;
 
-			for (int x = 0; x < args.length; x++) {
-				String arg = args[x];
-				String argN = ((x + 1) < args.length) ? args[x + 1] : null;
-				if ((arg.startsWith("-U") || arg.startsWith("-u")) && argN != null && !argN.startsWith("-")) {
-					bUsername = true;
-					username = argN;
-					x++;
-				} else if ((arg.startsWith("-R") || arg.startsWith("-r")) && argN != null && !argN.startsWith("-")) {
-					reason = argN;
-					x++;
-				} else if (arg.startsWith("-i")) {
-					if (!SteamUtils.isSteamModeEnabled()) {
-						bIP = true;
-					} else {
-						response = "Cannot infer IP-Ban in Steam mode.";
-						r.set(Result.FAILURE, response);
-						return;
-					}
-				} else if (arg.startsWith("-s")) {
-					if (SteamUtils.isSteamModeEnabled()) {
-						bSteamID = true;
-					} else {
-						response = "Cannot infer SteamID Ban in Non-Steam mode.";
-						r.set(Result.FAILURE, response);
-						return;
-					}
-				} else if (arg.startsWith("-I") && argN != null && !argN.startsWith("-")) {
-					if (!SteamUtils.isSteamModeEnabled()) {
-						bIP = true;
-						IP = argN;
-						x++;
-					} else {
-						response = "Cannot IP-Ban in Steam mode.";
-						r.set(Result.FAILURE, response);
-						return;
-					}
-				} else if (arg.startsWith("-S") && argN != null && !argN.startsWith("-")) {
-					if (SteamUtils.isSteamModeEnabled()) {
-						bSteamID = true;
-						SteamID = argN;
-						x++;
-					} else {
-						response = "Cannot SteamID Ban in Non-Steam mode.";
-						r.set(Result.FAILURE, response);
-						return;
-					}
-				} else if ((arg.startsWith("-S") || arg.startsWith("-s") || arg.startsWith("-I") || arg.startsWith("-i")
-						|| arg.startsWith("-U") || arg.startsWith("-u") || arg.startsWith("-R") || arg.startsWith("-r"))
-						&& (argN == null || argN.startsWith("-"))) {
-					response = onTooltip(com.getPlayer(), com);
-					r.set(Result.FAILURE, response);
-					return;
-				}
-			}
+            for (int x = 0; x < args.length; x++) {
+                String arg = args[x];
+                String argN = ((x + 1) < args.length) ? args[x + 1] : null;
+                if ((arg.startsWith("-U") || arg.startsWith("-u")) && argN != null && !argN.startsWith("-")) {
+                    bUsername = true;
+                    username = argN;
+                    x++;
+                } else if ((arg.startsWith("-R") || arg.startsWith("-r")) && argN != null && !argN.startsWith("-")) {
+                    reason = argN;
+                    x++;
+                } else if (arg.startsWith("-i")) {
+                    if (!SteamUtils.isSteamModeEnabled()) {
+                        bIP = true;
+                    } else {
+                        response = "Cannot infer IP-Ban in Steam mode.";
+                        r.set(Result.FAILURE, response);
+                        return;
+                    }
+                } else if (arg.startsWith("-s")) {
+                    if (SteamUtils.isSteamModeEnabled()) {
+                        bSteamID = true;
+                    } else {
+                        response = "Cannot infer SteamID Ban in Non-Steam mode.";
+                        r.set(Result.FAILURE, response);
+                        return;
+                    }
+                } else if (arg.startsWith("-I") && argN != null && !argN.startsWith("-")) {
+                    if (!SteamUtils.isSteamModeEnabled()) {
+                        bIP = true;
+                        IP = argN;
+                        x++;
+                    } else {
+                        response = "Cannot IP-Ban in Steam mode.";
+                        r.set(Result.FAILURE, response);
+                        return;
+                    }
+                } else if (arg.startsWith("-S") && argN != null && !argN.startsWith("-")) {
+                    if (SteamUtils.isSteamModeEnabled()) {
+                        bSteamID = true;
+                        SteamID = argN;
+                        x++;
+                    } else {
+                        response = "Cannot SteamID Ban in Non-Steam mode.";
+                        r.set(Result.FAILURE, response);
+                        return;
+                    }
+                } else if ((arg.startsWith("-S") || arg.startsWith("-s") || arg.startsWith("-I") || arg.startsWith("-i")
+                        || arg.startsWith("-U") || arg.startsWith("-u") || arg.startsWith("-R") || arg.startsWith("-r"))
+                        && (argN == null || argN.startsWith("-"))) {
+                    response = onTooltip(com.getPlayer(), com);
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
+            }
 
-			if (!bIP && !bSteamID && !bUsername) {
-				response = onTooltip(com.getPlayer(), com);
-				r.set(Result.FAILURE, response);
-				return;
-			}
+            if (!bIP && !bSteamID && !bUsername) {
+                response = onTooltip(com.getPlayer(), com);
+                r.set(Result.FAILURE, response);
+                return;
+            }
 
-			Player playerBanned = SledgeHammer.instance.getPlayer(username);
-			UdpConnection connectionBanned = playerBanned.getConnection();
+            Player playerBanned = SledgeHammer.instance.getPlayer(username);
+            UdpConnection connectionBanned = playerBanned.getConnection();
 
-			if (bIP && IP != null && !IP.isEmpty()) {
-				if (SteamUtils.isSteamModeEnabled()) {
-					response = "Cannot IP ban when the server is in Steam mode.";
-					r.set(Result.FAILURE, response);
-					return;
-				}
+            if (bIP && IP != null && !IP.isEmpty()) {
+                if (SteamUtils.isSteamModeEnabled()) {
+                    response = "Cannot IP ban when the server is in Steam mode.";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
 
-				if (reason == null)
-					reason = "Banned. (IP)";
+                if (reason == null)
+                    reason = "Banned. (IP)";
 
-				try {
-					ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? "NULL" : username,
-							reason, true);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				response = "Banned. (IP).";
-				kickUser(connectionBanned, reason);
-				r.set(Result.SUCCESS, response);
-				r.setLoggedImportant(true);
-				r.log(LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
-				return;
-			}
+                try {
+                    ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? "NULL" : username,
+                            reason, true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                response = "Banned. (IP).";
+                kickUser(connectionBanned, reason);
+                r.set(Result.SUCCESS, response);
+                r.setLoggedImportant(true);
+                r.log(LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
+                return;
+            }
 
-			if (bSteamID && SteamID != null && !SteamID.isEmpty()) {
-				if (!SteamUtils.isSteamModeEnabled()) {
-					response = "Cannot Steam-Ban a user while NOT in Steam mode.";
-					r.set(Result.FAILURE, response);
-					return;
-				}
-				if (!SteamUtils.isValidSteamID(SteamID)) {
-					response = "Invalid SteamID: \"" + SteamID + "\".";
-					r.set(Result.FAILURE, response);
-					return;
-				}
-				if (reason == null) {
-					reason = "Banned. (Steam)";
-				}
-				try {
-					ServerWorldDatabase.instance.banSteamID(SteamID,
-							username == null || username.isEmpty() ? "NULL" : username, reason, true);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				response = "Steam-Banned Player.";
-				kickUser(connectionBanned, reason);
-				r.set(Result.SUCCESS, response);
-				r.setLoggedImportant(true);
-				r.log(LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
-				return;
-			}
-			if (!bUsername) {
-				response = "Must have -u \"username\" to use this command!";
-				r.set(Result.FAILURE, response);
-				return;
-			}
-			// Implied. Requires -U
-			if (bIP) {
-				if (SteamUtils.isSteamModeEnabled()) {
-					response = "Cannot IP ban when the server is in Steam mode.";
-					r.set(Result.FAILURE, response);
-					return;
-				}
+            if (bSteamID && SteamID != null && !SteamID.isEmpty()) {
+                if (!SteamUtils.isSteamModeEnabled()) {
+                    response = "Cannot Steam-Ban a user while NOT in Steam mode.";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
+                if (!SteamUtils.isValidSteamID(SteamID)) {
+                    response = "Invalid SteamID: \"" + SteamID + "\".";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
+                if (reason == null) {
+                    reason = "Banned. (Steam)";
+                }
+                try {
+                    ServerWorldDatabase.instance.banSteamID(SteamID,
+                            username == null || username.isEmpty() ? "NULL" : username, reason, true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                response = "Steam-Banned Player.";
+                kickUser(connectionBanned, reason);
+                r.set(Result.SUCCESS, response);
+                r.setLoggedImportant(true);
+                r.log(LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
+                return;
+            }
+            if (!bUsername) {
+                response = "Must have -u \"username\" to use this command!";
+                r.set(Result.FAILURE, response);
+                return;
+            }
+            // Implied. Requires -U
+            if (bIP) {
+                if (SteamUtils.isSteamModeEnabled()) {
+                    response = "Cannot IP ban when the server is in Steam mode.";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
 
-				if (connectionBanned == null || !connectionBanned.connected) {
-					response = "User must be online in order to imply IP ban.";
-					r.set(Result.FAILURE, response);
-					return;
-				}
-				IP = connectionBanned.ip;
+                if (connectionBanned == null || !connectionBanned.connected) {
+                    response = "User must be online in order to imply IP ban.";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
+                IP = connectionBanned.ip;
 
-				if (reason == null) {
-					reason = "Banned. (IP)";
-				}
-				try {
-					ServerWorldDatabase.instance.banIp(IP, username, reason, true);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				kickUser(connectionBanned, reason);
-				response = "IP-Banned Player.";
-				r.set(Result.SUCCESS, response);
-				r.setLoggedImportant(true);
-				r.log(LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
-				return;
+                if (reason == null) {
+                    reason = "Banned. (IP)";
+                }
+                try {
+                    ServerWorldDatabase.instance.banIp(IP, username, reason, true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                kickUser(connectionBanned, reason);
+                response = "IP-Banned Player.";
+                r.set(Result.SUCCESS, response);
+                r.setLoggedImportant(true);
+                r.log(LogType.STAFF, commander + " banned " + username + ". IP=(" + IP + ")");
 
-			} else if (bSteamID) {
-				if (!SteamUtils.isSteamModeEnabled()) {
-					response = "Cannot Steam-Ban a user while NOT in Steam mode.";
-					r.set(Result.FAILURE, response);
-					return;
+            } else if (bSteamID) {
+                if (!SteamUtils.isSteamModeEnabled()) {
+                    response = "Cannot Steam-Ban a user while NOT in Steam mode.";
+                    r.set(Result.FAILURE, response);
+                    return;
 
-				}
+                }
 
-				if (connectionBanned == null || !connectionBanned.connected) {
-					response = "User must be online in order to imply Steam-ban.";
-					r.set(Result.FAILURE, response);
-					return;
-				}
-				SteamID = "" + connectionBanned.steamID;
+                if (connectionBanned == null || !connectionBanned.connected) {
+                    response = "User must be online in order to imply Steam-ban.";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
+                SteamID = "" + connectionBanned.steamID;
 
-				if (!SteamUtils.isValidSteamID(SteamID)) {
-					response = "Invalid SteamID: \"" + SteamID + "\".";
-					r.set(Result.FAILURE, response);
-					return;
-				}
-				if (reason == null) {
-					reason = "Banned. (Steam)";
-				}
-				try {
-					response = ServerWorldDatabase.instance.banSteamID(SteamID, username, reason, true);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				kickUser(connectionBanned, reason);
-				r.set(Result.SUCCESS, response);
-				r.setLoggedImportant(true);
-				r.log(LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
-				return;
-			} else {
-				if (reason == null) {
-					reason = "Banned.";
-				}
-				try {
-					response = ServerWorldDatabase.instance.banUser(username, true);
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-				kickUser(connectionBanned, reason);
-				r.set(Result.SUCCESS, response);
-				r.setLoggedImportant(true);
-				r.log(LogType.STAFF, commander + " banned " + username + ".");
-				return;
-			}
-		} else {
-			response = onTooltip(com.getPlayer(), com);
-			r.set(Result.FAILURE, response);
-			return;
-		}
+                if (!SteamUtils.isValidSteamID(SteamID)) {
+                    response = "Invalid SteamID: \"" + SteamID + "\".";
+                    r.set(Result.FAILURE, response);
+                    return;
+                }
+                if (reason == null) {
+                    reason = "Banned. (Steam)";
+                }
+                try {
+                    response = ServerWorldDatabase.instance.banSteamID(SteamID, username, reason, true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                kickUser(connectionBanned, reason);
+                r.set(Result.SUCCESS, response);
+                r.setLoggedImportant(true);
+                r.log(LogType.STAFF, commander + " banned " + username + ". SteamID=(" + SteamID + ")");
+            } else {
+                if (reason == null) {
+                    reason = "Banned.";
+                }
+                try {
+                    response = ServerWorldDatabase.instance.banUser(username, true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                kickUser(connectionBanned, reason);
+                r.set(Result.SUCCESS, response);
+                r.setLoggedImportant(true);
+                r.log(LogType.STAFF, commander + " banned " + username + ".");
+            }
+        } else {
+            response = onTooltip(com.getPlayer(), com);
+            r.set(Result.FAILURE, response);
+        }
 
-	}
+    }
 
-	private void unban(Command com, Response r, String[] args) throws SQLException {
-		boolean bUsername = false;
-		boolean bIP = false;
-		boolean bSteamID = false;
-		String response = null;
-		String commander = com.getPlayer().getUsername();
-		String username = null;
-		String IP = null;
-		String SteamID = null;
-		for (int x = 0; x < args.length; x++) {
-			String arg = args[x];
-			String argN = (x + 1) < args.length ? args[x + 1] : null;
-			if ((arg.startsWith("-U") || arg.startsWith("-u")) && argN != null && !argN.startsWith("-")) {
-				bUsername = true;
-				username = argN;
-			} else if (arg.startsWith("-I") && argN != null && !argN.startsWith("-")) {
-				bIP = true;
-				IP = argN;
-				x++;
-			} else if (arg.startsWith("-S") && argN != null && !argN.startsWith("-")) {
-				bSteamID = true;
-				SteamID = argN;
-				x++;
-			} else if ((arg.startsWith("-I") || arg.startsWith("-S") || arg.startsWith("-U") || arg.startsWith("-u"))
-					&& (argN == null || argN.startsWith("-"))) {
-				response = onTooltip(com.getPlayer(), com);
-				r.set(Result.FAILURE, response);
-				return;
-			}
-		}
-		if (!bIP && !bSteamID && !bUsername) {
-			response = onTooltip(com.getPlayer(), com);
-			r.set(Result.FAILURE, response);
-			return;
-		}
-		if (bSteamID) {
-			ServerWorldDatabase.instance.banSteamID(SteamID, username == null || username.isEmpty() ? null : username,
-					false);
-			response = "SteamID unbanned.";
-		}
-		if (bIP) {
-			ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? null : username,
-					(String) null, false);
-			response = "IP unbanned.";
-		}
-		if (bUsername) {
-			ServerWorldDatabase.instance.banUser(username, false);
-			response = "Player unbanned.";
-		}
-		r.set(Result.SUCCESS, response);
-		r.setLoggedImportant(true);
-		r.log(LogType.STAFF, commander + " unbanned " + username + ".");
-		return;
-	}
+    private void unban(Command com, Response r, String[] args) throws SQLException {
+        boolean bUsername = false;
+        boolean bIP = false;
+        boolean bSteamID = false;
+        String response = null;
+        String commander = com.getPlayer().getUsername();
+        String username = null;
+        String IP = null;
+        String SteamID = null;
+        for (int x = 0; x < args.length; x++) {
+            String arg = args[x];
+            String argN = (x + 1) < args.length ? args[x + 1] : null;
+            if ((arg.startsWith("-U") || arg.startsWith("-u")) && argN != null && !argN.startsWith("-")) {
+                bUsername = true;
+                username = argN;
+            } else if (arg.startsWith("-I") && argN != null && !argN.startsWith("-")) {
+                bIP = true;
+                IP = argN;
+                x++;
+            } else if (arg.startsWith("-S") && argN != null && !argN.startsWith("-")) {
+                bSteamID = true;
+                SteamID = argN;
+                x++;
+            } else if ((arg.startsWith("-I") || arg.startsWith("-S") || arg.startsWith("-U") || arg.startsWith("-u"))
+                    && (argN == null || argN.startsWith("-"))) {
+                response = onTooltip(com.getPlayer(), com);
+                r.set(Result.FAILURE, response);
+                return;
+            }
+        }
+        if (!bIP && !bSteamID && !bUsername) {
+            response = onTooltip(com.getPlayer(), com);
+            r.set(Result.FAILURE, response);
+            return;
+        }
+        if (bSteamID) {
+            ServerWorldDatabase.instance.banSteamID(SteamID, username == null || username.isEmpty() ? null : username,
+                    false);
+            response = "SteamID unbanned.";
+        }
+        if (bIP) {
+            ServerWorldDatabase.instance.banIp(IP, username == null || username.isEmpty() ? null : username,
+                    null, false);
+            response = "IP unbanned.";
+        }
+        if (bUsername) {
+            ServerWorldDatabase.instance.banUser(username, false);
+            response = "Player unbanned.";
+        }
+        r.set(Result.SUCCESS, response);
+        r.setLoggedImportant(true);
+        r.log(LogType.STAFF, commander + " unbanned " + username + ".");
+    }
 
-	private void kickUser(UdpConnection connection, String reason) {
-		PacketHelper.kickUser(connection, reason);
-	}
+    private void kickUser(UdpConnection connection, String reason) {
+        PacketHelper.kickUser(connection, reason);
+    }
 }

@@ -31,7 +31,7 @@ public abstract class Printable {
 	/**
 	 * Prints lines with "getName(): [message...]".
 	 * 
-	 * @param messages
+	 * @param messages The Object Array of messages to print.
 	 */
 	public synchronized void println(Object... messages) {
 		if (messages.length == 0) {
@@ -54,9 +54,9 @@ public abstract class Printable {
 	/**
 	 * Prints lines with "getName(): [message...]".
 	 * 
-	 * @param messages
+	 * @param messages The Object Array of messages to print.
 	 */
-	public synchronized void errorln(Object... messages) {
+	public synchronized void errln(Object... messages) {
 
 		if (messages.length == 0) {
 			System.err.println();
@@ -81,7 +81,7 @@ public abstract class Printable {
 	/**
 	 * Prints a message with a header, without a new-line.
 	 * 
-	 * @param message
+	 * @param message The Object to print.
 	 */
 	public synchronized void printH(Object message) {
 
@@ -98,7 +98,7 @@ public abstract class Printable {
 	/**
 	 * Prints a message, without a new-line.
 	 * 
-	 * @param message
+	 * @param message The Object to print.
 	 */
 	public synchronized void print(Object message) {
 		// Print the result.
@@ -114,9 +114,9 @@ public abstract class Printable {
 			errorText = errorText.trim() + ": " + throwable.getCause();
 		}
 
-		errorln("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());
+		errln("Error: " + (errorText != null ? errorText : "") + ": " + throwable.getMessage());
 		for (StackTraceElement element : throwable.getStackTrace()) {
-			errorln(element);
+			errln(element);
 		}
 
 		// Send to the EventManager for ExceptionListeners to handle.
@@ -130,14 +130,14 @@ public abstract class Printable {
 
 	public synchronized void stackTrace() {
 		for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-			errorln(element);
+			errln(element);
 		}
 	}
 
 	/**
-	 * Grabs the name of the instance.
+	 * Grabs the name of the instance. This is used for the header of prints and printlns.
 	 * 
-	 * @return
+	 * @return Returns the name of the Printable.
 	 */
 	public abstract String getName();
 }

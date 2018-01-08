@@ -23,7 +23,7 @@ public class NPCConnectionListener implements EventListener {
     /**
      * The NPCManager instance.
      */
-    NPCManager npcManager = null;
+    private NPCManager npcManager;
 
     /**
      * Main constructor.
@@ -36,11 +36,11 @@ public class NPCConnectionListener implements EventListener {
 
     @Override
     public void onEvent(Event event) {
-        if (event.getID() == ConnectEvent.ID) {
+        if (event.getID().equals(ConnectEvent.ID)) {
             ConnectEvent connectEvent = (ConnectEvent) event;
             Player player = connectEvent.getPlayer();
             UdpConnection connection = player.getConnection();
-            for (NPC npc : npcManager.getNPCS()) {
+            for (NPC npc : npcManager.getNPCs()) {
                 GameServer.sendPlayerConnect(npc, connection);
             }
         }

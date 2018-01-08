@@ -43,7 +43,7 @@ public class ActionGrabItemOnGround extends Action {
             InventoryItem itemRetrieved = worldItemWorth.getItem();
             if (itemRetrieved.IsWeapon()) {
                 // Grab weapon currently used.
-                HandWeapon primaryWeapon = (HandWeapon) npc.getPrimaryWeapon();
+                HandWeapon primaryWeapon = npc.getPrimaryWeapon();
                 // Cast the weapon to HandWeapon.
                 HandWeapon weaponRetrieved = (HandWeapon) itemRetrieved;
                 // If the weapon is null, set the retrieved weapon as primary.
@@ -51,7 +51,7 @@ public class ActionGrabItemOnGround extends Action {
                     // Set the picked-up weapon as primary.
                     npc.setPrimaryWeapon(weaponRetrieved);
                 } else {
-                    // If the item is the same as currently weilding.
+                    // If the item is the same as currently wielding.
                     if (primaryWeapon.getName().equals(weaponRetrieved.getName())) {
                         // If the item picked up has less damage than the one currently wielded.
                         if (weaponRetrieved.getConditionPercent() < primaryWeapon.getConditionPercent()) {

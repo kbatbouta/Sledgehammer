@@ -33,7 +33,7 @@ public class MongoChatMessage extends MongoUniqueDocument {
     /**
      * New constructor.
      *
-     * @param collection
+     * @param collection The MongoCollection storing the MongoDocument.
      */
     public MongoChatMessage(MongoCollection collection) {
         super(collection);
@@ -42,8 +42,8 @@ public class MongoChatMessage extends MongoUniqueDocument {
     /**
      * MongoDB load constructor.
      *
-     * @param collection
-     * @param object
+     * @param collection The MongoCollection storing the MongoDocument.
+     * @param object     The DBObject storing the MongoDocument's data.
      */
     public MongoChatMessage(MongoCollection collection, DBObject object) {
         super(collection, object);

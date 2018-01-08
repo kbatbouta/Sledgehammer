@@ -56,7 +56,7 @@ public class NPCManager extends Manager {
     /**
      * EventListener to handle sending NPC data to connecting players.
      */
-    NPCConnectionListener connectionListener = null;
+    NPCConnectionListener connectionListener;
 
     /**
      * Main constructor.
@@ -160,7 +160,7 @@ public class NPCManager extends Manager {
     /**
      * @return Returns a List of all NPCs registered in the NPCManager.
      */
-    public List<NPC> getNPCS() {
+    public List<NPC> getNPCs() {
         return this.listNPCs;
     }
 

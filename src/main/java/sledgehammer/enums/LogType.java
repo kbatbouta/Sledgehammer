@@ -24,7 +24,7 @@ public enum LogType {
      *
      * @param id The id of the LogType.
      */
-    private LogType(int id) {
+    LogType(int id) {
         setId(id);
     }
 

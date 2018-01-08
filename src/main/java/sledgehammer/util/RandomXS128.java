@@ -29,7 +29,7 @@ import java.util.Random;
 
 /**
  * This class implements the xorshift128+ algorithm that is a very fast,
- * top-quality 64-bit pseudo-random number generator. The quality of this PRNG
+ * top-quality 64-bit pseudo-random number generator. The quality of this P.R.N.G.
  * is much higher than {@link Random}'s, and its cycle length is
  * 2<sup>128</sup>&nbsp;&minus;&nbsp;1, which is more than enough for any
  * single-thread application. More details and algorithms can be found
@@ -211,7 +211,7 @@ public class RandomXS128 extends Random {
      */
     @Override
     public void nextBytes(final byte[] bytes) {
-        int n = 0;
+        int n;
         int i = bytes.length;
         while (i != 0) {
             n = i < 8 ? i : 8; // min(i, 8);
@@ -318,7 +318,7 @@ public class RandomXS128 extends Random {
         }
     }
 
-    private final static long murmurHash3(long x) {
+    private static long murmurHash3(long x) {
         x ^= x >>> 33;
         x *= 0xff51afd7ed558ccdL;
         x ^= x >>> 33;

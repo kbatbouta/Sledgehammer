@@ -76,7 +76,7 @@ public class FactionActions {
      * @return The Response result.
      */
     public Response createFaction(String factionName, String tag, String password, Player player) {
-        Response response = null;
+        Response response;
         if (factionName == null || factionName.isEmpty()) {
             return new Response("Faction name is invalid.", "", Result.FAILURE);
         }
@@ -135,11 +135,9 @@ public class FactionActions {
     }
 
     /**
-     * TODO: Document.
-     *
-     * @param playerOwner
-     * @param playerInvited
-     * @return
+     * @param playerOwner   The Player that owns the Faction.
+     * @param playerInvited The Player invited to the Faction.
+     * @return Returns a Response that details the result of the action.
      */
     public Response inviteToFaction(Player playerOwner, Player playerInvited) {
         // Grab the unique ID of the Player.
@@ -193,12 +191,10 @@ public class FactionActions {
     }
 
     /**
-     * TODO: Document
-     *
-     * @param faction
-     * @param player
-     * @param password
-     * @return
+     * @param faction  The Faction to join.
+     * @param player   The Player joining the Faction.
+     * @param password The password of the Faction.
+     * @return Returns a Response that details the result of the action.
      */
     public Response joinFaction(Faction faction, Player player, String password) {
         // Grab the FactionMember container if it exists.
@@ -228,7 +224,7 @@ public class FactionActions {
         }
         // If the player is not in a faction, create the member and save.
         if (factionMember == null) {
-            factionMember = module.createFactionMember(player, faction);
+            module.createFactionMember(player, faction);
         } else {
             factionMember.setFaction(factionCurrent, true);
         }
@@ -237,10 +233,8 @@ public class FactionActions {
     }
 
     /**
-     * TODO: Document.
-     *
-     * @param player
-     * @return
+     * @param player The Player leaving the Faction.
+     * @return Returns a Response that details the result of the action.
      */
     public Response leaveFaction(Player player) {
         if (player == null) {
@@ -267,11 +261,9 @@ public class FactionActions {
     }
 
     /**
-     * TODO: Document
-     *
-     * @param player
-     * @param faction
-     * @return
+     * @param player  The Player accepting the FactionInvite.
+     * @param faction The Faction inviting the Player.
+     * @return Returns a Response that details the result of the action.
      */
     public Response acceptInvite(Player player, Faction faction) {
         // Check to see if the invite exists.
@@ -293,8 +285,7 @@ public class FactionActions {
      * @param player  The Player being affected.
      * @param faction The Faction being specified. If null is passed, all Faction
      *                invites will be processed.
-     * @return A Response based on the outcome. If any FactionInvite invites are
-     * rejected and removed, Result.SUCCESS will be passed.
+     * @return Returns a Response that details the result of the action.
      */
     public Response rejectInvites(Player player, Faction faction) {
         // Parameter check.
@@ -339,11 +330,9 @@ public class FactionActions {
     }
 
     /**
-     * TODO: Document
-     *
-     * @param playerOwner
-     * @param playerKick
-     * @return
+     * @param playerOwner The Player owning the Faction.
+     * @param playerKick  The Player being kicked from the Faction.
+     * @return Returns a Response that details the result of the action.
      */
     public Response kickFromFaction(Player playerOwner, Player playerKick) {
         FactionMember factionMemberOwner = module.getFactionMember(playerOwner);
@@ -375,8 +364,7 @@ public class FactionActions {
      *                         Faction.
      * @param passwordOriginal The original String password to validate the change.
      * @param passwordNew      The new String password to set for the Faction.
-     * @return Returns a Response result. If all validations pass, Result.SUCCESS
-     * is passed.
+     * @return Returns a Response that details the result of the action.
      */
     public Response changeFactionPassword(Player player, String passwordOriginal, String passwordNew) {
         // Grab the FactionMember for the Player.
@@ -407,8 +395,7 @@ public class FactionActions {
      * @param player The Player. Will return as a failure if not the owner of a
      *               Faction.
      * @param tagNew The String tag to set for the Faction.
-     * @return Returns a Response result. If all validations pass, Result.SUCCESS
-     * is passed.
+     * @return Returns a Response that details the result of the action.
      */
     public Response changeFactionTag(Player player, String tagNew) {
         // Grab the FactionMember for the Player.

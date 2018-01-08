@@ -65,21 +65,15 @@ public class ZUtil {
      * @return Returns a String representation of the current time.
      */
     public static String getHourMinuteSeconds() {
-        String hours = Calendar.getInstance().get(11) + "";
-        if (Calendar.getInstance().get(11) < 10) {
-            hours = "0" + hours;
-        }
-
-        String minutes = Calendar.getInstance().get(12) + "";
-        if (Calendar.getInstance().get(12) < 10) {
+        String minutes = Calendar.getInstance().get(Calendar.MINUTE) + "";
+        if (Calendar.getInstance().get(Calendar.MINUTE) < 10) {
             minutes = "0" + minutes;
         }
-
-        String seconds = Calendar.getInstance().get(13) + "";
-        if (Calendar.getInstance().get(13) < 10) {
+        String seconds = Calendar.getInstance().get(Calendar.SECOND) + "";
+        if (Calendar.getInstance().get(Calendar.SECOND) < 10) {
             seconds = "0" + seconds;
         }
-        return Calendar.getInstance().get(11) + ":" + minutes + ":" + seconds;
+        return Calendar.getInstance().get(Calendar.HOUR_OF_DAY) + ":" + minutes + ":" + seconds;
     }
 
     @SuppressWarnings("rawtypes")
@@ -169,21 +163,23 @@ public class ZUtil {
         if (previousPwd == null || previousPwd.isEmpty()) {
             return "";
         } else {
-            byte[] crypted = null;
+            byte[] encrypted = null;
             try {
-                crypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
+                encrypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
             } catch (NoSuchAlgorithmException e) {
                 SledgeHammer.instance.println("Can\'t encrypt password");
                 e.printStackTrace();
             }
             StringBuilder hashString = new StringBuilder();
-            for (byte crypt : crypted) {
-                String hex = Integer.toHexString(crypt);
-                if (hex.length() == 1) {
-                    hashString.append('0');
-                    hashString.append(hex.charAt(hex.length() - 1));
-                } else {
-                    hashString.append(hex.substring(hex.length() - 2));
+            if (encrypted != null) {
+                for (byte crypt : encrypted) {
+                    String hex = Integer.toHexString(crypt);
+                    if (hex.length() == 1) {
+                        hashString.append('0');
+                        hashString.append(hex.charAt(hex.length() - 1));
+                    } else {
+                        hashString.append(hex.substring(hex.length() - 2));
+                    }
                 }
             }
             return hashString.toString();
@@ -194,23 +190,25 @@ public class ZUtil {
         List<File> listFiles = new ArrayList<>();
         if (directory.exists()) {
             File[] files = directory.listFiles();
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    // Recursive cannot iterate over parent directories.
-                    if (file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
-                        continue;
-                    }
-                    // Not a part of PZ.
-                    if (file.getName().equalsIgnoreCase("rcon")) {
-                        continue;
-                    }
-                    File[] newFiles = getFiles(file, extension);
-                    if (newFiles.length > 0) {
-                        Collections.addAll(listFiles, newFiles);
-                    }
-                } else {
-                    if (file.getName().endsWith(extension)) {
-                        listFiles.add(file);
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        // Recursive cannot iterate over parent directories.
+                        if (file.getName().equals(".") || file.getName().equals("..") || file.getName().equals("...")) {
+                            continue;
+                        }
+                        // Not a part of PZ.
+                        if (file.getName().equalsIgnoreCase("rcon")) {
+                            continue;
+                        }
+                        File[] newFiles = getFiles(file, extension);
+                        if (newFiles.length > 0) {
+                            Collections.addAll(listFiles, newFiles);
+                        }
+                    } else {
+                        if (file.getName().endsWith(extension)) {
+                            listFiles.add(file);
+                        }
                     }
                 }
             }

@@ -163,6 +163,7 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
      * Deep-Clones a Chat-Message, creating a new MongoChatMessage,
      * however it is not saved to the MongoDB database.
      */
+    @Override
     public ChatMessage clone() {
         MongoCollection collectionChatMessages = getMongoDocument().getCollection();
         MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionChatMessages);
@@ -183,7 +184,7 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
     }
 
     public Player getPlayer() {
-        Player returned = null;
+        Player returned;
         if (player == null) {
             UUID playerId = getPlayerId();
             if (playerId != null) {

@@ -36,7 +36,7 @@ import zombie.iso.IsoMovingObject;
  * (Note: This should not be used because iterating over every single LuaEvent
  * is slow)
  * <p>
- * (Note: OnTick, OnTickEvenPaused, OnObjectCollide, and onChatacterCollide are
+ * (Note: OnTick, OnTickEvenPaused, OnObjectCollide, and onCharacterCollide are
  * the most common LuaEvents called)
  *
  * @author Jab
@@ -51,37 +51,37 @@ public class LuaListener extends Printable implements EventListener {
         ScriptEvent event = (ScriptEvent) e;
         String context = event.getContext();
         Object[] arguments = event.getArguments();
-        if (LuaEvent.OnGameBoot.equals(context)) {
+        if (LuaEvent.OnGameBoot.is(context)) {
             onGameBoot();
             validArguments = arguments.length == 0;
-        } else if (LuaEvent.OnPreGameStart.equals(context)) {
+        } else if (LuaEvent.OnPreGameStart.is(context)) {
             onPreGameStart();
             validArguments = arguments.length == 0;
-        } else if (LuaEvent.OnTick.equals(context)) {
+        } else if (LuaEvent.OnTick.is(context)) {
             validArguments = _OnTick(arguments);
-        } else if (LuaEvent.OnTickEvenPaused.equals(context)) {
+        } else if (LuaEvent.OnTickEvenPaused.is(context)) {
             validArguments = _OnTickEvenPaused(arguments);
-        } else if (LuaEvent.OnGameStart.equals(context)) {
+        } else if (LuaEvent.OnGameStart.is(context)) {
             onGameStart();
             validArguments = arguments.length == 0;
-        } else if (LuaEvent.OnCharacterCollide.equals(context)) {
+        } else if (LuaEvent.OnCharacterCollide.is(context)) {
             validArguments = _OnCharacterCollide(arguments);
-        } else if (LuaEvent.OnObjectCollide.equals(context)) {
+        } else if (LuaEvent.OnObjectCollide.is(context)) {
             validArguments = _OnObjectCollide(arguments);
-        } else if (LuaEvent.OnPlayerUpdate.equals(context)) {
+        } else if (LuaEvent.OnPlayerUpdate.is(context)) {
             validArguments = _OnPlayerUpdate(arguments);
-        } else if (LuaEvent.OnZombieUpdate.equals(context)) {
+        } else if (LuaEvent.OnZombieUpdate.is(context)) {
             validArguments = _OnZombieUpdate(arguments);
-        } else if (LuaEvent.OnPlayerUpdate.equals(context)) {
+        } else if (LuaEvent.OnPlayerUpdate.is(context)) {
             validArguments = _OnPlayerUpdate(arguments);
-        } else if (LuaEvent.OnLoadMapZones.equals(context)) {
+        } else if (LuaEvent.OnLoadMapZones.is(context)) {
             onLoadMapZones();
             validArguments = arguments.length == 0;
-        } else if (LuaEvent.OnCreateLivingCharacter.equals(context)) {
+        } else if (LuaEvent.OnCreateLivingCharacter.is(context)) {
             validArguments = _OnCreateLivingCharacter(arguments);
-        } else if (LuaEvent.OnDoTileBuilding2.equals(context)) {
+        } else if (LuaEvent.OnDoTileBuilding2.is(context)) {
             validArguments = _OnDoTileBuilding2(arguments);
-        } else if (LuaEvent.OnClientCommand.equals(context)) {
+        } else if (LuaEvent.OnClientCommand.is(context)) {
             validArguments = _OnClientCommand(arguments);
         }
         if (!validArguments) {
@@ -105,7 +105,7 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnTick(Object[] arguments) {
-        Double numberOfTicks = 0D;
+        Double numberOfTicks;
         if (arguments.length != 1) {
             return false;
         }
@@ -115,7 +115,7 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnTickEvenPaused(Object[] arguments) {
-        Double numberOfTicks = 0D;
+        Double numberOfTicks;
         if (arguments.length != 1) {
             return false;
         }
@@ -125,8 +125,8 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnCharacterCollide(Object[] arguments) {
-        IsoGameCharacter char1 = null;
-        IsoGameCharacter char2 = null;
+        IsoGameCharacter char1;
+        IsoGameCharacter char2;
         if (arguments.length != 2) {
             return false;
         }
@@ -137,8 +137,8 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnObjectCollide(Object[] arguments) {
-        IsoMovingObject obj1 = null;
-        IsoObject obj2 = null;
+        IsoMovingObject obj1;
+        IsoObject obj2;
         if (arguments.length != 2) {
             return false;
         }
@@ -149,7 +149,7 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnPlayerUpdate(Object[] arguments) {
-        IsoPlayer player = null;
+        IsoPlayer player;
         if (arguments.length != 1) {
             return false;
         }
@@ -163,8 +163,8 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnCreateLivingCharacter(Object[] arguments) {
-        IsoLivingCharacter livingCharacter = null;
-        SurvivorDesc descriptor = null;
+        IsoLivingCharacter livingCharacter;
+        SurvivorDesc descriptor;
         if (arguments.length == 2) {
             return false;
         }
@@ -175,8 +175,8 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnDoTileBuilding2(Object[] arguments) {
-        KahluaTable drag = null;
-        Boolean render = false;
+        KahluaTable drag;
+        Boolean render;
         Integer pickedTileX;
         Integer pickedTileY;
         Integer camCharacterZ;
@@ -195,10 +195,10 @@ public class LuaListener extends Printable implements EventListener {
     }
 
     private boolean _OnClientCommand(Object[] arguments) {
-        String module = null;
-        String command = null;
-        IsoPlayer player = null;
-        KahluaTable table = null;
+        String module;
+        String command;
+        IsoPlayer player;
+        KahluaTable table;
         if (arguments.length != 4) {
             return false;
         }
@@ -243,7 +243,7 @@ public class LuaListener extends Printable implements EventListener {
     public void onClientCommand(String module, String command, IsoPlayer player, KahluaTable table) {
     }
 
-    public void onDoTileBuilding2(KahluaTable drag, boolean render, int pickedTileX, int pickedTiley, int cameraZ,
+    public void onDoTileBuilding2(KahluaTable drag, boolean render, int pickedTileX, int pickedTileY, int cameraZ,
                                   IsoGridSquare square) {
     }
 }

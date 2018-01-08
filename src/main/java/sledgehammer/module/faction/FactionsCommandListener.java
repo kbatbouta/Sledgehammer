@@ -74,7 +74,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		int tagCharactersMinimum = module.getTagMinimumCharacterCount();
 		int tagCharactersMaximum = module.getTagMaximumCharacterCount();
 		mapTooltips.put("faction"                , "Type \"/faction help\" for a list of faction commands.");
-		mapTooltips.put("faction create"         , "Creates a faction. "                                                             + params + NEW_LINE + " /faction create \"name\" \"tag[" + tagCharactersMinimum + "-" + tagCharactersMaximum + " characer range]\" [password]");
+		mapTooltips.put("faction create"         , "Creates a faction. "                                                             + params + NEW_LINE + " /faction create \"name\" \"tag[" + tagCharactersMinimum + "-" + tagCharactersMaximum + " character range]\" [password]");
 		mapTooltips.put("faction disband"        , "Disbands a Faction. All players from this Faction will be removed as well."               + NEW_LINE + " /faction disband");
 		mapTooltips.put("faction join"           , "Joins a faction, with a given password. "                                        + params + NEW_LINE + " /faction join \"name\" \"password\"");
 		mapTooltips.put("faction leave"          , "Leave the faction."                                                                       + NEW_LINE + " /faction leave");
@@ -83,7 +83,7 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		mapTooltips.put("faction reject"         , "Rejects invites to a faction."                                                   + params + NEW_LINE + " /faction reject \"faction\" (Use \"all\" to reject all invitations)");
 		mapTooltips.put("faction change"         , "Changes a setting for a faction. (Must be owner!) "                              + params + NEW_LINE + " /faction change [tag|name|password]");
 		mapTooltips.put("faction change name"    , "Changes the tag shown for a faction. (Must be owner!) "                          + params + NEW_LINE + " /faction change name \"name\"");
-		mapTooltips.put("faction change tag"     , "Changes the tag shown for a faction. (Must be owner!) "                          + params + NEW_LINE + " /faction change tag \"tag[" + tagCharactersMinimum + "-" + tagCharactersMaximum + " characer range]\"");
+		mapTooltips.put("faction change tag"     , "Changes the tag shown for a faction. (Must be owner!) "                          + params + NEW_LINE + " /faction change tag \"tag[" + tagCharactersMinimum + "-" + tagCharactersMaximum + " character range]\"");
 		mapTooltips.put("faction change password", "Changes the password for a faction. (Must be owner!) "                           + params + NEW_LINE + " /faction change password \"old password\" \"new password\"");
 		mapTooltips.put("faction change color"   , "Changes the color of the faction tag. (Must be owner!) "                         + params + NEW_LINE + " /faction change color \"color\"");
 		// Add all commands to the default permissions list.
@@ -161,14 +161,14 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		Player player = c.getPlayer();
 		UUID playerId = player.getUniqueId();
 		Result result = Result.FAILURE;
-		String response = null;
-		Response fresponse = null;
-		String command = c.getCommand();
+		String responseString;
+		Response response;
+		String command;
 		String[] oldArgs = c.getArguments();
-		String[] args = oldArgs;
+		String[] args;
 		if (oldArgs.length == 0) {
-			response = "Type \"/faction help\" for a list of faction commands.";
-			r.set(result, response);
+			responseString = "Type \"/faction help\" for a list of faction commands.";
+			r.set(result, responseString);
 			return;
 		}
 		command = oldArgs[0];
@@ -176,8 +176,8 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		System.arraycopy(oldArgs, 1, args, 0, oldArgs.length - 1);
 		if (command.equalsIgnoreCase("help")) {
 			if (player.hasPermission(getPermissionNode("faction help"))) {
-				response = onTooltip(player, new Command("all", null));
-				r.set(result, response);
+				responseString = onTooltip(player, new Command("all", null));
+				r.set(result, responseString);
 				return;
 			} else {
 				r.deny();
@@ -187,8 +187,8 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		if (command.equalsIgnoreCase("create")) {
 			if (player.hasPermission(getPermissionNode("faction create"))) {
 				if (args.length < 3) {
-					response = onTooltip(player, new Command("faction create", null));
-					r.set(result, response);
+					responseString = onTooltip(player, new Command("faction create", null));
+					r.set(result, responseString);
 					return;
 				}
 				// @formatter:off
@@ -196,25 +196,25 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				String tag      = args[1];
 				String password = args[2];
 				// @formatter:on
-				fresponse = actions.createFaction(name, tag, password, player);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.createFaction(name, tag, password, player);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
 		} else if (command.equalsIgnoreCase("disband")) {
 			if (player.hasPermission(getPermissionNode("faction disband"))) {
-				fresponse = actions.disbandFaction(player);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.disbandFaction(player);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
 		} else if (command.equalsIgnoreCase("join")) {
 			if (player.hasPermission(getPermissionNode("faction join"))) {
 				if (args.length < 2) {
-					response = onTooltip(player, new Command("faction join", null));
-					r.set(result, response);
+					responseString = onTooltip(player, new Command("faction join", null));
+					r.set(result, responseString);
 					return;
 				}
 				String password = args[1];
@@ -223,17 +223,17 @@ public class FactionsCommandListener extends Printable implements CommandListene
 					r.set(Result.FAILURE, "Faction does not exist: \"" + args[0] + "\".");
 					return;
 				}
-				fresponse = actions.joinFaction(faction, player, password);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.joinFaction(faction, player, password);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
 		} else if (command.equalsIgnoreCase("leave")) {
 			if (player.hasPermission(getPermissionNode("faction leave"))) {
-				fresponse = actions.leaveFaction(player);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.leaveFaction(player);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
@@ -242,8 +242,8 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				// Make sure the argument(s) are provided.
 				if (args.length < 1) {
 					// Grab the example command
-					response = onTooltip(player, new Command("faction invite", null));
-					r.set(result, response);
+					responseString = onTooltip(player, new Command("faction invite", null));
+					r.set(result, responseString);
 					return;
 				}
 				// Grab the username argument.
@@ -265,9 +265,9 @@ public class FactionsCommandListener extends Printable implements CommandListene
 					return;
 				}
 				// Attempt to invite the Player.
-				fresponse = actions.inviteToFaction(player, playerInvited);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.inviteToFaction(player, playerInvited);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				// Prompt the user the proper arguments.
 				r.deny();
@@ -275,8 +275,8 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		} else if (command.equalsIgnoreCase("accept")) {
 			if (player.hasPermission(getPermissionNode("faction accept"))) {
 				if (args.length < 1) {
-					response = onTooltip(player, new Command("faction accept", null));
-					r.set(result, response);
+					responseString = onTooltip(player, new Command("faction accept", null));
+					r.set(result, responseString);
 					return;
 				}
 				Faction faction = module.getFactionByName(args[0]);
@@ -284,17 +284,17 @@ public class FactionsCommandListener extends Printable implements CommandListene
 					r.set(Result.FAILURE, "Faction does not exist: \"" + args[0] + "\".");
 					return;
 				}
-				fresponse = actions.acceptInvite(player, faction);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.acceptInvite(player, faction);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
 		} else if (command.equalsIgnoreCase("reject")) {
 			if (player.hasPermission(getPermissionNode("faction reject"))) {
 				if (args.length < 1) {
-					response = onTooltip(player, new Command("faction reject", null));
-					r.set(result, response);
+					responseString = onTooltip(player, new Command("faction reject", null));
+					r.set(result, responseString);
 					return;
 				}
 				Faction faction = null;
@@ -306,17 +306,17 @@ public class FactionsCommandListener extends Printable implements CommandListene
 						return;
 					}
 				}
-				fresponse = actions.rejectInvites(player, faction);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.rejectInvites(player, faction);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
 		} else if (command.equalsIgnoreCase("kick")) {
 			if (player.hasPermission(getPermissionNode("faction kick"))) {
 				if (args.length < 1) {
-					response = onTooltip(player, new Command("faction kick", null));
-					r.set(result, response);
+					responseString = onTooltip(player, new Command("faction kick", null));
+					r.set(result, responseString);
 					return;
 				}
 				String usernameKick = args[0];
@@ -331,9 +331,9 @@ public class FactionsCommandListener extends Printable implements CommandListene
 					r.set(Result.FAILURE, "Player does not exist: \"" + usernameKick + "\".");
 					return;
 				}
-				fresponse = actions.kickFromFaction(player, playerKick);
-				r.set(fresponse.getResult(), fresponse.getResponse());
-				r.log(LogType.INFO, fresponse.getLogMessage());
+				response = actions.kickFromFaction(player, playerKick);
+				r.set(response.getResult(), response.getResponse());
+				r.log(LogType.INFO, response.getLogMessage());
 			} else {
 				r.deny();
 			}
@@ -352,8 +352,8 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				return;
 			}
 			if (args.length < 1) {
-                response = onTooltip(player, new Command("faction change", null));
-                r.set(result, response);
+                responseString = onTooltip(player, new Command("faction change", null));
+                r.set(result, responseString);
                 return;
 			}
 			boolean isOwner;
@@ -366,21 +366,21 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				isOwner = false;
 			}
 			if (!isOwner) {
-				response = "You do not own a faction.";
-				r.set(result, response);
+				responseString = "You do not own a faction.";
+				r.set(result, responseString);
 				return;
 			}
 			String property = args[0];
 			if (property.equalsIgnoreCase("password")) {
 				if (player.hasPermission(getPermissionNode("faction change password"))) {
 					if (args.length < 3) {
-						response = onTooltip(player, new Command("faction password", null));
-						r.set(result, response);
+						responseString = onTooltip(player, new Command("faction password", null));
+						r.set(result, responseString);
 						return;
 					}
-					fresponse = actions.changeFactionPassword(player, args[1], args[2]);
-					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogType.INFO, fresponse.getLogMessage());
+					response = actions.changeFactionPassword(player, args[1], args[2]);
+					r.set(response.getResult(), response.getResponse());
+					r.log(LogType.INFO, response.getLogMessage());
 					return;
 				} else {
 					r.deny();
@@ -388,16 +388,16 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 			}
 			if (args.length < 2) {
-                response = onTooltip(player, new Command(command + " " + property, null));
-                r.set(result, response);
+                responseString = onTooltip(player, new Command(command + " " + property, null));
+                r.set(result, responseString);
                 return;
 			}
 			String value = args[1];
 			if (property.equalsIgnoreCase("tag")) {
 				if (player.hasPermission(getPermissionNode("faction change tag"))) {
-					fresponse = actions.changeFactionTag(player, value);
-					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogType.INFO, fresponse.getLogMessage());
+					response = actions.changeFactionTag(player, value);
+					r.set(response.getResult(), response.getResponse());
+					r.log(LogType.INFO, response.getLogMessage());
 					return;
 				} else {
 					r.deny();
@@ -405,9 +405,9 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 			} else if (property.equalsIgnoreCase("name")) {
 				if (player.hasPermission(getPermissionNode("faction change name"))) {
-					fresponse = actions.changeFactionName(player, value);
-					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogType.INFO, fresponse.getLogMessage());
+					response = actions.changeFactionName(player, value);
+					r.set(response.getResult(), response.getResponse());
+					r.log(LogType.INFO, response.getLogMessage());
 					return;
 				} else {
 					r.deny();
@@ -415,17 +415,17 @@ public class FactionsCommandListener extends Printable implements CommandListene
 				}
 			} else if (property.equalsIgnoreCase("color")) {
 				if (player.hasPermission(getPermissionNode("faction change color"))) {
-					fresponse = actions.changeFactionColor(player, value);
-					r.set(fresponse.getResult(), fresponse.getResponse());
-					r.log(LogType.INFO, fresponse.getLogMessage());
+					response = actions.changeFactionColor(player, value);
+					r.set(response.getResult(), response.getResponse());
+					r.log(LogType.INFO, response.getLogMessage());
 					return;
 				} else {
 					r.deny();
 					return;
 				}
 			}
-            response = onTooltip(player, new Command(command + " " + property, null));
-            r.set(result, response);
+            responseString = onTooltip(player, new Command(command + " " + property, null));
+            r.set(result, responseString);
 		}
 	}
 

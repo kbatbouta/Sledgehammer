@@ -21,7 +21,7 @@ public enum AccessResult {
      *
      * @param id The id of the Result.
      */
-    private AccessResult(int id) {
+    AccessResult(int id) {
         setId(id);
     }
 

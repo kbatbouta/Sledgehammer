@@ -119,7 +119,7 @@ public class MongoBan extends MongoDocument {
      */
     public String getSteamID() {
         if (!isSteam()) {
-            throw new IllegalStateException("Requesed Steam ID when Ban is IP Address.");
+            throw new IllegalStateException("Requested Steam ID when Ban is IP Address.");
         }
         return this.id;
     }

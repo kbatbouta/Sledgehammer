@@ -61,7 +61,7 @@ public class CoreEventListener implements EventListener {
 		event.setIgnoreCore(true);
 		String text = event.getLogMessage();
 
-		if (event.getID() == DeathEvent.ID) {
+		if (event.getID().equals(DeathEvent.ID)) {
 			if (!event.shouldAnnounce() || ((DeathEvent) event).getPlayer().getIso() instanceof NPC)
 				return;
 			String username = ((DeathEvent) event).getPlayer().getUsername();
@@ -76,7 +76,7 @@ public class CoreEventListener implements EventListener {
 				module.sendGlobalMessage(ChatTags.COLOR_RED + " " + text);
 				SledgeHammer.instance.handleCommand("/thunder start", false);
 			}
-		} else if (event.getID() == PVPKillEvent.ID) {
+		} else if (event.getID().equals(PVPKillEvent.ID)) {
 			if (!event.shouldAnnounce()) {
 				return;
 			}
@@ -93,7 +93,7 @@ public class CoreEventListener implements EventListener {
 			}
 			mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
 			module.sendGlobalMessage(COLOR_RED + " " + text);
-			SledgeHammer.instance.handleCommand((UdpConnection) null, "/thunder start", false);
+			SledgeHammer.instance.handleCommand(null, "/thunder start", false);
 		}
 	}
 

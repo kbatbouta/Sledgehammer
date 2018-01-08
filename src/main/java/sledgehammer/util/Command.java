@@ -193,7 +193,7 @@ public class Command extends LuaTable {
 
     public static String[] getArguments(String command, String input) {
         List<String> argCache = new ArrayList<>();
-        String[] args = null;
+        String[] args;
         StringBuilder argCurrent = new StringBuilder();
         boolean inQuotes = false;
         char quoteType = '"';

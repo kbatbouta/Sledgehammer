@@ -102,7 +102,7 @@ public class Faction extends MongoLuaObject<MongoFaction> {
             if (player != null) {
                 getChatChannel().addPlayer(player, true);
             } else {
-                errorln("addMember() -> Player is null.");
+                errln("addMember() -> Player is null.");
             }
         }
         return returned;
@@ -133,20 +133,13 @@ public class Faction extends MongoLuaObject<MongoFaction> {
         // If a password and one is not provided.
         if (password == null || password.isEmpty()) {
             // If the actual password is not defined, this situation is valid.
-            if (passwordActualEncrypted == null || passwordActualEncrypted.isEmpty()) {
-                return true;
-            }
             // If the faction has a password and one isn't provided, this is invalid.
-            else {
-                return false;
-            }
+            return passwordActualEncrypted == null || passwordActualEncrypted.isEmpty();
         }
         // If the actual password is not defined.
         if (passwordActualEncrypted == null || passwordActualEncrypted.isEmpty()) {
             // If the password given is defined, this situation is invalid.
-            if (password != null && !password.isEmpty()) {
-                return false;
-            }
+            return false;
         }
         // Encrypt the new password.
         String passwordEncrypted = StringUtils.md5(password);

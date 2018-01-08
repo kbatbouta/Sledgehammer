@@ -39,7 +39,7 @@ public class ActionFollowTargetDirect extends Action {
         IsoObject primaryFollowTarget = npc.getTarget();
         IsoObject secondaryFollowTarget = npc.getDefaultTarget();
         if (primaryFollowTarget != null && primaryFollowTarget instanceof IsoPlayer) {
-            if (!GameServer.Players.contains(((IsoPlayer) primaryFollowTarget))) {
+            if (!GameServer.Players.contains(primaryFollowTarget)) {
                 if (ModuleNPC.DEBUG) {
                     println("NPC: Following target disconnected.");
                 }
@@ -53,7 +53,7 @@ public class ActionFollowTargetDirect extends Action {
             }
         }
         if (secondaryFollowTarget != null && secondaryFollowTarget instanceof IsoPlayer) {
-            if (!GameServer.Players.contains(((IsoPlayer) secondaryFollowTarget))) {
+            if (!GameServer.Players.contains(secondaryFollowTarget)) {
                 if (ModuleNPC.DEBUG) {
                     println("NPC: Default following target disconnected.");
                 }
@@ -84,16 +84,13 @@ public class ActionFollowTargetDirect extends Action {
         float distanceFromTarget = npc.DistTo(focusTarget);
         float speed = npc.getPathSpeed();
         boolean foundSpeed = false;
-        if (!foundSpeed && npc.canRun() && distanceFromTarget > npc.getDistanceToRun()) {
-            foundSpeed = true;
+        if (npc.canRun() && distanceFromTarget > npc.getDistanceToRun()) {
             npc.playAnimation(npc.getRunAnimation());
             npc.setRunning(true);
-        } else if (!foundSpeed && npc.canWalk() && distanceFromTarget > npc.getDistanceToWalk()) {
-            foundSpeed = true;
+        } else if (npc.canWalk() && distanceFromTarget > npc.getDistanceToWalk()) {
             npc.setRunning(false);
             npc.playAnimation(npc.getWalkAnimation());
         } else if (distanceFromTarget <= npc.getArrivalRadius()) {
-            speed = 0.0F;
             npc.setRunning(false);
             npc.playAnimation(npc.getIdleAnimation());
             npc.setArrived(true);

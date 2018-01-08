@@ -51,18 +51,6 @@ public class BehaviorSurvive extends Behavior {
      */
     private long timeThenNearbyZombieLookup = 0L;
     /**
-     * Long time-stamp to optimize item searches.
-     */
-    private long deltaItemSearch = 1000L;
-    /**
-     * Long time-stamp to optimize zombie lookup.
-     */
-    private long deltaNearbyZombieLookup = 1000L;
-    /**
-     * Hold a maximum of 2 of a certain item.
-     */
-    private int maximumIdenticalItemsToCarry = 2;
-    /**
      * The flag to note if a valuable item has been spotted.
      */
     private boolean seesItemWorth = false;
@@ -99,6 +87,7 @@ public class BehaviorSurvive extends Behavior {
                 }
             }
         }
+        long deltaNearbyZombieLookup = 1000L;
         if (timeNow - timeThenNearbyZombieLookup >= deltaNearbyZombieLookup) {
             listNearbyZombies = getNearestZombies(12);
             // Set the time field to check
@@ -120,7 +109,7 @@ public class BehaviorSurvive extends Behavior {
                 distToHit = weapon.getMinRange() * 2;
             }
             if (getDistance(target) <= distToHit) {
-                if (target == null || target.isDead()) {
+                if (target.isDead()) {
                     setAttackTarget(null);
                     setTarget(null);
                     setCanRun(true);
@@ -171,7 +160,7 @@ public class BehaviorSurvive extends Behavior {
                 actIndefinitely(ActionFollowTargetPath.NAME);
             }
         } else {
-            // Wait for one second, then search for items nearby.
+            long deltaItemSearch = 1000L;
             if ((timeNow - timeThenItemSearch) > deltaItemSearch) {
                 scanForValuableItems();
                 if (seesItemWorth) {
@@ -209,6 +198,7 @@ public class BehaviorSurvive extends Behavior {
             InventoryItem item = worldItem.getItem();
             ItemContainer inventory = getInventory();
             // TODO: If we have enough of this item.
+            int maximumIdenticalItemsToCarry = 2;
             if (inventory.getItemCount(item.getType()) < maximumIdenticalItemsToCarry) {
             }
             if (item.IsWeapon()) {

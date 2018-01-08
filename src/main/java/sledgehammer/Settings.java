@@ -69,7 +69,7 @@ public class Settings extends Printable {
     /**
      * The File Object of the config.yml File.
      */
-    private File fileConfig;
+    private final File fileConfig;
     /**
      * The set directory to the vanilla distribution installation of the
      * ProjectZomboid Dedicated Server.
@@ -79,10 +79,6 @@ public class Settings extends Printable {
      * The set String message when a permission is denied.
      */
     private String permissionDeniedMessage;
-    /**
-     * The name of the YAML File.
-     */
-    private String fileConfigName = "config.yml";
     /**
      * The String password for the Administrator account.
      */
@@ -133,7 +129,7 @@ public class Settings extends Printable {
     /**
      * Main constructor.
      */
-    public Settings() {
+    private Settings() {
         fileConfig = new File("config.yml");
         if (!fileConfig.exists()) {
             saveDefaultConfig();
@@ -169,12 +165,12 @@ public class Settings extends Printable {
             fis.close();
             parseConfig();
         } catch (YAMLException e) {
-            errorln("Failed to parse YAML.");
+            errln("Failed to parse YAML.");
             e.printStackTrace();
         } catch (FileNotFoundException e) {
-            errorln("Config file does not exist.");
+            errln("Config file does not exist.");
         } catch (IOException e) {
-            errorln("Failed to read config.yml");
+            errln("Failed to read config.yml");
         }
     }
 
@@ -229,18 +225,18 @@ public class Settings extends Printable {
             try {
                 int value = Integer.parseInt(s);
                 if (value < 0) {
-                    errorln("account_idle_expire_time not valid: " + s);
-                    errorln("Number is supposed to be a non-zero, non-negative integer.");
-                    errorln("Setting value to 0. (disabled)");
+                    errln("account_idle_expire_time not valid: " + s);
+                    errln("Number is supposed to be a non-zero, non-negative integer.");
+                    errln("Setting value to 0. (disabled)");
                     setAccountIdleExpireTime(0, false);
                 } else {
                     setAccountIdleExpireTime(value, false);
                 }
 
             } catch (NumberFormatException e) {
-                errorln("account_idle_expire_time not valid: " + s);
-                errorln("Number is supposed to be a non-zero, non-negative integer.");
-                errorln("Setting value to 0. (disabled)");
+                errln("account_idle_expire_time not valid: " + s);
+                errln("Number is supposed to be a non-zero, non-negative integer.");
+                errln("Setting value to 0. (disabled)");
                 setAccountIdleExpireTime(0, false);
             }
         }
@@ -288,18 +284,18 @@ public class Settings extends Printable {
             try {
                 int value = Integer.parseInt(oMaximumExplosionRadius.toString());
                 if (value <= 0) {
-                    value = 12;
-                    errorln("Number not valid: " + oMaximumExplosionRadius.toString());
-                    errorln("Number is supposed to be a non-zero, non-negative integer.");
-                    errorln("Setting value to 12.");
+                    setMaximumExplosionRadius(12);
+                    errln("Number not valid: " + oMaximumExplosionRadius.toString());
+                    errln("Number is supposed to be a non-zero, non-negative integer.");
+                    errln("Setting value to 12.");
                 } else {
                     setMaximumExplosionRadius(value);
                 }
             } catch (NumberFormatException e) {
-                errorln("Failed to set security.maximum_explosion_radius");
-                errorln("Number not valid: " + oMaximumExplosionRadius.toString());
-                errorln("Number is supposed to be a non-zero, non-negative integer.");
-                errorln("Setting value to 12.");
+                errln("Failed to set security.maximum_explosion_radius");
+                errln("Number not valid: " + oMaximumExplosionRadius.toString());
+                errln("Number is supposed to be a non-zero, non-negative integer.");
+                errln("Setting value to 12.");
             }
         }
         // (Boolean) security.allow_rcon
@@ -333,19 +329,19 @@ public class Settings extends Printable {
             try {
                 short value = Short.parseShort(oDatabasePort.toString());
                 if (value == 0) {
-                    errorln("Failed to set database.port");
-                    errorln("Number not valid: " + oDatabasePort.toString());
-                    errorln("Number is supposed to be a non-zero, non-negative signed short (1-32767).");
-                    errorln("Setting value to 27017.");
+                    errln("Failed to set database.port");
+                    errln("Number not valid: " + oDatabasePort.toString());
+                    errln("Number is supposed to be a non-zero, non-negative signed short (1-32767).");
+                    errln("Setting value to 27017.");
                     setDatabasePort(27017, true);
                 } else {
                     setDatabasePort(value, false);
                 }
             } catch (NumberFormatException e) {
-                errorln("Failed to set database.port");
-                errorln("Number not valid: " + oDatabasePort.toString());
-                errorln("Number is supposed to be a non-zero, non-negative signed short (1-32767).");
-                errorln("Setting value to 27017.");
+                errln("Failed to set database.port");
+                errln("Number not valid: " + oDatabasePort.toString());
+                errln("Number is supposed to be a non-zero, non-negative signed short (1-32767).");
+                errln("Setting value to 27017.");
                 setDatabasePort(27017, true);
             }
         }
@@ -393,12 +389,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("allow_helicopters:")) {
+                    if (interpreted.startsWith("allow_helicopters:")) {
                         String newLine = getSpaces(spaces) + "allow_helicopters: \"" + allowHelicopters + "\"";
                         lines.set(index, newLine);
                     }
@@ -421,12 +417,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("permission_message_denied:")) {
+                    if (interpreted.startsWith("permission_message_denied:")) {
                         String newLine = getSpaces(spaces) + "permission_message_denied: \"" + permissionMessageDenied
                                 + "\"";
                         lines.set(index, newLine);
@@ -451,12 +447,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("pz_server_directory:")) {
+                    if (interpreted.startsWith("pz_server_directory:")) {
                         String newLine = getSpaces(spaces) + "pz_server_directory: \"" + pzServerDirectory + "\"";
                         lines.set(index, newLine);
                     }
@@ -480,12 +476,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("administrator_password:")) {
+                    if (interpreted.startsWith("administrator_password:")) {
                         String newLine = getSpaces(spaces) + "administrator_password: \"" + administratorPassword + "\"";
                         lines.set(index, newLine);
                     }
@@ -508,12 +504,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("url:")) {
+                    if (interpreted.startsWith("url:")) {
                         String newLine = getSpaces(spaces) + "url: \"" + databaseURL + "\"";
                         lines.set(index, newLine);
                     }
@@ -536,12 +532,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("port:")) {
+                    if (interpreted.startsWith("port:")) {
                         String newLine = getSpaces(spaces) + "port: " + databasePORT;
                         lines.set(index, newLine);
                     }
@@ -565,12 +561,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("username:")) {
+                    if (interpreted.startsWith("username:")) {
                         String newLine = getSpaces(spaces) + "username: \"" + databaseUsername + "\"";
                         lines.set(index, newLine);
                     }
@@ -594,12 +590,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("password:")) {
+                    if (interpreted.startsWith("password:")) {
                         String newLine = getSpaces(spaces) + "password: \"" + databasePassword + "\"";
                         lines.set(index, newLine);
                     }
@@ -623,12 +619,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("database:")) {
+                    if (interpreted.startsWith("database:")) {
                         String newLine = getSpaces(spaces) + "database: \"" + databaseDatabase + "\"";
                         lines.set(index, newLine);
                     }
@@ -651,12 +647,12 @@ public class Settings extends Printable {
             if (lines != null) {
                 for (int index = 0; index < lines.size(); index++) {
                     String line = lines.get(index);
-                    String interp = line.trim();
-                    if (interp.startsWith("#")) {
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
                         continue;
                     }
                     int spaces = getLeadingSpaceCount(line);
-                    if (interp.startsWith("permission_message_denied:")) {
+                    if (interpreted.startsWith("permission_message_denied:")) {
                         String newLine = getSpaces(spaces) + "permission_message_denied: \"" + permissionDeniedMessage
                                 + "\"";
                         lines.set(index, newLine);
@@ -758,6 +754,7 @@ public class Settings extends Printable {
      */
     private void saveDefaultConfig() {
         File file = SledgeHammer.getJarFile();
+        String fileConfigName = "config.yml";
         write(file, fileConfigName, new File(fileConfigName));
     }
 
@@ -969,7 +966,7 @@ public class Settings extends Printable {
      */
     private static String requestDatabaseURL() {
         String databaseURL = null;
-        String input = null;
+        String input;
         // Cannot close this. It closes the System.in entirely.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -992,7 +989,7 @@ public class Settings extends Printable {
      */
     private static int requestDatabasePORT() {
         Integer databasePORT = null;
-        String input = null;
+        String input;
         // Cannot close this. It closes the System.in entirely.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -1030,7 +1027,7 @@ public class Settings extends Printable {
      */
     private static String requestDatabaseUsername() {
         String databaseUsername = null;
-        String input = null;
+        String input;
         // Cannot close this. It closes the System.in entirely.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -1053,7 +1050,7 @@ public class Settings extends Printable {
      */
     private static String requestDatabasePassword() {
         String databasePassword = null;
-        String input = null;
+        String input;
         // Cannot close this. It closes the System.in entirely.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -1076,7 +1073,7 @@ public class Settings extends Printable {
      */
     private static String requestDatabaseDatabase() {
         String databaseDatabase = null;
-        String input = null;
+        String input;
         // Cannot close this. It closes the System.in entirely.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -1099,7 +1096,7 @@ public class Settings extends Printable {
      */
     private static String requestPZDedicatedServerDirectory() {
         String pzDirectory = null;
-        String input = null;
+        String input;
         // Cannot close this. It closes the System.in entirely.
         @SuppressWarnings("resource")
         Scanner scanner = new Scanner(System.in);
@@ -1142,7 +1139,7 @@ public class Settings extends Printable {
      * @param source      The source path inside the Jar File to the Entry.
      * @param destination The File destination to write the Jar File Entry.
      */
-    public static void write(File jar, String source, File destination) {
+    private static void write(File jar, String source, File destination) {
         try {
             InputStream is = getStream(jar, source);
             OutputStream os = new FileOutputStream(destination);

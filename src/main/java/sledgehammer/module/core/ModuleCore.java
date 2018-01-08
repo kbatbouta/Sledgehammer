@@ -168,13 +168,13 @@ public class ModuleCore extends Module {
 			KahluaTable command_table = (KahluaTable) event.getTable().rawget("command");
 			Object oRaw = command_table.rawget("raw");
 			if (oRaw == null) {
-				errorln("Warning: Player " + player.getName() + " sent a undefined command.");
+				errln("Warning: Player " + player.getName() + " sent a undefined command.");
 				return;
 			}
 			String raw = oRaw.toString();
 			Object oChannelId = command_table.rawget("channel_id");
 			if (oChannelId == null) {
-				errorln("Warning: Player " + player.getName() + " sent a command with a undefined ChatChannel ID.");
+				errln("Warning: Player " + player.getName() + " sent a command with a undefined ChatChannel ID.");
 				return;
 			}
 			UUID channelId = UUID.fromString(command_table.rawget("channel_id").toString());

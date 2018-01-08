@@ -46,7 +46,7 @@ public class ModuleNPC extends Module {
      * The Map of native IsoGameCharacter Objects, identified by the
      * Sledgehammer NPC wrapper.
      */
-    protected Map<NPC, IsoGameCharacter> mapSpawners;
+    protected Map<NPC, IsoGameCharacter> mapSpawns;
 
     /**
      * The CommandListener implementation for the Module.
@@ -55,7 +55,7 @@ public class ModuleNPC extends Module {
 
     @Override
     public void onLoad() {
-        mapSpawners = new HashMap<>();
+        mapSpawns = new HashMap<>();
         commandListener = new NPCCommandListener(this);
         register(commandListener);
     }
@@ -76,7 +76,7 @@ public class ModuleNPC extends Module {
     public NPC createFakePlayer(String name, float x, float y, float z) {
         SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
         System.out.println("SurvivorDesc ID: " + desc.getID());
-        NPC npc = new NPC((IsoCell) null, desc, name, (int) x, (int) y, (int) z);
+        NPC npc = new NPC(null, desc, name, (int) x, (int) y, (int) z);
         return SledgeHammer.instance.getNPCManager().addNPC(npc);
     }
 }

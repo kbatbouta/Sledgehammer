@@ -69,7 +69,7 @@ public class PeriodicMessage extends LuaTable {
     }
 
     /**
-     * @return Returns whether or not the PerodicMessage is enabled.
+     * @return Returns whether or not the PeriodicMessage is enabled.
      */
     public boolean isEnabled() {
         return this.enabled;

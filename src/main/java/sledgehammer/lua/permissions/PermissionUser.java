@@ -55,7 +55,7 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
         Node nodeGroup = null;
         // This will be the user's returned node for the one requested, if one is
         // defined.
-        Node nodeUser = null;
+        Node nodeUser;
         // Get the PermissionGroup associated with the user.
         PermissionGroup group = getPermissionGroup();
         // Check and see if the group exists.

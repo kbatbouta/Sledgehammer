@@ -210,7 +210,7 @@ public class MongoPlayer extends MongoDocument {
             returned = true;
         }
         // Check to see if given password matches.
-        if (!returned) {
+        if (!returned && passwordEncrypted != null) {
             String passwordGivenEncrypted = StringUtils.md5(passwordGiven);
             if (passwordEncrypted.equals(passwordGivenEncrypted)) {
                 returned = true;

@@ -79,17 +79,14 @@ public class NPCCommandListener extends Printable implements CommandListener {
                     behavior.setActive(true);
                     fakePlayer.addBehavior(behavior);
 
-                    module.mapSpawners.put(fakePlayer, player);
+                    module.mapSpawns.put(fakePlayer, player);
 
                     r.set(Result.SUCCESS, "NPC created.");
-                    return;
                 } else {
                     r.set(Result.FAILURE, onTooltip(c.getPlayer(), c));
-                    return;
                 }
             } else {
                 r.set(Result.FAILURE, module.getPermissionDeniedMessage());
-                return;
             }
         } else if (command.equalsIgnoreCase("destroynpcs")) {
             if (commander.hasPermission(getPermissionNode("destroynpcs"))) {
@@ -97,7 +94,6 @@ public class NPCCommandListener extends Printable implements CommandListener {
                 r.set(Result.SUCCESS, "NPCs destroyed.");
             } else {
                 r.set(Result.FAILURE, module.getPermissionDeniedMessage());
-                return;
             }
         }
     }

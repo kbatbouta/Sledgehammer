@@ -73,14 +73,14 @@ public abstract class MongoModule extends Module {
      * @return The DB database.
      */
     @SuppressWarnings("deprecation")
-    public final static DB getDatabase(String databaseName) {
+    public static DB getDatabase(String databaseName) {
         return SledgeHammer.instance.getDatabase().getClient().getDB(databaseName);
     }
 
     /**
      * @return Returns the default DB database.
      */
-    public final static DB getDefaultDatabase() {
+    public static DB getDefaultDatabase() {
         return SledgeHammer.instance.getDatabase().getDatabase();
     }
 }

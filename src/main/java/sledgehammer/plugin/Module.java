@@ -199,16 +199,8 @@ public abstract class Module extends Printable {
         if (permissionNode == null) {
             permissionNode = "sledgehammer.chat";
         }
-        // @formatter:off
-		boolean isGlobalChannel = true ;
-		boolean isPublicChannel = true ;
-		boolean isCustomChannel = false;
-		boolean saveHistory     = true ;
-		boolean canSpeak        = true ;
-		// @formatter:on
-        ChatChannel chatChannel = createChatChannel(name, description, permissionNode, isGlobalChannel, isPublicChannel,
-                isCustomChannel, saveHistory, canSpeak);
-        return chatChannel;
+        return createChatChannel(name, description, permissionNode, true, true,
+                false, true, true);
     }
 
     /**
@@ -221,7 +213,7 @@ public abstract class Module extends Printable {
      * @param isGlobalChannel    Flag for if the ChatChannel should send messages to all players,
      *                           or players relative to their location.
      * @param isPublicChannel    Flag for if the ChatChannel is public to all Players, or if the
-     *                           ChatChannel is only accessable to the Player's with the given
+     *                           ChatChannel is only accessible to the Player's with the given
      *                           permission-node.
      * @param isCustomChannel    Flag for if the ChatChannel is a custom ChatChannel. (Has no use)
      * @param saveHistory        Flag to save the history of the ChatChannel.
@@ -233,9 +225,8 @@ public abstract class Module extends Printable {
                                          boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel, boolean saveHistory,
                                          boolean canSpeak) {
         ModuleChat moduleChat = getChatModule();
-        ChatChannel chatChannel = moduleChat.createChatChannel(channelName, channelDescription, permissionNode,
+        return moduleChat.createChatChannel(channelName, channelDescription, permissionNode,
                 isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
-        return chatChannel;
     }
 
     /**
@@ -579,7 +570,7 @@ public abstract class Module extends Printable {
      */
     @SuppressWarnings("unchecked")
     public <T extends Module> Module getModule(Class<? extends Module> clazz) {
-        return (T) getPluginManager().getModule(clazz);
+        return getPluginManager().getModule(clazz);
     }
 
     /**

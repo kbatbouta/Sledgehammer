@@ -27,10 +27,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import zombie.GameWindow;
 
@@ -46,7 +43,6 @@ public abstract class SQLiteHelper extends Printable {
     public static final String SQL_STORAGE_CLASS_REAL = "REAL";
     public static final String SQL_STORAGE_CLASS_INTEGER = "INTEGER";
     public static final String SQL_STORAGE_CLASS_BLOB = "BLOB";
-
     public static final String SQL_AFFINITY_TYPE_TEXT = "TEXT";
     public static final String SQL_AFFINITY_TYPE_NUMERIC = "NUMERIC";
     public static final String SQL_AFFINITY_TYPE_INTEGER = "INTEGER";
@@ -81,14 +77,12 @@ public abstract class SQLiteHelper extends Printable {
         if (fileName == null || fileName.isEmpty()) {
             throw new IllegalArgumentException("Database File name is null or empty!");
         }
-        String finalFileName = fileName;
-        if (fileName.contains(".")) {
-            finalFileName = finalFileName.split(".")[0];
-        }
         dbFile = new File(getDBCacheDirectory() + fileName + ".db");
         if (!dbFile.exists()) {
             try {
-                dbFile.createNewFile();
+                if (dbFile.createNewFile()) {
+                    println(fileName + ".db created.");
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -185,20 +179,28 @@ public abstract class SQLiteHelper extends Printable {
     public void renameTableColumn(String tableName, String fieldName, String fieldNameNew) throws SQLException {
         String[][] table = getTableDefinitions(tableName);
         String tableNameBackup = tableName + "_backup";
-        String columnString = "(";
-        String columnString2 = "";
-        String columnString3 = "(";
-        String columnString4 = "";
+        String columnString;
+        String columnString2;
+        String columnString3;
+        String columnString4;
+        StringBuilder columnStringBuilder = new StringBuilder("(");
+        StringBuilder columnString2Builder = new StringBuilder();
+        StringBuilder columnString3Builder = new StringBuilder("(");
+        StringBuilder columnString4Builder = new StringBuilder();
         for (String[] field : table) {
-            columnString += field[0] + " " + field[1] + ",";
-            columnString2 += field[0] + ",";
+            columnStringBuilder.append(field[0]).append(" ").append(field[1]).append(",");
+            columnString2Builder.append(field[0]).append(",");
             String name = field[0];
             if (name.equalsIgnoreCase(fieldName)) {
                 name = fieldNameNew;
             }
-            columnString3 += name + " " + field[1] + ",";
-            columnString4 += name + ",";
+            columnString3Builder.append(name).append(" ").append(field[1]).append(",");
+            columnString4Builder.append(name).append(",");
         }
+        columnString4 = columnString4Builder.toString();
+        columnString3 = columnString3Builder.toString();
+        columnString2 = columnString2Builder.toString();
+        columnString = columnStringBuilder.toString();
         columnString = columnString.substring(0, columnString.length() - 1) + ")";
         columnString2 = columnString2.substring(0, columnString2.length() - 1);
         columnString3 = columnString3.substring(0, columnString3.length() - 1) + ")";
@@ -437,14 +439,14 @@ public abstract class SQLiteHelper extends Printable {
         if (matchNames.length != matchValues.length) {
             throw new IllegalArgumentException("Match name array and match field array are different sizes!");
         }
-        String statementString = "SELECT * FROM " + tableName + " WHERE ";
+        StringBuilder statementString = new StringBuilder("SELECT * FROM " + tableName + " WHERE ");
         for (int x = 0; x < matchNames.length; x++) {
             if (x > 0) {
-                statementString += " AND ";
+                statementString.append(" AND ");
             }
-            statementString += "\"" + matchNames[x] + "\" = \"" + matchValues[x] + "\"";
+            statementString.append("\"").append(matchNames[x]).append("\" = \"").append(matchValues[x]).append("\"");
         }
-        statement = prepareStatement(statementString);
+        statement = prepareStatement(statementString.toString());
         ResultSet result = statement.executeQuery();
         if (result.next()) {
             result.close();
@@ -476,10 +478,11 @@ public abstract class SQLiteHelper extends Printable {
 
     private void update(String table, String identifierField, String identifierValue, String[] fields,
                         String[] values) {
-        String setString = "";
+        StringBuilder setStringBuilder = new StringBuilder();
         for (int index = 0; index < fields.length; index++) {
-            setString += fields[index] + " = \"" + values[index] + "\",";
+            setStringBuilder.append(fields[index]).append(" = \"").append(values[index]).append("\",");
         }
+        String setString = setStringBuilder.toString();
         setString = setString.substring(0, setString.length() - 1);
         String query = "UPDATE " + table + " SET " + setString + " WHERE " + identifierField.length() + " = \""
                 + identifierValue.length() + ";";
@@ -492,7 +495,7 @@ public abstract class SQLiteHelper extends Printable {
             stackTrace(e);
         } finally {
             try {
-                statement.close();
+                Objects.requireNonNull(statement).close();
             } catch (SQLException e) {
                 stackTrace("Failed to close statement.", e);
             }
@@ -510,16 +513,18 @@ public abstract class SQLiteHelper extends Printable {
     }
 
     public void insert(String table, String[] names, String[] values) throws SQLException {
-        String nameBuild = "(";
+        StringBuilder nameBuildBuilder = new StringBuilder("(");
         for (String name : names) {
-            nameBuild += name + ",";
+            nameBuildBuilder.append(name).append(",");
         }
+        String nameBuild = nameBuildBuilder.toString();
         nameBuild = nameBuild.substring(0, nameBuild.length() - 1) + ")";
-        String valueBuild = "(";
+        StringBuilder valueBuildBuilder = new StringBuilder("(");
         for (@SuppressWarnings("unused")
                 String value : values) {
-            valueBuild += "?,";
+            valueBuildBuilder.append("?,");
         }
+        String valueBuild = valueBuildBuilder.toString();
         valueBuild = valueBuild.substring(0, valueBuild.length() - 1) + ")";
         PreparedStatement statement = prepareStatement("INSERT INTO " + table + nameBuild + " VALUES " + valueBuild);
         for (int index = 0; index < values.length; index++) {
@@ -533,15 +538,15 @@ public abstract class SQLiteHelper extends Printable {
         if (previousPwd == null || previousPwd.isEmpty()) {
             return "";
         } else {
-            byte[] crypted = null;
+            byte[] encrypted = null;
             try {
-                crypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
+                encrypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
             } catch (NoSuchAlgorithmException var6) {
                 println("Can\'t encrypt password");
                 var6.printStackTrace();
             }
             StringBuilder hashString = new StringBuilder();
-            for (byte crypt : crypted) {
+            for (byte crypt : Objects.requireNonNull(encrypted)) {
                 String hex = Integer.toHexString(crypt);
                 if (hex.length() == 1) {
                     hashString.append('0');

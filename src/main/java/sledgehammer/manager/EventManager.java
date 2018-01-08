@@ -66,7 +66,7 @@ public class EventManager extends Manager {
      */
     private List<LogEventListener> listLogListeners;
     /**
-     * List for registered ExceptionListneer interfaces.
+     * List for registered ExceptionListener interfaces.
      */
     private List<ThrowableListener> listExceptionListeners;
 
@@ -316,9 +316,9 @@ public class EventManager extends Manager {
                 LoggerManager.getLogger(log).write(logEvent.getLogMessage());
             }
         } catch (Exception e) {
-            errorln("Error logging event " + logEvent.getEvent() + ": " + e.getMessage());
+            errln("Error logging event " + logEvent.getEvent() + ": " + e.getMessage());
             for (StackTraceElement o : e.getStackTrace()) {
-                errorln(o);
+                errln(o);
             }
         }
     }
@@ -366,7 +366,7 @@ public class EventManager extends Manager {
      */
     public CommandEvent handleCommand(UdpConnection connection, String input, boolean logEvent) {
         SledgeHammer sledgeHammer = SledgeHammer.instance;
-        Player player = null;
+        Player player;
         // Create a Player instance.
         if (connection == null) {
             player = SledgeHammer.getAdministrator();
@@ -445,9 +445,9 @@ public class EventManager extends Manager {
                             ChatTags.stripTags(c.getResponse().getResponse(), true));
                 }
             } catch (Exception e) {
-                errorln("Error handling command " + c + ": " + e.getMessage());
+                errln("Error handling command " + c + ": " + e.getMessage());
                 for (StackTraceElement o : e.getStackTrace()) {
-                    errorln(o);
+                    errln(o);
                 }
             }
         }

@@ -119,7 +119,7 @@ public class MongoPeriodicMessage extends MongoDocument {
                     // actualColor);
                 } else {
                     // Send it in-chat.
-                    ModuleChat module = (ModuleChat) SledgeHammer.instance.getPluginManager()
+                    ModuleChat module = SledgeHammer.instance.getPluginManager()
                             .getModule(ModuleChat.class);
                     module.sendGlobalMessage(actualColor + " " + getMessage());
                 }

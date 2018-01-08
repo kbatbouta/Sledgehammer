@@ -32,7 +32,7 @@ public abstract class Event {
     /**
      * The <Long> time-stamp for when the Event is created.
      */
-    private long timeStamp = 0L;
+    private long timeStamp;
     /**
      * Flag for if the Event has been handled by an EventListener.
      */

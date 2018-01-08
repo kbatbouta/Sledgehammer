@@ -30,7 +30,7 @@ import java.util.jar.JarFile;
 import sledgehammer.util.CreateJarFile;
 
 /**
- * Java-Agent to handle Craftboid assembly of the ProjectZomboid envrionment for
+ * Java-Agent to handle Craftboid assembly of the ProjectZomboid environment for
  * Sledgehammer.
  *
  * @author Jab
@@ -41,11 +41,9 @@ public class Agent {
      * Premain entry point for Sledgehammer. Handles the pre-main operations for
      * Craftboid.
      *
-     * @param args
-     *            The Java arguments.
-     * @param inst
-     *            The Java Instrumentation Object passed to the pre-main Agent
-     *            exclusively.
+     * @param args The Java arguments.
+     * @param inst The Java Instrumentation Object passed to the pre-main Agent
+     *             exclusively.
      */
     public static void premain(String args, Instrumentation inst) {
         // Make sure that the Sledgehammer folders exist. @formatter:off
@@ -136,8 +134,7 @@ public class Agent {
                         Files.copy(from.toPath(), dest.toPath());
                         copied = true;
                     } catch (FileAlreadyExistsException e) {
-                        System.err.println("Failed to copy File: \"" + from.toPath().toString() + "\" to File: \"" + dest.toPath().toString() + "\".");
-                        System.err.println("File already exists and is not overwritten.");
+                        System.out.println("File already exists and is not overwritten.");
                     }
                     if (copied) {
                         System.out.println("Craftboid: Copied " + file + "...");

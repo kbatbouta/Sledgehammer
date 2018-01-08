@@ -35,10 +35,12 @@ public class StringUtils {
      */
     public static String md5(String input, String salt) {
         String md5 = null;
-        if (null == input)
-            return null;
-        if (salt != null)
+        if (input == null) {
+            throw new IllegalArgumentException("Input provided is null.");
+        }
+        if (salt != null) {
             input += salt;
+        }
         try {
             // Create MessageDigest object for MD5
             MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -59,7 +61,7 @@ public class StringUtils {
      * @return Returns the hashed String.
      */
     public static String md5(String input) {
-        return md5(input, (String) null);
+        return md5(input, null);
     }
 
     public static void main(String[] args) {

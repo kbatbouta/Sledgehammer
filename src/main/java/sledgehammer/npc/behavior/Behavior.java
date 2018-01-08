@@ -41,7 +41,7 @@ public abstract class Behavior extends Printable {
     /**
      * The NPC using the Behavior.
      */
-    private NPC npc = null;
+    private NPC npc;
 
     /**
      * Flag for the Behavior being active.
@@ -344,7 +344,7 @@ public abstract class Behavior extends Printable {
     /**
      * Sets whether or not this BehaviorState is active.
      *
-     * @param flag
+     * @param flag The flag to set.
      */
     public void setActive(boolean flag) {
         active = flag;

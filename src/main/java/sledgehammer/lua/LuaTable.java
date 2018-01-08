@@ -114,8 +114,8 @@ public abstract class LuaTable extends LuaObject {
      */
     public void copy(LuaTable other, byte flag) {
         // Check to make sure that LuaObjects are the same.
-        if (getName() != other.getName()) {
-            errorln("LuaObject Class cannot be copied, because given class is different:" + "(LuaObject: \"" + getName()
+        if (!getName().equalsIgnoreCase(other.getName())) {
+            errln("LuaObject Class cannot be copied, because given class is different:" + "(LuaObject: \"" + getName()
                     + "\", Given: \"" + other.getName() + "\").");
             return;
         }

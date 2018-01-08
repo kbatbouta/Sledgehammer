@@ -111,7 +111,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     private boolean initialized = false;
     /**
-     * The Boolean flag to signify if the PlayerCreatEvent has dispatched after
+     * The Boolean flag to signify if the PlayerCreateEvent has dispatched after
      * the Player Object is initialized.
      */
     private boolean created = false;
@@ -234,10 +234,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof Player) {
-            return ((Player) other).getUniqueId().equals(getUniqueId());
-        }
-        return false;
+        return other instanceof Player && ((Player) other).getUniqueId().equals(getUniqueId());
     }
 
     @Override
@@ -383,14 +380,10 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * @return Returns true if the Player is currently on the server.
      */
     public boolean isOnline() {
-        if (connection == null) {
-            return false;
-        } else {
-            return connection.connected;
-        }
+        return connection != null && connection.connected;
     }
 
-    /**
+   /**
      * @param node        The String node that is being tested.
      * @param ignoreAdmin Boolean flag for ignoring Administrator check.
      * @return Returns true if the Player is granted the given String node
@@ -399,10 +392,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * the raw permission, use 'hasRawPermission(String node)...'.
      */
     public boolean hasPermission(String node, boolean ignoreAdmin) {
-        if (!ignoreAdmin && isAdministrator()) {
-            return true;
-        }
-        return SledgeHammer.instance.hasPermission(this, node);
+        return !ignoreAdmin && isAdministrator() || SledgeHammer.instance.hasPermission(this, node);
     }
 
     /**

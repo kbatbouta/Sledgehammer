@@ -195,7 +195,7 @@ public class PluginManager extends Manager {
     private void loadInstalledPlugins() {
         println("Loading plug-in module(s).");
         File[] plugins = getPluginDirectory().listFiles();
-        if (plugins.length > 0) {
+        if (plugins != null && plugins.length > 0) {
             int loadedModules = 0;
             int loadedPlugins = 0;
             for (File jar : plugins) {

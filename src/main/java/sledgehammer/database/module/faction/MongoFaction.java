@@ -63,7 +63,7 @@ public class MongoFaction extends MongoDocument {
      * @param tag
      *            The tag for Faction members.
      * @param color
-     *            The color of the Faction. (The un-rasterized form. a.k.a: light_blue
+     *            The color of the Faction. (The un-rasterize form. a.k.a: light_blue
      * @param ownerId
      *            The Unique ID of the Player owning the faction.
      * @param password

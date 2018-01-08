@@ -328,10 +328,10 @@ public class ModuleFactions extends MongoModule {
      */
     public Faction createFaction(String factionName, String tag, String password, UUID ownerId) {
         String color = "white";
-        MongoFaction mongoFaction = null;
-        MongoFactionMember mongoFactionMember = null;
-        Faction faction = null;
-        FactionMember factionMember = null;
+        MongoFaction mongoFaction;
+        MongoFactionMember mongoFactionMember;
+        Faction faction;
+        FactionMember factionMember;
         mongoFaction = new MongoFaction(collectionFactions, factionName, tag, color, ownerId, password);
         mongoFaction.save();
         mapMongoFactions.put(mongoFaction.getUniqueId(), mongoFaction);
@@ -505,7 +505,7 @@ public class ModuleFactions extends MongoModule {
             // faction.
             if (faction.isOwner(factionMember)) {
                 return new Response("You already own a faction: \"" + faction.getFactionName()
-                        + "\". In order to create a new faction, you must first dispand it, or transfer ownership and leave it.",
+                        + "\". In order to create a new faction, you must first disband it, or transfer ownership and leave it.",
                         "", Result.FAILURE);
             }
             // If the member is not the owner, describe leaving the faction in order to make
@@ -668,8 +668,8 @@ public class ModuleFactions extends MongoModule {
     /**
      * TODO: Document.
      *
-     * @param factionName
-     * @return
+     * @param factionName The name of the Faction.
+     * @return Returns true if a Faction exists with the given name.
      */
     public boolean factionExists(String factionName) {
         return this.getFactionByName(factionName) != null;
@@ -811,8 +811,8 @@ public class ModuleFactions extends MongoModule {
     /**
      * Sets a Faction's name.
      *
-     * @param faction
-     * @param nameNew
+     * @param faction The Faction to change.
+     * @param nameNew The name to set for the Faction.
      */
     public void setFactionName(Faction faction, String nameNew) {
         this.mapFactionsByName.remove(faction.getFactionName().toLowerCase());
