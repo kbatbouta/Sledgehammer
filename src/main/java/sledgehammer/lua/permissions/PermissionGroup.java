@@ -143,6 +143,15 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
     }
 
     /**
+     * @param other The PermissionGroup to test as the parent PermissionGroup.
+     * @return Returns true if the PermissionGroup is a child of the PermissionGroup given.
+     */
+    public boolean isChildOf(PermissionGroup other) {
+        PermissionGroup parent = getParent();
+        return parent != null && (parent.equals(other) || parent.isChildOf(other));
+    }
+
+    /**
      * Returns whether or not if the PermissionUser specified is in the
      * PermissionGroup.
      *
