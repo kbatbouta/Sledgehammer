@@ -4,9 +4,155 @@
 #  |_____|___|_|_|_|_|_|_|__,|_|_|___|___|
 #
 ## General
+# Sent when an Internal error occurs that's not explicitly detailed in the language file.
+err: "(Internal Error)"
+# Notation about nullable fields for Permission Node entries.
+use_null: "(Note: to remove the permission-node entirely, use \"none\", \"null\", or \"nil\")"
+# Notation about boolean fields.
 boolean: "[true,1|false,0]"
 green: " <RGB:0.5,1,0.5> "
 white: " <RGB:1,1,1> "
+# Generic message for not resolving a Player.
+#
+# {{username}} -> The user-name given.
+player_not_found: "Player not found: {{username}}"
+# Sent when a given name is invalid.
+permissions_name_empty: "The name provided is invalid. A name must be provided, and cannot be left blank."
+# Sent when a given Permission Node is invalid.
+permissions_node_empty: "The node provided is invalid. A node must be provided, and cannot be left blank."
+# Sent when a given Permission Node flag is invalid.
+permissions_flag_empty: "The flag provided is invalid. A flag must be provided, and cannot be left blank."
+# Sent when trying to create a Permission Group with a name that is already used by another existing Permission Group.
+#
+# {{name}} -> The name of the Permission Group that exists.
+permissions_group_exists: "A permission group already exists with the name: \"{{name}}\"."
+# Sent when trying to delete a Permission Group with a name that is not used by any registered Permission Group.
+#
+# {{name}} -> The name of the Permission Group that does not exist.
+permissions_group_not_found: "Permission Group does not exist: \"{{name}}\"."
+# Sent when a Player attempts to set a Permission Group as a parent that is the child of the Permission Group to set.
+#
+# {{name}} -> The name of the Permission Group set.
+# {{name_parent}} -> The name of the Permission Group to set as the parent Permission Group.
+permissions_group_parent_cyclic: "The permission group \"{{name_parent}}\" is a child of the permission group \"{{name}}\", and cannot be set as the parent."
+# Sent when a Player attempts to set a Permission Group as a parent that is identical to the Permission Group to set.
+#
+# {{name}} -> The name of the Permission Group set.
+# {{name_parent}} -> The name of the Permission Group to set as the parent Permission Group.
+permission_group_parent_identical: "The permission group \"{{name_parent}}\" is the same permission group as the one to set, and cannot be set as the parent."
+# Sent when trying to find a Permission User for a Player that is not found.
+#
+# {{player}} -> The name of the Player that does not have a Permission User.
+permissions_user_not_found: "Permission user does not exist for the player: \"{{player}}\"."
+# Sent when trying to create a Permission User for a Player that already has a Permission User created.
+#
+# {{player}} -> The name of the Player that already has a Permission User.
+permission_user_exists: "A permission user already exists for the player: \"{{player}}\"."
+# Sent when trying to get rid of a parent Permission Group, but the Permission Group affected doesn't have a parent already.
+#
+# {{name}} -> The name of the Permission Group.
+permissions_group_parent_already_not_set: "The permission group \"{{name}}\" doesn't have a parent permission group."
+
+## /permissions group create
+# Sent when successfully creating a Permission Group.
+#
+# {{name}} -> The name of the Permission Group created.
+command_permissions_group_create_success: "Permission group created: \"{{name}}\"."
+# Sent when failing to create a Permission Group.
+#
+# {{name}} -> The name given for the Permission Group.
+command_permissions_group_create_failure: "Failed to create permission group: \"{{name}}\". {{err}}"
+
+## /permissions group delete
+# Sent when successfully deleting a Permission Group.
+#
+# {{name}} -> The name of the Permission Group deleted.
+command_permissions_group_delete_success: "Permission group deleted: \"{{name}}\"."
+# Sent when failing to delete a Permission Group.
+#
+# {{name}} -> The name given for the Permission Group.
+command_permissions_group_delete_failure: "Failed to delete permission group: \"{{name}}\". {{err}}"
+
+## /permissions group rename
+# Sent when successfully rename a Permission Group.
+#
+# {{name}} -> The name of the Permission Group renamed.
+# {{name_new}} -> The new name for the Permission Group.
+command_permissions_group_rename_success: "Permission group renamed from \"{{name}}\" to \"{{name_new}}\"."
+# Sent when failing to rename a Permission Group.
+#
+# {{name}} -> The name given for the Permission Group.
+command_permissions_group_rename_failure: "Failed to rename permission group: \"{{name}}\". {{err}}"
+
+# /permissions group set parent
+# Sent when setting the parent Permission Group to another Permission Group.
+#
+# {{name}} -> The name of the Permission Group to set the parent Permission Group.
+# {{name_parent}} -> The name of the parent Permission Group.
+command_permissions_group_set_parent_success: "Parent set for the permission group: \"{{name}}\" as the permission group: \"{{name_parent}}\"."
+# Sent when failing to set the parent Permission Group for a Permission Group.
+#
+# {{name}} -> The name of the Permission Group to set the parent Permission Group.
+command_permissions_group_set_parent_failure: "Failed to set the parent for the permission group: \"{{name}}\". {{err}}"
+
+# Sent when setting a Permission Node to a Permission Group.
+#
+# {{name}} -> The name of the Permission Group to set the Permission Node.
+# {{node}} -> The Permission Node to set.
+# {{flag}} -> The flag to set.
+command_permissions_group_set_node_success: "Permission node set for permission group \"{{name}}\": {{node}} = {{flag}}"
+# Sent when failing to set a Permission Node to a Permission Group.
+#
+# {{name}} -> The name of the Permission Group to set the Permission Node.
+# {{node}} -> The Permission Node to set.
+# {{flag}} -> The flag to set.
+command_permissions_group_set_node_failure: "Failed to set permission node for permission group \"{{name}}\": {{node}} = {{flag}} {{err}}"
+
+## /permissions user create
+# Sent when successfully creating a Permission User.
+#
+# {{player}} -> The name of the Player.
+command_permissions_user_create_success: "Permission user created for the player: \"{{player}}\"."
+# Sent when failing to create a Permission User.
+#
+# {{player}} -> The name of the Player.
+command_permissions_user_create_failure: "Failed to create a permission user for the player: \"{{name}}\". {{err}}"
+
+## /permissions user delete
+# Sent when successfully deleting a Permission User.
+#
+# {{player}} -> The name of the Player.
+command_permissions_user_delete_success: "Permission user deleted for the player: \"{{player}}\"."
+# Sent when failing to delete a Permission User.
+#
+# {{player}} -> The name of the Player.
+command_permissions_user_delete_failure: "Failed to delete the permission user for the player: \"{{name}}\". {{err}}"
+
+## /permissions user set group
+# Sent when setting a Permission Group to a Permission User.
+#
+# {{player}} -> The name of the [Player | Permission User] to set the Permission Group.
+# {{name}} -> The name of the Permission Group.
+command_permissions_user_set_group_success: "Permission group \"{{name}}\" set for permission user: \"{{player}}\"."
+# Sent when failing to set a Permission Group to a Permission User.
+#
+# {{player}} -> The name of the [Player | Permission User] to set the Permission Group.
+# {{name}} -> The name of the Permission Group.
+command_permissions_user_set_group_failure: "Failed to set permission group \"{{name}}\" for permission user: \"{{player}}\". {{err}}"
+
+## /permissions user set node
+# Sent when setting a Permission Node to a Permission User.
+#
+# {{player}} -> The name of the [Player | Permission User] to set the Permission Node.
+# {{node}} -> The Permission Node to set.
+# {{flag}} -> The flag to set.
+command_permissions_user_set_node_success: "Permission node set for player \"{{player}}\": {{node}} = {{flag}}"
+# Sent when failing to set a Permission Node to a Permission User.
+#
+# {{player}} -> The name of the [Player | Permission User] to set the Permission Node.
+# {{node}} -> The Permission Node to set.
+# {{flag}} -> The flag to set.
+command_permissions_user_set_node_failure: "Failed to set permission node for player \"{{player}}\": {{node}} = {{flag}} {{err}}"
 
 ## Tool-Tips
 command_tooltip_permissions_header: "{{green}}Permissions commands:{{white}}"
@@ -16,11 +162,11 @@ command_tooltip_permissions_group_create: "/permissions group create \"name\""
 command_tooltip_permissions_group_delete: "/permissions group delete \"name\""
 command_tooltip_permissions_group_rename: "/permissions group rename \"group-name\" \"new-name\""
 command_tooltip_permissions_group_set: "/permissions group set [context|parent]"
-command_tooltip_permissions_group_set_node: "/permissions group set node \"group-name\" \"permission-node\" {{boolean}}"
+command_tooltip_permissions_group_set_node: "/permissions group set node \"group-name\" \"permission-node\" {{boolean}}. {{use_null}}"
 command_tooltip_permissions_group_set_parent: "/permissions group set parent \"group-name\" \"parent-group-name\""
 command_tooltip_permissions_user: "/permissions user [create|delete|set]"
 command_tooltip_permissions_user_create: "/permissions user create \"user-name\""
 command_tooltip_permissions_user_delete: "/permissions user delete \"user-name\""
 command_tooltip_permissions_user_set: "/permissions user set [node|group]"
-command_tooltip_permissions_user_set_node: "/permissions user set node \"user-name\" \"permission-node\" {{boolean}}"
+command_tooltip_permissions_user_set_node: "/permissions user set node \"user-name\" \"permission-node\" {{boolean}}. {{use_null}}"
 command_tooltip_permissions_user_set_group: "/permissions user set group \"user-name\" \"group-name\""
