@@ -22,7 +22,7 @@ public class PermissionsCommandListener implements CommandListener {
 
     private Map<String, String> mapPermissionNodes;
 
-    public PermissionsCommandListener(ModulePermissions module) {
+    PermissionsCommandListener(ModulePermissions module) {
         setModule(module);
         mapPermissionNodes = new HashMap<>();
         // @formatter:off
@@ -61,8 +61,137 @@ public class PermissionsCommandListener implements CommandListener {
                 args = getSubArgs(args, 1);
                 if (command.equals("help")) {
                     processHelpMessage(commander, r);
-                } else if (command.equals("group")) {
-
+                } else if (command.equalsIgnoreCase("group")) {
+                    if (args.length > 0) {
+                        command = args[0];
+                        args = getSubArgs(args, 1);
+                        // /permissions group create
+                        if(command.equalsIgnoreCase("create")) {
+                            if(args.length == 1) {
+                                String permissionGroupName = args[0];
+                                r.set(module.commandCreatePermissionGroup(commander, permissionGroupName));
+                            }
+                            // tool-tip
+                            else {
+                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_create", language));
+                            }
+                        }
+                        // /permissions group delete
+                        else if(command.equalsIgnoreCase("delete")) {
+                            if(args.length == 1) {
+                                String permissionGroupName = args[0];
+                                r.set(module.commandDeletePermissionGroup(commander, permissionGroupName));
+                            } else {
+                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_delete", language));
+                            }
+                        }
+                        // /permissions group rename
+                        else if(command.equalsIgnoreCase("rename")) {
+                            if(args.length == 2) {
+                                String permissionGroupName = args[0];
+                                String permissionGroupNameNew = args[1];
+                                r.set(module.commandRenamePermissionGroup(commander, permissionGroupName, permissionGroupNameNew));
+                            } else {
+                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_rename", language));
+                            }
+                        }
+                        // /permissions group set
+                        else if(command.equalsIgnoreCase("set")) {
+                            if(args.length > 0) {
+                                command = args[0];
+                                args = getSubArgs(args, 1);
+                                // /permissions group set node
+                                if(command.equalsIgnoreCase("node")) {
+                                    if(args.length == 3) {
+                                        String permissionGroupName = args[0];
+                                        String node = args[1];
+                                        String flag = args[2];
+                                        r.set(module.commandSetPermissionGroupNode(commander, permissionGroupName, node, flag));
+                                    } else {
+                                        r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_node", language));
+                                    }
+                                }
+                                // /permissions group set parent
+                                else if(command.equalsIgnoreCase("parent")) {
+                                    if(args.length == 2) {
+                                        String permissionGroupName = args[0];
+                                        String permissionGroupNameParent = args[1];
+                                        r.set(module.commandSetPermissionGroupParent(commander, permissionGroupName, permissionGroupNameParent));
+                                    } else {
+                                        r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_parent", language));
+                                    }
+                                }
+                            } else {
+                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_group_set", language));
+                            }
+                        } else {
+                            r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_group", language));
+                        }
+                    } else {
+                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_group", language));
+                    }
+                }
+                // /permission user
+                else if(command.equalsIgnoreCase("user")) {
+                    if (args.length > 0) {
+                        command = args[0];
+                        args = getSubArgs(args, 1);
+                        // /permission user create
+                        if(command.equalsIgnoreCase("create")) {
+                            if(args.length > 0) {
+                                String username = args[0];
+                                r.set(module.commandCreatePermissionUser(commander, username));
+                            } else {
+                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_create", language));
+                            }
+                        }
+                        // /permission user delete
+                        else if(command.equalsIgnoreCase("delete")) {
+                            if(args.length > 0) {
+                                String username = args[0];
+                                r.set(module.commandDeletePermissionUser(commander, username));
+                            } else {
+                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_delete", language));
+                            }
+                        }
+                        // /permission user set
+                        else if(command.equals("set")) {
+                            if(args.length > 0) {
+                                command = args[0];
+                                args = getSubArgs(args, 1);
+                                // /permission user set group
+                                if(command.equalsIgnoreCase("group")) {
+                                    if(args.length == 2) {
+                                        String username = args[0];
+                                        String permissionGroupName = args[1];
+                                        r.set(module.commandSetPermissionUserGroup(commander, username, permissionGroupName));
+                                    } else {
+                                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set_group", language));
+                                    }
+                                }
+                                // /permission user set node
+                                else if(command.equalsIgnoreCase("node")) {
+                                    if(args.length == 3) {
+                                        String username = args[0];
+                                        String node = args[1];
+                                        String flag = args[2];
+                                        r.set(module.commandSetPermissionUserNode(commander, username, node, flag));
+                                    } else {
+                                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set_node", language));
+                                    }
+                                }
+                            } else {
+                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set", language));
+                            }
+                        }
+                        else {
+                            r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user", language));
+                        }
+                    } else {
+                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user", language));
+                    }
+                } else {
+                    r.set(Result.FAILURE, lang.getString("command_tooltip_permissions", language));
                 }
             } else {
                 // No sub-commands exist.

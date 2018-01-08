@@ -28,16 +28,18 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.database.module.permissions.MongoPermissionGroup;
 import sledgehammer.database.module.permissions.MongoPermissionUser;
+import sledgehammer.enums.Result;
+import sledgehammer.language.EntryField;
+import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
 import sledgehammer.plugin.MongoModule;
+import sledgehammer.util.Response;
 
 /**
  * Module class that handles operations for Permissions.
- * <p>
- * TODO: Implement Commands.
  *
  * @author Jab
  */
@@ -64,20 +66,18 @@ public class ModulePermissions extends MongoModule {
      */
     private Map<UUID, PermissionGroup> mapPermissionGroups;
     /**
-     * The Map storing the Permissionuser containers.
+     * The Map storing the PermissionUser containers.
      */
     private Map<UUID, PermissionUser> mapPermissionUsers;
-    /**
-     * The PermissionListener implementation to hook into Sledgehammer's core when
-     * checking permissions.
-     */
-    private PermissionsListener permissionsListener;
     private PermissionsCommandListener permissionsCommandListener;
     /**
      * The default PermissionGroup to base decisions for players not assigned to
      * groups.
      */
     private PermissionGroup permissionGroupDefault;
+    /**
+     * The LanguagePackage for the Permissions Module.
+     */
     private LanguagePackage lang;
 
     /**
@@ -108,8 +108,9 @@ public class ModulePermissions extends MongoModule {
         assignObjects();
         // Create the Default PermissionGroup.
         MongoPermissionGroup mongoPermissionGroupDefault = new MongoPermissionGroup(collectionGroups, "default");
+        // The default PermissionGroup.
         permissionGroupDefault = new PermissionGroup(mongoPermissionGroupDefault);
-        permissionsListener = new PermissionsListener(this);
+        PermissionsListener permissionsListener = new PermissionsListener(this);
         setPermissionListener(permissionsListener);
         permissionsCommandListener = new PermissionsCommandListener(this);
         register(permissionsCommandListener);
@@ -205,9 +206,9 @@ public class ModulePermissions extends MongoModule {
                 // inconsistency,
                 // and this is likely do to a bug in the code.
                 if (group == null) {
-                    errorln("PermissionUser \"" + permissionUser.getUniqueId().toString() + "\""
+                    errln("PermissionUser \"" + permissionUser.getUniqueId().toString() + "\""
                             + "is assigned to a group that does not exist: \"" + groupId.toString() + "\".");
-                    errorln("Setting groupId for the PermissionUser to null.");
+                    errln("Setting groupId for the PermissionUser to null.");
                     // Set the group UUID to null.
                     permissionUser.setPermissionGroup(null, true);
                     // Continue to the next user.
@@ -219,6 +220,573 @@ public class ModulePermissions extends MongoModule {
                 group.addMember(permissionUser, false);
             }
         }
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Attempts to create a PermissionUser.
+     *
+     * @param commander The Player that sent the command.
+     * @param username  The Player's user-name.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandCreatePermissionUser(Player commander, String username) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the user-name given is valid.
+        if (username == null || username.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permission_user_name_empty", language));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldUsername = new EntryField("username", username);
+        // Grab the Player by using the name-fragment search method.
+        Player player = SledgeHammer.instance.getPlayerDirty(username);
+        // If the Player is null, then search offline for the Player.
+        if (player == null) {
+            // Search offline with the strict username search method.
+            player = SledgeHammer.instance.getOfflinePlayer(username);
+        }
+        // If the Player is null, then no Player could be found using the given user-name.
+        if (player == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldUsername));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the proper name of the Player when responding
+        // to the commanding Player.
+        EntryField fieldPlayer = new EntryField("player", player.getName());
+        // Grab the Unique ID of the Player. This is shared between the Player and the PermissionUser,
+        // and is used for identification between the two.
+        UUID playerId = player.getUniqueId();
+        // Attempt to grab the PermissionUser if it exists.
+        PermissionUser permissionUser = getPermissionUser(playerId);
+        // If it exists, then let the commanding Player know.
+        if (permissionUser != null) {
+            response.set(Result.FAILURE, lang.getString("permission_user_exists", language, fieldPlayer));
+            return response;
+        }
+        try {
+            // Create the document.
+            MongoPermissionUser mongoPermissionUser = new MongoPermissionUser(collectionUsers, playerId);
+            // Create the container for the document.
+            permissionUser = new PermissionUser(mongoPermissionUser);
+            // Put the document in the map.
+            mapMongoPermissionUsers.put(playerId, mongoPermissionUser);
+            // Put the container in the map.
+            mapPermissionUsers.put(playerId, permissionUser);
+            // Save the document.
+            mongoPermissionUser.save();
+            // Set the response to success.
+            response.set(Result.SUCCESS, lang.getString("command_permissions_user_create_success", language, fieldPlayer));
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_user_create_failure", language, fieldPlayer));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Attempts to delete a PermissionGroup.
+     *
+     * @param commander The Player that sent the command.
+     * @param username  The Player's user-name.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandDeletePermissionUser(Player commander, String username) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the user-name given is valid.
+        if (username == null || username.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permission_user_name_empty", language));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldUsername = new EntryField("username", username);
+        // Grab the Player by using the name-fragment search method.
+        Player player = SledgeHammer.instance.getPlayerDirty(username);
+        // If the Player is null, then search offline for the Player.
+        if (player == null) {
+            // Search offline with the strict username search method.
+            player = SledgeHammer.instance.getOfflinePlayer(username);
+        }
+        // If the Player is null, then no Player could be found using the given user-name.
+        if (player == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldUsername));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the proper name of the Player when responding
+        // to the commanding Player.
+        EntryField fieldPlayer = new EntryField("player", player.getName());
+        // Grab the Unique ID of the Player. This is shared between the Player and the PermissionUser,
+        // and is used for identification between the two.
+        UUID playerId = player.getUniqueId();
+        // Attempt to grab the PermissionUser if it exists.
+        PermissionUser permissionUser = getPermissionUser(playerId);
+        // If it exists, then let the commanding Player know.
+        if (permissionUser == null) {
+            response.set(Result.FAILURE, lang.getString("permission_user_not_found", language, fieldPlayer));
+            return response;
+        }
+        try {
+            // Remove the document from the map.
+            mapMongoPermissionUsers.remove(playerId);
+            // Remove the container from the map.
+            mapPermissionUsers.remove(playerId);
+            // Delete the document properly.
+            permissionUser.getMongoDocument().delete();
+            // Grab the group of the user.
+            PermissionGroup permissionGroup = permissionUser.getPermissionGroup();
+            // If the user is assigned to a group, unlink the user from the members list.
+            if (permissionGroup != null) {
+                permissionGroup.removeMember(permissionUser, true);
+            }
+            response.set(Result.SUCCESS, lang.getString("command_permissions_user_delete_success", language, fieldPlayer));
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_user_delete_failure", language, fieldPlayer));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Sets a Permission Node definition for a PermissionUser.
+     *
+     * @param commander The Player that sent the command.
+     * @param username  The Player's user-name.
+     * @param node      The Permission Node to set.
+     * @param flag      The Permission Node value.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandSetPermissionUserNode(Player commander, String username, String node, String flag) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the user-name given is valid.
+        if (username == null || username.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permission_user_name_empty", language));
+            return response;
+        }
+        // Make sure the node entry is valid.
+        if (node == null || node.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_node_empty", language));
+            return response;
+        }
+        node = node.toLowerCase();
+        if (flag == null || flag.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_flag_empty", language));
+            return response;
+        }
+        boolean remove = false;
+        if (flag.equalsIgnoreCase("none") || flag.equalsIgnoreCase("null") || flag.equalsIgnoreCase("nil")) {
+            remove = true;
+        }
+        boolean flagValue = !remove && (flag.equals("1") || flag.equalsIgnoreCase("true") || flag.equalsIgnoreCase("on") || flag.equalsIgnoreCase("yes"));
+        // Pass these to the LanguagePackage to show the name passed when responding to the Player. @formatter:off
+        EntryField fieldName = new EntryField("username", username );
+        EntryField fieldNode = new EntryField("node"    , node     );
+        EntryField fieldFlag = new EntryField("flag"    , flagValue);
+        // Grab the Player by using the name-fragment search method. @formatter:on
+        Player player = SledgeHammer.instance.getPlayerDirty(username);
+        // If the Player is null, then search offline for the Player.
+        if (player == null) {
+            // Search offline with the strict username search method.
+            player = SledgeHammer.instance.getOfflinePlayer(username);
+        }
+        // If the Player is null, then no Player could be found using the given user-name.
+        if (player == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldName));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the proper name of the Player when responding
+        // to the commanding Player.
+        EntryField fieldPlayer = new EntryField("player", player.getName());
+        // Grab the Unique ID of the Player. This is shared between the Player and the PermissionUser,
+        // and is used for identification between the two.
+        UUID playerId = player.getUniqueId();
+        // Attempt to grab the PermissionUser if it exists.
+        PermissionUser permissionUser = getPermissionUser(playerId);
+        // If it exists, then let the commanding Player know.
+        if (permissionUser == null) {
+            response.set(Result.FAILURE, lang.getString("permission_user_not_found", language, fieldPlayer));
+            return response;
+        }
+        try {
+            // Set Permission Node.
+            permissionUser.setPermission(node, remove ? null : flagValue, true);
+            response.set(Result.SUCCESS, lang.getString("command_permissions_user_set_node_success", language, fieldPlayer, fieldNode, fieldFlag));
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_user_set_node_failure", language, fieldPlayer, fieldNode, fieldFlag));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Sets a PermissionUser's PermissionGroup.
+     *
+     * @param commander           The Player that sent the command.
+     * @param username            The Player's user-name.
+     * @param permissionGroupName The name of the PermissionGroup
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandSetPermissionUserGroup(Player commander, String username, String permissionGroupName) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the user-name given is valid.
+        if (username == null || username.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permission_user_name_empty", language));
+            return response;
+        }
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Pass these to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        EntryField fieldUsername = new EntryField("username", username);
+        // Grab the Player by using the name-fragment search method.
+        Player player = SledgeHammer.instance.getPlayerDirty(username);
+        // If the Player is null, then search offline for the Player.
+        if (player == null) {
+            // Search offline with the strict username search method.
+            player = SledgeHammer.instance.getOfflinePlayer(username);
+        }
+        // If the Player is null, then no Player could be found using the given user-name.
+        if (player == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldUsername));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the proper name of the Player when responding
+        // to the commanding Player.
+        EntryField fieldPlayer = new EntryField("player", player.getName());
+        // Grab the Unique ID of the Player. This is shared between the Player and the PermissionUser,
+        // and is used for identification between the two.
+        UUID playerId = player.getUniqueId();
+        // Attempt to grab the PermissionUser if it exists.
+        PermissionUser permissionUser = getPermissionUser(playerId);
+        // If it exists, then let the commanding Player know.
+        if (permissionUser == null) {
+            response.set(Result.FAILURE, lang.getString("permission_user_not_found", language, fieldPlayer));
+            return response;
+        }
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // Make sure that a PermissionGroup exists with the given name.
+        if (permissionGroup == null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+            throw new IllegalArgumentException("PermissionGroup given is null.");
+        }
+        try {
+            permissionGroup.addMember(permissionUser, true);
+            response.set(Result.FAILURE, lang.getString("command_permissions_user_set_group_success", language, fieldPlayer, fieldName));
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_user_set_group_failure", language, fieldPlayer, fieldName));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Attempts to create a PermissionGroup with the given name.
+     *
+     * @param commander           The Player that sent the command.
+     * @param permissionGroupName The name of the PermissionGroup to create.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandCreatePermissionGroup(Player commander, String permissionGroupName) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        // Attempt grabbing a PermissionGroup with the name provided.
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // If a PermissionGroup is returned from the search, the name is already in use.
+        if (permissionGroup != null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_name_exists", language));
+            return response;
+        }
+        try {
+            // Create the document.
+            MongoPermissionGroup mongoPermissionGroup = new MongoPermissionGroup(collectionGroups, permissionGroupName);
+            // Create the container.
+            permissionGroup = new PermissionGroup(mongoPermissionGroup);
+            // Add the document to the map.
+            mapMongoPermissionGroups.put(mongoPermissionGroup.getUniqueId(), mongoPermissionGroup);
+            // Add the container to the map.
+            mapPermissionGroups.put(permissionGroup.getUniqueId(), permissionGroup);
+            // Save the document.
+            mongoPermissionGroup.save();
+            // Set the response to success.
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_create_success", language, fieldName));
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_create_failure", language, fieldName));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Attempts to delete a PermissionGroup with the given name.
+     *
+     * @param commander           The Player that sent the command.
+     * @param permissionGroupName The name of the PermissionGroup to delete.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandDeletePermissionGroup(Player commander, String permissionGroupName) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // Make sure that a PermissionGroup exists with the given name.
+        if (permissionGroup == null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+            throw new IllegalArgumentException("PermissionGroup given is null.");
+        }
+        try {
+            // Grab the ID for the PermissionGroup.
+            UUID groupId = permissionGroup.getUniqueId();
+            // Remove the document from the map.
+            mapMongoPermissionGroups.remove(groupId);
+            // Remove the container from the map.
+            mapPermissionGroups.remove(groupId);
+            // Delete the document properly.
+            permissionGroup.getMongoDocument().delete();
+            // Grab the parent of the group being deleted.
+            PermissionGroup parent = permissionGroup.getParent();
+            // Go through every registered PermissionGroup.
+            for (PermissionGroup permissionGroupNext : mapPermissionGroups.values()) {
+                // If the group next is the one we are deleting, or the parent of the one being
+                // deleted, skip it.
+                if (permissionGroupNext.equals(permissionGroup) || permissionGroupNext.equals(parent)) {
+                    continue;
+                }
+                // If the next group's parent is the group being deleted, set the parent of the
+                // group to the one of the group being deleted.
+                if (permissionGroupNext.getParent().equals(permissionGroup)) {
+                    permissionGroupNext.setParent(parent, true);
+                }
+            }
+            // Sets the User to the parent group.
+            for (PermissionUser member : permissionGroup.getMembers()) {
+                member.setPermissionGroup(parent, true);
+            }
+            // Set the Response successful.
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_delete_success", language, fieldName));
+
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_delete_failure", language, fieldName));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Attempts to rename a PermissionGroup with the given name.
+     *
+     * @param commander              The Player that sent the command.
+     * @param permissionGroupName    The name of the PermissionGroup to rename.
+     * @param permissionGroupNameNew The name to set for the PermissionGroup.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandRenamePermissionGroup(Player commander, String permissionGroupName, String permissionGroupNameNew) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Make sure the new name given is valid.
+        if (permissionGroupNameNew == null || permissionGroupNameNew.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Pass these to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        EntryField fieldNameNew = new EntryField("name_new", permissionGroupNameNew);
+        // Attempt grabbing a PermissionGroup with the name provided.
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // If a PermissionGroup is returned from the search, the name is already in use.
+        if (permissionGroup == null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+            return response;
+        }
+        try {
+            // Set the new name for the PermissionGroup.
+            permissionGroup.setGroupName(permissionGroupNameNew, true);
+            // Set the success message.
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_rename_success", language, fieldName, fieldNameNew));
+        } catch (Exception e) {
+            stackTrace(e);
+            // Set the failure message.
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_rename_failure", language, fieldName));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Attempts to set the parent of a PermissionGroup.
+     *
+     * @param commander                 The Player that sent the command.
+     * @param permissionGroupName       The name of the PermissionGroup to rename.
+     * @param permissionGroupNameParent The name of the parent PermissionGroup to set.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandSetPermissionGroupParent(Player commander, String permissionGroupName, String permissionGroupNameParent) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Make sure the parent name given is valid.
+        if (permissionGroupNameParent == null || permissionGroupNameParent.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Pass these to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        EntryField fieldNameParent = new EntryField("name_parent", permissionGroupNameParent);
+        // Grab the affected PermissionGroup.
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // Make sure the affected PermissionGroup exists.
+        if (permissionGroup == null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+            return response;
+        }
+        PermissionGroup permissionGroupParent = null;
+        if (!permissionGroupNameParent.equalsIgnoreCase("none")) {
+            // Grab the parent PermissionGroup to set.
+            permissionGroupParent = getPermissionGroup(permissionGroupNameParent);
+            if (permissionGroupParent == null) {
+                response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldNameParent));
+                return response;
+            }
+        }
+        // If the parent to set is none, and the PermissionGroup already has no parent, then let the commanding Player know.
+        else if (!permissionGroup.hasParent()) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_parent_already_not_set", language, fieldName));
+            return response;
+        }
+        // Make sure that the parent and the child aren't the same.
+        if (permissionGroupParent != null && permissionGroup.equals(permissionGroupParent)) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_parent_identical", language, fieldName, fieldNameParent));
+            return response;
+        }
+        // Make sure that the parent to set isn't a child of the permission group affected.
+        if (permissionGroupParent != null && permissionGroupParent.isChildOf(permissionGroupParent)) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_parent_cyclic", language, fieldName, fieldNameParent));
+            return response;
+        }
+        try {
+            permissionGroup.setParent(permissionGroupParent, true);
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_set_parent_success", language, fieldName, fieldNameParent));
+        } catch (Exception e) {
+            stackTrace(e);
+            // Set the failure message.
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_set_parent_failure", language, fieldName));
+        }
+        return response;
+    }
+
+    /**
+     * (CommandListener Method)
+     * <p>
+     * Sets a Permission Node definition for a PermissionGroup.
+     *
+     * @param commander           The Player that sent the command.
+     * @param permissionGroupName The name of the PermissionGroup to rename.
+     * @param node                The Permission Node to set.
+     * @param flag                The Permission Node value.
+     * @return Returns a Response that contains the Result of the Command, and the details for that Result.
+     */
+    public Response commandSetPermissionGroupNode(Player commander, String permissionGroupName, String node, String flag) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        // Make sure the node entry is valid.
+        if (node == null || node.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_node_empty", language));
+            return response;
+        }
+        node = node.toLowerCase();
+        if (flag == null || flag.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_flag_empty", language));
+            return response;
+        }
+        boolean remove = false;
+        if (flag.equalsIgnoreCase("none") || flag.equalsIgnoreCase("null") || flag.equalsIgnoreCase("nil")) {
+            remove = true;
+        }
+        boolean flagValue = !remove && (flag.equals("1") || flag.equalsIgnoreCase("true") || flag.equalsIgnoreCase("on") || flag.equalsIgnoreCase("yes"));
+        // Pass these to the LanguagePackage to show the name passed when responding to the Player. @formatter:off
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        EntryField fieldNode = new EntryField("node", node               );
+        EntryField fieldFlag = new EntryField("flag", flagValue          );
+        // Attempt grabbing a PermissionGroup with the name provided. @formatter:on
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // If a PermissionGroup is returned from the search, the name is already in use.
+        if (permissionGroup == null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+            return response;
+        }
+        try {
+            // Set the permission.
+            permissionGroup.setPermission(node, remove ? null : flagValue, true);
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_set_node_success", language, fieldName, fieldNode, fieldFlag));
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_set_node_failure", language, fieldName, fieldNode, fieldFlag));
+        }
+        return response;
     }
 
     /**
