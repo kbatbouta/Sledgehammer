@@ -209,7 +209,8 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
      */
     public void setParent(PermissionGroup group, boolean save) {
         this.parent = group;
-        getMongoDocument().setParentId(group.getUniqueId(), save);
+        UUID parentId = group != null ? group.getUniqueId() : null;
+        getMongoDocument().setParentId(parentId, save);
     }
 
     /**
