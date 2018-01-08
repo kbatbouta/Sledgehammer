@@ -101,8 +101,8 @@ public abstract class MongoUniqueDocument extends MongoDocument {
      */
     public void setUniqueId(UUID uniqueId, boolean save) {
         this.uniqueId = uniqueId;
-        delete();
         if (save) {
+            delete();
             save();
         }
     }
