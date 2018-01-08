@@ -423,10 +423,18 @@ public class ModulePermissions extends MongoModule {
         try {
             // Set Permission Node.
             permissionUser.setPermission(node, remove ? null : flagValue, true);
-            response.set(Result.SUCCESS, lang.getString("command_permissions_user_set_node_success", language, fieldPlayer, fieldNode, fieldFlag));
+            if (remove) {
+                response.set(Result.SUCCESS, lang.getString("command_permissions_user_set_node_success_remove", language, fieldPlayer, fieldNode));
+            } else {
+                response.set(Result.SUCCESS, lang.getString("command_permissions_user_set_node_success", language, fieldPlayer, fieldNode, fieldFlag));
+            }
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_permissions_user_set_node_failure", language, fieldPlayer, fieldNode, fieldFlag));
+            if (remove) {
+                response.set(Result.FAILURE, lang.getString("command_permissions_user_set_node_failure_remove", language, fieldPlayer, fieldNode));
+            } else {
+                response.set(Result.FAILURE, lang.getString("command_permissions_user_set_node_failure", language, fieldPlayer, fieldNode, fieldFlag));
+            }
         }
         return response;
     }

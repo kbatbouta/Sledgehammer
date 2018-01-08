@@ -101,12 +101,14 @@ command_permissions_group_set_parent_failure: "Failed to set the parent for the 
 # {{node}} -> The Permission Node to set.
 # {{flag}} -> The flag to set.
 command_permissions_group_set_node_success: "Permission node set for permission group \"{{name}}\": {{node}} = {{flag}}"
+command_permissions_group_set_node_success_remove: "Permission node removed for permission group \"{{name}}\": {{node}} = {{flag}}"
 # Sent when failing to set a Permission Node to a Permission Group.
 #
 # {{name}} -> The name of the Permission Group to set the Permission Node.
 # {{node}} -> The Permission Node to set.
 # {{flag}} -> The flag to set.
 command_permissions_group_set_node_failure: "Failed to set permission node for permission group \"{{name}}\": {{node}} = {{flag}} {{err}}"
+command_permissions_group_set_node_failure_remove: "Failed to remove permission node fr permission group \"{{name}}\": {{node}}"
 
 ## /permissions user create
 # Sent when successfully creating a Permission User.
@@ -147,12 +149,14 @@ command_permissions_user_set_group_failure: "Failed to set permission group \"{{
 # {{node}} -> The Permission Node to set.
 # {{flag}} -> The flag to set.
 command_permissions_user_set_node_success: "Permission node set for player \"{{player}}\": {{node}} = {{flag}}"
+command_permissions_user_set_node_success_remove: "Permission node removed for player \"{{player}}\": {{node}}"
 # Sent when failing to set a Permission Node to a Permission User.
 #
 # {{player}} -> The name of the [Player | Permission User] to set the Permission Node.
 # {{node}} -> The Permission Node to set.
 # {{flag}} -> The flag to set.
 command_permissions_user_set_node_failure: "Failed to set permission node for player \"{{player}}\": {{node}} = {{flag}} {{err}}"
+command_permissions_user_set_node_failure_remove: "Failed to remove Permission node for player \"{{player}}\": {{node}}"
 
 ## Tool-Tips
 command_tooltip_permissions_header: "{{green}}Permissions commands:{{white}}"
