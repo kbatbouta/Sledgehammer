@@ -80,21 +80,25 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
      * does not exists.
      *
      * @param nodeAsString The node in String format.
-     * @param flag         The flag to set for the Node.
+     * @param flag         The flag to set for the Node. Set to node to get rid of the Node.
      * @param save         The flag to save the Document.
      * @return Returns the result Node with the flag set.
      */
-    public Node setPermission(String nodeAsString, boolean flag, boolean save) {
+    public Node setPermission(String nodeAsString, Boolean flag, boolean save) {
         if (nodeAsString == null) {
             throw new IllegalArgumentException("String node given is null.");
         }
         Node returned = this.getExplicitPermissionNode(nodeAsString);
-        if (returned == null) {
+        if (flag != null && returned == null) {
             MongoNode mongoNode = new MongoNode(getMongoDocument(), nodeAsString, flag);
             returned = new Node(mongoNode);
             addNode(returned, save);
         } else {
-            returned.setFlag(flag, save);
+            if(flag != null) {
+                returned.setFlag(flag, save);
+            } else {
+                removeNode(returned, save);
+            }
         }
         return returned;
     }
@@ -388,6 +392,7 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
         // Remove the node formally on the document layer, and save it if the parameter
         // flag to save is passed as true.
         getMongoDocument().removeNode(node.getMongoDocument(), save);
+        node.setMongoDocument(null);
     }
 
     /**
