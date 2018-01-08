@@ -134,7 +134,7 @@ public class Agent {
                         Files.copy(from.toPath(), dest.toPath());
                         copied = true;
                     } catch (FileAlreadyExistsException e) {
-                        System.out.println("File already exists and is not overwritten.");
+//                        System.out.println("File already exists and is not overwritten.");
                     }
                     if (copied) {
                         System.out.println("Craftboid: Copied " + file + "...");

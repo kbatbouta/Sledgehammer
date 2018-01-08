@@ -108,8 +108,9 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
      */
     public void setParentId(UUID parentId, boolean save) {
         this.parentId = parentId;
-        if (save)
+        if (save) {
             save();
+        }
     }
 
     /**
@@ -127,7 +128,8 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
      */
     public void setGroupName(String name, boolean save) {
         this.name = name;
-        if (save)
+        if (save) {
             save();
+        }
     }
 }

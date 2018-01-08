@@ -136,6 +136,8 @@ public class ModulePermissions extends MongoModule {
     private void loadPermissionGroups() {
         // Create the Map to store the MongoDB documents for groups.
         mapMongoPermissionGroups = new HashMap<>();
+        // Create the Map to store the Lua container objects.
+        mapPermissionGroups = new HashMap<>();
         // Create a query for all documents in the groups collection.
         DBCursor cursor = collectionGroups.find();
         // Go through all available documents.
@@ -147,8 +149,6 @@ public class ModulePermissions extends MongoModule {
         }
         // We are done here with the query so we close to free resources and memory.
         cursor.close();
-        // Create the Map to store the Lua container objects.
-        mapPermissionGroups = new HashMap<>();
         // Go through each loaded MongoDB document.
         for (MongoPermissionGroup mongoPermissionGroup : mapMongoPermissionGroups.values()) {
             // Create a new Lua container with the MongoDB document.
@@ -166,6 +166,8 @@ public class ModulePermissions extends MongoModule {
     private void loadPermissionUsers() {
         // Create the map to sore the MongoDB documents for users.
         mapMongoPermissionUsers = new HashMap<>();
+        // Create the Map to store the Lua container objects.
+        mapPermissionUsers = new HashMap<>();
         // Create a query for all documents in the users collection.
         DBCursor cursor = collectionUsers.find();
         // Go through all available documents.
@@ -177,8 +179,6 @@ public class ModulePermissions extends MongoModule {
         }
         // We are done here with the query so we close to free resources and memory.
         cursor.close();
-        // Create the Map to store the Lua container objects.
-        mapPermissionUsers = new HashMap<>();
         // Go through each loaded MongoDB document.
         for (MongoPermissionUser mongoPermissionUser : mapMongoPermissionUsers.values()) {
             // Create a new Lua container with the MongoDB document.
