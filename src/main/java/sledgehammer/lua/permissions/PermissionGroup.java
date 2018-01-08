@@ -142,6 +142,11 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
         return listNodes;
     }
 
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof PermissionGroup && ((PermissionGroup) other).getUniqueId().equals(getUniqueId());
+    }
+
     /**
      * @param other The PermissionGroup to test as the parent PermissionGroup.
      * @return Returns true if the PermissionGroup is a child of the PermissionGroup given.
