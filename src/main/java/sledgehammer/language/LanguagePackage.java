@@ -139,16 +139,16 @@ public class LanguagePackage {
      */
     public String getAnyString(String key) {
         Language language = Language.English;
-        String value = getString(key, language);
+        String value = getFileString(key, language);
         if (value == null) {
             for (Language languageNext : Language.values()) {
-                value = getString(key, languageNext);
+                value = getFileString(key, languageNext);
                 if (value != null) {
                     break;
                 }
             }
         }
-        return value;
+        return value != null ? processString(value, this, language) : null;
     }
 
     /**
@@ -169,9 +169,14 @@ public class LanguagePackage {
      * LanguageFile does not contain an entry, null is returned.
      */
     public String getString(String key, Language language, EntryField... entries) {
-        String value = getString(key, language);
-        value = processString(value, this, language, entries);
-        return value;
+        // String value = getString(key, language);
+        return processString(getFileString(key, language), this, language, entries);
+    }
+
+    private String getFileString(String key, Language language) {
+        LanguageFile fileDefault = mapLanguageFiles.get(Language.English);
+        LanguageFile file = mapLanguageFiles.get(language);
+        return file != null ? file.get(key) : fileDefault != null ? fileDefault.get(key) : null;
     }
 
     /**
@@ -244,7 +249,7 @@ public class LanguagePackage {
      * @return Returns a List of processed Strings.
      */
     public List<String> getStringList(String key, Language language) {
-        return toList(getString(key, language));
+        return toList(getFileString(key, language));
     }
 
     /**
