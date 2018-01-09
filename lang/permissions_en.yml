@@ -10,8 +10,17 @@ err: "(Internal Error)"
 use_null: "(Note: to remove the permission-node entirely, use \"none\", \"null\", or \"nil\")"
 # Notation about boolean fields.
 boolean: "[true,1|false,0]"
-green: " <RGB:0.5,1,0.5> "
+green: " <RGB:0.25,0.7,0.25> "
 white: " <RGB:1,1,1> "
+gray: " <RGB:0.75,0.75,0.75>"
+yellow: " <RGB:0.7,0.7,0.25>"
+permission_color_flag_true: " <RGB:0.25,0.7,0.25> "
+permission_color_flag_false: " <RGB:0.7,0.25,0.25> "
+# Formatting for displaying Permission Nodes.
+#
+# {{node}} -> The Permission Node.
+# {{flag}} -> The flag set for the Permission Node.
+permission_node: "{{node}}"
 # Generic message for not resolving a Player.
 #
 # {{username}} -> The user-name given.
@@ -40,6 +49,15 @@ permissions_group_parent_cyclic: "The permission group \"{{name_parent}}\" is a 
 # {{name}} -> The name of the Permission Group set.
 # {{name_parent}} -> The name of the Permission Group to set as the parent Permission Group.
 permission_group_parent_identical: "The permission group \"{{name_parent}}\" is the same permission group as the one to set, and cannot be set as the parent."
+# Sent when trying to set the Permission Group that is already set for the Permission User.
+#
+# {{player}} -> The name of the Player that does not have a Permission Group.
+# {{name}} -> The name of the Permission Group to set.
+permission_user_group_identical: "The permission group \"{{name}}\" is already the permission group for the permission user: {{player}}\""
+# Sent when trying to unset a Permission User's Permission Group, however the Permission User does not have an assigned Permission Group.
+#
+# {{player}} -> The name of the Player that does not have a Permission Group.
+permission_user_group_already_not_set: "The permission user \"{{player}}\" has no permission group to unset."
 # Sent when trying to find a Permission User for a Player that is not found.
 #
 # {{player}} -> The name of the Player that does not have a Permission User.
@@ -158,12 +176,49 @@ command_permissions_user_set_node_success_remove: "Permission node removed for p
 command_permissions_user_set_node_failure: "Failed to set permission node for player \"{{player}}\": {{node}} = {{flag}} {{err}}"
 command_permissions_user_set_node_failure_remove: "Failed to remove Permission node for player \"{{player}}\": {{node}}"
 
+# Displays information about a Permission User.
+#
+# {{player}} -> The name of the Player | Permission User.
+# {{uuid}} -> The UUID of the Player.
+# {{name}} -> The name of the Permission Group the Player is in.
+# {{user_permissions}} -> Formatted Permission Nodes for the Permission User.
+# {{group_permissions}} -> Formatted Permission Nodes for the Permission Group.
+command_permissions_user_info:
+- " <LINE> "
+- "{{yellow}} ########## Permission User ##########"
+- "{{yellow}} Name: {{gray}} {{player}}"
+- "{{yellow}} UUID: {{gray}} {{uuid}}"
+- "{{yellow}} User Permissions:"
+- "{{gray}} {{user_permissions}}"
+- "{{yellow}} Group: {{gray}} {{name}}"
+- "{{yellow}} Group Permissions:"
+- "{{gray}} {{group_permissions}}"
+- ""
+
+# Displays information about a Permission Group.
+#
+# {{name}} -> The name of the Permission Group.
+# {{uuid}} -> The UUID of the Permission Group.
+# {{users}} -> Formatted list of Permission Users assigned to the Permission Group.
+# {{group_permissions}} -> Formatted Permission Nodes for the Permission Group.
+command_permissions_group_info:
+- " <LINE> "
+- "{{yellow}} ########## Permission Group ##########"
+- "{{yellow}} Name: {{gray}} {{name}}"
+- "{{yellow}} UUID: {{gray}} {{uuid}}"
+- "{{yellow}} Permission Users:"
+- "{{gray}} {{users}}"
+- "{{yellow}} Group Permissions:"
+- "{{gray}} {{group_permissions}}"
+- ""
+
 ## Tool-Tips
 command_tooltip_permissions_header: "{{green}}Permissions commands:{{white}}"
 command_tooltip_permissions: "/permissions [group|user]"
 command_tooltip_permissions_group: "/permissions group [create|delete|set]"
 command_tooltip_permissions_group_create: "/permissions group create \"name\""
 command_tooltip_permissions_group_delete: "/permissions group delete \"name\""
+command_tooltip_permissions_group_list: "/permissions group list \"name\""
 command_tooltip_permissions_group_rename: "/permissions group rename \"group-name\" \"new-name\""
 command_tooltip_permissions_group_set: "/permissions group set [context|parent]"
 command_tooltip_permissions_group_set_node: "/permissions group set node \"group-name\" \"permission-node\" {{boolean}}. {{use_null}}"
@@ -171,6 +226,7 @@ command_tooltip_permissions_group_set_parent: "/permissions group set parent \"g
 command_tooltip_permissions_user: "/permissions user [create|delete|set]"
 command_tooltip_permissions_user_create: "/permissions user create \"user-name\""
 command_tooltip_permissions_user_delete: "/permissions user delete \"user-name\""
+command_tooltip_permissions_user_list: "/permissions user list \"user-name\""
 command_tooltip_permissions_user_set: "/permissions user set [node|group]"
 command_tooltip_permissions_user_set_node: "/permissions user set node \"user-name\" \"permission-node\" {{boolean}}. {{use_null}}"
 command_tooltip_permissions_user_set_group: "/permissions user set group \"user-name\" \"group-name\""

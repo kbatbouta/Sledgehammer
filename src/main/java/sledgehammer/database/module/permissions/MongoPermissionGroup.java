@@ -85,7 +85,7 @@ public class MongoPermissionGroup extends MongoUniqueNodeDocument {
      * @return Returns the Unique ID of the Parent PermissionGroup. Returns null if
      * the group has no parent.
      */
-    private UUID getParentId() {
+    public UUID getParentId() {
         return this.parentId;
     }
 

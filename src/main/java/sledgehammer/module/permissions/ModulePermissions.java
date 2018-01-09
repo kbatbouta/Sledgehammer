@@ -17,9 +17,7 @@ This file is part of Sledgehammer.
 package sledgehammer.module.permissions;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.mongodb.DBCursor;
 
@@ -32,7 +30,9 @@ import sledgehammer.enums.Result;
 import sledgehammer.language.EntryField;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
+import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.permissions.Node;
 import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.lua.permissions.PermissionUser;
 import sledgehammer.plugin.MongoModule;
@@ -106,10 +106,6 @@ public class ModulePermissions extends MongoModule {
         loadPermissionUsers();
         // Connect the data from groups to users.
         assignObjects();
-        // Create the Default PermissionGroup.
-        MongoPermissionGroup mongoPermissionGroupDefault = new MongoPermissionGroup(collectionGroups, "default");
-        // The default PermissionGroup.
-        permissionGroupDefault = new PermissionGroup(mongoPermissionGroupDefault);
         PermissionsListener permissionsListener = new PermissionsListener(this);
         setPermissionListener(permissionsListener);
         permissionsCommandListener = new PermissionsCommandListener(this);
@@ -156,6 +152,10 @@ public class ModulePermissions extends MongoModule {
             // Assign it to the map for later reference.
             mapPermissionGroups.put(permissionGroup.getUniqueId(), permissionGroup);
         }
+        // Create the Default PermissionGroup.
+        MongoPermissionGroup mongoPermissionGroupDefault = new MongoPermissionGroup(collectionGroups, "(Default)");
+        // The default PermissionGroup.
+        permissionGroupDefault = new PermissionGroup(mongoPermissionGroupDefault);
     }
 
     /**
@@ -194,6 +194,20 @@ public class ModulePermissions extends MongoModule {
      * Pairs up PermissionUser to PermissionGroup and vice versa.
      */
     private void assignObjects() {
+        PermissionGroup permissionGroupDefault = getDefaultPermissionGroup();
+        // Go through all PermissionGroups and assign the parent.
+        for (PermissionGroup permissionGroup : mapPermissionGroups.values()) {
+            UUID parentId = permissionGroup.getMongoDocument().getParentId();
+            if (parentId != null) {
+                boolean save = false;
+                PermissionGroup permissionGroupParent = getPermissionGroup(parentId);
+                if (permissionGroupParent == null) {
+                    save = true;
+                }
+                permissionGroup.setParent(permissionGroupParent, save);
+            }
+            permissionGroup.setTemporaryParent(permissionGroupDefault);
+        }
         // Go through each PermissionUser.
         for (PermissionUser permissionUser : mapPermissionUsers.values()) {
             // Grab the Group ID for the group that needs to be linked to.
@@ -211,6 +225,7 @@ public class ModulePermissions extends MongoModule {
                     errln("Setting groupId for the PermissionUser to null.");
                     // Set the group UUID to null.
                     permissionUser.setPermissionGroup(null, true);
+                    permissionUser.setTemporaryPermissionGroup(permissionGroupDefault);
                     // Continue to the next user.
                     continue;
                 }
@@ -492,15 +507,43 @@ public class ModulePermissions extends MongoModule {
             response.set(Result.FAILURE, lang.getString("permission_user_not_found", language, fieldPlayer));
             return response;
         }
-        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
-        // Make sure that a PermissionGroup exists with the given name.
-        if (permissionGroup == null) {
-            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
-            throw new IllegalArgumentException("PermissionGroup given is null.");
+        PermissionGroup permissionGroupPrevious = permissionUser.hasPermissionGroup() ?
+                permissionUser.getPermissionGroup() : null;
+        PermissionGroup permissionGroup = null;
+        boolean remove = false;
+        if (permissionGroupName.equalsIgnoreCase("none")
+                || permissionGroupName.equalsIgnoreCase("null")
+                || permissionGroupName.equalsIgnoreCase("nil")) {
+            remove = true;
+        }
+        if (!remove) {
+            permissionGroup = getPermissionGroup(permissionGroupName);
+            // Make sure that a PermissionGroup exists with the given name.
+            if (permissionGroup == null) {
+                response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+                return response;
+            }
+        }
+        // Make sure that the same PermissionGroup isn't already set.
+        if (!remove && permissionGroup.equals(permissionGroupPrevious)) {
+            response.set(Result.FAILURE, lang.getString("permission_user_group_identical", language, fieldPlayer, fieldName));
+            return response;
+        }
+        // Make sure that the player has a PermissionGroup to remove.
+        else if (remove && permissionGroupPrevious == null) {
+            response.set(Result.FAILURE, lang.getString("permission_user_group_already_not_set", language, fieldPlayer));
         }
         try {
-            permissionGroup.addMember(permissionUser, true);
-            response.set(Result.FAILURE, lang.getString("command_permissions_user_set_group_success", language, fieldPlayer, fieldName));
+            if (permissionGroupPrevious != null) {
+                permissionGroupPrevious.removeMember(permissionUser, false);
+                permissionGroupPrevious.save();
+            }
+            if (!remove) {
+                permissionGroup.addMember(permissionUser, true);
+            } else {
+                permissionUser.save();
+            }
+            response.set(Result.SUCCESS, lang.getString("command_permissions_user_set_group_success", language, fieldPlayer, fieldName));
         } catch (Exception e) {
             stackTrace(e);
             response.set(Result.FAILURE, lang.getString("command_permissions_user_set_group_failure", language, fieldPlayer, fieldName));
@@ -541,6 +584,7 @@ public class ModulePermissions extends MongoModule {
             MongoPermissionGroup mongoPermissionGroup = new MongoPermissionGroup(collectionGroups, permissionGroupName);
             // Create the container.
             permissionGroup = new PermissionGroup(mongoPermissionGroup);
+            permissionGroup.setTemporaryParent(getDefaultPermissionGroup());
             // Add the document to the map.
             mapMongoPermissionGroups.put(mongoPermissionGroup.getUniqueId(), mongoPermissionGroup);
             // Add the container to the map.
@@ -581,7 +625,7 @@ public class ModulePermissions extends MongoModule {
         // Make sure that a PermissionGroup exists with the given name.
         if (permissionGroup == null) {
             response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
-            throw new IllegalArgumentException("PermissionGroup given is null.");
+            return response;
         }
         try {
             // Grab the ID for the PermissionGroup.
@@ -613,7 +657,6 @@ public class ModulePermissions extends MongoModule {
             }
             // Set the Response successful.
             response.set(Result.SUCCESS, lang.getString("command_permissions_group_delete_success", language, fieldName));
-
         } catch (Exception e) {
             stackTrace(e);
             response.set(Result.FAILURE, lang.getString("command_permissions_group_delete_failure", language, fieldName));
@@ -631,7 +674,8 @@ public class ModulePermissions extends MongoModule {
      * @param permissionGroupNameNew The name to set for the PermissionGroup.
      * @return Returns a Response that contains the Result of the Command, and the details for that Result.
      */
-    public Response commandRenamePermissionGroup(Player commander, String permissionGroupName, String permissionGroupNameNew) {
+    public Response commandRenamePermissionGroup(Player commander, String permissionGroupName,
+                                                 String permissionGroupNameNew) {
         // The Response to return.
         Response response = new Response();
         // Grab the Language set by the Player.
@@ -660,11 +704,13 @@ public class ModulePermissions extends MongoModule {
             // Set the new name for the PermissionGroup.
             permissionGroup.setGroupName(permissionGroupNameNew, true);
             // Set the success message.
-            response.set(Result.SUCCESS, lang.getString("command_permissions_group_rename_success", language, fieldName, fieldNameNew));
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_rename_success", language,
+                    fieldName, fieldNameNew));
         } catch (Exception e) {
             stackTrace(e);
             // Set the failure message.
-            response.set(Result.FAILURE, lang.getString("command_permissions_group_rename_failure", language, fieldName));
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_rename_failure", language,
+                    fieldName));
         }
         return response;
     }
@@ -679,7 +725,8 @@ public class ModulePermissions extends MongoModule {
      * @param permissionGroupNameParent The name of the parent PermissionGroup to set.
      * @return Returns a Response that contains the Result of the Command, and the details for that Result.
      */
-    public Response commandSetPermissionGroupParent(Player commander, String permissionGroupName, String permissionGroupNameParent) {
+    public Response commandSetPermissionGroupParent(Player commander, String permissionGroupName,
+                                                    String permissionGroupNameParent) {
         // The Response to return.
         Response response = new Response();
         // Grab the Language set by the Player.
@@ -709,32 +756,39 @@ public class ModulePermissions extends MongoModule {
             // Grab the parent PermissionGroup to set.
             permissionGroupParent = getPermissionGroup(permissionGroupNameParent);
             if (permissionGroupParent == null) {
-                response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldNameParent));
+                response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language,
+                        fieldNameParent));
                 return response;
             }
         }
-        // If the parent to set is none, and the PermissionGroup already has no parent, then let the commanding Player know.
+        // If the parent to set is none, and the PermissionGroup already has no parent, then let the commanding Player
+        // know.
         else if (!permissionGroup.hasParent()) {
-            response.set(Result.FAILURE, lang.getString("permissions_group_parent_already_not_set", language, fieldName));
+            response.set(Result.FAILURE, lang.getString("permissions_group_parent_already_not_set", language,
+                    fieldName));
             return response;
         }
         // Make sure that the parent and the child aren't the same.
         if (permissionGroupParent != null && permissionGroup.equals(permissionGroupParent)) {
-            response.set(Result.FAILURE, lang.getString("permissions_group_parent_identical", language, fieldName, fieldNameParent));
+            response.set(Result.FAILURE, lang.getString("permissions_group_parent_identical", language, fieldName,
+                    fieldNameParent));
             return response;
         }
         // Make sure that the parent to set isn't a child of the permission group affected.
         if (permissionGroupParent != null && permissionGroupParent.isChildOf(permissionGroupParent)) {
-            response.set(Result.FAILURE, lang.getString("permissions_group_parent_cyclic", language, fieldName, fieldNameParent));
+            response.set(Result.FAILURE, lang.getString("permissions_group_parent_cyclic", language, fieldName,
+                    fieldNameParent));
             return response;
         }
         try {
             permissionGroup.setParent(permissionGroupParent, true);
-            response.set(Result.SUCCESS, lang.getString("command_permissions_group_set_parent_success", language, fieldName, fieldNameParent));
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_set_parent_success", language,
+                    fieldName, fieldNameParent));
         } catch (Exception e) {
             stackTrace(e);
             // Set the failure message.
-            response.set(Result.FAILURE, lang.getString("command_permissions_group_set_parent_failure", language, fieldName));
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_set_parent_failure", language,
+                    fieldName));
         }
         return response;
     }
@@ -771,10 +825,12 @@ public class ModulePermissions extends MongoModule {
             return response;
         }
         boolean remove = false;
-        if (flag.equalsIgnoreCase("none") || flag.equalsIgnoreCase("null") || flag.equalsIgnoreCase("nil")) {
+        if (flag.equalsIgnoreCase("none") || flag.equalsIgnoreCase("null")
+                || flag.equalsIgnoreCase("nil")) {
             remove = true;
         }
-        boolean flagValue = !remove && (flag.equals("1") || flag.equalsIgnoreCase("true") || flag.equalsIgnoreCase("on") || flag.equalsIgnoreCase("yes"));
+        boolean flagValue = !remove && (flag.equals("1") || flag.equalsIgnoreCase("true")
+                || flag.equalsIgnoreCase("on") || flag.equalsIgnoreCase("yes"));
         // Pass these to the LanguagePackage to show the name passed when responding to the Player. @formatter:off
         EntryField fieldName = new EntryField("name", permissionGroupName);
         EntryField fieldNode = new EntryField("node", node               );
@@ -789,11 +845,184 @@ public class ModulePermissions extends MongoModule {
         try {
             // Set the permission.
             permissionGroup.setPermission(node, remove ? null : flagValue, true);
-            response.set(Result.SUCCESS, lang.getString("command_permissions_group_set_node_success", language, fieldName, fieldNode, fieldFlag));
+            response.set(Result.SUCCESS, lang.getString("command_permissions_group_set_node_success",
+                    language, fieldName, fieldNode, fieldFlag));
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_permissions_group_set_node_failure", language, fieldName, fieldNode, fieldFlag));
+            response.set(Result.FAILURE, lang.getString("command_permissions_group_set_node_failure",
+                    language, fieldName, fieldNode, fieldFlag));
         }
+        return response;
+    }
+
+    public Response commandListPermissionGroup(Player commander, String permissionGroupName) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the name given is valid.
+        if (permissionGroupName == null || permissionGroupName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permissions_name_empty", language));
+            return response;
+        }
+        EntryField fieldName = new EntryField("name", permissionGroupName);
+        // Attempt grabbing a PermissionGroup with the name provided. @formatter:on
+        PermissionGroup permissionGroup = getPermissionGroup(permissionGroupName);
+        // If a PermissionGroup is returned from the search, the name is already in use.
+        if (permissionGroup == null) {
+            response.set(Result.FAILURE, lang.getString("permissions_group_not_found", language, fieldName));
+            return response;
+        }
+        String users = "None";
+        StringBuilder builder = new StringBuilder();
+        List<PermissionUser> listUsers = permissionGroup.getMembers();
+        if (listUsers.size() > 0) {
+            for (PermissionUser user : listUsers) {
+                UUID playerId = user.getUniqueId();
+                Player player = SledgeHammer.instance.getPlayer(playerId);
+                if (player == null) {
+                    player = SledgeHammer.instance.getOfflinePlayer(playerId);
+                }
+                if (player == null) {
+                    continue;
+                }
+                builder.append(player.getName()).append(",");
+            }
+            users = builder.toString().substring(0, builder.length() - 1);
+        }
+        String colorTrue = lang.getString("permission_color_flag_true", language);
+        String colorFalse = lang.getString("permission_color_flag_false", language);
+        String groupPermissions = "None";
+        Collection<Node> groupNodes = permissionGroup.getAllPermissionNodes();
+        if (groupNodes.size() > 0) {
+            List<Node> listGroupNodes = new ArrayList<>(groupNodes);
+            sortPermissionNodes(listGroupNodes);
+            builder = new StringBuilder();
+            for (Node node : listGroupNodes) {
+                String nodeName = node.getNode();
+                boolean flagValue = node.getFlag();
+                String flag = "" + flagValue;
+                String color = colorTrue;
+                if (!flagValue) {
+                    color = colorFalse;
+                }
+                builder.append(color);
+                builder.append(lang.getString("permission_node", new EntryField("node", nodeName),
+                        new EntryField("flag", flag)));
+                builder.append(" <LINE> ");
+            }
+            groupPermissions = builder.toString();
+        }
+        EntryField fieldUUID = new EntryField("uuid", permissionGroup.getUniqueId());
+        EntryField fieldUsers = new EntryField("users", users);
+        EntryField fieldGroupPermissions = new EntryField("group_permissions", groupPermissions);
+        EntryField[] fields = new EntryField[]{
+                fieldName,
+                fieldUUID,
+                fieldUsers,
+                fieldGroupPermissions,
+        };
+        response.set(Result.SUCCESS, lang.getString("command_permissions_group_info", language, fields));
+        return response;
+    }
+
+    public Response commandListPermissionUser(Player commander, String username) {
+        // The Response to return.
+        Response response = new Response();
+        // Grab the Language set by the Player.
+        Language language = commander.getLanguage();
+        // Make sure the user-name given is valid.
+        if (username == null || username.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("permission_user_name_empty", language));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the name passed when responding to the Player.
+        EntryField fieldUsername = new EntryField("username", username);
+        // Grab the Player by using the name-fragment search method.
+        Player player = SledgeHammer.instance.getPlayerDirty(username);
+        // If the Player is null, then search offline for the Player.
+        if (player == null) {
+            // Search offline with the strict username search method.
+            player = SledgeHammer.instance.getOfflinePlayer(username);
+        }
+        // If the Player is null, then no Player could be found using the given user-name.
+        if (player == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldUsername));
+            return response;
+        }
+        // Pass this to the LanguagePackage to show the proper name of the Player when responding
+        // to the commanding Player.
+        EntryField fieldPlayer = new EntryField("player", player.getName());
+        // Grab the Unique ID of the Player. This is shared between the Player and the PermissionUser,
+        // and is used for identification between the two.
+        UUID playerId = player.getUniqueId();
+        // Attempt to grab the PermissionUser if it exists.
+        PermissionUser permissionUser = getPermissionUser(playerId);
+        // If it exists, then let the commanding Player know.
+        if (permissionUser == null) {
+            response.set(Result.FAILURE, lang.getString("permission_user_not_found", language, fieldPlayer));
+            return response;
+        }
+        PermissionGroup permissionGroup = permissionUser.getPermissionGroup();
+        String groupName;
+        if (permissionGroup == null) {
+            permissionGroup = getDefaultPermissionGroup();
+        }
+        String colorTrue = lang.getString("permission_color_flag_true", language);
+        String colorFalse = lang.getString("permission_color_flag_false", language);
+        groupName = permissionGroup.getGroupName();
+        String userPermissions = "None";
+        String groupPermissions = "None";
+        StringBuilder builder = new StringBuilder();
+        Collection<Node> userNodes = permissionUser.getPermissionNodes();
+        if (userNodes.size() > 0) {
+            List<Node> listUserNodes = new ArrayList<>(userNodes);
+            sortPermissionNodes(listUserNodes);
+            for (Node node : listUserNodes) {
+                String nodeName = node.getNode();
+                boolean flagValue = node.getFlag();
+                String flag = "" + flagValue;
+                String color = colorTrue;
+                if (!flagValue) {
+                    color = colorFalse;
+                }
+                builder.append(color);
+                builder.append(lang.getString("permission_node", new EntryField("node", nodeName), new EntryField("flag", flag)));
+                builder.append(" <LINE> ");
+            }
+            userPermissions = builder.toString();
+        }
+        Collection<Node> groupNodes = permissionGroup.getAllPermissionNodes();
+        if (groupNodes.size() > 0) {
+            List<Node> listGroupNodes = new ArrayList<>(groupNodes);
+            sortPermissionNodes(listGroupNodes);
+            builder = new StringBuilder();
+            for (Node node : listGroupNodes) {
+                String nodeName = node.getNode();
+                boolean flagValue = node.getFlag();
+                String flag = "" + flagValue;
+                String color = colorTrue;
+                if (!flagValue) {
+                    color = colorFalse;
+                }
+                builder.append(color);
+                builder.append(lang.getString("permission_node", new EntryField("node", nodeName), new EntryField("flag", flag)));
+                builder.append(" <LINE> ");
+            }
+            groupPermissions = builder.toString();
+        }
+        EntryField fieldUUID = new EntryField("uuid", playerId.toString());
+        EntryField fieldName = new EntryField("name", groupName);
+        EntryField fieldUserPermissions = new EntryField("user_permissions", userPermissions);
+        EntryField fieldGroupPermissions = new EntryField("group_permissions", groupPermissions);
+        EntryField[] fields = new EntryField[]{
+                fieldPlayer,
+                fieldUUID,
+                fieldName,
+                fieldUserPermissions,
+                fieldGroupPermissions
+        };
+        response.set(Result.SUCCESS, lang.getString("command_permissions_user_info", language, fields));
         return response;
     }
 
@@ -813,6 +1042,7 @@ public class ModulePermissions extends MongoModule {
         MongoPermissionUser mongoPermissionUser = new MongoPermissionUser(collectionUsers, userId);
         // Create the container for the document.
         PermissionUser permissionUser = new PermissionUser(mongoPermissionUser);
+        permissionUser.setTemporaryPermissionGroup(getDefaultPermissionGroup());
         // Put the document in the map.
         mapMongoPermissionUsers.put(userId, mongoPermissionUser);
         // Put the container in the map.
@@ -886,6 +1116,7 @@ public class ModulePermissions extends MongoModule {
         mapPermissionGroups.put(permissionGroup.getUniqueId(), permissionGroup);
         // Save the document.
         mongoPermissionGroup.save();
+        permissionGroup.setTemporaryParent(getDefaultPermissionGroup());
         // Return the new PermissionGroup.
         return permissionGroup;
     }
@@ -957,6 +1188,16 @@ public class ModulePermissions extends MongoModule {
         }
         // Return the result of the search.
         return returned;
+    }
+
+    public static List<Node> sortPermissionNodes(List<Node> listNodes) {
+        Collections.sort(listNodes, new Comparator<Node>() {
+            @Override
+            public int compare(Node node1, Node node2) {
+                return node1.getNode().compareTo(node2.getNode());
+            }
+        });
+        return listNodes;
     }
 
     /**

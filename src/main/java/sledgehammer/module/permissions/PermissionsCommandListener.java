@@ -1,7 +1,6 @@
 package sledgehammer.module.permissions;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import sledgehammer.enums.Result;
 import sledgehammer.interfaces.CommandListener;
@@ -30,6 +29,7 @@ public class PermissionsCommandListener implements CommandListener {
         mapPermissionNodes.put("permissions group"           , "sledgehammer.permissions.group"            );
         mapPermissionNodes.put("permissions group create"    , "sledgehammer.permissions.group.create"     );
         mapPermissionNodes.put("permissions group delete"    , "sledgehammer.permissions.group.delete"     );
+        mapPermissionNodes.put("permissions group list"      , "sledgehammer.permissions.group.list"       );
         mapPermissionNodes.put("permissions group rename"    , "sledgehammer.permissions.group.rename"     );
         mapPermissionNodes.put("permissions group set"       , "sledgehammer.permissions.group.set"        );
         mapPermissionNodes.put("permissions group set node"  , "sledgehammer.permissions.group.set.context");
@@ -40,6 +40,7 @@ public class PermissionsCommandListener implements CommandListener {
         mapPermissionNodes.put("permissions user set"        , "sledgehammer.permissions.user.set"         );
         mapPermissionNodes.put("permissions user set node"   , "sledgehammer.permissions.user.set.context" );
         mapPermissionNodes.put("permissions user set group"  , "sledgehammer.permissions.user.set.group"   );
+        mapPermissionNodes.put("permissions user set list"   , "sledgehammer.permissions.user.list"        );
         // @formatter:on
     }
 
@@ -67,6 +68,10 @@ public class PermissionsCommandListener implements CommandListener {
                         args = getSubArgs(args, 1);
                         // /permissions group create
                         if(command.equalsIgnoreCase("create")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions group create"))) {
+                                r.deny();
+                                return;
+                            }
                             if(args.length == 1) {
                                 String permissionGroupName = args[0];
                                 r.set(module.commandCreatePermissionGroup(commander, permissionGroupName));
@@ -78,6 +83,10 @@ public class PermissionsCommandListener implements CommandListener {
                         }
                         // /permissions group delete
                         else if(command.equalsIgnoreCase("delete")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions group delete"))) {
+                                r.deny();
+                                return;
+                            }
                             if(args.length == 1) {
                                 String permissionGroupName = args[0];
                                 r.set(module.commandDeletePermissionGroup(commander, permissionGroupName));
@@ -85,8 +94,25 @@ public class PermissionsCommandListener implements CommandListener {
                                 r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_delete", language));
                             }
                         }
+                        // /permissions group list
+                        else if(command.equalsIgnoreCase("list")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions group list"))) {
+                                r.deny();
+                                return;
+                            }
+                            if(args.length == 1) {
+                                String permissionGroupName = args[0];
+                                r.set(module.commandListPermissionGroup(commander, permissionGroupName));
+                            } else {
+                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_list", language));
+                            }
+                        }
                         // /permissions group rename
                         else if(command.equalsIgnoreCase("rename")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions group rename"))) {
+                                r.deny();
+                                return;
+                            }
                             if(args.length == 2) {
                                 String permissionGroupName = args[0];
                                 String permissionGroupNameNew = args[1];
@@ -102,6 +128,10 @@ public class PermissionsCommandListener implements CommandListener {
                                 args = getSubArgs(args, 1);
                                 // /permissions group set node
                                 if(command.equalsIgnoreCase("node")) {
+                                    if(!commander.hasPermission(getPermissionNode("permissions group set node"))) {
+                                        r.deny();
+                                        return;
+                                    }
                                     if(args.length == 3) {
                                         String permissionGroupName = args[0];
                                         String node = args[1];
@@ -113,6 +143,10 @@ public class PermissionsCommandListener implements CommandListener {
                                 }
                                 // /permissions group set parent
                                 else if(command.equalsIgnoreCase("parent")) {
+                                    if(!commander.hasPermission(getPermissionNode("permissions group set parent"))) {
+                                        r.deny();
+                                        return;
+                                    }
                                     if(args.length == 2) {
                                         String permissionGroupName = args[0];
                                         String permissionGroupNameParent = args[1];
@@ -138,6 +172,10 @@ public class PermissionsCommandListener implements CommandListener {
                         args = getSubArgs(args, 1);
                         // /permission user create
                         if(command.equalsIgnoreCase("create")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions user create"))) {
+                                r.deny();
+                                return;
+                            }
                             if(args.length > 0) {
                                 String username = args[0];
                                 r.set(module.commandCreatePermissionUser(commander, username));
@@ -147,11 +185,28 @@ public class PermissionsCommandListener implements CommandListener {
                         }
                         // /permission user delete
                         else if(command.equalsIgnoreCase("delete")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions user delete"))) {
+                                r.deny();
+                                return;
+                            }
                             if(args.length > 0) {
                                 String username = args[0];
                                 r.set(module.commandDeletePermissionUser(commander, username));
                             } else {
                                 r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_delete", language));
+                            }
+                        }
+                        // /permission user list
+                        else if(command.equalsIgnoreCase("list")) {
+                            if(!commander.hasPermission(getPermissionNode("permissions user list"))) {
+                                r.deny();
+                                return;
+                            }
+                            if(args.length == 1) {
+                                String username = args[0];
+                                r.set(module.commandListPermissionUser(commander, username));
+                            } else {
+                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_list", language));
                             }
                         }
                         // /permission user set
@@ -161,6 +216,10 @@ public class PermissionsCommandListener implements CommandListener {
                                 args = getSubArgs(args, 1);
                                 // /permission user set group
                                 if(command.equalsIgnoreCase("group")) {
+                                    if(!commander.hasPermission(getPermissionNode("permissions user set group"))) {
+                                        r.deny();
+                                        return;
+                                    }
                                     if(args.length == 2) {
                                         String username = args[0];
                                         String permissionGroupName = args[1];
@@ -171,6 +230,10 @@ public class PermissionsCommandListener implements CommandListener {
                                 }
                                 // /permission user set node
                                 else if(command.equalsIgnoreCase("node")) {
+                                    if(!commander.hasPermission(getPermissionNode("permissions user set node"))) {
+                                        r.deny();
+                                        return;
+                                    }
                                     if(args.length == 3) {
                                         String username = args[0];
                                         String node = args[1];
@@ -203,7 +266,7 @@ public class PermissionsCommandListener implements CommandListener {
     @Override
     public String onTooltip(Player commander, Command c) {
         String command = c.getCommand().toLowerCase();
-        if (command.equals("permissions")) {
+        if (command.equals("permissions") && commander.hasPermission(getPermissionNode("permissions") + ".*")) {
             Response r = new Response();
             processHelpMessage(commander, r);
             return r.getResponse();
@@ -227,7 +290,14 @@ public class PermissionsCommandListener implements CommandListener {
         Language language = commander.getLanguage();
         StringBuilder builder = new StringBuilder();
         builder.append(lang.getString("command_tooltip_permissions_header", language));
-        for (String key : mapPermissionNodes.keySet()) {
+        List<String> listCommands = new ArrayList<>(mapPermissionNodes.keySet());
+        Collections.sort(listCommands, new Comparator<String>() {
+            @Override
+            public int compare(String string1, String string2) {
+                return string1.compareTo(string2);
+            }
+        });
+        for (String key : listCommands) {
             // Grab the PermissionNode.
             String permissionNode = mapPermissionNodes.get(key);
             if (commander.hasPermission(permissionNode)) {

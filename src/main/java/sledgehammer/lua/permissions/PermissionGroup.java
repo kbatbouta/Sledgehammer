@@ -40,6 +40,8 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
      */
     private PermissionGroup parent;
 
+    private PermissionGroup parentTemporary;
+
     /**
      * Load constructor.
      *
@@ -111,16 +113,52 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
         return returned;
     }
 
+    /**
+     * @return Returns a List of PermissionNodes from the parent PermissionGroup (If the PermissionGroup has a parent),
+     * along with the Permission Nodes provided in the Permission Group.
+     */
+    public List<Node> getAllPermissionNodes() {
+        // The List to return.
+        List<Node> listNodes = new ArrayList<>();
+        PermissionGroup parent = getParent();
+        // If the parent has definitions, grab them first to override them.
+        if (parent != null) {
+            listNodes.addAll(parent.getAllPermissionNodes());
+        }
+        boolean hasParentNodes = listNodes.size() > 0;
+        if(hasParentNodes) {
+            // The list contains parent Nodes. Go through each Node, and check for matches.
+            for(Node node : getPermissionNodes()) {
+                // Go through each parent node.
+                for(Node nodeParent : listNodes) {
+                    // If the nodes match, then override it by removing the parent Node definition and adding the child
+                    // Node definition.
+                    if(nodeParent.getNode().equalsIgnoreCase(node.getNode())) {
+                        listNodes.remove(nodeParent);
+                    }
+                    listNodes.add(node);
+                }
+            }
+        } else {
+            // No parent Nodes are present. Add all available nodes from the Permission Group.
+            listNodes.addAll(getPermissionNodes());
+        }
+        // Return the result Nodes.
+        return listNodes;
+    }
+
+
     @Override
     public List<Node> getAllSubPermissionNodes(String superNodeAsString) {
         // Format the node argument.
         superNodeAsString = superNodeAsString.trim();
         // The List to return.
         List<Node> listNodes = new ArrayList<>();
+        PermissionGroup parent = getParent();
         // If the group has a parent.
-        if (hasParent()) {
+        if (parent != null) {
             // Add all of the nodes form the parent's execution of this method.
-            listNodes.addAll(getParent().getAllSubPermissionNodes(superNodeAsString));
+            listNodes.addAll(parent.getAllSubPermissionNodes(superNodeAsString));
         }
         // Go through group all group nodes.
         for (Node nodeNext : getPermissionNodes()) {
@@ -198,7 +236,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
      * @return Returns the parent PermissionGroup, if one is assigned.
      */
     public PermissionGroup getParent() {
-        return this.parent;
+        return this.parent != null ? this.parent : this.parentTemporary;
     }
 
     /**
@@ -214,10 +252,19 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
     }
 
     /**
+     * Sets the parent PermissionGroup for the PermissionGroup without affecting the MongoDocument.
+     *
+     * @param group The PermissionGroup to assign as the parent.
+     */
+    public void setTemporaryParent(PermissionGroup group) {
+        this.parentTemporary = group;
+    }
+
+    /**
      * @return Returns true if the PermissionGroup has a parent PermissionGroup.
      */
     public boolean hasParent() {
-        return getParent() != null;
+        return this.parent != null;
     }
 
     /**

@@ -36,6 +36,7 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
      * reference will be null.
      */
     private PermissionGroup permissionGroup;
+    private PermissionGroup permissionGroupTemporary;
 
     /**
      * Main constructor.
@@ -146,7 +147,7 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
      * user is not assigned to a group, null is returned.
      */
     public PermissionGroup getPermissionGroup() {
-        return this.permissionGroup;
+        return this.permissionGroup != null ? this.permissionGroup : this.permissionGroupTemporary;
     }
 
     /**
@@ -167,6 +168,10 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
             groupId = permissionGroup.getUniqueId();
         }
         getMongoDocument().setGroupId(groupId, save);
+    }
+
+    public void setTemporaryPermissionGroup(PermissionGroup permissionGroup) {
+        this.permissionGroupTemporary = permissionGroup;
     }
 
     /**
@@ -190,6 +195,6 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
      * PermissionGroup.
      */
     public boolean hasPermissionGroup() {
-        return getPermissionGroup() != null;
+        return this.permissionGroup != null;
     }
 }

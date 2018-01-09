@@ -49,8 +49,6 @@ public abstract class PermissionObject<M extends MongoUniqueNodeDocument> extend
      */
     public PermissionObject(M mongoDocument, String name) {
         super(mongoDocument, name);
-        println("mongoDocument: " + mongoDocument);
-        println("getMongoDocument: " + getMongoDocument());
     }
 
     /**
