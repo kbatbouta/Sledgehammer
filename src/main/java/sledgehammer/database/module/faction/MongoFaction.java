@@ -23,7 +23,7 @@ import com.mongodb.DBObject;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.document.MongoDocument;
 import sledgehammer.util.ChatTags;
-import sledgehammer.util.StringUtils;
+import zombie.sledgehammer.util.MD5;
 
 /**
  * TODO: Document
@@ -116,7 +116,7 @@ public class MongoFaction extends MongoDocument {
     }
 
     public void setPassword(String password, boolean save) {
-        setEncryptedPassword(StringUtils.md5(password), save);
+        setEncryptedPassword(MD5.encrypt(password), save);
     }
 
     public String getEncryptedPassword() {

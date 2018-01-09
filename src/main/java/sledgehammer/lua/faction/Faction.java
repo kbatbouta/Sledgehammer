@@ -27,7 +27,7 @@ import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
-import sledgehammer.util.StringUtils;
+import zombie.sledgehammer.util.MD5;
 
 /**
  * MongoLuaObject that handles faction data and operations.
@@ -142,7 +142,7 @@ public class Faction extends MongoLuaObject<MongoFaction> {
             return false;
         }
         // Encrypt the new password.
-        String passwordEncrypted = StringUtils.md5(password);
+        String passwordEncrypted = MD5.encrypt(password);
         // Test if the both encrypted passwords match.
         return passwordActualEncrypted.equals(passwordEncrypted);
     }

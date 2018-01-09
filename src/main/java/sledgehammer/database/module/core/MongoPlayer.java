@@ -26,8 +26,7 @@ import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.document.MongoUniqueDocument;
-import sledgehammer.util.StringUtils;
-import sledgehammer.util.ZUtil;
+import zombie.sledgehammer.util.MD5;
 
 /**
  * MongoDocument for Player information.
@@ -205,13 +204,8 @@ public class MongoPlayer extends MongoUniqueDocument {
         // Check to see if given password matches.
         if (!returned && passwordEncrypted != null) {
             // Attempt the Zomboid MD5 encryption first.
-            String passwordGivenEncrypted = ZUtil.encrypt(passwordGiven);
+            String passwordGivenEncrypted = MD5.encrypt(passwordGiven);
             returned = passwordEncrypted.equals(passwordGivenEncrypted);
-            if(!returned) {
-                // Attempt the Sledgehammer MD5 encryption second.
-                passwordGivenEncrypted = StringUtils.md5(passwordGiven);
-                returned = passwordEncrypted.equals(passwordGivenEncrypted);
-            }
         }
         return returned;
     }
@@ -298,7 +292,7 @@ public class MongoPlayer extends MongoUniqueDocument {
         if (password == null || password.isEmpty()) {
             setEncryptedPassword("");
         }
-        setEncryptedPassword(StringUtils.md5(password));
+        setEncryptedPassword(MD5.encrypt(password));
         return true;
     }
 

@@ -32,8 +32,8 @@ import sledgehammer.Settings;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.MongoDatabase;
 import sledgehammer.lua.core.Player;
-import sledgehammer.util.StringUtils;
 import zombie.core.znet.SteamUtils;
+import zombie.sledgehammer.util.MD5;
 
 public class SledgehammerDatabase extends MongoDatabase {
 
@@ -161,7 +161,7 @@ public class SledgehammerDatabase extends MongoDatabase {
         }
         if (player == null) {
             DBCursor cursor = collectionPlayers
-                    .find(new BasicDBObject("username", username).append("password", StringUtils.md5(password)));
+                    .find(new BasicDBObject("username", username).append("password", MD5.encrypt(password)));
             if (cursor.hasNext()) {
                 player = new MongoPlayer(collectionPlayers, cursor.next());
                 registerPlayer(player);

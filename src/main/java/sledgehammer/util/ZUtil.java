@@ -159,33 +159,6 @@ public class ZUtil {
         return (System.currentTimeMillis() / 1000);
     }
 
-    public static String encrypt(String previousPwd) {
-        if (previousPwd == null || previousPwd.isEmpty()) {
-            return "";
-        } else {
-            byte[] encrypted = null;
-            try {
-                encrypted = MessageDigest.getInstance("MD5").digest(previousPwd.getBytes());
-            } catch (NoSuchAlgorithmException e) {
-                SledgeHammer.instance.println("Can\'t encrypt password");
-                e.printStackTrace();
-            }
-            StringBuilder hashString = new StringBuilder();
-            if (encrypted != null) {
-                for (byte crypt : encrypted) {
-                    String hex = Integer.toHexString(crypt);
-                    if (hex.length() == 1) {
-                        hashString.append('0');
-                        hashString.append(hex.charAt(hex.length() - 1));
-                    } else {
-                        hashString.append(hex.substring(hex.length() - 2));
-                    }
-                }
-            }
-            return hashString.toString();
-        }
-    }
-
     public static File[] getFiles(File directory, String extension) {
         List<File> listFiles = new ArrayList<>();
         if (directory.exists()) {
