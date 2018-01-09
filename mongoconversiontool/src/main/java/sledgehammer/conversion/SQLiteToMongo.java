@@ -223,14 +223,15 @@ public class SQLiteToMongo {
             // @formatter:on
         }
 
-        DBObject objects[] = new DBObject[listPlayersToInsert.size()];
-        for(int index = 0; index < listPlayersToInsert.size(); index++) {
-            objects[index] = listPlayersToInsert.get(index);
+        if(listPlayersToInsert.size() > 0) {
+            DBObject objects[] = new DBObject[listPlayersToInsert.size()];
+            for(int index = 0; index < listPlayersToInsert.size(); index++) {
+                objects[index] = listPlayersToInsert.get(index);
+            }
+            collectionMongoPlayers.insert(objects);
         }
-        collectionMongoPlayers.insert(objects);
-
-
-
+        console.println("Added " + listPlayersToInsert.size() + " player" +
+                (listPlayersToInsert.size() == 1 ? "" : "s") + ".", "");
         console.println("Conversion completed.");
         client.close();
     }

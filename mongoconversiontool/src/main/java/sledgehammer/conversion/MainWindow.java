@@ -28,6 +28,8 @@ public class MainWindow {
 
     private void createUIComponents() {
 
+        panelMain = new JPanel();
+
         FileFilter dbFilter = new FileFilter() {
             @Override
             public boolean accept(File f) {
