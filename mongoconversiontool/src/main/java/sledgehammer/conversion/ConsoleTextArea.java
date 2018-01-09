@@ -56,4 +56,12 @@ public class ConsoleTextArea extends JTextArea {
     public void clear() {
         setText("");
     }
+
+    public void printStackTrace(Exception e) {
+        println(e.getClass().getName() + ": " + e.toString());
+        StackTraceElement[] stack = e.getStackTrace();
+        for(StackTraceElement stackElement : stack) {
+            println("\t\t" + stackElement.toString());
+        }
+    }
 }

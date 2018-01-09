@@ -12,6 +12,11 @@ public class SQLBanID {
         setReason(reason);
     }
 
+    @Override
+    public String toString() {
+        return "(SteamID=\"" + getID() + "\" username=\"" + getUsername() + "\" reason=\"" + getReason() + "\")";
+    }
+
     public String getID() {
         return this.id;
     }

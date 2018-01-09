@@ -12,6 +12,11 @@ public class SQLBanIP {
         setReason(reason);
     }
 
+    @Override
+    public String toString() {
+        return "(IP=\"" + getIP() + "\" username=\"" + getUsername() + "\" reason=\"" + getReason() + "\")";
+    }
+
     public String getIP() {
         return this.ip;
     }
