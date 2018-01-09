@@ -25,8 +25,9 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import sledgehammer.database.MongoCollection;
-import sledgehammer.database.document.MongoDocument;
+import sledgehammer.database.document.MongoUniqueDocument;
 import sledgehammer.util.StringUtils;
+import sledgehammer.util.ZUtil;
 
 /**
  * MongoDocument for Player information.
@@ -35,10 +36,9 @@ import sledgehammer.util.StringUtils;
  *
  * @author Jab
  */
-public class MongoPlayer extends MongoDocument {
+public class MongoPlayer extends MongoUniqueDocument {
 
     private Map<String, String> mapMetadata;
-    private UUID uniqueId;
     private String username;
     private String nickname;
     private String passwordEncrypted;
@@ -57,7 +57,7 @@ public class MongoPlayer extends MongoDocument {
      * @param collection The MongoCollection storing the MongoDocument.
      */
     public MongoPlayer(MongoCollection collection) {
-        super(collection, "id");
+        super(collection);
         reset();
     }
 
@@ -68,7 +68,7 @@ public class MongoPlayer extends MongoDocument {
      * @param username   The name of the Player.
      */
     public MongoPlayer(MongoCollection collection, String username) {
-        super(collection, "id");
+        super(collection);
         // Reset all fields to a new player.
         reset();
         // Set the username given.
@@ -82,15 +82,14 @@ public class MongoPlayer extends MongoDocument {
     }
 
     public MongoPlayer(MongoCollection collection, DBObject object) {
-        super(collection, "id");
+        super(collection, (UUID) object.get("id"));
         reset();
         onLoad(object);
     }
 
     public MongoPlayer(MongoCollection collection, UUID uuid) {
-        super(collection, "id");
+        super(collection, uuid);
         reset();
-        setUniqueId(uuid);
         DBCursor cursor = collection.getDBCollection().find(new BasicDBObject(getFieldId(), getFieldValue()));
         if (cursor.hasNext()) {
             onLoad(cursor.next());
@@ -99,7 +98,7 @@ public class MongoPlayer extends MongoDocument {
     }
 
     public MongoPlayer(MongoCollection collection, String username, String password) {
-        super(collection, "id");
+        super(collection);
         // Reset all fields to a new player.
         reset();
         // Set the username given.
@@ -114,9 +113,9 @@ public class MongoPlayer extends MongoDocument {
         // We are loading an existing account. This is now false.
         setNewAccount(false);
         // Load the uuid for the player.
-        Object oUUID = object.get("id");
-        if (oUUID != null) {
-            setUniqueId(oUUID.toString());
+        UUID uuid = (UUID) object.get("id");
+        if (uuid != null) {
+            setUniqueId(uuid, false);
         }
         // Load the username for the player.
         Object oUsername = object.get("username");
@@ -182,13 +181,7 @@ public class MongoPlayer extends MongoDocument {
 		// @formatter:on
     }
 
-    @Override
-    public Object getFieldValue() {
-        return getUniqueId().toString();
-    }
-
     private void reset() {
-        setUniqueId(UUID.randomUUID());
         setNewAccount(true);
         this.username = null;
         this.mapMetadata = new HashMap<>();
@@ -211,9 +204,13 @@ public class MongoPlayer extends MongoDocument {
         }
         // Check to see if given password matches.
         if (!returned && passwordEncrypted != null) {
-            String passwordGivenEncrypted = StringUtils.md5(passwordGiven);
-            if (passwordEncrypted.equals(passwordGivenEncrypted)) {
-                returned = true;
+            // Attempt the Zomboid MD5 encryption first.
+            String passwordGivenEncrypted = ZUtil.encrypt(passwordGiven);
+            returned = passwordEncrypted.equals(passwordGivenEncrypted);
+            if(!returned) {
+                // Attempt the Sledgehammer MD5 encryption second.
+                passwordGivenEncrypted = StringUtils.md5(passwordGiven);
+                returned = passwordEncrypted.equals(passwordGivenEncrypted);
             }
         }
         return returned;
@@ -409,35 +406,6 @@ public class MongoPlayer extends MongoDocument {
      */
     private void setUsername(String username) {
         this.username = username;
-    }
-
-    /**
-     * @return Returns a unique ID representing the player.
-     */
-    public UUID getUniqueId() {
-        return this.uniqueId;
-    }
-
-    /**
-     * (Private method)
-     * <p>
-     * Sets the Unique ID for the player from a String format.
-     *
-     * @param uniqueIdString The String Unique ID to set.
-     */
-    private void setUniqueId(String uniqueIdString) {
-        setUniqueId(UUID.fromString(uniqueIdString));
-    }
-
-    /**
-     * (Private method)
-     * <p>
-     * Sets the Unique ID for the player.
-     *
-     * @param uniqueId The Unique ID to set.
-     */
-    private void setUniqueId(UUID uniqueId) {
-        this.uniqueId = uniqueId;
     }
 
     public boolean hasPassword() {

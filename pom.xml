@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>sledgehammer</groupId>
     <artifactId>Sledgehammer</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
     <version>4.0.0</version>
     <build>
         <plugins>
@@ -70,6 +70,9 @@
             </plugin>
         </plugins>
     </build>
+    <modules>
+        <module>mongoconversiontool</module>
+    </modules>
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
         <dependency>

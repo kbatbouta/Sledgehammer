@@ -42,7 +42,20 @@ security:
   #   the console. Take consideration when enabling this feature.
   allow_rcon: false
 
-# MongoDB database settings for Sledgehammer.
+# MongoDB database settings for Sledgehammer. MongoDB does not require more
+#   than a url, however for security reasons, all data is required for
+#   sledgehammer.
+#
+#   In order to create a MongoDB account:
+#     1) Open a console and type 'mongodb' (or look up how to add mongodb to
+#          your OS PATH)
+#     2) Type 'use admin'. (This is the database to add the user)
+#     3) Paste this in with the criteria you put below:
+#        db.createUser({
+#          user: "USERNAME_HERE",
+#          pwd: "PASSWORD_HERE",
+#          roles: [ "root" ]
+#        });
 mongo_db:
   # The URL to connect to. (Use 'localhost' if you are hosting the database 
   #   on the same computer)
