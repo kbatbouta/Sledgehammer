@@ -141,7 +141,7 @@ function ChatMessage:render(chat_channel)
 	if self.rendered == nil then
 		local history_header = "";
 		if self.history then 
-			history_header = ChatMessage.HISTORY_HEADER;
+			history_header = ChatMessage.HISTORY_HEADER.."  ";
 		end
 		local player_header = "";
 		if self.player_name ~= nil then
