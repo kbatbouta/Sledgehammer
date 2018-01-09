@@ -192,7 +192,7 @@ public class ModuleCore extends Module {
 				message.setChannelId(channelId, false);
 				commander.sendChatMessage(message);
 			} else {
-				ChatMessage message = createChatMessage("Unknown command: " + clientCommand);
+				ChatMessage message = createChatMessage("Unknown command: " + command.getCommand());
 				message.setPrintedTimestamp(false);
 				message.setOrigin(ChatMessage.ORIGIN_SERVER, false);
 				// Checks if the origin Channel is available.
