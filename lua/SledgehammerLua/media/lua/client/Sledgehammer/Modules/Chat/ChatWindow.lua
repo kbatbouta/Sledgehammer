@@ -474,7 +474,6 @@ ChatWindow.esc_pressed = false;
 -- @static
 ----------------------------------------------------------------
 function ChatWindow:onTick()
-
 	-- Make sure that the ChatWindow is initialized.
 	if ChatWindow.instance          == nil then return; end
 	if ChatWindow.instance.tab_panel == nil then return; end
@@ -568,9 +567,7 @@ end
 --
 -- @static
 ----------------------------------------------------------------
-function ChatWindow:onKeyPressed(key)
-
-end
+function ChatWindow:onKeyPressed(key) end
 
 ----------------------------------------------------------------
 -- @static
