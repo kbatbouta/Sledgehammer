@@ -108,8 +108,8 @@ public class Agent {
             try {
                 Files.copy(file.toPath(), dest.toPath());
             } catch (FileAlreadyExistsException e) {
-                System.err.println("Failed to copy File: \"" + file.toPath().toString() + "\" to File: \"" + dest.toPath().toString() + "\".");
-                System.err.println("File already exists and is not overwritten.");
+//                System.err.println("Failed to copy File: \"" + file.toPath().toString() + "\" to File: \"" + dest.toPath().toString() + "\".");
+//                System.err.println("File already exists and is not overwritten.");
             } catch (IOException e) {
                 e.printStackTrace();
             }
