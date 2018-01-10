@@ -17,10 +17,6 @@
 --    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
 
 require "Sledgehammer"
-require "Sledgehammer/Gui/Implemented/Chat"
-require "Sledgehammer/Modules/Chat/ChatChannel"
-require "Sledgehammer/Modules/Chat/ChatHistory"
-require "Sledgehammer/Modules/Chat/ChatMessage"
 
 ----------------------------------------------------------------
 -- ModuleChat.lua
@@ -53,7 +49,8 @@ end
 ----------------------------------------------------------------
 -- @Override
 ----------------------------------------------------------------
-function Module_Chat:start() end
+function Module_Chat:start()
+end
 
 ----------------------------------------------------------------
 -- @Override

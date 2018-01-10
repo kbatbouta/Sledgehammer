@@ -1,7 +1,6 @@
 require "ISUI/ISChat"
 
 function static()
-	
 	-- Disables legacy chat.
 	ISChat.createChat = function() end
 end
@@ -13,12 +12,10 @@ end
 function disableLegacyChat()
 	-- Removes legacy chat from UI update.
 	ISChat.chat:removeFromUIManager();
-
 	-- Hides legacy chat.
 	ISChat.chat:setVisible(false);
 	ISChat.instance.moreinfo:setVisible(false);
     ISChat.instance.chatText:setVisible(false);
-
 	-- Removes legacy chat event hooks.
 	Events.OnWorldMessage.Remove(ISChat.addLineInChat);
     Events.OnMouseDown.Remove(ISChat.unfocus);

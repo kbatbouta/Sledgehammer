@@ -268,15 +268,22 @@ public abstract class Module extends Printable {
      * @return Returns the File directory for the Module to store data.
      */
     public File getModuleDirectory() {
-        PluginManager managerPlugin = getModuleManager();
         if (directory == null) {
-            directory = new File(managerPlugin.getPluginDirectory(), getModuleName());
+            directory = new File(getPluginDirectory(), getModuleName());
             if (!directory.exists()) {
                 directory.mkdirs();
             }
         }
         return directory;
     }
+
+    /**
+     * @return Returns the File directory for the Plugin that stores Module directories.
+     */
+    public File getPluginDirectory() {
+        return getPlugin().getPluginDirectory();
+    }
+
 
     /**
      * Saves a File resource stored in the Plug-in Jar File to the same location
@@ -692,6 +699,12 @@ public abstract class Module extends Printable {
      */
     public File getLanguageDirectory() {
         return SledgeHammer.instance.getLanguageDirectory();
+    }
+
+    public File getLuaDirectory() {
+        File dir = new File(SledgeHammer.instance.getLuaDirectory(), "Module" + File.separator + getClientModuleId());
+        if(!dir.exists()) dir.mkdirs();
+        return dir;
     }
 
     /**

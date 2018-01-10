@@ -1,5 +1,9 @@
 package sledgehammer.module.chat;
 
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -12,15 +16,13 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.enums.Result;
-import sledgehammer.event.ClientEvent;
-import sledgehammer.event.ConnectEvent;
-import sledgehammer.event.DisconnectEvent;
-import sledgehammer.event.Event;
+import sledgehammer.event.*;
 import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
@@ -30,6 +32,7 @@ import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.chat.request.RequestChatChannels;
 import sledgehammer.lua.chat.request.RequestChatHistory;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.plugin.MongoModule;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
@@ -51,6 +54,8 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     private ChatChannel pms;
     private ChatChannel espanol;
 
+    private SendLua sendLua;
+
     /**
      * Main constructor.
      */
@@ -60,6 +65,20 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 
     @Override
     public void onLoad() {
+        File lua = getLuaDirectory();
+        // @formatter:off
+        File fileChatChannel = new File(lua, "ChatChannel.lua");
+        File fileChatHistory = new File(lua, "ChatHistory.lua");
+        File fileChatMessage = new File(lua, "ChatMessage.lua");
+        File fileChatWindow  = new File(lua, "ChatWindow.lua");
+        File fileChatModule  = new File(lua, "ModuleChat.lua");
+        saveResourceAs("lua/module/chat/ChatChannel.lua", fileChatChannel, true);
+        saveResourceAs("lua/module/chat/ChatHistory.lua", fileChatHistory, true);
+        saveResourceAs("lua/module/chat/ChatMessage.lua", fileChatMessage, true);
+        saveResourceAs("lua/module/chat/ChatWindow.lua" , fileChatWindow , true);
+        saveResourceAs("lua/module/chat/ModuleChat.lua" , fileChatModule , true);
+        // @formatter:on
+        sendLua = new SendLua(fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow, fileChatModule);
         mapChatChannels = new LinkedHashMap<>();
         listOrderedChatChannels = new LinkedList<>();
         // Grab the MongoCollections storing the data for this Module.
@@ -175,15 +194,18 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
             handleConnectEvent((ConnectEvent) event);
         } else if (Id.equals(DisconnectEvent.ID)) {
             handleDisconnectEvent((DisconnectEvent) event);
+        } else if (Id.equals(HandShakeEvent.ID)) {
+            SledgeHammer.instance.send(sendLua, ((HandShakeEvent) event).getPlayer());
         }
     }
 
     @Override
     public String[] getTypes() {
         // @formatter:off
-		return new String[] { 
-			ConnectEvent.ID, 
-			DisconnectEvent.ID
+		return new String[] {
+            ConnectEvent.ID,
+            DisconnectEvent.ID,
+            HandShakeEvent.ID,
 		};
 		// @formatter:on
     }

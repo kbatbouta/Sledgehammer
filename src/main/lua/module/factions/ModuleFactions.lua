@@ -16,21 +16,13 @@
 --	Sledgehammer is free to use and modify, ONLY for non-official third-party servers 
 --    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
 
-require "Sledgehammer"
-
 -- Main mod container.
-Module_Factions = class(Module, function(o)
-
+_G.Module_Factions = class(Module, function(o)
 	-- Invoke super constructor.
 	Module.init(o, "ModuleFactions", "Factions");
-
 	-- Debug flag.
 	o.DEBUG = true;
-	
 end);
 
--- Events.OnGameStart.Add(FactionsCreate);
--- Events.OnPlayerUpdate.Add(FactionsUpdate);
-
 -- Registers Module to SledgeHammer.
-register(Module_Factions());
+register(_G.Module_Factions());

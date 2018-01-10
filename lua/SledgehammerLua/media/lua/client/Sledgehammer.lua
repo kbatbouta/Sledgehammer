@@ -44,7 +44,6 @@ SledgeHammer = class(function(o)
 	 o.delayStartSeconds = 1;
 	 o.delayStart = false;
 	 o.handshakeAttempt = 1;
-	 o.core = Module_Core();
 	-- List of SledgeHammer Player LuaObjects, identified via ID.
 	o.players = {};
 	-- Map of SledgeHammer Player LuaObjects, identified via string (name).
@@ -136,8 +135,6 @@ end
 function SledgeHammer:start()
 	-- Register the command method.
 	Events.OnServerCommand.Add(command_sledgehammer);
-	self:loadModule(self.core);
-	self:loadModules();
 	self.startTimeStamp = getTimestamp();
 	local handshakeSuccess = function(table, request)
 		-- Flag the handshake as successful.
@@ -161,10 +158,8 @@ end
 -- Handles SledgeHammer protocol.
 ----------------------------------------------------------------
 function SledgeHammer:onHandshake()
-	self:startModule(self.core);
 	-- Start Modules after the initial handshake for Sledgehammer.
 	self:startModules();
-	self:handshakeModule(self.core);
 	-- Also Handshake Modules.
 	self:handshakeModules();
 end
@@ -179,7 +174,6 @@ function SledgeHammer:update()
 		if not self.started then
 			self:start();
 		end
-		self.core:update();
 		self:updateModules();
 	end
 	self.hasUpdated = true;
@@ -203,8 +197,11 @@ function SledgeHammer:onClientCommand(mod, command, args)
 		end
 		-- If this is the core, route directly and return.
 		if modName == "core" then
-			self.core:command(command, args);
-			return;
+			if command == "sendLua" then
+				local func = load_function(args.lua);
+				func();
+				return;
+			end
 		end
 		-- Grab the module being commanded.
 		local modu = self.modulesByID[modName];
@@ -251,7 +248,6 @@ function SledgeHammer:stop()
 	Events.OnTickEvenPaused.Remove(update_sledgehammer);
 	-- Unregister the command method.
 	Events.OnServerCommand.Remove(command_sledgehammer);
-	self:stopModule(self.core);
 	self:stopModules();
 	self.started = false;
 end
@@ -490,6 +486,7 @@ function SledgeHammer:register(mod)
 	-- If Sledgehammer is started, start the module.
 	if self:isStarted() then
 		mod:start();
+		mod:handshake();
 	end
 end
 

@@ -38,6 +38,7 @@ import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.request.RequestInfo;
+import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.lua.core.send.SendPlayer;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.plugin.Module;
@@ -68,11 +69,18 @@ public class ModuleCore extends Module {
 	private long timeThenPeriodicMessages = 0L;
 	private long timeThenCheckAccountExpire = 0L;
 	private long delayCheckAccountExpire = LONG_DAY;
+	private SendLua sendLua;
 
 	@Override
 	public void onLoad() {
+		File lua = getLuaDirectory();
+		// @formatter:off
+        File fileCoreModule = new File(lua, "ModuleCore.lua");
+        saveResourceAs("lua/module/core/ModuleCore.lua" , fileCoreModule , true);
+        // @formatter:on
+		sendLua = new SendLua(fileCoreModule);
 		// Make sure that the core language file(s) are provided.
-		saveResourceAs("lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), false);
+		saveResourceAs("lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), true);
 		// Load the LanguagePackage.
 		lang = new LanguagePackage(getLanguageDirectory(), "core");
 		lang.load();
@@ -154,7 +162,8 @@ public class ModuleCore extends Module {
 		String clientCommand = event.getCommand();
 		Player player = event.getPlayer();
 		if (clientCommand.equalsIgnoreCase("handshake")) {
-			// We just want to ping back to the client saying we received the request.
+			SledgeHammer.instance.send(sendLua, player);
+		    // We just want to ping back to the client saying we received the request.
 			event.respond();
 			// Create a HandShakeEvent.
 			HandShakeEvent handshakeEvent = new HandShakeEvent(player);

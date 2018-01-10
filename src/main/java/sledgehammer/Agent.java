@@ -65,6 +65,9 @@ public class Agent {
         if(new File("lang/"  ).mkdirs()) {
 		    System.out.println("Created directory: .../lang/");
 		}
+         if(new File("lua/"  ).mkdirs()) {
+		    System.out.println("Created directory: .../lua/");
+		}
 		// @formatter:on
         File craftboid = new File("natives/CraftBoid.jar");
         // Load the Settings for Sledgehammer.

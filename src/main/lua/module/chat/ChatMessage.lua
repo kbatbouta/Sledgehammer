@@ -14,7 +14,7 @@
 --    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 --
 --	Sledgehammer is free to use and modify, ONLY for non-official third-party servers 
---    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
+--    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
 
 require "Sledgehammer"
 require "Sledgehammer/Objects/Color"

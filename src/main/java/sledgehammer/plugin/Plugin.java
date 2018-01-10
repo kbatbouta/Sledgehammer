@@ -93,6 +93,7 @@ public class Plugin extends Printable {
      * Flag to load the classes in the plug-in. This is false for the core plug-in.
      */
     private boolean loadClasses = true;
+    private File pluginDirectory;
 
     /**
      * Main constructor.
@@ -747,5 +748,15 @@ public class Plugin extends Printable {
             }
         }
         return loader;
+    }
+
+    public File getPluginDirectory() {
+        if (pluginDirectory == null) {
+            pluginDirectory = new File(SledgeHammer.instance.getPluginManager().getPluginDirectory(), getPluginName());
+            if (!pluginDirectory.exists()) {
+                pluginDirectory.mkdirs();
+            }
+        }
+        return pluginDirectory;
     }
 }

@@ -21,6 +21,10 @@
             <outputDirectory>/</outputDirectory>
         </fileSet>
         <fileSet>
+            <directory>${project.basedir}/src/main/lua</directory>
+            <outputDirectory>/lua</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>${project.basedir}/lang</directory>
             <outputDirectory>/lang</outputDirectory>
         </fileSet>

@@ -17,8 +17,6 @@
 --    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
 
 require "Class"
-require "Sledgehammer/Modules/Chat/ChatHistory"
-require "Sledgehammer/Modules/Chat/ChatMessage"
 
 ----------------------------------------------------------------
 -- ChatChannel.lua

@@ -132,6 +132,10 @@ public class SledgeHammer extends Printable {
      */
     private File directoryLang;
     /**
+     * File to point to the Lua directory for SledgeHammer Plug-ins.
+     */
+    private File directoryLua;
+    /**
      * The name of the server running SledgeHammer.
      */
     private String publicServerName;
@@ -177,6 +181,7 @@ public class SledgeHammer extends Printable {
     public void init() {
         try {
             directoryLang = new File("lang/");
+            directoryLua  = new File("lua/" );
             publicServerName = ServerOptions.instance.getOption("PublicName");
             // Initialize the Chat Engine.
             managerEvent = new EventManager();
@@ -994,5 +999,9 @@ public class SledgeHammer extends Printable {
     public static void main(String[] args) {
         instance = new SledgeHammer();
         GameServer.main(args);
+    }
+
+    public File getLuaDirectory() {
+        return this.directoryLua;
     }
 }

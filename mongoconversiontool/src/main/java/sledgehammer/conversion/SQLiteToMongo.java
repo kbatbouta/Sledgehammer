@@ -5,9 +5,8 @@ import com.mongodb.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.net.URL;
 import java.sql.*;
@@ -402,6 +401,7 @@ public class SQLiteToMongo {
             e.printStackTrace();
         }
         new SQLiteToMongo();
+
     }
 
     /**

@@ -14,12 +14,10 @@
 --    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
 --
 --	Sledgehammer is free to use and modify, ONLY for non-official third-party servers 
---    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors. 
+--    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
 
 require "Sledgehammer/Gui/Window"
 require "Sledgehammer/Gui/TextPane"
-require "Sledgehammer/Modules/Chat/ChatChannel"
-require "Sledgehammer/Modules/Chat/ChatMessage"
 require "ISUI/ISRichTextPanel"
 require "Util"
 
@@ -70,6 +68,7 @@ function ChatWindow:new(module_chat)
 	-- Set singleton instance.
 	ChatWindow.instance = o;
 	-- Return the result instance.
+	Events.OnKeyPressed.Add(ChatWindow.onChatKeyPressed);
 	return o;
 end
 
@@ -473,73 +472,7 @@ ChatWindow.esc_pressed = false;
 --
 -- @static
 ----------------------------------------------------------------
-function ChatWindow:onTick()
-	-- Make sure that the ChatWindow is initialized.
-	if ChatWindow.instance          == nil then return; end
-	if ChatWindow.instance.tab_panel == nil then return; end
-	-- If the CTRL key and a NUMBER key is pressed, this is a short-cut
-	--   for setting which tab in the ChatWindow is active.
-	if Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) then
-		-- The index to set for the ChatWindow.
-		local index = -1;
-		-- Flag for if a second key is pressed.
-		local second_key_pressed = false;
-		-- Check each key combination.
-		if Keyboard.isKeyDown(Keyboard.KEY_1) then index = 1; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_2) then index = 2; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_3) then index = 3; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_4) then index = 4; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_5) then index = 5; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_6) then index = 6; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_7) then index = 7; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_8) then index = 8; second_key_pressed = true; end
-		if Keyboard.isKeyDown(Keyboard.KEY_9) then index = 9; second_key_pressed = true; end
-		-- If the second key pressed is a NUMBER key, then process the 
-		--   active ChatTab function.
-		if index ~= -1 then
-			-- Grab the ChatPanel.
-			local panel = ChatWindow.instance.tab_panel:getTab(index - 1);
-			-- Make sure that a ChatPanel is at this index.
-			if panel ~= nil then
-				-- Set the ChatPanel as the active ChatPanel.
-				ChatWindow.instance.tab_panel:setActiveTab(index - 1);
-			end
-		end
-	end
-	-- This handles the ChatWindow setting itself visible.
-	if Keyboard.isKeyDown(20) and ChatWindow.t_pressed ~= true then -- 'T'
-		if not ChatWindow.instance.input.javaObject:isFocused() then
-			ChatWindow.instance:setVisible(true);
-			ChatWindow.instance.input:focus();
-		end
-		ChatWindow.t_pressed = true;
-	else
-		ChatWindow.t_pressed = false;
-	end
-	-- This handles the ChatWindow setting itself visible, and switching
-	--   the active ChatPanel to the Global ChatPanel. 
-	if Keyboard.isKeyDown(21) and ChatWindow.y_pressed ~= true then -- 'Y'
-		if not ChatWindow.instance.input.javaObject:isFocused() then
-			ChatWindow.instance:setVisible(true);
-			ChatWindow.instance.tab_panel:setActiveTab(0);
-			ChatWindow.y_pressed = true;
-		end
-	else
-		ChatWindow.y_pressed = false;
-	end
-	-- This handles the ChatWindow setting itself invisible.
-	if Keyboard.isKeyDown(Keyboard.KEY_ESCAPE) and ChatWindow.esc_pressed ~= true then
-		if ChatWindow.instance.input.javaObject:isFocused() then
-			ChatWindow.instance.input:clear();
-			ChatWindow.instance.input:unfocus();
-		else
-			ChatWindow.instance:setVisible(false);
-		end
-		ChatWindow.esc_pressed = true;
-	else
-		ChatWindow.esc_pressed = false;
-	end
-end
+function ChatWindow:onTick() end
 
 ----------------------------------------------------------------
 -- Handles 
@@ -567,7 +500,70 @@ end
 --
 -- @static
 ----------------------------------------------------------------
-function ChatWindow:onKeyPressed(key) end
+ChatWindow.onKeyPressed = function(key)
+	print("input key pressed: "..tostring(key));
+	local chat = ChatWindow.instance;
+	if key == Keyboard.KEY_ESCAPE then
+		chat.input:clear();
+		chat.input:unfocus();
+		chat:setVisible(false);
+	end
+end
+
+ChatWindow.onChatKeyPressed = function(key)
+	print("key pressed: "..tostring(key));
+	local chat = ChatWindow.instance;
+	-- This handles the ChatWindow setting itself visible.
+	if key == 20 and ChatWindow.t_pressed ~= true then -- 'T'
+		if not chat.input.javaObject:isFocused() then
+			chat:setVisible(true);
+			chat.input:focus();
+		end
+		ChatWindow.t_pressed = true;
+	else
+		ChatWindow.t_pressed = false;
+	end
+	-- This handles the ChatWindow setting itself visible, and switching
+	--   the active ChatPanel to the Global ChatPanel. 
+	if key == 21 and ChatWindow.y_pressed ~= true then -- 'Y'
+		if not chat.input.javaObject:isFocused() then
+			chat:setVisible(true);
+			chat.tab_panel:setActiveTab(0);
+			ChatWindow.y_pressed = true;
+		end
+	else
+		ChatWindow.y_pressed = false;
+	end
+	-- If the CTRL key and a NUMBER key is pressed, this is a short-cut
+	--   for setting which tab in the ChatWindow is active.
+	if Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) and chat:getIsVisible() then
+		-- The index to set for the ChatWindow.
+		local index = -1;
+		-- Flag for if a second key is pressed.
+		local second_key_pressed = false;
+		-- Check each key combination.
+		if key == Keyboard.KEY_1 then index = 1; second_key_pressed = true; end
+		if key == Keyboard.KEY_2 then index = 2; second_key_pressed = true; end
+		if key == Keyboard.KEY_3 then index = 3; second_key_pressed = true; end
+		if key == Keyboard.KEY_4 then index = 4; second_key_pressed = true; end
+		if key == Keyboard.KEY_5 then index = 5; second_key_pressed = true; end
+		if key == Keyboard.KEY_6 then index = 6; second_key_pressed = true; end
+		if key == Keyboard.KEY_7 then index = 7; second_key_pressed = true; end
+		if key == Keyboard.KEY_8 then index = 8; second_key_pressed = true; end
+		if key == Keyboard.KEY_9 then index = 9; second_key_pressed = true; end
+		-- If the second key pressed is a NUMBER key, then process the 
+		--   active ChatTab function.
+		if index ~= -1 then
+			-- Grab the ChatPanel.
+			local panel = ChatWindow.instance.tab_panel:getTab(index - 1);
+			-- Make sure that a ChatPanel is at this index.
+			if panel ~= nil then
+				-- Set the ChatPanel as the active ChatPanel.
+				ChatWindow.instance.tab_panel:setActiveTab(index - 1);
+			end
+		end
+	end
+end
 
 ----------------------------------------------------------------
 -- @static
@@ -607,6 +603,5 @@ function ChatWindow:getDefaultBackgroundColor()
 		a = 0
 	};
 end
-
 -- Register the 'onTick()' method
 Events.OnTickEvenPaused.Add(ChatWindow.onTick);
