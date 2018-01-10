@@ -8,23 +8,96 @@
         <version>4.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
     <artifactId>mongo-conversion-tool</artifactId>
-
+    <version>1.0.0</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.2-beta-5</version>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <!--<outputDirectory>${project.basedir}/prod</outputDirectory>-->
+                    <outputDirectory>${project.basedir}/target</outputDirectory>
+                    <descriptors>
+                        <descriptor>src/assembly/assembly.xml</descriptor>
+                    </descriptors>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Main-Class>sledgehammer.conversion.SQLiteToMongo</Main-Class>
+                            <Built-By>Jab</Built-By>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>uberjar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mindtree.techworks.insight.releng</groupId>
+                <artifactId>maven-jsmooth-plugin</artifactId>
+                <version>0.2.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jsmoothcompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <setJarName>true</setJarName>
+                    <jsmoothFile>src/assembly/mongoconversiontool.jsmooth</jsmoothFile>
+                    <iconLocation>src/main/resources/favicon.png</iconLocation>
+                    <setExeName>true</setExeName>
+                    <includeDependencies>true</includeDependencies>
+                    <dependencyBaseDir>lib</dependencyBaseDir>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.21.0.1</version>
+            <scope>compile</scope>
+        </dependency>
         <!-- PROJECT ZOMBOID DEPENDENCY -->
         <dependency>
             <groupId>jab</groupId>
             <artifactId>CraftBoid</artifactId>
             <version>2.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/../prod/natives/CraftBoid.jar</systemPath>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.21.0.1</version>
+            <systemPath>${project.basedir}/../prod/natives/CraftBoid.jar</systemPath>
         </dependency>
     </dependencies>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mindtreeinsight</id>
+            <name>jsmooth-repo</name>
+            <url>http://svn.code.sf.net/p/mindtreeinsight/code/maven-repo/trunk/release/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>

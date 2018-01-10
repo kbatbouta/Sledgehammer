@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
@@ -66,7 +68,11 @@ public class SQLiteToMongo {
             imageIcon = new ImageIcon(iconURL).getImage();
         } else {
             try {
-                imageIcon = ImageIO.read(new File("mongoconversiontool" + File.separator + "favicon.png"));
+                System.out.println("test");
+                String path = "mongoconversiontool" + File.separator + "src" + File.separator + "main"
+                        + File.separator + "resources" + File.separator + "favicon.png";
+                System.out.println("Path: " + path);
+                imageIcon = ImageIO.read(new File(path));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -84,8 +90,8 @@ public class SQLiteToMongo {
         try {
             long timeStarted = System.currentTimeMillis();
             loadSQLite();
-            loadMongoDB();
-            convert();
+//            loadMongoDB();
+//            convert();
             long timeFinished = System.currentTimeMillis();
             double seconds = (timeFinished - timeStarted) / 1000.0D;
             console.println(testCompl, "", "Done! Took " + seconds + " Seconds.");
@@ -327,9 +333,9 @@ public class SQLiteToMongo {
             if (client != null) {
                 client.close();
             }
-            client                 = null;
+            client = null;
             collectionMongoPlayers = null;
-            collectionBans         = null;
+            collectionBans = null;
         } catch (Exception e) {
             console.println(testError);
             console.printStackTrace(e);
@@ -395,5 +401,17 @@ public class SQLiteToMongo {
             e.printStackTrace();
         }
         new SQLiteToMongo();
+    }
+
+    /**
+     * (Private Method)
+     *
+     * @param jar    The File Object of the Jar File.
+     * @param source The source path inside the Jar File.
+     * @return Returns an InputStream of the Jar File Entry.
+     * @throws IOException Thrown with File Exceptions.
+     */
+    private static InputStream getStream(File jar, String source) throws IOException {
+        return new URL("jar:file:" + jar.getAbsolutePath() + "!/" + source).openStream();
     }
 }

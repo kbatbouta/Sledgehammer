@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/mongoconversiontool/ConversionTool.iml" filepath="$PROJECT_DIR$/mongoconversiontool/ConversionTool.iml" />
       <module fileurl="file://$PROJECT_DIR$/Sledgehammer.iml" filepath="$PROJECT_DIR$/Sledgehammer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mongoconversiontool/mongo-conversion-tool.iml" filepath="$PROJECT_DIR$/mongoconversiontool/mongo-conversion-tool.iml" />
     </modules>
   </component>
 </project>

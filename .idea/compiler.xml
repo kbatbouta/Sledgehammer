@@ -7,11 +7,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="ConversionTool" />
+        <module name="mongo-conversion-tool" />
         <module name="mongoconversiontool" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="ConversionTool" target="1.7" />
+      <module name="mongo-conversion-tool" target="1.7" />
       <module name="mongoconversiontool" target="1.7" />
       <module name="Sledgehammer" target="1.7" />
     </bytecodeTargetLevel>

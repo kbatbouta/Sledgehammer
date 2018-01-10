@@ -9,25 +9,6 @@
     <version>4.0.0</version>
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-jar-plugin</artifactId>-->
-                <!--<version>3.0.2</version>-->
-                <!--<configuration>-->
-                    <!--<finalName>Sledgehammer</finalName>-->
-                    <!--<outputDirectory>${project.basedir}/prod</outputDirectory>-->
-                    <!--<archive>-->
-                        <!--<manifest>-->
-                            <!--<addDefaultImplementationEntries>true</addDefaultImplementationEntries>-->
-                            <!--<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>-->
-                        <!--</manifest>-->
-                        <!--<manifestEntries>-->
-                            <!--<Premain-Class>sledgehammer.Agent</Premain-Class>-->
-                            <!--<Main-Class>sledgehammer.SledgeHammer</Main-Class>-->
-                        <!--</manifestEntries>-->
-                    <!--</archive>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -115,26 +96,8 @@
             <artifactId>CraftBoid</artifactId>
             <version>2.0</version>
             <scope>system</scope>
-            <systemPath>${basedir}/prod/natives/CraftBoid.jar</systemPath>
+            <systemPath>${project.basedir}/prod/natives/CraftBoid.jar</systemPath>
         </dependency>
-<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.lwjgl.lwjgl/lwjgl &ndash;&gt;
-        <dependency>
-            <groupId>org.lwjgl.lwjgl</groupId>
-            <artifactId>lwjgl</artifactId>
-            <version>2.9.3</version>
-        </dependency>
-        &lt;!&ndash; https://mvnrepository.com/artifact/net.java.jinput/jinput &ndash;&gt;
-        <dependency>
-            <groupId>net.java.jinput</groupId>
-            <artifactId>jinput</artifactId>
-            <version>2.0.7</version>
-        </dependency>
-        &lt;!&ndash; https://mvnrepository.com/artifact/org.uncommons/uncommons-maths &ndash;&gt;
-        <dependency>
-            <groupId>org.uncommons</groupId>
-            <artifactId>uncommons-maths</artifactId>
-            <version>1.2</version>
-        </dependency>-->
     </dependencies>
     <repositories>
     </repositories>

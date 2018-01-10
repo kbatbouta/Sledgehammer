@@ -1,0 +1,46 @@
+<jsmoothproject>
+    <arguments></arguments>
+    <embeddedJar>true</embeddedJar>
+    <executableName>../prod/Mongo-conversion-tool-1.0.0.exe</executableName>
+    <iconLocation>src/main/resources/favicon.png</iconLocation>
+    <initialMemoryHeap>-1</initialMemoryHeap>
+    <jarLocation>/prod/mongo-conversion-tool-1.0.0.jar</jarLocation>
+    <javaProperties>
+        <name>INSIGHT_HOME</name>
+        <value>${EXECUTABLEPATH}</value>
+    </javaProperties>
+    <mainClassName>sledgehammer.conversion.SQLiteToMongo</mainClassName>
+    <maximumMemoryHeap>134217728</maximumMemoryHeap>
+    <maximumVersion>2.0.0</maximumVersion>
+    <minimumVersion>0.0.0</minimumVersion>
+    <skeletonName>Autodownload Wrapper</skeletonName>
+    <skeletonProperties>
+        <key>Message</key>
+        <value>
+            Java has not been found on your computer. Do you want to
+            download it?
+        </value>
+    </skeletonProperties>
+    <skeletonProperties>
+        <key>DownloadURL</key>
+        <value>
+            http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html
+        </value>
+    </skeletonProperties>
+    <skeletonProperties>
+        <key>SingleProcess</key>
+        <value>1</value>
+    </skeletonProperties>
+    <skeletonProperties>
+        <key>SingleInstance</key>
+        <value>1</value>
+    </skeletonProperties>
+    <skeletonProperties>
+        <key>JniSmooth</key>
+        <value>0</value>
+    </skeletonProperties>
+    <skeletonProperties>
+        <key>Debug</key>
+        <value>0</value>
+    </skeletonProperties>
+</jsmoothproject>

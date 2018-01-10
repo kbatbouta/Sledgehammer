@@ -7,6 +7,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.PrintStream;
 
 public class MainWindow {
     JPanel panelMain;
@@ -22,13 +23,16 @@ public class MainWindow {
     private JProgressBar progressBar1;
     private JButton convertButton;
     private JScrollPane scrollPane1;
+    private JPanel panel1;
     private String databaseUsername;
     private String databasePassword;
     private String databaseURL;
 
+
     private void createUIComponents() {
 
         panelMain = new JPanel();
+        panel1 = new JPanel();
 
         FileFilter dbFilter = new FileFilter() {
             @Override
@@ -66,9 +70,12 @@ public class MainWindow {
                 SQLiteToMongo.instance.run();
             }
         });
-        textAreaLog = new ConsoleTextArea();
         scrollPane1 = new JScrollPane(textAreaLog,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        textAreaLog = new ConsoleTextArea(scrollPane1);
+//        PrintStream out = new PrintStream(new TextAreaOutputStream(textAreaLog));
+//        System.setOut(out);
+//        System.setErr(out);
         textFieldDBFile = new JTextField();
         textFieldDBFile.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -97,9 +104,11 @@ public class MainWindow {
     }
 
     public String getDatabasePassword() {
-        StringBuilder password = new StringBuilder();
-        password.append(passwordField.getPassword());
-        return password.toString();
+        String s = "";
+        for (char c : passwordField.getPassword()) {
+            s += (c);
+        }
+        return s;
     }
 
     public String getDatabaseURL() {
