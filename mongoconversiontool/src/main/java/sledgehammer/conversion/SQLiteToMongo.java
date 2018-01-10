@@ -39,13 +39,13 @@ public class SQLiteToMongo {
 
     // @formatter:off
     private static String testStart = "#######################################################\n" +
-                                      "# CONVERSION STARTED                                  #\n" +
+                                      "# CONVERSION STARTED                                   \n" +
                                       "#######################################################\n" ;
     private static String testError = "#######################################################\n" +
-                                      "# ERROR                                               #\n" +
+                                      "# ERROR                                                \n" +
                                       "#######################################################\n" ;
     private static String testCompl = "#######################################################\n" +
-                                      "# CONVERSION COMPLETED                                #\n" +
+                                      "# CONVERSION COMPLETED                                 \n" +
                                       "#######################################################\n" ;
     // @formatter:on
 
@@ -90,8 +90,8 @@ public class SQLiteToMongo {
         try {
             long timeStarted = System.currentTimeMillis();
             loadSQLite();
-//            loadMongoDB();
-//            convert();
+            loadMongoDB();
+            convert();
             long timeFinished = System.currentTimeMillis();
             double seconds = (timeFinished - timeStarted) / 1000.0D;
             console.println(testCompl, "", "Done! Took " + seconds + " Seconds.");
@@ -243,6 +243,7 @@ public class SQLiteToMongo {
             object.put("passwordEncrypted", player.getEncryptedPassword()       );
             object.put("admin"            , player.isAdministrator() ? "1" : "0");
             object.put("banned"           , player.isBanned() ? "1" : "0"       );
+            object.put("timeConnectedLast", player.getLastConnection() + ""  );
             object.put("steamID"          , player.getSteamId()                 );
             object.put("steamIDOwner"     , ownerId                             );
             object.put("metadata"         , new BasicDBObject()                 );

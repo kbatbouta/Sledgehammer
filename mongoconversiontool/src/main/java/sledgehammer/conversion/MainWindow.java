@@ -28,12 +28,9 @@ public class MainWindow {
     private String databasePassword;
     private String databaseURL;
 
-
     private void createUIComponents() {
-
         panelMain = new JPanel();
         panel1 = new JPanel();
-
         FileFilter dbFilter = new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -73,9 +70,6 @@ public class MainWindow {
         scrollPane1 = new JScrollPane(textAreaLog,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         textAreaLog = new ConsoleTextArea(scrollPane1);
-//        PrintStream out = new PrintStream(new TextAreaOutputStream(textAreaLog));
-//        System.setOut(out);
-//        System.setErr(out);
         textFieldDBFile = new JTextField();
         textFieldDBFile.getDocument().addDocumentListener(new DocumentListener() {
             @Override

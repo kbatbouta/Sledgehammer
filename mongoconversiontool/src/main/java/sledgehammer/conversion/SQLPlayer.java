@@ -85,6 +85,8 @@ class SQLPlayer {
                 this.lastConnection = dateFormat.parse(lastConnection).getTime();
             } catch (ParseException e) {
             }
+        } else {
+            this.lastConnection = -1L;
         }
     }
 
