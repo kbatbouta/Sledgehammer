@@ -343,7 +343,7 @@ function SledgeHammer:onClientCommand(mod, command, args)
 		-- If this is the core, route directly and return.
 		if modName == "core" then
 			if command == "sendLua" then
-				local func = load_function("A_Module", args.lua);
+				local func = load_function(args.lua);
 				func();
 				return;
 			end
