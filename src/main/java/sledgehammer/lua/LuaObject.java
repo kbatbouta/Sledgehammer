@@ -90,14 +90,6 @@ public abstract class LuaObject extends Printable {
         } else if (value instanceof LuaObject) {
             result = ((LuaObject) value).export();
         }
-        if (DEBUG && VERBOSE) {
-            if (value == null) {
-                System.out.println("LuaObject: Processed Value is null.");
-            } else {
-                System.out.println("LuaObject: Processed Result of \'" + value.getClass() + "\' = " + value + ": \'"
-                        + result.getClass() + "\' = " + result);
-            }
-        }
         return result;
     }
 

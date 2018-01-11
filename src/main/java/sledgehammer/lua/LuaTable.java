@@ -80,23 +80,14 @@ public abstract class LuaTable extends LuaObject {
         KahluaTable outTable;
         // Call 'onExport()' to make sure the data is accurate.
         onExport();
-        if (DEBUG) {
-            println("Exporting LuaTable: " + getName());
-        }
         outTable = newTable();
         for (Object key : this.data.keySet()) {
             Object value = this.data.get(key);
-            if (DEBUG) {
-                println("Exporting Key: " + key + ", Value:" + value);
-            }
             value = processValue(value);
             if (value != null) {
                 outTable.rawset(key, value);
-            } else {
-                println("Processed value for key '" + key + "' is null.");
             }
         }
-
         // Mark clean as last table is assigned for any further exports
         // without changes.
         markClean();

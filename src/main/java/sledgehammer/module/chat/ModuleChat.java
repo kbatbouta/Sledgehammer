@@ -164,12 +164,15 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
             MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages);
             KahluaTable table = (KahluaTable) event.getTable().rawget("message");
             ChatMessage chatMessage = new ChatMessage(mongoChatMessage, table);
+            chatMessage.setPlayer(player, false);
             UUID channelId = chatMessage.getChannelId();
             ChatChannel chatChannel = getChatChannel(channelId);
             if (chatChannel == null) {
                 errln("ChatMessage provided null Channel ID: " + channelId);
                 return;
             }
+            ChatMessageEvent chatMessageEvent = new ChatMessageEvent(chatMessage);
+            handleEvent(chatMessageEvent);
             chatChannel.getHistory().addChatMessage(chatMessage, true);
             chatMessage.save();
         }

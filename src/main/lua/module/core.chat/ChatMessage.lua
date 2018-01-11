@@ -98,7 +98,7 @@ function ChatMessage:initialize(lua_table, chat_channel)
 	if origin ~= nil and origin ~= "" and origin ~= "client" and origin ~= "server" then
 		-- If the origin is defined, then head the message with the
 		-- origin name.
-		self.origin_text = "("..firstToUpper(origin)..") ";
+		self.origin_text = firstToUpper(origin);
 	end
 	-- Next, the timestamp needs to be formatted and pre-compiled.
 	local timestamp_header = "";
@@ -147,11 +147,23 @@ function ChatMessage:render(chat_channel)
 		if self.player_name ~= nil then
 			player_header = self.player_name.." : ";
 		end
-		self.rendered = history_header..self.timestamp_header..self.origin_text..player_header..self.message;
+		self.rendered = history_header..self.timestamp_header..player_header..self.message;
 	end
 	-- Check if the explicit ChatMessage is already rendered.
 	if self.rendered_explicit == nil then
-		self.rendered_explicit = "("..self.chat_channel.name..") "..self.rendered;
+        local history_header = "";
+        if self.history then
+            history_header = ChatMessage.HISTORY_HEADER.."   ";
+        end
+        local player_header = "";
+        if self.player_name ~= nil then
+            player_header = self.player_name.." : ";
+        end
+        local explicit_name = firstToUpper(self.chat_channel.name);
+		if self.origin ~= nil and self.origin_text ~= nil and self.origin_text ~= "" then
+			explicit_name = self.origin_text;
+		end
+		self.rendered_explicit = history_header.."("..explicit_name..") "..self.timestamp_header..player_header..self.message;
 	end
 	-- If we need the explicit form of the ChatMessage, return it.
 	if explicit then

@@ -1,0 +1,15 @@
+#   ____  _                   _ 
+#  |    \|_|___ ___ ___ ___ _| |
+#  |  |  | |_ -|  _| . |  _| . |
+#  |____/|_|___|___|___|_| |___|
+#
+# Whether or not to print debug lines in the console.
+debug: false
+# The DiscordBot token. 
+token: "<TOKEN_HERE>"
+# In order to add this bot to your server, place your application's ID in this URL.
+invite_url: "https://discordapp.com/oauth2/authorize?client_id=<APPLICATION_ID_HERE>&scope=bot&permissions=0"
+# The channel for Global chat to be broadcasted.
+public_channel: "global"
+# The RCON channel for Console access.
+moderator_channel: "console"

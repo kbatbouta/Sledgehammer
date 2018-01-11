@@ -184,15 +184,12 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
     }
 
     public Player getPlayer() {
-        Player returned;
-        if (player == null) {
-            UUID playerId = getPlayerId();
-            if (playerId != null) {
-                player = SledgeHammer.instance.getPlayer(playerId);
-            }
-        }
-        returned = player;
-        return returned;
+        return player;
+    }
+
+    public void setPlayer(Player player, boolean save) {
+        this.player = player;
+        setPlayerId(player.getUniqueId(), save);
     }
 
     public UUID getPlayerId() {
