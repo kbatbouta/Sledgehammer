@@ -25,6 +25,10 @@ general:
   - "Jab"
   # Whether or not to enable helicopter events.
   allow_helicopters: true
+  # Allows overriding Lua files for Modules. Turning this off will tell Modules
+  # to override files even if they exist. (Be mindful of setting this when
+  # modifying files, as files can be overwritten and modifications can be lost)
+  override_lua: false
 
 # Security settings. If you don't know what to put for these settings, don't
 #   change them.

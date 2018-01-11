@@ -126,6 +126,8 @@ public class Settings extends Printable {
      */
     private boolean allowHelicopters;
 
+    private boolean overrideLua;
+
     /**
      * Main constructor.
      */
@@ -256,6 +258,13 @@ public class Settings extends Printable {
         } else {
             setAllowHelicopters(true, false);
         }
+        // (Boolean) general.overrideLua
+        Object oOverrideLua = general.get("override_lua");
+        if (oOverrideLua != null) {
+            setOverrideLua(getBoolean(oOverrideLua.toString()), false);
+        } else {
+            setOverrideLua(false, false);
+        }
     }
 
     /**
@@ -373,6 +382,33 @@ public class Settings extends Printable {
                 setDatabaseDatabase(oDatabaseDatabase.toString(), false);
             } else {
                 setDatabaseDatabase(requestDatabaseDatabase(), true);
+            }
+        }
+    }
+
+    /**
+     * Sets the flag for allowing Helicopters.
+     *
+     * @param save Flag to save the setting.
+     */
+    public void setOverrideLua(boolean overrideLua, boolean save) {
+        this.overrideLua = overrideLua;
+        if (save) {
+            List<String> lines = readConfigFile();
+            if (lines != null) {
+                for (int index = 0; index < lines.size(); index++) {
+                    String line = lines.get(index);
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
+                        continue;
+                    }
+                    int spaces = getLeadingSpaceCount(line);
+                    if (interpreted.startsWith("override_lua:")) {
+                        String newLine = getSpaces(spaces) + "override_lua: \"" + overrideLua + "\"";
+                        lines.set(index, newLine);
+                    }
+                }
+                writeConfigFile(lines);
             }
         }
     }
@@ -840,6 +876,14 @@ public class Settings extends Printable {
     public boolean allowHelicopters() {
         return this.allowHelicopters;
     }
+
+    /**
+     * @return Returns true if Lua code is allowed to override from the original code from the Modules.
+     */
+    public boolean overrideLua() {
+        return this.overrideLua;
+    }
+
 
     /**
      * (Private Method)

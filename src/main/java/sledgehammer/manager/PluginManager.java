@@ -25,6 +25,8 @@ import java.util.Map;
 
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.lua.core.Player;
+import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.faction.ModuleFactions;
@@ -53,7 +55,6 @@ public class PluginManager extends Manager {
      * The Core Plug-in.
      */
     private Plugin pluginSledgehammer;
-
     /**
      * The <List> of Plug-ins to load.
      */
@@ -284,6 +285,24 @@ public class PluginManager extends Manager {
             }
         }
         return (T) returned;
+    }
+
+    /**
+     * Sends a SendLua Object storing the Lua code compiled.
+     *
+     * @return Returns a SendLua containing the Lua code in a String format for all started Plug-ins.
+     */
+    public SendLua getLua(Player player) {
+        SendLua sendLua = new SendLua(player);
+        Plugin pluginSledgehammer = getSledgehammerPlugin();
+        pluginSledgehammer.getLua(sendLua);
+        for (Plugin plugin : getPlugins()) {
+            if (plugin.equals(pluginSledgehammer)) {
+                continue;
+            }
+            plugin.getLua(sendLua);
+        }
+        return sendLua;
     }
 
     /**

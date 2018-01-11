@@ -39,51 +39,6 @@ Module = class(function(o, id, name)
 	o.handshaked =  false;
 end);
 
-----------------------------------------------------------------
--- @return 	Returns the version of the Module.
-----------------------------------------------------------------
-function Module:getVersion()
-	return self.version;
-end
-
-----------------------------------------------------------------
--- Loads the module. Create objects here.
-----------------------------------------------------------------
-function Module:load()
-
-end
-
-----------------------------------------------------------------
--- Starts the module. Add listeners here.
-----------------------------------------------------------------
-function Module:start()
-
-end
-
-----------------------------------------------------------------
--- Place initial Command requests here.
-----------------------------------------------------------------
-function Module:handshake()
-
-end
-
-----------------------------------------------------------------
--- On every in-game Tick, this function is executed.
-----------------------------------------------------------------
-function Module:update()
-
-end
-
-----------------------------------------------------------------
--- Handles a command from the server.
---
--- @string command 	The command given from the server.
--- @table args 		The arguments given with the command.
-----------------------------------------------------------------
-function Module:command(command, args)
-
-end
-
 function Module:sendCommand(command, args)
 	-- Sends the command to SledgeHammer.
 	SledgeHammer.instance:sendCommand("sledgehammer.module."..self:getID(), command, args);
@@ -95,64 +50,79 @@ function Module:sendRequest(command, args, success, failure)
 end
 
 ----------------------------------------------------------------
+-- @return 	Returns the version of the Module.
+----------------------------------------------------------------
+function Module:getVersion() return self.version; end
+
+----------------------------------------------------------------
+-- Loads the module. Create objects here.
+----------------------------------------------------------------
+function Module:load() end
+
+----------------------------------------------------------------
+-- Starts the module. Add listeners here.
+----------------------------------------------------------------
+function Module:start() end
+
+----------------------------------------------------------------
+-- Place initial Command requests here.
+----------------------------------------------------------------
+function Module:handshake() end
+
+----------------------------------------------------------------
+-- On every in-game Tick, this function is executed.
+----------------------------------------------------------------
+function Module:update() end
+
+----------------------------------------------------------------
+-- Handles a command from the server.
+--
+-- @string command 	The command given from the server.
+-- @table args 		The arguments given with the command.
+----------------------------------------------------------------
+function Module:command(command, args) end
+
+----------------------------------------------------------------
 -- Stops the module. Remove listeners here.
 ----------------------------------------------------------------
-function Module:stop()
-
-end
+function Module:stop() end
 
 ----------------------------------------------------------------
 -- Unloads the module. Nullify or deconstruct objects here.
 ----------------------------------------------------------------
-function Module:unload()
-
-end
+function Module:unload() end
 
 ----------------------------------------------------------------
 -- @return 	Returns the name of the Module.
 ----------------------------------------------------------------
-function Module:getName()
-	return self.name;
-end
+function Module:getName() return self.name; end
 
 ----------------------------------------------------------------
 -- @return 	Returns the ID of the Module.
 ----------------------------------------------------------------
-function Module:getID()
-	return self.id;
-end
+function Module:getID() return self.id; end
 
 ----------------------------------------------------------------
 -- @return 	Returns if the Module has started.
 ----------------------------------------------------------------
-function Module:isStarted()
-	return self.started;
-end
+function Module:isStarted() return self.started; end
 
 ----------------------------------------------------------------
 -- @return 	Returns if the Module has handshaked.
 ----------------------------------------------------------------
-function Module:isHandshaked()
-	return self.handshaked;
-end
+function Module:isHandshaked() return self.handshaked; end
 
 ----------------------------------------------------------------
 -- @return 	Returns if the Module is currently stopped.
 ----------------------------------------------------------------
-function Module:isStopped()
-	return not self.started;
-end
+function Module:isStopped() return not self.started; end
 
 ----------------------------------------------------------------
 -- @return 	Returns if the Module has been loaded.
 ----------------------------------------------------------------
-function Module:isLoaded()
-	return self.loaded;
-end
+function Module:isLoaded() return self.loaded; end
 
 ----------------------------------------------------------------
 -- @return 	Returns if the Module is not loaded.
 ----------------------------------------------------------------
-function Module:isUnloaded()
-	return not self.loaded;
-end
+function Module:isUnloaded() return not self.loaded; end

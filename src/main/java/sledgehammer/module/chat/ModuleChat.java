@@ -1,9 +1,6 @@
 package sledgehammer.module.chat;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -16,7 +13,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
@@ -65,20 +61,7 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 
     @Override
     public void onLoad() {
-        File lua = getLuaDirectory();
-        // @formatter:off
-        File fileChatChannel = new File(lua, "ChatChannel.lua");
-        File fileChatHistory = new File(lua, "ChatHistory.lua");
-        File fileChatMessage = new File(lua, "ChatMessage.lua");
-        File fileChatWindow  = new File(lua, "ChatWindow.lua");
-        File fileChatModule  = new File(lua, "ModuleChat.lua");
-        saveResourceAs("lua/module/chat/ChatChannel.lua", fileChatChannel, true);
-        saveResourceAs("lua/module/chat/ChatHistory.lua", fileChatHistory, true);
-        saveResourceAs("lua/module/chat/ChatMessage.lua", fileChatMessage, true);
-        saveResourceAs("lua/module/chat/ChatWindow.lua" , fileChatWindow , true);
-        saveResourceAs("lua/module/chat/ModuleChat.lua" , fileChatModule , true);
-        // @formatter:on
-        sendLua = new SendLua(fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow, fileChatModule);
+        loadLua();
         mapChatChannels = new LinkedHashMap<>();
         listOrderedChatChannels = new LinkedList<>();
         // Grab the MongoCollections storing the data for this Module.
@@ -127,6 +110,11 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 		this.local                   = null;
 		this.pms                     = null;
 		// @formatter:on
+    }
+
+    @Override
+    public void onBuildLua(SendLua send) {
+        send.append(sendLua);
     }
 
     @Override
@@ -190,12 +178,8 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     @Override
     public void onEvent(Event event) {
         String Id = event.getID();
-        if (Id.equals(ConnectEvent.ID)) {
-            handleConnectEvent((ConnectEvent) event);
-        } else if (Id.equals(DisconnectEvent.ID)) {
+        if (Id.equals(DisconnectEvent.ID)) {
             handleDisconnectEvent((DisconnectEvent) event);
-        } else if (Id.equals(HandShakeEvent.ID)) {
-            SledgeHammer.instance.send(sendLua, ((HandShakeEvent) event).getPlayer());
         }
     }
 
@@ -203,9 +187,7 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     public String[] getTypes() {
         // @formatter:off
 		return new String[] {
-            ConnectEvent.ID,
-            DisconnectEvent.ID,
-            HandShakeEvent.ID,
+		        DisconnectEvent.ID
 		};
 		// @formatter:on
     }
@@ -318,8 +300,22 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
         return null;
     }
 
-    private void handleConnectEvent(ConnectEvent event) {
-
+    private void loadLua() {
+        File lua = getLuaDirectory();
+        boolean overwrite = !isLuaOverriden();
+        // @formatter:off
+        File fileChatChannel = new File(lua, "ChatChannel.lua");
+        File fileChatHistory = new File(lua, "ChatHistory.lua");
+        File fileChatMessage = new File(lua, "ChatMessage.lua");
+        File fileChatWindow  = new File(lua, "ChatWindow.lua" );
+        File fileChatModule  = new File(lua, "ModuleChat.lua" );
+        saveResourceAs("lua/module/core.chat/ChatChannel.lua", fileChatChannel, overwrite);
+        saveResourceAs("lua/module/core.chat/ChatHistory.lua", fileChatHistory, overwrite);
+        saveResourceAs("lua/module/core.chat/ChatMessage.lua", fileChatMessage, overwrite);
+        saveResourceAs("lua/module/core.chat/ChatWindow.lua" , fileChatWindow , overwrite);
+        saveResourceAs("lua/module/core.chat/ModuleChat.lua" , fileChatModule , overwrite);
+        // @formatter:on
+        sendLua = new SendLua(fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow, fileChatModule);
     }
 
     private void handleDisconnectEvent(DisconnectEvent event) {

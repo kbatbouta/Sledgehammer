@@ -172,7 +172,10 @@ debugLoadFunction = false;
 -- @table  args The arguments to put in the function header. 
 -- @return Returns a function from a body string and provided arguments.
 ----------------------------------------------------------------
-function load_function(body, args) 
+function load_function(name, body, args) 
+	local function_context = {};
+	setmetatable(function_context, { __index = _G });
+
 	local compiled = "return function(";
 	local compiled_args = "";
 	if args ~= nil and type(args) == "table" then
@@ -189,5 +192,10 @@ function load_function(body, args)
 		print("compiled: "..compiled);
 	end
 	local f, err = loadstring(compiled, name or body);
-  	if f then return f() else return f, err end
+  	if f then 
+  		setfenv(f, function_context);
+  		return f(); 
+  	else 
+  		return f, err; 
+  	end
 end

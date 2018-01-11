@@ -42,6 +42,7 @@ function Module_Chat:load()
 	self.gui = ChatWindow:new(self);
 	self.gui:initialise();
 	self.gui.resizable = false;
+    self:disableLegacyChat();
 	self.gui:addToUIManager();
 	self.channels = {};
 end
@@ -126,7 +127,7 @@ function Module_Chat:requestChannelsHistory()
 		for index = 0, length, 1 do
 			local table_history = histories[index];
 			local channel_id = table_history.channel_id;
-			local chat_channel = self:getChannelWithId(channel_id);
+			local chat_channel = moduleChat:getChannelWithId(channel_id);
 			if chat_channel ~= nil then
 				local chat_history = ChatHistory();
 				chat_history:initialize(table_history, chat_channel);
@@ -218,6 +219,24 @@ function Module_Chat:getChannelWithName(channel_name)
 		end
 	end
 	return nil;
+end
+
+function Module_Chat:disableLegacyChat()
+    ISChat.createChat = function() end
+    if ISChat.chat ~= nil then
+        -- Removes legacy chat from UI update.
+        ISChat.chat:removeFromUIManager();
+        -- Hides legacy chat.
+        ISChat.chat:setVisible(false);
+        ISChat.instance.moreinfo:setVisible(false);
+        ISChat.instance.chatText:setVisible(false);
+        -- Removes legacy chat event hooks.
+        Events.OnWorldMessage.Remove(ISChat.addLineInChat);
+        Events.OnMouseDown.Remove(ISChat.unfocus);
+        Events.OnKeyPressed.Remove(ISChat.onToggleChatBox);
+        Events.OnKeyKeepPressed.Remove(ISChat.onKeyKeepPressed);
+        ISChat.chat = nil;
+    end
 end
 
 -- Registers the module to SledgeHammer

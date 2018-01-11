@@ -19,6 +19,7 @@ package sledgehammer.plugin;
 import java.io.File;
 import java.util.List;
 
+import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.ClientEvent;
 import sledgehammer.event.Event;
@@ -30,6 +31,7 @@ import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.manager.EventManager;
 import sledgehammer.manager.PluginManager;
 import sledgehammer.module.chat.ModuleChat;
@@ -284,6 +286,13 @@ public abstract class Module extends Printable {
         return getPlugin().getPluginDirectory();
     }
 
+    /**
+     * @return Returns true if the Settings allow Lua files to be modified by anything other than the Modules that saves
+     * the Lua Files. Returns false if ONLY the Modules have rights to the final versions of Lua files.
+     */
+    public boolean isLuaOverriden() {
+        return Settings.getInstance().overrideLua();
+    }
 
     /**
      * Saves a File resource stored in the Plug-in Jar File to the same location
@@ -770,5 +779,15 @@ public abstract class Module extends Printable {
      * @param context The context of the event.
      */
     public void executeCommand(String type, String context) {
+    }
+
+    /**
+     * Fired when building the Lua to send to a Player.
+     *
+     * This allows each Module to choose what to send to the Player. This means that while regular Players receive
+     * code for most functions, advanced Players may get more code to do more things.
+     * @param send
+     */
+    public void onBuildLua(SendLua send) {
     }
 }

@@ -34,6 +34,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.util.Printable;
 
 /**
@@ -758,5 +759,16 @@ public class Plugin extends Printable {
             }
         }
         return pluginDirectory;
+    }
+
+    /**
+     * Compiles Lua from all started Modules.
+     *
+     * @param sendLua The Send Object to store the Lua code in String format.
+     */
+    public void getLua(SendLua sendLua) {
+        for (Module module : listModulesStarted) {
+            module.onBuildLua(sendLua);
+        }
     }
 }

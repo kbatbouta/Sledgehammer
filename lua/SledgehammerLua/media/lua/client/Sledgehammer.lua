@@ -198,7 +198,7 @@ function SledgeHammer:onClientCommand(mod, command, args)
 		-- If this is the core, route directly and return.
 		if modName == "core" then
 			if command == "sendLua" then
-				local func = load_function(args.lua);
+				local func = load_function("A_Module", args.lua);
 				func();
 				return;
 			end
@@ -274,12 +274,12 @@ end
 function SledgeHammer:loadModule(mod)
 	-- Validity check.
 	if mod == nil then
-		print("Sledgehammer:loadModule() -> Module given is null!");
+		-- print("Sledgehammer:loadModule() -> Module given is null!");
 		return;
 	end
 	-- Validity check.
 	if mod:isLoaded() then
-		print("Sledgehammer:loadModule() -> Module is already loaded: '"..tostring(mod:getName()).."'.");
+		-- print("Sledgehammer:loadModule() -> Module is already loaded: '"..tostring(mod:getName()).."'.");
 		return;
 	end
 	-- Load the Module.
@@ -310,12 +310,12 @@ end
 function SledgeHammer:startModule(mod)
 	-- Validity check.
 	if mod == nil then
-		print("Sledgehammer:startModule() -> Module given is null!");
+		-- print("Sledgehammer:startModule() -> Module given is null!");
 		return;
 	end
 	-- Validity check.
 	if mod:isStarted() then
-		print("Sledgehammer:startModule() -> Module is already started: '"..tostring(mod:getName()).."'.");
+		-- print("Sledgehammer:startModule() -> Module is already started: '"..tostring(mod:getName()).."'.");
 		return;
 	end
 	if mod:isUnloaded() then
@@ -350,17 +350,17 @@ end
 function SledgeHammer:handshakeModule(mod)
 	-- Validity check.
 	if mod == nil then
-		print("Sledgehammer:handshakeModule() -> Module given is null!");
+		-- print("Sledgehammer:handshakeModule() -> Module given is null!");
 		return;
 	end
 	-- Validity check.
 	if mod:isStopped() then
-		print("Sledgehammer:handshakeModule() -> Module is not running: '"..tostring(module:getName()).."'.");
+		-- print("Sledgehammer:handshakeModule() -> Module is not running: '"..tostring(mod:getName()).."'.");
 		return;
 	end
 	-- Validity check.
 	if mod:isHandshaked() then
-		print("Sledgehammer:handshakeModule() -> Module is already handshaked: '"..tostring(module:getName()).."'.");
+		-- print("Sledgehammer:handshakeModule() -> Module is already handshaked: '"..tostring(mod:getName()).."'.");
 	end
 	-- Handshake the Module.
 	mod:handshake();
@@ -405,16 +405,16 @@ end
 function SledgeHammer:stopModule(mod)
 	-- Validity check.
 	if mod == nil then
-		print("Sledgehammer:stopModule() -> Module given is null!");
+		-- print("Sledgehammer:stopModule() -> Module given is null!");
 		return;
 	end
 	-- Validity check.
 	if mod:isStopped() then
-		print("Sledgehammer:stopModule() -> Module is already stopped: '"..tostring(module:getName()).."'.");
+		-- print("Sledgehammer:stopModule() -> Module is already stopped: '"..tostring(mod:getName()).."'.");
 		return;
 	end
 	-- Stop the Module.
-	print("Sledgehammer: Stopping Module: '"..tostring(mod:getName()).."'.");
+	-- print("Sledgehammer: Stopping Module: '"..tostring(mod:getName()).."'.");
 	mod:stop();
 	mod.started = false;
 end
@@ -441,12 +441,12 @@ end
 function SledgeHammer:unloadModule(mod)
 	-- Validity check.
 	if mod == nil then
-		print("Sledgehammer:unloadModule() -> Module given is null!");
+		-- print("Sledgehammer:unloadModule() -> Module given is null!");
 		return;
 	end
 	-- Validity check.
 	if mod:isUnloaded() then
-		print("Sledgehammer:unloadModule() -> Module is already unloaded: '"..tostring(module:getName()).."'.");
+		-- print("Sledgehammer:unloadModule() -> Module is already unloaded: '"..tostring(mod:getName()).."'.");
 		return;
 	end
 	-- If this method is called before 'stopModule(..)', then we invoke it first.
@@ -479,14 +479,21 @@ function SledgeHammer:register(mod)
 	self.modules[length]              = mod;
 	self.modulesByID[mod:getID()]     = mod;
 	self.modulesByName[mod:getName()] = mod;
-	-- If Sledgehammer is loaded, load the module.
-	if self:isLoaded() then
-		mod:load();
+	-- If Sledgehammer is not initialized yet, return.
+	if not self:isLoaded() then return; end
+	-- Check to see if the Module needs to load.
+	if not mod:isLoaded() then
+		self:loadModule(mod);
 	end
-	-- If Sledgehammer is started, start the module.
-	if self:isStarted() then
-		mod:start();
-		mod:handshake();
+	-- If Sledgehammer is not started, return.
+	if not self:isStarted() then return; end
+	-- Check to see if the Module needs to handshake.
+	if not mod:isHandshaked() then
+		self:handshakeModule(mod);
+	end
+	-- Check to see if the Module needs to start;
+	if not mod:isStarted() then
+		self:startModule(mod);
 	end
 end
 
