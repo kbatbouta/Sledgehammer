@@ -53,55 +53,6 @@ SledgeHammer = class(function(o)
 end);
 
 ----------------------------------------------------------------
--- @return 	Returns whether or not SledgeHammer has fully loaded.
-----------------------------------------------------------------
-function SledgeHammer:isLoaded()
-	return self.loaded;
-end
-
-----------------------------------------------------------------
--- @return 	Returns whether or not SledgeHammer is unloaded.
-----------------------------------------------------------------
-function SledgeHammer:isUnloaded()
-	return not self.loaded;
-end
-
-----------------------------------------------------------------
--- @return 	Returns whether or not SledgeHammer has started.
-----------------------------------------------------------------
-function SledgeHammer:isStarted()
-	return self.started;
-end
-
-----------------------------------------------------------------
--- @return 	Returns whether or not SledgeHammer is currently stopped.
-----------------------------------------------------------------
-function SledgeHammer:isStopped()
-	return not self.started;
-end
-
-----------------------------------------------------------------
--- @return Returns the version of this instance of the Sledgehammer Lua Framework.
-----------------------------------------------------------------
-function SledgeHammer:getVersion()
-	return "1.00"
-end
-
-----------------------------------------------------------------
--- @return Returns the TimeStamp for the initialization of the SledgeHammer Lua Framework.
-----------------------------------------------------------------
-function SledgeHammer:getInitializedTimeStamp()
-	return SledgeHammer.instance.initTimeStamp;
-end
-
-----------------------------------------------------------------
--- @return If Sledgehammer is being ran in debug mode.
-----------------------------------------------------------------
-function SledgeHammer:isDebug()
-	return SledgeHammer.instance.DEBUG;
-end
-
-----------------------------------------------------------------
 -- Initializes the Sledgehammer Lua Framework.
 ----------------------------------------------------------------
 function SledgeHammer:init()
@@ -180,67 +131,6 @@ function SledgeHammer:update()
 end
 
 ----------------------------------------------------------------
--- Handles Client-side Sledgehammer Module commands.
---
--- @string mod 		Module name.
--- @string command 	Command being sent to the Module.
--- @table args 		Arguments passed to the Module.
-----------------------------------------------------------------
-function SledgeHammer:onClientCommand(mod, command, args)
-	-- Checks to see if this is a module command.
-	if luautils.stringStarts(mod, "sledgehammer.module.") then
-		-- Converts to simple module name.
-		local modName = toSimpleModuleName(mod);
-		if self.DEBUG then
-			print("SledgeHammer: Received command: module = '"..tostring(modName).."' command = '"..tostring(command).."'.");
-			rPrint(args, 1024);
-		end
-		-- If this is the core, route directly and return.
-		if modName == "core" then
-			if command == "sendLua" then
-				local func = load_function("A_Module", args.lua);
-				func();
-				return;
-			end
-		end
-		-- Grab the module being commanded.
-		local modu = self.modulesByID[modName];
-		-- Validity check.
-		if modu == nil then
-			print("SledgeHammer: Module is null: '" .. tostring(modName) .. "', for command: '" .. command .. "'.");
-			return;
-		end
-		-- Handle the command.
-		modu:command(command, args);
-	end
-end
-
-----------------------------------------------------------------
--- Sends commands to the Server-Side SledgeHammer module.
---
--- @string mod 		Module name.
--- @string command 	Command being sent to the Module.
--- @table args 		Arguments passed to the Module. 
-----------------------------------------------------------------
-function SledgeHammer:sendCommand(mod, command, args)
-	-- Validity check.
-	if mod == nil then
-		print("Module given is null!");
-		return;
-	end
-	-- Validity check.
-	if command == nil then
-		print("Module Command given is null!");
-		return;
-	elseif command == "" then
-		print("Module Command given is empty!");
-		return;
-	end
-	-- Send to the Server. (zombie.Lua.LuaManager)
-	sendClientCommand(mod, command, args);
-end
-
-----------------------------------------------------------------
 -- Stops the Sledgehammer Lua Framework.
 ----------------------------------------------------------------
 function SledgeHammer:stop()
@@ -269,26 +159,6 @@ function SledgeHammer:loadModules()
 end
 
 ----------------------------------------------------------------
--- Loads a Module.
-----------------------------------------------------------------
-function SledgeHammer:loadModule(mod)
-	-- Validity check.
-	if mod == nil then
-		-- print("Sledgehammer:loadModule() -> Module given is null!");
-		return;
-	end
-	-- Validity check.
-	if mod:isLoaded() then
-		-- print("Sledgehammer:loadModule() -> Module is already loaded: '"..tostring(mod:getName()).."'.");
-		return;
-	end
-	-- Load the Module.
-	print("Sledgehammer: Loading Module: '"..tostring(mod:getName()).."'.");
-	mod:load();
-	mod.loaded = true;
-end
-
-----------------------------------------------------------------
 -- Starts the Modules registered.
 ----------------------------------------------------------------
 function SledgeHammer:startModules()
@@ -305,29 +175,6 @@ function SledgeHammer:startModules()
 end
 
 ----------------------------------------------------------------
--- Starts a Module. (Loads the Module if not done already)
-----------------------------------------------------------------
-function SledgeHammer:startModule(mod)
-	-- Validity check.
-	if mod == nil then
-		-- print("Sledgehammer:startModule() -> Module given is null!");
-		return;
-	end
-	-- Validity check.
-	if mod:isStarted() then
-		-- print("Sledgehammer:startModule() -> Module is already started: '"..tostring(mod:getName()).."'.");
-		return;
-	end
-	if mod:isUnloaded() then
-		self:loadModule(mod);
-	end
-	-- Start the module.
-	print("Sledgehammer: Starting Module: '"..tostring(mod:getName()).."'.");
-	mod:start();
-	mod.started = true;
-end
-
-----------------------------------------------------------------
 -- Handshakes all registered Modules.
 ----------------------------------------------------------------
 function SledgeHammer:handshakeModules()
@@ -338,34 +185,9 @@ function SledgeHammer:handshakeModules()
 		-- Grab the next module.
 		local nextModule = self.modules[index];
 		if nextModule ~= nil then
-			-- Handshake the Module.
 			self:handshakeModule(nextModule);
 		end
 	end
-end
-
-----------------------------------------------------------------
--- Handshakes a Module. 
-----------------------------------------------------------------
-function SledgeHammer:handshakeModule(mod)
-	-- Validity check.
-	if mod == nil then
-		-- print("Sledgehammer:handshakeModule() -> Module given is null!");
-		return;
-	end
-	-- Validity check.
-	if mod:isStopped() then
-		-- print("Sledgehammer:handshakeModule() -> Module is not running: '"..tostring(mod:getName()).."'.");
-		return;
-	end
-	-- Validity check.
-	if mod:isHandshaked() then
-		-- print("Sledgehammer:handshakeModule() -> Module is already handshaked: '"..tostring(mod:getName()).."'.");
-	end
-	-- Handshake the Module.
-	mod:handshake();
-	-- Set Handshake flag on Module.
-	mod.handshaked = true;
 end
 
 ----------------------------------------------------------------
@@ -399,25 +221,6 @@ function SledgeHammer:stopModules()
 	end
 end
 
-----------------------------------------------------------------
--- Stops a Module.
-----------------------------------------------------------------
-function SledgeHammer:stopModule(mod)
-	-- Validity check.
-	if mod == nil then
-		-- print("Sledgehammer:stopModule() -> Module given is null!");
-		return;
-	end
-	-- Validity check.
-	if mod:isStopped() then
-		-- print("Sledgehammer:stopModule() -> Module is already stopped: '"..tostring(mod:getName()).."'.");
-		return;
-	end
-	-- Stop the Module.
-	-- print("Sledgehammer: Stopping Module: '"..tostring(mod:getName()).."'.");
-	mod:stop();
-	mod.started = false;
-end
 
 ----------------------------------------------------------------
 -- Unloads the Modules registered.
@@ -436,27 +239,125 @@ function SledgeHammer:unloadModules()
 end
 
 ----------------------------------------------------------------
+-- Loads a Module.
+----------------------------------------------------------------
+function SledgeHammer:loadModule(mod)
+	if mod == nil then return; end
+	if mod:isLoaded() then return; end
+	print("Sledgehammer: Loading Module: '"..tostring(mod:getName()).."'.");
+	mod:load();
+	mod.loaded = true;
+end
+
+----------------------------------------------------------------
+-- Starts a Module. (Loads the Module if not done already)
+----------------------------------------------------------------
+function SledgeHammer:startModule(mod)
+	if mod == nil then return; end
+	if mod:isStarted() then return; end
+	if mod:isUnloaded() then
+		self:loadModule(mod);
+	end
+	print("Sledgehammer: Starting Module: '"..tostring(mod:getName()).."'.");
+	mod:start();
+	mod.started = true;
+end
+
+----------------------------------------------------------------
+-- Handshakes a Module. 
+----------------------------------------------------------------
+function SledgeHammer:handshakeModule(mod)
+	if mod == nil then return; end
+	if mod:isStopped() then return; end
+	if mod:isHandshaked() then return; end
+	mod:handshake();
+	mod.handshaked = true;
+end
+
+----------------------------------------------------------------
+-- Stops a Module.
+----------------------------------------------------------------
+function SledgeHammer:stopModule(mod)
+	if mod == nil then return; end
+	if mod:isStopped() then return; end
+	print("Sledgehammer: Stopping Module: '"..tostring(mod:getName()).."'.");
+	mod:stop();
+	mod.started = false;
+end
+
+----------------------------------------------------------------
 -- Unloads a Module. (Stops the Module if not stopped already)
 ----------------------------------------------------------------
 function SledgeHammer:unloadModule(mod)
-	-- Validity check.
-	if mod == nil then
-		-- print("Sledgehammer:unloadModule() -> Module given is null!");
-		return;
-	end
-	-- Validity check.
-	if mod:isUnloaded() then
-		-- print("Sledgehammer:unloadModule() -> Module is already unloaded: '"..tostring(mod:getName()).."'.");
-		return;
-	end
-	-- If this method is called before 'stopModule(..)', then we invoke it first.
+	if mod == nil then return; end
+	if mod:isUnloaded() then return; end
 	if mod:isStarted() then
 		self:stopModule(mod);
 	end
-	-- Unload the Module.
 	print("Sledgehammer: Unloading Module: '"..tostring(mod:getName()).."'.");
 	mod:unloadModule();
 	mod.loaded = false;
+end
+
+----------------------------------------------------------------
+-- Sends commands to the Server-Side SledgeHammer module.
+--
+-- @string mod 		Module name.
+-- @string command 	Command being sent to the Module.
+-- @table args 		Arguments passed to the Module. 
+----------------------------------------------------------------
+function SledgeHammer:sendCommand(mod, command, args)
+	-- Validity check.
+	if mod == nil then
+		print("Module given is null!");
+		return;
+	end
+	-- Validity check.
+	if command == nil then
+		print("Module Command given is null!");
+		return;
+	elseif command == "" then
+		print("Module Command given is empty!");
+		return;
+	end
+	-- Send to the Server. (zombie.Lua.LuaManager)
+	sendClientCommand(mod, command, args);
+end
+
+----------------------------------------------------------------
+-- Handles Client-side Sledgehammer Module commands.
+--
+-- @string mod 		Module name.
+-- @string command 	Command being sent to the Module.
+-- @table args 		Arguments passed to the Module.
+----------------------------------------------------------------
+function SledgeHammer:onClientCommand(mod, command, args)
+	-- Checks to see if this is a module command.
+	if luautils.stringStarts(mod, "sledgehammer.module.") then
+		-- Converts to simple module name.
+		local modName = toSimpleModuleName(mod);
+		if self.DEBUG then
+			print("SledgeHammer: Received command: module = '"..tostring(modName).."' command = '"..tostring(command).."'.");
+			rPrint(args, 1024);
+		end
+		-- If this is the core, route directly and return.
+		if modName == "core" then
+			if command == "sendLua" then
+				local func = load_function("A_Module", args.lua);
+				func();
+				return;
+			end
+		end
+		-- Grab the module being commanded.
+		local modu = self.modulesByID[modName];
+		-- Validity check.
+		if modu == nil then
+			print("SledgeHammer: Module is null: '" .. tostring(modName) .. "', for command: '" .. command .. "'.");
+			return;
+		end
+		-- Handle the command.
+		modu:command(command, args);
+	end
 end
 
 ----------------------------------------------------------------
@@ -497,13 +398,6 @@ function SledgeHammer:register(mod)
 	end
 end
 
-----------------------------------------------------------------
--- Unregisters a Module.
-----------------------------------------------------------------
-function SledgeHammer:Unregister(mod)
-	-- TODO: Implement.
-end
-
 function SledgeHammer:addPlayer(player)
 	-- Validity check.
 	if player == nil then
@@ -529,24 +423,55 @@ end
 --
 -- TODO: Associate an async request with modules.
 function SledgeHammer:getPlayer(identifier)
-	-- Validity check.
 	if identifier == nil then
 		print("Sledgehammer:getPlayer() -> Given Identifier is null!");
 		return nil;
 	end
 	if(type(identifier) == "number") then
-		-- ID.
 		return self.players[identifier];
 	elseif type(identifier == "string") then
-		-- Name.
 		return self.playersByName[identifier];
 	end
 end
 
 function SledgeHammer:removePlayer(player)
-	-- TODO: Implement
 	print("'Sledgehammer:removePlayer()' is not implemented.");
 end
+
+----------------------------------------------------------------
+-- @return 	Returns whether or not SledgeHammer has fully loaded.
+----------------------------------------------------------------
+function SledgeHammer:isLoaded() return self.loaded; end
+
+----------------------------------------------------------------
+-- @return 	Returns whether or not SledgeHammer is unloaded.
+----------------------------------------------------------------
+function SledgeHammer:isUnloaded() return not self.loaded; end
+
+----------------------------------------------------------------
+-- @return 	Returns whether or not SledgeHammer has started.
+----------------------------------------------------------------
+function SledgeHammer:isStarted() return self.started; end
+
+----------------------------------------------------------------
+-- @return 	Returns whether or not SledgeHammer is currently stopped.
+----------------------------------------------------------------
+function SledgeHammer:isStopped() return not self.started; end
+
+----------------------------------------------------------------
+-- @return Returns the version of this instance of the Sledgehammer Lua Framework.
+----------------------------------------------------------------
+function SledgeHammer:getVersion() return "4.00"; end
+
+----------------------------------------------------------------
+-- @return Returns the TimeStamp for the initialization of the SledgeHammer Lua Framework.
+----------------------------------------------------------------
+function SledgeHammer:getInitializedTimeStamp() return SledgeHammer.instance.initTimeStamp; end
+
+----------------------------------------------------------------
+-- @return If Sledgehammer is being ran in debug mode.
+----------------------------------------------------------------
+function SledgeHammer:isDebug() return SledgeHammer.instance.DEBUG; end
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------
@@ -572,7 +497,6 @@ preloaded_modules_index =  0;
 -- @static
 ----------------------------------------------------------------
 function load_sledgehammer()
-	print("load_sledgehammer()");
 	-- Initialize core and store as Singleton.
 	SledgeHammer.instance = SledgeHammer();
 end
@@ -584,7 +508,6 @@ end
 -- @static
 ----------------------------------------------------------------
 function init_sledgehammer()
-	print("init_sledgehammer()");
 	SledgeHammer.instance:init();
 end
 
