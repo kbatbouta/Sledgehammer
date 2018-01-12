@@ -3,8 +3,12 @@ package sledgehammer.module.discord;
 import java.io.File;
 
 import de.btobastian.javacord.entities.Channel;
+import sledgehammer.event.ClientEvent;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.lua.core.send.SendLua;
+import sledgehammer.lua.discord.DiscordInformation;
+import sledgehammer.lua.discord.request.RequestDiscordInformation;
 import sledgehammer.plugin.MongoModule;
 
 /**
@@ -35,6 +39,8 @@ public class ModuleDiscord extends MongoModule {
     private DiscordExceptionListener exceptionListener;
     private DiscordCommandListener commandHandler;
     private String __debugToken;
+    private SendLua sendLuaDiscord;
+    private DiscordInformation discordInformation;
 
     public ModuleDiscord() {
         super(getDefaultDatabase());
@@ -46,6 +52,7 @@ public class ModuleDiscord extends MongoModule {
         if (!directory.exists()) {
             directory.mkdirs();
         }
+        loadLua();
         eventListener = new DiscordEventListener(this);
         logListener = new DiscordLogListener(this);
         exceptionListener = new DiscordExceptionListener(this);
@@ -75,6 +82,7 @@ public class ModuleDiscord extends MongoModule {
             bot = new DiscordBot(this);
             bot.connect(settings.getBotAccessToken());
         }
+
         register(eventListener);
         register(logListener);
         register(exceptionListener);
@@ -93,6 +101,26 @@ public class ModuleDiscord extends MongoModule {
     @Override
     public void onUnload() {
         unregister(commandHandler);
+    }
+
+    @Override
+    public void onBuildLua(SendLua send) {
+        send.append(sendLuaDiscord);
+    }
+
+    @Override
+    public void onClientCommand(ClientEvent event) {
+        String clientCommand = event.getCommand();
+        if (clientCommand.equalsIgnoreCase("requestInformation")) {
+            RequestDiscordInformation request = new RequestDiscordInformation();
+            if( discordInformation == null) {
+                discordInformation = new DiscordInformation();
+                discordInformation.setDiscordName(bot.getServer().getName());
+                discordInformation.setInviteURL(settings.getInviteURL());
+            }
+            request.setInfo(discordInformation);
+            event.respond(request);
+        }
     }
 
     public void start() {
@@ -116,6 +144,15 @@ public class ModuleDiscord extends MongoModule {
         }
         ChatMessage message = createChatMessage(text);
         // TODO: Implement. ?
+    }
+
+    private void loadLua() {
+        File lua = getLuaDirectory();
+        boolean overwrite = !isLuaOverriden();
+        File fileDiscordModule = new File(lua, "ModuleDiscord.lua");
+        saveResourceAs("lua/module/core.discord/ModuleDiscord.lua", fileDiscordModule, overwrite);
+        // Make sure that the core language file(s) are provided.
+        sendLuaDiscord = new SendLua(fileDiscordModule);
     }
 
     public String getPublicChannelName() {

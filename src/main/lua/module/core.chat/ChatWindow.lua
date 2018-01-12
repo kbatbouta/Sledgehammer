@@ -460,12 +460,6 @@ ChatWindow.instance = nil;
 ChatWindow.__type = "Chat";
 -- The String 'Type' the Element extends.
 ChatWindow.__extends = "Window";
--- Flag for 'T' key being pressed.
-ChatWindow.t_pressed   = false;
--- Flag for 'Y' key being pressed.
-ChatWindow.y_pressed   = false;
--- Flag for 'ESC' key being pressed.
-ChatWindow.esc_pressed = false;
 
 ----------------------------------------------------------------
 -- Handles The ChatWindow's updates every update tick.
@@ -514,25 +508,19 @@ ChatWindow.onChatKeyPressed = function(key)
 	print("key pressed: "..tostring(key));
 	local chat = ChatWindow.instance;
 	-- This handles the ChatWindow setting itself visible.
-	if key == 20 and ChatWindow.t_pressed ~= true then -- 'T'
+	if key == 20 then -- 'T'
 		if not chat.input.javaObject:isFocused() then
 			chat:setVisible(true);
-			chat.input:focus();
 		end
-		ChatWindow.t_pressed = true;
-	else
-		ChatWindow.t_pressed = false;
-	end
+        chat.input:focus();
+    end
 	-- This handles the ChatWindow setting itself visible, and switching
 	--   the active ChatPanel to the Global ChatPanel. 
 	if key == 21 and ChatWindow.y_pressed ~= true then -- 'Y'
 		if not chat.input.javaObject:isFocused() then
 			chat:setVisible(true);
-			chat.tab_panel:setActiveTab(0);
-			ChatWindow.y_pressed = true;
+			chat.tab_panel:setActiveTab("Global");
 		end
-	else
-		ChatWindow.y_pressed = false;
 	end
 	-- If the CTRL key and a NUMBER key is pressed, this is a short-cut
 	--   for setting which tab in the ChatWindow is active.
@@ -562,6 +550,11 @@ ChatWindow.onChatKeyPressed = function(key)
 				ChatWindow.instance.tab_panel:setActiveTab(index - 1);
 			end
 		end
+	end
+	if key == Keyboard.KEY_ESCAPE then
+		chat.input:clear();
+		chat.input:unfocus();
+		chat:setVisible(false);
 	end
 end
 

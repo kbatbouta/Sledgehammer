@@ -95,9 +95,5 @@ public class PlayerManager extends Manager {
         if (!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
             mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
         }
-        if (SledgeHammer.DEBUG) {
-            println("Adding player: " + player + ", " + player.getUsername() + ", " + player.getUniqueId().toString()
-                    + ", " + player.getConnection());
-        }
     }
 }

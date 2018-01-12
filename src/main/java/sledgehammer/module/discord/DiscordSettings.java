@@ -60,7 +60,13 @@ public class DiscordSettings {
         }
         String inviteURL = (String) map.get("invite_url");
         if (inviteURL != null) {
-            this.inviteURL = inviteURL;
+            if(!inviteURL.equals("www.discordapp.com") && !inviteURL.toLowerCase().startsWith("https://discord.gg/")) {
+                module.errln("ERROR: The Invite URL link provided is not a valid Discord link. "
+                        + "Make sure the link is valid, and is a discord invite link. E.G: https://discord.gg/#####");
+                this.inviteURL = "www.discordapp.com";
+            } else {
+                this.inviteURL = inviteURL;
+            }
         }
         String channelPublic = (String) map.get("public_channel");
         if (channelPublic != null) {

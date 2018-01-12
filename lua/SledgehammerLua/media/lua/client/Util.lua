@@ -197,3 +197,19 @@ function load_function(body, args)
   		return f, err; 
   	end
 end
+
+function contains(x, y, w, h, px, py) 
+    return px >= x and px <= x + w and py >= y and py <= y + h;
+end
+
+function lerp(start, stop, percent)
+    return (start + percent * (stop - start));
+end
+
+function ease_in_quad(value)
+    return value * value;
+end
+
+function ease_out_quad(value)
+    return value * (2 - value);
+end

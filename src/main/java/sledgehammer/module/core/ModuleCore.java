@@ -26,6 +26,7 @@ import java.util.UUID;
 import com.mongodb.DBCursor;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoPeriodicMessage;
@@ -75,6 +76,9 @@ public class ModuleCore extends Module {
     @Override
     public void onLoad() {
         loadLua();
+        boolean langOverwrite = !isLangOverriden();
+        // Make sure that the core language file(s) are provided.
+        saveResourceAs("lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), langOverwrite);
         // Load the LanguagePackage.
         lang = new LanguagePackage(getLanguageDirectory(), "core");
         lang.load();
@@ -216,10 +220,9 @@ public class ModuleCore extends Module {
 
     private void loadLua() {
         File lua = getLuaDirectory();
+        boolean overwrite = !isLuaOverriden();
         fileCoreModule = new File(lua, "ModuleCore.lua");
-        saveResourceAs("lua/module/core/ModuleCore.lua", fileCoreModule, true);
-        // Make sure that the core language file(s) are provided.
-        saveResourceAs("lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), true);
+        saveResourceAs("lua/module/core/ModuleCore.lua", fileCoreModule, overwrite);
         sendLuaCore = new SendLua(fileCoreModule);
     }
 

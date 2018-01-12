@@ -44,15 +44,25 @@ import sledgehammer.util.Printable;
  */
 public abstract class Module extends Printable {
 
-    /** The Plug-in instance the Module is packaged with. */
+    /**
+     * The Plug-in instance the Module is packaged with.
+     */
     private Plugin plugin;
-    /** The properties of the Module. */
+    /**
+     * The properties of the Module.
+     */
     private ModuleProperties properties = new ModuleProperties();
-    /** The File directory for data to be placed. */
+    /**
+     * The File directory for data to be placed.
+     */
     private File directory = null;
-    /** Flag to note if the Module has passed into the loaded state. */
+    /**
+     * Flag to note if the Module has passed into the loaded state.
+     */
     private boolean loaded = false;
-    /** Flag to note if the Module has passed into the started state. */
+    /**
+     * Flag to note if the Module has passed into the started state.
+     */
     private boolean started = false;
 
     @Override
@@ -62,7 +72,7 @@ public abstract class Module extends Printable {
 
     /**
      * (Note: Modules should not use this method)
-     *
+     * <p>
      * Loads the Module.
      *
      * @return Returns true if the Module loads successfully.
@@ -82,7 +92,7 @@ public abstract class Module extends Printable {
 
     /**
      * (Note: Modules should not use this method)
-     *
+     * <p>
      * Starts the module.
      */
     public void startModule() {
@@ -96,11 +106,10 @@ public abstract class Module extends Printable {
 
     /**
      * (Note: Modules should not use this method)
-     *
+     * <p>
      * Updates the Module every tick.
      *
-     * @param delta
-     *            The latency in milliseconds since the last tick.
+     * @param delta The latency in milliseconds since the last tick.
      */
     public void updateModule(long delta) {
         if (started) {
@@ -110,7 +119,7 @@ public abstract class Module extends Printable {
 
     /**
      * (Note: Modules should not use this method)
-     *
+     * <p>
      * Stops the Module.
      *
      * @return Returns true if the Module stopped successfully.
@@ -134,7 +143,7 @@ public abstract class Module extends Printable {
 
     /**
      * (Note: Modules should not use this method)
-     *
+     * <p>
      * Unloads the Module.
      *
      * @return Returns true if the Module unloads successfully.
@@ -164,8 +173,7 @@ public abstract class Module extends Printable {
      * Registers a ChatChannel with no description or permission-node. Throws an
      * IllegalArgumentException if the name provided is null or empty.
      *
-     * @param name
-     *            The String name of the ChatChannel.
+     * @param name The String name of the ChatChannel.
      * @return Returns the result ChatChannel.
      */
     public ChatChannel createChatChannel(String name) {
@@ -179,16 +187,13 @@ public abstract class Module extends Printable {
      * Registers a ChatChannel with a name, description, and permission-node to
      * access it. Throws an IllegalArgumentException if the name provided is null or
      * empty.
-     *
+     * <p>
      * The ChatChannel is set to be global, public, not custom, saves history, and
      * allows Players to speak.
      *
-     * @param name
-     *            The String name of the ChatChannel.
-     * @param description
-     *            The String description of the ChatChannel.
-     * @param permissionNode
-     *            The String permission-node of the ChatChannel.
+     * @param name           The String name of the ChatChannel.
+     * @param description    The String description of the ChatChannel.
+     * @param permissionNode The String permission-node of the ChatChannel.
      * @return Returns the result ChatChannel.
      */
     public ChatChannel createChatChannel(String name, String description, String permissionNode) {
@@ -581,7 +586,7 @@ public abstract class Module extends Printable {
      * Returns a registered. Module with the given Class.
      *
      * @param clazz The Class of the Module.
-     * @param <T> The Module Class to return.
+     * @param <T>   The Module Class to return.
      * @return Returns a Module with the given Class.
      */
     @SuppressWarnings("unchecked")
@@ -712,8 +717,12 @@ public abstract class Module extends Printable {
 
     public File getLuaDirectory() {
         File dir = new File(SledgeHammer.instance.getLuaDirectory(), "Module" + File.separator + getClientModuleId());
-        if(!dir.exists()) dir.mkdirs();
+        if (!dir.exists()) dir.mkdirs();
         return dir;
+    }
+
+    public boolean isLangOverriden() {
+        return Settings.getInstance().overrideLang();
     }
 
     /**
@@ -775,7 +784,7 @@ public abstract class Module extends Printable {
      * Used to execute GenericEvent commands. This will be picked up by modules
      * that @override this this method.
      *
-     * @param type The type of event.
+     * @param type    The type of event.
      * @param context The context of the event.
      */
     public void executeCommand(String type, String context) {
@@ -783,9 +792,10 @@ public abstract class Module extends Printable {
 
     /**
      * Fired when building the Lua to send to a Player.
-     *
+     * <p>
      * This allows each Module to choose what to send to the Player. This means that while regular Players receive
      * code for most functions, advanced Players may get more code to do more things.
+     *
      * @param send
      */
     public void onBuildLua(SendLua send) {

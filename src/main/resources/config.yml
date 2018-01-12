@@ -29,6 +29,11 @@ general:
   # to override files even if they exist. (Be mindful of setting this when
   # modifying files, as files can be overwritten and modifications can be lost)
   override_lua: false
+  # Allows overriding Language files for Modules. Turning this off will tell
+  # Modules to override files even if they exist. (Be mindful of setting this
+  # when modifying files, as files can be overwritten and modifications can be
+  # lost)
+  override_lang: false
 
 # Security settings. If you don't know what to put for these settings, don't
 #   change them.
@@ -55,11 +60,7 @@ security:
 #          your OS PATH)
 #     2) Type 'use admin'. (This is the database to add the user)
 #     3) Paste this in with the criteria you put below:
-#        db.createUser({
-#          user: "USERNAME_HERE",
-#          pwd: "PASSWORD_HERE",
-#          roles: [ "root" ]
-#        });
+#          db.createUser({user: "USERNAME_HERE", pwd: "PASSWORD_HERE", roles: [ "root" ]});
 mongo_db:
   # The URL to connect to. (Use 'localhost' if you are hosting the database 
   #   on the same computer)

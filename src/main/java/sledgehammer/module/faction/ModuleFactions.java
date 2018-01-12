@@ -69,9 +69,9 @@ public class ModuleFactions extends MongoModule {
      */
     private long timeUpdatedLast = -1L;
     /**
-     * 5 Minutes
+     * 1 Hour
      */
-    private long timeUpdate = 300000L;
+    private long timeUpdate = 3600000L;
     /**
      * 3 Days
      */

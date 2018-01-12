@@ -89,8 +89,10 @@ public class ModulePermissions extends MongoModule {
 
     @Override
     public void onLoad() {
+        boolean langOverwrite = !isLangOverriden();
         // Make sure that the core language file(s) are provided.
-        saveResourceAs("lang/permissions_en.yml", new File(getLanguageDirectory(), "permissions_en.yml"), false);
+        saveResourceAs("lang/permissions_en.yml", new File(getLanguageDirectory(), "permissions_en.yml"),
+                langOverwrite);
         // Load the LanguagePackage.
         lang = new LanguagePackage(getLanguageDirectory(), "permissions");
         lang.load();

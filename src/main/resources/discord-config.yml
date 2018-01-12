@@ -4,11 +4,18 @@
 #  |____/|_|___|___|___|_| |___|
 #
 # Whether or not to print debug lines in the console.
+#
+# To invite a bot for a discord app, first create the app by going to this link:
+#    https://discordapp.com/developers/applications/me
+# Next, invite the bot to the server with this link: (Place AppID in slot)
+#   "https://discordapp.com/oauth2/authorize?client_id=<APPLICATION_ID_HERE>&scope=bot&permissions=0"
+#
+# Make sure to fill the fields in this file so the bot can work.
 debug: false
 # The DiscordBot token. 
 token: "<TOKEN_HERE>"
-# In order to add this bot to your server, place your application's ID in this URL.
-invite_url: "https://discordapp.com/oauth2/authorize?client_id=<APPLICATION_ID_HERE>&scope=bot&permissions=0"
+# The invite URL to send Players to when clicking on the Discord button on the main menu.
+invite_url: "www.discordapp.com"
 # The channel for Global chat to be broadcasted.
 public_channel: "global"
 # The RCON channel for Console access.

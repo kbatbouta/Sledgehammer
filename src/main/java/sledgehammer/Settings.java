@@ -127,6 +127,7 @@ public class Settings extends Printable {
     private boolean allowHelicopters;
 
     private boolean overrideLua;
+    private boolean overrideLang;
 
     /**
      * Main constructor.
@@ -265,6 +266,13 @@ public class Settings extends Printable {
         } else {
             setOverrideLua(false, false);
         }
+        // (Boolean) general.overrideLang
+        Object oOverrideLang = general.get("override_lang");
+        if (oOverrideLang != null) {
+            setOverrideLang(getBoolean(oOverrideLang.toString()), false);
+        } else {
+            setOverrideLang(false, false);
+        }
     }
 
     /**
@@ -387,9 +395,8 @@ public class Settings extends Printable {
     }
 
     /**
-     * Sets the flag for allowing Helicopters.
-     *
-     * @param save Flag to save the setting.
+     * @param overrideLua The flag to set.
+     * @param save        The flag to save the Settings.
      */
     public void setOverrideLua(boolean overrideLua, boolean save) {
         this.overrideLua = overrideLua;
@@ -405,6 +412,32 @@ public class Settings extends Printable {
                     int spaces = getLeadingSpaceCount(line);
                     if (interpreted.startsWith("override_lua:")) {
                         String newLine = getSpaces(spaces) + "override_lua: \"" + overrideLua + "\"";
+                        lines.set(index, newLine);
+                    }
+                }
+                writeConfigFile(lines);
+            }
+        }
+    }
+
+    /**
+     * @param overrideLang The flag to set.
+     * @param save         The flag to save the Settings.
+     */
+    public void setOverrideLang(boolean overrideLang, boolean save) {
+        this.overrideLang = overrideLang;
+        if (save) {
+            List<String> lines = readConfigFile();
+            if (lines != null) {
+                for (int index = 0; index < lines.size(); index++) {
+                    String line = lines.get(index);
+                    String interpreted = line.trim();
+                    if (interpreted.startsWith("#")) {
+                        continue;
+                    }
+                    int spaces = getLeadingSpaceCount(line);
+                    if (interpreted.startsWith("override_lang:")) {
+                        String newLine = getSpaces(spaces) + "override_lang: \"" + overrideLang + "\"";
                         lines.set(index, newLine);
                     }
                 }
@@ -1198,5 +1231,9 @@ public class Settings extends Printable {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean overrideLang() {
+        return this.overrideLang;
     }
 }

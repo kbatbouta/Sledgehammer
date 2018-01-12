@@ -208,11 +208,9 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     @Override
     public ChatChannel getChatChannel(String name) {
         name = name.toLowerCase();
-        println("name: " + name);
         ChatChannel returned = null;
         for (ChatChannel chatChannel : getChatChannels()) {
             String chatChannelName = chatChannel.getChannelName().toLowerCase();
-            println("\tNext chatChannel: " + chatChannelName);
             if (chatChannelName.equalsIgnoreCase(name)) {
                 returned = chatChannel;
                 break;

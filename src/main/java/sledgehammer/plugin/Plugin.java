@@ -767,8 +767,16 @@ public class Plugin extends Printable {
      * @param sendLua The Send Object to store the Lua code in String format.
      */
     public void getLua(SendLua sendLua) {
+        List<Module> listModuleStopped = new ArrayList<>();
         for (Module module : listModulesStarted) {
+            if(!module.isStarted()) {
+                listModuleStopped.add(module);
+                continue;
+            }
             module.onBuildLua(sendLua);
+        }
+        if(listModuleStopped.size() > 0) {
+            listModulesStarted.removeAll(listModuleStopped);
         }
     }
 }
