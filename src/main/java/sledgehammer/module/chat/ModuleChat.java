@@ -221,11 +221,15 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 
     @Override
     public ChatChannel createChatChannel(String channelName, String channelDescription, String permissionNode,
-                                         boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel, boolean saveHistory,
-                                         boolean canSpeak) {
+                                         boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel,
+                                         boolean saveHistory, boolean canSpeak) {
+        ChatChannel chatChannel = getChatChannel(channelName);
+        if (chatChannel != null) {
+            return chatChannel;
+        }
         MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName, channelDescription,
                 permissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
-        ChatChannel chatChannel = new ChatChannel(mongoChatChannel);
+        chatChannel = new ChatChannel(mongoChatChannel);
         mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
         listOrderedChatChannels.add(chatChannel);
         mongoChatChannel.save();

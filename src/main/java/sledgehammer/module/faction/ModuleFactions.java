@@ -764,7 +764,6 @@ public class ModuleFactions extends MongoModule {
      * included will be SUCCESS.
      */
     public Response acceptInvite(FactionInvite factionInvite) {
-
         UUID playerId = factionInvite.getInvitedId();
         // Check to make sure the Player still exists.
         boolean exists = SledgeHammer.instance.playerExists(playerId);
@@ -835,14 +834,13 @@ public class ModuleFactions extends MongoModule {
      */
     public ChatChannel createChatChannel(Faction faction) {
         // Creates a new ChatChannel wrapper for the Faction.
-//		ChatChannel chatChannel = createChatChannel("Faction_" + faction.getFactionName());
-        // new FactionChatChannel("Faction_" + faction.getFactionName());
-//		chatChannel.setPermissionNode("sledgehammer.factions.chat", false);
-//		chatChannel.setPublicChannel(false, false);
-//		chatChannel.setGlobalChannel(true, false);
+		ChatChannel chatChannel = createChatChannel("Faction_" + faction.getFactionName());
+//         new FactionChatChannel("Faction_" + faction.getFactionName());
+		chatChannel.setPermissionNode("sledgehammer.factions.chat", false);
+		chatChannel.setPublicChannel(false, false);
+		chatChannel.setGlobalChannel(true, false);
         // Return the new ChatChannel.
-//		return chatChannel;
-        return null;
+		return chatChannel;
     }
 
     /**

@@ -41,22 +41,13 @@ render_sledgehammer = function(main_screen)
     if not SledgeHammer.instance then return end
     if not SledgeHammer.instance:isStarted() then return end
     local tex  = getTexture("media/ui/Sledgehammer/logo.png");
-    local tex2 = getTexture("media/ui/Sledgehammer/logo2.png");
     local sw = getCore():getScreenWidth();
     local sh = getCore():getScreenHeight();
     local w  = tex:getWidth()  / 2;
     local h  = tex:getHeight() / 2;
-    local x  = sw - w;
+    local x  = sw - w - 46;
     local y  = sh - h - 100;
     local a = 1-(warningFade / warningFadeMax);
-    local sw2 = getCore():getScreenWidth();
-    local sh2 = getCore():getScreenHeight();
-    local w2  = tex2:getWidth()  / 2;
-    local h2  = tex2:getHeight() / 2;
-    local x2  = sw2 - w2 - 46;
-    local y2  = sh2 - h2 - 100;
-    local a2  = 1-(warningFade / warningFadeMax);
-    main_screen:drawTextureScaled(tex2, x2, y2, w2, h2, a2 / 2, 0  , 0  , 0  );
     main_screen:drawTextureScaled(tex , x , y , w , h , a     , 1  , 1  , 1  );
     lx = x;
     ly = y;

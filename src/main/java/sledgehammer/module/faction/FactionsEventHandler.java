@@ -81,6 +81,10 @@ public class FactionsEventHandler implements EventListener {
         Player player = event.getPlayer();
         List<FactionInvite> invitesToDelete = new ArrayList<>();
         List<FactionInvite> invites = module.getInvitesForPlayer(player);
+        FactionMember factionMember = module.getFactionMember(player);
+        if(factionMember != null) {
+            factionMember.setTag(player);
+        }
         if (invites != null && invites.size() > 0) {
             for (FactionInvite factionInvite : invites) {
                 Faction faction = module.getFaction(factionInvite.getFactionId());

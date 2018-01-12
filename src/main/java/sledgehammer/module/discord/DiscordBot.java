@@ -126,6 +126,11 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
         Collection<ChatChannel> channels = module.getChatModule().getChatChannels();
         for (ChatChannel channel : channels) {
             String name = channel.getChannelName();
+            // TODO: Find a way to work around the JDK8 limitation with
+            // JavaCord 3.0 not being able to support categories.
+            if(name.toLowerCase().contains("faction")) {
+                continue;
+            }
             // Only register public channels.
             if (!channel.isPublicChannel()) {
                 continue;
@@ -350,12 +355,20 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
         if (channelName.equals(getConsoleChannel().getName())) {
             if (content.startsWith("!")) {
                 if (content.startsWith("!z")) {
-                    onZCommand(username, content);
+                    try {
+                        onZCommand(username, content);
+                    } catch(Exception e) {
+                        //
+                    }
                 } else {
                     content = content.substring(1, content.length());
                     String[] args_ = content.split(" ");
                     String[] args = new String[args_.length - 1];
-                    System.arraycopy(args, 1, args, 0, args_.length - 1);
+                    try {
+                        System.arraycopy(args, 1, args, 0, args_.length - 1);
+                    } catch(Exception e) {
+                        args = new String[0];
+                    }
                     onCommand(username, args_[0].toLowerCase(), args);
                 }
             }

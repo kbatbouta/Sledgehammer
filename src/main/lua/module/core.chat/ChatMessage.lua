@@ -92,6 +92,7 @@ function ChatMessage:initialize(lua_table, chat_channel)
 	self.message_type       = lua_table.message_type      ;
 	self.edited             = lua_table.edited            ;
 	self.deleted            = lua_table.deleted           ;
+    self.player             = lua_table.player            ;
 
 	local origin = self.origin;
 	-- Format the origin for the ChatMessage.
@@ -143,10 +144,7 @@ function ChatMessage:render(chat_channel)
 		if self.history then 
 			history_header = ChatMessage.HISTORY_HEADER.."  ";
 		end
-		local player_header = "";
-		if self.player_name ~= nil then
-			player_header = self.player_name.." : ";
-		end
+		local player_header = self:getPlayerHeader();
 		self.rendered = history_header..self.timestamp_header..player_header..self.message;
 	end
 	-- Check if the explicit ChatMessage is already rendered.
@@ -155,10 +153,7 @@ function ChatMessage:render(chat_channel)
         if self.history then
             history_header = ChatMessage.HISTORY_HEADER.."   ";
         end
-        local player_header = "";
-        if self.player_name ~= nil then
-            player_header = self.player_name.." : ";
-        end
+        local player_header = self:getPlayerHeader();
         local explicit_name = firstToUpper(self.chat_channel.name);
 		if self.origin ~= nil and self.origin_text ~= nil and self.origin_text ~= "" then
 			explicit_name = self.origin_text;
@@ -172,6 +167,25 @@ function ChatMessage:render(chat_channel)
 	else
 		return self.rendered;
 	end
+end
+
+function ChatMessage:getPlayerHeader()
+    local player_header = "";
+    if self.player_name ~= nil then
+        local player_color = "";
+        if self.player ~= nil then
+            local color = self.player.color;
+            local r = color.r;
+            local g = color.g;
+            local b = color.b;
+            if not r then r = 1; end
+            if not g then g = 1; end
+            if not b then b = 1; end
+            player_color = " <RGB:"..r..","..g..","..b.."> ";
+        end
+        player_header = player_color..self.player_name.." <RGB:1,1,1> : ";
+    end
+    return player_header;
 end
 
 function ChatMessage:resetRenders()

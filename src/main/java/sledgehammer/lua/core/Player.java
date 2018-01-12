@@ -79,7 +79,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     /**
      * The Color LuaTable representing the Player.
      */
-    private Color color;
+    private Color color = Color.WHITE;
     /**
      * The Vector3f position of the Player.
      */

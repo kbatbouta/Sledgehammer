@@ -172,7 +172,7 @@ public class Faction extends MongoLuaObject<MongoFaction> {
         for (FactionMember factionMember : listMembers) {
             Player player = SledgeHammer.instance.getPlayer(factionMember.getPlayerId());
             if (player != null) {
-                player.setNickname("[" + getFactionTag() + "] " + player.getUsername());
+                factionMember.setTag(player);
             }
         }
     }

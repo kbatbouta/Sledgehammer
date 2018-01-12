@@ -76,10 +76,7 @@ public class FactionMember extends MongoLuaObject<MongoFactionMember> {
                 this.faction = faction;
                 getMongoDocument().setFactionId(faction.getUniqueId(), save);
                 Player player = SledgeHammer.instance.getPlayer(getPlayerId());
-                if (player != null) {
-                    player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
-                    player.setColor(Color.getColor(faction.getFactionRawColor()));
-                }
+                setTag(player);
             }
         } else {
             Player player = SledgeHammer.instance.getPlayer(getPlayerId());
@@ -87,6 +84,13 @@ public class FactionMember extends MongoLuaObject<MongoFactionMember> {
                 player.setNickname(null);
                 player.setColor(Color.WHITE);
             }
+        }
+    }
+
+    public void setTag(Player player) {
+        if (player != null) {
+            player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
+            player.setColor(Color.getColor(faction.getFactionRawColor()));
         }
     }
 

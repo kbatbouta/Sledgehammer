@@ -147,6 +147,7 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
 		set("message_type"      , getType()             );
 		set("edited"            , isEdited()            );
 		set("deleted"           , isDeleted()           );
+		set("player"            , getPlayer()           );
 		// @formatter:on
     }
 
