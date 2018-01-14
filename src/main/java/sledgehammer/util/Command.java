@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
 import sledgehammer.lua.LuaArray;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.core.Player;
@@ -245,16 +246,19 @@ public class Command extends LuaTable {
         return args;
     }
 
-    public static String[] subArguments(String[] args, int i) {
-        if (i < 0) {
-            throw new IllegalArgumentException("I must be 0 or greater, and less than the argument.length.");
+    public static String[] getSubArgs(String[] args, int index) {
+        if (args == null) {
+            throw new IllegalArgumentException("Arguments Array provided is null.");
         }
-        if (args == null || args.length < 1) {
-            throw new IllegalArgumentException("Args array is invalid!");
+        if (args.length == 0) {
+            throw new IllegalArgumentException("Arguments Array provided is empty.");
         }
-        String[] newArgs = new String[args.length - i];
-        System.arraycopy(args, i, newArgs, 0, args.length - i);
-        return newArgs;
+        if (args.length - index < 0) {
+            throw new IllegalArgumentException("index given to start is beyond the last index of the arguments Array provided.");
+        }
+        String[] ret = new String[args.length - index];
+        System.arraycopy(args, index, ret, 0, args.length - index);
+        return ret;
     }
 
     public static void main(String[] args) {
@@ -262,5 +266,27 @@ public class Command extends LuaTable {
         new Command("/test2 arg1 \"args and stuff\"").debugPrint();
         new Command("test3", null).debugPrint();
         new Command("test4", new String[]{"arg1", "arg2"}).debugPrint();
+    }
+
+    public static String combineArguments(String[] args, int index) {
+        if (args == null) {
+            throw new IllegalArgumentException("Arguments array given is null.");
+        }
+        if (args.length == 0) {
+            System.err.println("WARNING: Arguments given is empty for argument combination. Returning as an empty string.");
+            SledgeHammer.instance.stackTrace();
+            return "";
+        }
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("Index cannot be a negative value.");
+        }
+        if (args.length <= index) {
+            throw new IndexOutOfBoundsException("Index provided is larger or equal to the length of the arguments array given.");
+        }
+        StringBuilder builder = new StringBuilder(args[index - 1]);
+        for (int i = index + 1; i < args.length; i++) {
+            builder.append(args[i]);
+        }
+        return builder.toString().trim();
     }
 }
