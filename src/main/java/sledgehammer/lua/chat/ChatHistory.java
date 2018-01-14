@@ -94,10 +94,10 @@ public class ChatHistory extends LuaTable {
                                 listPlayers.add(player);
                             }
                         }
-                    } else {
-                        listPlayers.addAll(chatChannel.getPlayers());
                     }
-                    SledgeHammer.instance.send(sendChatMessages, listPlayers);
+                    if(listPlayers.size() > 0) {
+                        SledgeHammer.instance.send(sendChatMessages, listPlayers);
+                    }
                 }
             }
             // Check if the history is at message capacity.
