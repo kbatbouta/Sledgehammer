@@ -70,6 +70,7 @@ import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.raknet.UdpEngine;
 import zombie.network.GameServer;
+import zombie.network.ServerMap;
 import zombie.network.ServerOptions;
 import zombie.sledgehammer.SledgeHelper;
 
@@ -148,6 +149,7 @@ public class SledgeHammer extends Printable {
      * Flag for whether or not the SledgeHammer instance has started.
      */
     private boolean started = false;
+    private boolean stopNextTick = false;
 
     /**
      * Test-Case constructor. Use this constructor for testing a Module.
@@ -215,6 +217,12 @@ public class SledgeHammer extends Printable {
      * Main update method for SledgeHammer components.
      */
     public void update() {
+        if(stopNextTick) {
+            ServerMap.instance.QueueSaveAll();
+            ServerMap.instance.QueueQuit();
+            stop();
+            return;
+        }
         try {
             synchronized (this) {
                 managerPlugin.onUpdate();
@@ -1003,5 +1011,11 @@ public class SledgeHammer extends Printable {
 
     public File getLuaDirectory() {
         return this.directoryLua;
+    }
+
+    public void stopNextTick() {
+        stopNextTick = true;
+        ServerMap.instance.QueueSaveAll();
+        ServerMap.instance.QueueQuit();
     }
 }

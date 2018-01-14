@@ -79,12 +79,13 @@ public class FactionsEventHandler implements EventListener {
 
     private void handleConnectEvent(ConnectEvent event) {
         Player player = event.getPlayer();
-        List<FactionInvite> invitesToDelete = new ArrayList<>();
-        List<FactionInvite> invites = module.getInvitesForPlayer(player);
         FactionMember factionMember = module.getFactionMember(player);
+        module.println("FactionMember: " + factionMember);
         if(factionMember != null) {
             factionMember.setTag(player);
         }
+        List<FactionInvite> invites = module.getInvitesForPlayer(player);
+        List<FactionInvite> invitesToDelete = new ArrayList<>();
         if (invites != null && invites.size() > 0) {
             for (FactionInvite factionInvite : invites) {
                 Faction faction = module.getFaction(factionInvite.getFactionId());
@@ -103,6 +104,9 @@ public class FactionsEventHandler implements EventListener {
             player.sendChatMessage("Type \'/faction accept <FACTION>\' to accept.");
             player.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
             player.sendChatMessage("To reject all invitations, type \'/faction reject all\'.");
+        }
+        for(FactionInvite invite: invitesToDelete) {
+            module.deleteInvite(invite);
         }
     }
 

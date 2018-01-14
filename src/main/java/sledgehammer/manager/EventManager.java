@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.enums.Result;
 import sledgehammer.event.ChatEvent;
@@ -450,6 +451,9 @@ public class EventManager extends Manager {
                     errln(o);
                 }
             }
+        }
+        if(Settings.getInstance().isDebug()) {
+            println("Result CommandEvent: " + c.toString());
         }
         return c;
     }

@@ -134,7 +134,7 @@ public class MongoPlayer extends MongoUniqueDocument {
         // Load the admin flag for the player.
         Object oAdmin = object.get("admin");
         if (oAdmin != null) {
-            setAdministrator(oAdmin.toString().equals("1"));
+            setAdministrator(oAdmin.toString().equals("1"), false);
         }
         // Load the ban flag for the player.
         Object oBanned = object.get("banned");
@@ -375,8 +375,11 @@ public class MongoPlayer extends MongoUniqueDocument {
         return this.admin;
     }
 
-    public void setAdministrator(boolean flag) {
+    public void setAdministrator(boolean flag, boolean save) {
         this.admin = flag;
+        if(save) {
+            save();
+        }
     }
 
     public String getEncryptedPassword() {

@@ -59,13 +59,13 @@ public class PermissionsCommandListener implements CommandListener {
         if (command.equals("permissions")) {
             if (args.length > 0) {
                 command = args[0];
-                args = getSubArgs(args, 1);
+                args = Command.getSubArgs(args, 1);
                 if (command.equals("help")) {
                     processHelpMessage(commander, r);
                 } else if (command.equalsIgnoreCase("group")) {
                     if (args.length > 0) {
                         command = args[0];
-                        args = getSubArgs(args, 1);
+                        args = Command.getSubArgs(args, 1);
                         // /permissions group create
                         if(command.equalsIgnoreCase("create")) {
                             if(!commander.hasPermission(getPermissionNode("permissions group create"))) {
@@ -125,7 +125,7 @@ public class PermissionsCommandListener implements CommandListener {
                         else if(command.equalsIgnoreCase("set")) {
                             if(args.length > 0) {
                                 command = args[0];
-                                args = getSubArgs(args, 1);
+                                args = Command.getSubArgs(args, 1);
                                 // /permissions group set node
                                 if(command.equalsIgnoreCase("node")) {
                                     if(!commander.hasPermission(getPermissionNode("permissions group set node"))) {
@@ -169,7 +169,7 @@ public class PermissionsCommandListener implements CommandListener {
                 else if(command.equalsIgnoreCase("user")) {
                     if (args.length > 0) {
                         command = args[0];
-                        args = getSubArgs(args, 1);
+                        args = Command.getSubArgs(args, 1);
                         // /permission user create
                         if(command.equalsIgnoreCase("create")) {
                             if(!commander.hasPermission(getPermissionNode("permissions user create"))) {
@@ -213,7 +213,7 @@ public class PermissionsCommandListener implements CommandListener {
                         else if(command.equals("set")) {
                             if(args.length > 0) {
                                 command = args[0];
-                                args = getSubArgs(args, 1);
+                                args = Command.getSubArgs(args, 1);
                                 // /permission user set group
                                 if(command.equalsIgnoreCase("group")) {
                                     if(!commander.hasPermission(getPermissionNode("permissions user set group"))) {
@@ -325,20 +325,5 @@ public class PermissionsCommandListener implements CommandListener {
 
     public void setModule(ModulePermissions module) {
         this.module = module;
-    }
-
-    public static String[] getSubArgs(String[] args, int index) {
-        if (args == null) {
-            throw new IllegalArgumentException("Arguments Array provided is null.");
-        }
-        if (args.length == 0) {
-            throw new IllegalArgumentException("Arguments Array provided is empty.");
-        }
-        if (args.length - index < 0) {
-            throw new IllegalArgumentException("index given to start is beyond the last index of the arguments Array provided.");
-        }
-        String[] ret = new String[args.length - index];
-        System.arraycopy(args, index, ret, 0, args.length - index);
-        return ret;
     }
 }

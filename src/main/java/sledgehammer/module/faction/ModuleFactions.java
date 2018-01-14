@@ -16,6 +16,7 @@ This file is part of Sledgehammer.
  */
 package sledgehammer.module.faction;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,14 +32,19 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.database.module.faction.MongoFaction;
 import sledgehammer.database.module.faction.MongoFactionInvite;
 import sledgehammer.database.module.faction.MongoFactionMember;
+import sledgehammer.enums.LogType;
 import sledgehammer.enums.Result;
 import sledgehammer.event.ClientEvent;
+import sledgehammer.language.EntryField;
+import sledgehammer.language.Language;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.faction.Faction;
 import sledgehammer.lua.faction.FactionInvite;
 import sledgehammer.lua.faction.FactionMember;
 import sledgehammer.plugin.MongoModule;
+import sledgehammer.util.ChatTags;
 import sledgehammer.util.Response;
 
 /**
@@ -50,7 +56,7 @@ import sledgehammer.util.Response;
  */
 public class ModuleFactions extends MongoModule {
 
-    private FactionsCommandListener factionsConnectionListener;
+    private FactionsCommandListener factionsCommandListener;
     private FactionsEventHandler factionsEventHandler;
     private Map<UUID, MongoFaction> mapMongoFactions;
     private Map<UUID, MongoFactionMember> mapMongoFactionMembers;
@@ -63,7 +69,8 @@ public class ModuleFactions extends MongoModule {
     private MongoCollection collectionFactions;
     private MongoCollection collectionFactionMembers;
     private MongoCollection collectionFactionInvites;
-    private FactionActions actions;
+
+    private LanguagePackage lang;
     /**
      * The last time the Module has updated.
      */
@@ -91,8 +98,12 @@ public class ModuleFactions extends MongoModule {
 
     @Override
     public void onLoad() {
-        actions = new FactionActions(this);
-        factionsConnectionListener = new FactionsCommandListener(this);
+        File langDirectory = getLanguageDirectory();
+        boolean overrideLang = !this.isLangOverriden();
+        saveResourceAs("lang/factions_en.yml", new File(langDirectory, "factions_en.yml"), overrideLang);
+        lang = new LanguagePackage(getLanguageDirectory(), "factions");
+        lang.load();
+        factionsCommandListener = new FactionsCommandListener(this);
         factionsEventHandler = new FactionsEventHandler(this);
         SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
         // @formatter:off
@@ -110,7 +121,7 @@ public class ModuleFactions extends MongoModule {
 
     @Override
     public void onStart() {
-        register(factionsConnectionListener);
+        register(factionsCommandListener);
         register(factionsEventHandler);
     }
 
@@ -130,7 +141,7 @@ public class ModuleFactions extends MongoModule {
 
     @Override
     public void onStop() {
-        unregister(factionsConnectionListener);
+        unregister(factionsCommandListener);
         unregister(factionsEventHandler);
     }
 
@@ -279,25 +290,9 @@ public class ModuleFactions extends MongoModule {
     }
 
     /**
-     * (Private Method)
-     * <p>
-     * Resets the maps and fields for the module.
-     */
-    private void reset() {
-        mapMongoFactions.clear();
-        mapMongoFactionMembers.clear();
-        mapMongoFactionInvites.clear();
-        mapFactionsByUniqueId.clear();
-        mapFactionsByTag.clear();
-        mapFactionsByName.clear();
-        mapFactionMembersByUniqueId.clear();
-        mapFactionInvites.clear();
-    }
-
-    /**
      * Checks and removes expired FactionInvites.
      */
-    public void removeExpiredInvites() {
+    private void removeExpiredInvites() {
         // Our count to store the amount of removed invites.
         int count = 0;
         println("Removing expired invite(s)...");
@@ -313,6 +308,889 @@ public class ModuleFactions extends MongoModule {
         // Print out statistics.
         String plural = count != 1 ? "s" : "";
         println("Removed " + count + " expired invite" + plural + ".");
+    }
+
+    /**
+     * Attempts to create a Faction with given parameters.
+     *
+     * @param commander   The Player creating the Faction.
+     * @param factionName The String name of the Faction.
+     * @param tag         The String tag of the Faction.
+     * @param password    The administrator String password of the Faction.
+     * @return The Response result.
+     */
+    public Response commandCreateFaction(Player commander, String factionName, String tag, String password) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        EntryField fieldName = new EntryField("name", factionName);
+        if (factionName == null || factionName.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("faction_name_invalid", language, fieldName));
+            return response;
+        }
+        factionName = factionName.trim();
+        if (factionExists(factionName)) {
+            response.set(Result.FAILURE, lang.getString("faction_name_taken", language, fieldName));
+            return response;
+        }
+        Response responseValidation = validateFactionTag(tag, language);
+        if (responseValidation.getResult() == Result.FAILURE) {
+            return responseValidation;
+        }
+        tag = tag.toUpperCase();
+        if (password == null || password.isEmpty()) {
+            response.set(Result.FAILURE, lang.getString("faction_password_invalid", language));
+            return response;
+        }
+        password = password.trim();
+        responseValidation = validatePlayerFactionCreate(commander);
+        if (responseValidation.getResult() == Result.FAILURE) {
+            return responseValidation;
+        }
+        try {
+            createFaction(factionName, tag, password, commander.getUniqueId());
+            response.set(Result.SUCCESS, lang.getString("command_faction_create_success", language));
+            response.log(LogType.INFO,
+                    commander.getUsername() + " created faction \"" + factionName + "\".");
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_create_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * Attempts to disband the given Faction.
+     *
+     * @param commander The Player attempting to disband the Faction
+     * @return The Response result.
+     */
+    public Response commandDisbandFaction(Player commander) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        FactionMember factionMember = getFactionMember(commander);
+        if (factionMember == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_in", language));
+            return response;
+        }
+        Faction faction = factionMember.getFaction();
+        if (!faction.isOwner(commander)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own", language));
+            return response;
+        }
+        try {
+            deleteFaction(faction);
+            response.set(Result.SUCCESS, lang.getString("command_faction_disband_success", language));
+            response.log(LogType.INFO,
+                    commander.getUsername() + " disbanded the faction \"" + faction.getFactionName() + "\".");
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_disband_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander       The Player that owns the Faction.
+     * @param usernameInvited The user-name of the Player to invite to the Faction.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandInviteToFaction(Player commander, String usernameInvited) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Make sure the username argument is valid.
+        if (usernameInvited == null || usernameInvited.isEmpty()) {
+            EntryField fieldUsername = new EntryField("username", usernameInvited);
+            response.set(Result.FAILURE, lang.getString("username_invalid", language, fieldUsername));
+            return response;
+        }
+        // Grab the Player if he is online.
+        Player playerInvited = SledgeHammer.instance.getPlayer(usernameInvited);
+        // If the Player is not online, grab the offline version.
+        if (playerInvited == null) {
+            playerInvited = SledgeHammer.instance.getOfflinePlayer(usernameInvited);
+        }
+        EntryField fieldPlayer = new EntryField("player", usernameInvited);
+        // If the Player is still null, the Player does not exist.
+        if (playerInvited == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldPlayer));
+            return response;
+        }
+        // Grab the unique ID of the Player.
+        UUID playerOwnerId = commander.getUniqueId();
+        UUID playerInvitedId = playerInvited.getUniqueId();
+        if (commander.equals(playerInvited)) {
+            response.set(Result.FAILURE, lang.getString("command_faction_invite_yourself", language));
+            return response;
+        }
+        // Grab the FactionMember.
+        FactionMember member = getFactionMember(playerOwnerId);
+        // If the member object is null, the Owner provided is not in a Faction.
+        if (member == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_in", language));
+            return response;
+        }
+        // Grab the Faction of the Member.
+        Faction factionOwner = member.getFaction();
+        // Data consistency check.
+        if (factionOwner == null) {
+            throw new IllegalStateException("FactionMember exists for player ID: \"" + playerOwnerId.toString()
+                    + "\", yet the Faction representing the member is null.");
+        }
+        EntryField fieldFaction = new EntryField("faction", factionOwner.getFactionName());
+        // Check to see if the FactionMember is the owner of the Faction.
+        if (!factionOwner.isOwner(commander)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_name", language, fieldFaction));
+            return response;
+        }
+        // Grab the FactionMember of the invited player.
+        FactionMember memberInvited = getFactionMember(playerInvitedId);
+        // If the invited player is a member of a Faction, check to see if he is valid
+        // to receive invites.
+        if (memberInvited != null) {
+            // Grab the Faction.
+            Faction factionInvited = memberInvited.getFaction();
+            // If the invited player's faction is the same as the owner.
+            if (factionInvited.equals(factionOwner)) {
+                response.set(Result.FAILURE, lang.getString("player_not_in_faction", language));
+                return response;
+            }
+            // If the invited player is the owner of his faction.
+            if (factionInvited.isOwner(playerInvited)) {
+                response.set(Result.FAILURE, lang.getString("command_faction_invite_owner", language, fieldPlayer));
+                return response;
+            }
+        }
+        try {
+            // Process the invite.
+            createFactionInvite(factionOwner, commander.getUniqueId(), playerInvited.getUniqueId());
+            response.set(Result.SUCCESS, lang.getString("command_faction_invite_success", language, fieldPlayer));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_invite_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander   The Player joining the Faction.
+     * @param factionName The name of the Faction to join.
+     * @param password    The password of the Faction.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandJoinFaction(Player commander, String factionName, String password) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        EntryField fieldFaction = new EntryField("faction", factionName);
+        Faction faction = getFactionByName(factionName);
+        if (faction == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_found", language, fieldFaction));
+            return response;
+        }
+        // Grab the FactionMember container if it exists.
+        FactionMember factionMember = getFactionMember(commander);
+        Faction factionCurrent = null;
+        // If the player is currently in another faction.
+        if (factionMember != null) {
+            // Grab the current faction the player is in.
+            factionCurrent = factionMember.getFaction();
+            // Check to make sure the player joining isn't the owner of a faction.
+            if (factionCurrent.isOwner(factionMember)) {
+                response.set(Result.FAILURE, lang.getString("command_faction_join_owner", language));
+                return response;
+            }
+            // Check to make sure the faction to join isn't the same faction.
+            if (factionCurrent.equals(faction)) {
+                response.set(Result.FAILURE, lang.getString("faction_already_in", language));
+                return response;
+            }
+        }
+        // Check to make sure the password given is valid.
+        if (!faction.isPassword(password)) {
+            response.set(Result.FAILURE, lang.getString("faction_password_invalid", language));
+            return response;
+        }
+        try {
+            // If the player is currently a member in a faction, remove.
+            if (factionCurrent != null) {
+                factionCurrent.removeMember(factionMember);
+            }
+            // If the player is not in a faction, create the member and save.
+            if (factionMember == null) {
+                createFactionMember(commander, faction);
+            } else {
+                factionMember.setFaction(factionCurrent, true);
+            }
+            // Return success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_join_success", language, fieldFaction));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_join_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander The Player leaving the Faction.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandLeaveFaction(Player commander) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the FactionMember container for the player.
+        FactionMember factionMember = getFactionMember(commander);
+        // Check to make sure the Player is a member of a faction.
+        if (factionMember == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_in", language));
+            return response;
+        }
+        // Grab the Faction
+        Faction faction = factionMember.getFaction();
+        // Check to make sure the member is not the owner of the faction.
+        if (faction.isOwner(factionMember)) {
+            response.set(Result.FAILURE, lang.getString("command_faction_leave_owner", language));
+            return response;
+        }
+        try {
+            // Process leaving the faction.
+            factionMember.leaveFaction();
+            // Return success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_leave_success", language));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_leave_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander   The Player accepting the FactionInvite.
+     * @param factionName The name of the Faction inviting the Player.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandAcceptInvite(Player commander, String factionName) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        EntryField fieldFaction = new EntryField("faction", factionName);
+        Faction faction = getFactionByName(factionName);
+        if (faction == null) {
+            return new Response(lang.getString("faction_not_found", language, fieldFaction),
+                    "", Result.FAILURE);
+        }
+        // Check to see if the invite exists.
+        FactionInvite factionInvite = getFactionInvite(commander, faction);
+        // Check if there's no invite for the player.
+        if (factionInvite == null) {
+            return new Response(lang.getString("command_faction_accept_not_found", language, fieldFaction),
+                    "", Result.FAILURE);
+        }
+        try {
+            // Process and return the Response from the module.
+            return acceptInvite(factionInvite, language);
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_accept_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * Rejects and deletes FactionInvite invites for the Player. If null is passed
+     * on the Faction argument, then all invites that exist (if any), will be
+     * rejects and deleted.
+     *
+     * @param commander   The Player being affected.
+     * @param factionName The name of the Faction being specified. If "all" is passed, all FactionInvites will be
+     *                    processed.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandRejectInvites(Player commander, String factionName) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        Faction faction = null;
+        EntryField fieldFaction = new EntryField("faction", factionName);
+        if (!factionName.equalsIgnoreCase("all")) {
+            faction = getFactionByName(factionName);
+            if (faction == null) {
+                response.set(Result.FAILURE, lang.getString("faction_not_found", language, fieldFaction));
+                return response;
+            }
+        }
+        // If the faction is specified, grab only that faction's invite, if it exists.
+        if (faction != null) {
+            // Grab the faction's invite, if it exists.
+            FactionInvite factionInvite = getFactionInvite(commander, faction);
+            // If the invite does not exist, then let the player know.
+            if (factionInvite == null) {
+                response.set(Result.FAILURE, lang.getString("faction_invite_not_found", language, fieldFaction));
+                return response;
+            }
+            try {
+                // It exists, so delete it.
+                deleteInvite(factionInvite);
+                // Let the player know that the invite is rejected.
+                response.set(Result.SUCCESS, lang.getString("command_faction_reject_success", language, fieldFaction));
+                // TODO: Log message.
+            } catch (Exception e) {
+                stackTrace(e);
+                response.set(Result.FAILURE, lang.getString("command_faction_reject_failure", language));
+            }
+            return response;
+        }
+        // If the faction is not specified, we grab every faction invite for the player.
+        else {
+            // Grab all the invites for the Player.
+            List<FactionInvite> listFactionInvites = getInvitesForPlayer(commander);
+            // Store the amount.
+            int countInvites = listFactionInvites.size();
+            // if the amount of invites is 0, let the player know that he doesn't have any
+            // invites.
+            if (countInvites == 0) {
+                response.set(Result.FAILURE, lang.getString("command_faction_reject_none", language));
+                return response;
+            }
+            try {
+                // Go through each Invite.
+                for (FactionInvite factionInvite : listFactionInvites) {
+                    // Delete the invite.
+                    deleteInvite(factionInvite);
+                }
+                response.set(Result.SUCCESS, lang.getString("command_faction_reject_success_all", language));
+                // TODO: Log message;
+            } catch (Exception e) {
+                stackTrace(e);
+                response.set(Result.FAILURE, lang.getString("command_faction_reject_failure_all", language));
+            }
+            return response;
+        }
+    }
+
+    /**
+     * TODO: Implement reasons.
+     *
+     * @param commander      The Player owning the Faction.
+     * @param usernameKicked The name of Player being kicked from the Faction.
+     * @param reason         (Optional) The reason for being kicked.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandKickFromFaction(Player commander, String usernameKicked, String reason) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the Player if he is online.
+        Player playerKick = SledgeHammer.instance.getPlayer(usernameKicked);
+        // If the Player is not online, grab the offline version.
+        if (playerKick == null) {
+            playerKick = SledgeHammer.instance.getOfflinePlayer(usernameKicked);
+        }
+        EntryField fieldPlayer = new EntryField("player", usernameKicked);
+        // If the Player is still null, the Player does not exist.
+        if (playerKick == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_found", language, fieldPlayer));
+            return response;
+        }
+        FactionMember factionMemberOwner = getFactionMember(commander);
+        if (factionMemberOwner == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_in", language));
+            return response;
+        }
+        Faction faction = factionMemberOwner.getFaction();
+        if (!faction.isOwner(factionMemberOwner)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_in", language));
+            return response;
+        }
+        FactionMember factionMemberKick = getFactionMember(playerKick);
+        if (factionMemberKick == null) {
+            response.set(Result.FAILURE, lang.getString("player_not_in_faction", language));
+            return response;
+        }
+        Faction factionKick = factionMemberKick.getFaction();
+        if (!factionKick.equals(faction)) {
+            response.set(Result.FAILURE, lang.getString("player_not_in_faction", language));
+            return response;
+        }
+        try {
+            removeFactionMember(factionMemberKick);
+            // Return the success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_kick_success", language, fieldPlayer));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_kick_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * Validates and changes the password for a Faction.
+     *
+     * @param commander        The Player. Will return as a failure if not the owner of a
+     *                         Faction.
+     * @param passwordOriginal The original String password to validate the change.
+     * @param passwordNew      The new String password to set for the Faction.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandSetFactionPassword(Player commander, String passwordOriginal, String passwordNew) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the FactionMember for the Player.
+        FactionMember factionMember = getFactionMember(commander);
+        // Make sure the Player is in a Faction.
+        if (factionMember == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own", language));
+            return response;
+        }
+        // Grab the Faction.
+        Faction faction = factionMember.getFaction();
+        // Check to make sure the Player is the owner of the faction.
+        if (!faction.isOwner(factionMember)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_in", language));
+            return response;
+        }
+        // Check to make sure the original password matches the one currently stored.
+        if (!faction.isPassword(passwordOriginal)) {
+            response.set(Result.FAILURE, lang.getString("faction_password_invalid", language));
+            return response;
+        }
+        try {
+            // Set the password, and save.
+            faction.setPassword(passwordNew, true);
+            // Return the success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_password_success", language));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_set_password_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * Validates and changes the tag for a Faction.
+     *
+     * @param commander The Player. Will return as a failure if not the owner of a
+     *                  Faction.
+     * @param tagNew    The String tag to set for the Faction.
+     * @return Returns a Response that details the result of the action.
+     */
+    public Response commandSetFactionTag(Player commander, String tagNew) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the FactionMember for the Player.
+        FactionMember factionMember = getFactionMember(commander);
+        // Make sure the Player is in a Faction.
+        if (factionMember == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own", language));
+            return response;
+        }
+        // Grab the Faction.
+        Faction faction = factionMember.getFaction();
+        // Check to make sure the Player is the owner of the faction.
+        if (!faction.isOwner(factionMember)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_in", language));
+            return response;
+        }
+        EntryField fieldTag = new EntryField("tag", tagNew);
+        // Check to make sure the tag isn't already being used by the faction.
+        if (faction.isTag(tagNew)) {
+            response.set(Result.FAILURE, lang.getString("faction_tag_already_used", language, fieldTag));
+            return response;
+        }
+        // Check to make sure no other faction is using the tag.
+        if (tagExists(tagNew)) {
+            response.set(Result.FAILURE, lang.getString("faction_tag_taken", language, fieldTag));
+            return response;
+        }
+        // Validate that the tag fits the current requirements set by the module.
+        Response responseValidateTag = validateFactionTag(tagNew, language);
+        if (responseValidateTag.getResult() == Result.FAILURE) {
+            return responseValidateTag;
+        }
+        try {
+            // Set the tag, and save.
+            setFactionTag(faction, tagNew);
+            // Return the success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_tag_success", language, fieldTag));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_set_tag_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander The Player. Will return as a failure if not the owner of a
+     *                  Faction.
+     * @param nameNew   The String name to set for the Faction.
+     * @return Returns a Response result. If all validations pass, Result.SUCCESS
+     * is passed.
+     */
+    public Response commandSetFactionName(Player commander, String nameNew) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the FactionMember for the Player.
+        FactionMember factionMember = getFactionMember(commander);
+        // Make sure the Player is in a Faction.
+        if (factionMember == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own", language));
+            return response;
+        }
+        // Grab the Faction.
+        Faction faction = factionMember.getFaction();
+        // Check to make sure the Player is the owner of the faction.
+        if (!faction.isOwner(factionMember)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_in", language));
+            return response;
+        }
+        nameNew = nameNew.trim();
+        EntryField fieldFaction = new EntryField("faction", nameNew);
+        Response responseValidateName = validateFactionName(nameNew, language);
+        if (responseValidateName.getResult() == Result.FAILURE) {
+            return responseValidateName;
+        }
+        try {
+            // Set the new name, and save the document.
+            setFactionName(faction, nameNew);
+            // Return the success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_name_success", language, fieldFaction));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_set_name_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander The Player. Will return as a failure if not the owner of a
+     *                  Faction.
+     * @param colorNew  The String color to set for the Faction.
+     * @return Returns a Response result. If all validations pass, Result.SUCCESS
+     * is passed.
+     */
+    public Response commandSetFactionColor(Player commander, String colorNew) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the FactionMember for the Player.
+        FactionMember factionMember = getFactionMember(commander);
+        // Make sure the Player is in a Faction.
+        if (factionMember == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own", language));
+            return response;
+        }
+        // Grab the Faction.
+        Faction faction = factionMember.getFaction();
+        // Check to make sure the Player is the owner of the faction.
+        if (!faction.isOwner(factionMember)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_in", language));
+            return response;
+        }
+        EntryField fieldColor = new EntryField("color", colorNew);
+        // Make sure the color is a valid color.
+        if (!ChatTags.isValidColor(colorNew)) {
+            response.set(Result.FAILURE, lang.getString("color_invalid", language, fieldColor));
+            return response;
+        }
+        // Make sure the color is not a dark color.
+        if (ChatTags.isDarkColor(colorNew)) {
+            response.set(Result.FAILURE, lang.getString("color_invalid", language, fieldColor));
+            return response;
+        }
+        // Grab the coded version of this color.
+        String colorCode = ChatTags.getColor(colorNew);
+        // Make sure the color is not already the one being used.
+        if (faction.getFactionColor().equalsIgnoreCase(colorCode)) {
+            response.set(Result.FAILURE, lang.getString("faction_color_already_used", language, fieldColor));
+            return response;
+        }
+        try {
+            // Change the faction color, and save.
+            faction.setFactionColor(colorNew, true);
+            // Return the success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_color_success", language, fieldColor));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_set_color_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param commander      Will return as a failure if not the owner of a
+     *                       Faction.
+     * @param playerOwnerNew The new owner to set for the Faction.
+     * @return Returns a Response result. If all validations pass, Result.SUCCESS
+     * is passed.
+     */
+    public Response commandSetFactionOwner(Player commander, Player playerOwnerNew) {
+        if (commander == null) {
+            throw new IllegalArgumentException("Player given is null!");
+        }
+        Response response = new Response();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        // Grab the FactionMember for the Player.
+        FactionMember factionMemberOwner = getFactionMember(commander);
+        // Make sure the Player is in a Faction.
+        if (factionMemberOwner == null) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own", language));
+            return response;
+        }
+        // Grab the Faction.
+        Faction faction = factionMemberOwner.getFaction();
+        // Check to make sure the Player is the owner of the faction.
+        if (!faction.isOwner(factionMemberOwner)) {
+            response.set(Result.FAILURE, lang.getString("faction_not_own_in", language));
+            return response;
+        }
+        FactionMember factionMemberOwnerNew = getFactionMember(playerOwnerNew);
+        if (factionMemberOwnerNew == null || !factionMemberOwnerNew.getFaction().equals(faction)) {
+            response.set(Result.FAILURE, lang.getString("player_not_in_faction"));
+            return response;
+        }
+        try {
+            // Set the new owner.
+            faction.setOwner(factionMemberOwnerNew, true);
+            EntryField fieldPlayer = new EntryField("player", playerOwnerNew.getName());
+            // Return the success message.
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_owner_success", language));
+            // TODO: Log message.
+        } catch (Exception e) {
+            stackTrace(e);
+            response.set(Result.FAILURE, lang.getString("command_faction_set_owner_failure", language));
+        }
+        return response;
+    }
+
+    /**
+     * @param tag The String Faction tag being validated.
+     * @return Returns a Response that is never null. If the validation is a
+     * success, response.getResult() should return Result.SUCCESS.
+     */
+    public Response validateFactionTag(String tag, Language language) {
+        LanguagePackage lang = getLanguagePackage();
+        // Create the valid Response. All subsequent checks will return a Result.FAILURE
+        // if the tag fails a validation check.
+        Response response = new Response("Success!", "", Result.SUCCESS);
+        EntryField fieldTag = new EntryField("tag", tag);
+        // Check and see if the tag is null or is a blank entry.
+        if (tag == null || tag.isEmpty()) {
+            return new Response(
+                    lang.getString("faction_tag_invalid", language, fieldTag),
+                    "", Result.FAILURE);
+        }
+        // Grab the current set range for characters in a tag.
+        int charsMin = getTagMinimumCharacterCount();
+        int charsMax = getTagMaximumCharacterCount();
+        // Trim the tag, just in-case spaces are passed.
+        tag = tag.trim();
+        // Grab the length of the tag.
+        int lengthTag = tag.length();
+        // If the Tag is too small or too large, prompt the user with the current limits
+        // set.
+        if (lengthTag < charsMin || lengthTag > charsMax) {
+            EntryField fieldMinimumCharacters = new EntryField("minimum_characters", charsMin);
+            EntryField fieldMaximumCharacters = new EntryField("maximum_characters", charsMax);
+            return new Response(
+                    lang.getString("faction_tag_rules", language, fieldMinimumCharacters, fieldMaximumCharacters),
+                    "", Result.FAILURE);
+        }
+        // All tags are forced upper-case.
+        tag = tag.toUpperCase();
+
+        // Check to see if the tag is already being used by another Faction.
+        if (tagExists(tag)) {
+            return new Response(
+                    lang.getString("faction_tag_taken", language, fieldTag),
+                    "", Result.FAILURE);
+        }
+        return response;
+    }
+
+    /**
+     * @param name The String Faction name being validated.
+     * @return Returns a Response that is never null. If the validation is a
+     * success, response.getResult() should return Result.SUCCESS.
+     */
+    public Response validateFactionName(String name, Language language) {
+        LanguagePackage lang = getLanguagePackage();
+        // Create the valid Response. All subsequent checks will return a Result.FAILURE
+        // if the tag fails a validation check.
+        Response response = new Response("Success!", "", Result.SUCCESS);
+        // Check and see if the tag is null or is a blank entry.
+        EntryField fieldName = new EntryField("name", name);
+        if (name == null || name.isEmpty()) {
+            return new Response(lang.getString("faction_name_invalid", language, fieldName), "",
+                    Result.FAILURE);
+        }
+        // Grab the current set range for characters in a name.
+        int charsMin = getNameMinimumCharacterCount();
+        int charsMax = getNameMaximumCharacterCount();
+        // Trim the name, just in-case spaces are passed.
+        name = name.trim();
+        // Grab the length of the name.
+        int lengthTag = name.length();
+        // If the Tag is too small or too large, prompt the user with the current limits
+        // set.
+        if (lengthTag < charsMin || lengthTag > charsMax) {
+            EntryField fieldMinimumCharacters = new EntryField("minimum_characters", charsMin);
+            EntryField fieldMaximumCharacters = new EntryField("maximum_characters", charsMax);
+            return new Response(
+                    lang.getString("faction_name_rules", language, fieldMinimumCharacters, fieldMaximumCharacters),
+                    "", Result.FAILURE);
+        }
+        // Check to see if the tag is already being used by another Faction.
+        if (factionNameExists(name)) {
+            return new Response(lang.getString("faction_name_taken", language, fieldName),
+                    "", Result.FAILURE);
+        }
+        return response;
+    }
+
+    /**
+     * Returns whether or not the Player is valid to create a Faction
+     *
+     * @param player The Player being validated.
+     * @return Returns a Response based on the results of the tests. If all tests
+     * pass, Result.SUCCESS is passed to the Response.
+     */
+    public Response validatePlayerFactionCreate(Player player) {
+        LanguagePackage lang = getLanguagePackage();
+        Language language = player.getLanguage();
+        // Create the valid Response. All subsequent checks will return a Result.FAILURE
+        // if the tag fails a validation check.
+        Response response = new Response("Success!", "", Result.SUCCESS);
+        UUID playerId = player.getUniqueId();
+        // If the player is a member of a faction, he cannot create one. Attempt to grab
+        // the member from the module.
+        FactionMember factionMember = getFactionMember(player.getUniqueId());
+        // If the player is indeed a member of a faction, display the proper failure
+        // message.
+        if (factionMember != null) {
+            // Grab the Faction for the FactionMember.
+            Faction faction = factionMember.getFaction();
+            // Data consistency check.
+            if (faction == null) {
+                throw new IllegalStateException("FactionMember exists for player ID: \"" + playerId.toString()
+                        + "\", yet the Faction representing the member is null.");
+            }
+            EntryField fieldFaction = new EntryField("faction", faction.getFactionName());
+            // If the member is the owner, describe how to get to the point to make a new
+            // faction.
+            if (faction.isOwner(factionMember)) {
+                return new Response(lang.getString("command_faction_create_already_own_faction", language, fieldFaction),
+                        "", Result.FAILURE);
+            }
+            // If the member is not the owner, describe leaving the faction in order to make
+            // a new faction.
+            else {
+                return new Response(lang.getString("command_faction_create_already_in_faction", language), "",
+                        Result.FAILURE);
+            }
+        }
+        return response;
+    }
+
+    /**
+     * @param factionInvite The FactionInvite being accepted.
+     * @return Returns a Response. If the accept is successful, the Result
+     * included will be SUCCESS.
+     */
+    public Response acceptInvite(FactionInvite factionInvite, Language language) {
+        LanguagePackage lang = getLanguagePackage();
+        UUID playerId = factionInvite.getInvitedId();
+        // Check to make sure the Player still exists.
+        boolean exists = SledgeHammer.instance.playerExists(playerId);
+        if (!exists) {
+            deleteInvite(factionInvite);
+        }
+        // Grab the Faction representing the invite.
+        Faction faction = this.getFaction(factionInvite.getFactionId());
+        if (faction == null) {
+            // The Faction probably does not exist anymore. Remove the invite.
+            deleteInvite(factionInvite);
+            EntryField fieldFactionId = new EntryField("faction", "(UUID: " + factionInvite.getUniqueId().toString() + ")");
+            // Return this response.
+            return new Response(lang.getString("faction_not_found", language, fieldFactionId), "", Result.FAILURE);
+        }
+        // Attempt to grab a player container.
+        FactionMember factionMember = getFactionMember(playerId);
+        if (factionMember != null) {
+            factionMember.setFaction(faction, true);
+        } else {
+            createFactionMember(playerId, faction);
+        }
+        // Delete the Invite.
+        deleteInvite(factionInvite);
+        // Return success.
+        return new Response(lang.getString("command_faction_accept_success", language), "", Result.SUCCESS);
+    }
+
+    /**
+     * (Private Method)
+     * <p>
+     * Resets the maps and fields for the module.
+     */
+    private void reset() {
+        mapMongoFactions.clear();
+        mapMongoFactionMembers.clear();
+        mapMongoFactionInvites.clear();
+        mapFactionsByUniqueId.clear();
+        mapFactionsByTag.clear();
+        mapFactionsByName.clear();
+        mapFactionMembersByUniqueId.clear();
+        mapFactionInvites.clear();
     }
 
     /**
@@ -391,43 +1269,6 @@ public class ModuleFactions extends MongoModule {
     }
 
     /**
-     * @param tag The String Faction tag being validated.
-     * @return Returns a Response that is never null. If the validation is a
-     * success, response.getResult() should return Result.SUCCESS.
-     */
-    public Response validateFactionTag(String tag) {
-        // Create the valid Response. All subsequent checks will return a Result.FAILURE
-        // if the tag fails a validation check.
-        Response response = new Response("Success!", "", Result.SUCCESS);
-        // Check and see if the tag is null or is a blank entry.
-        if (tag == null || tag.isEmpty()) {
-            return new Response("Faction tag is invalid.", "", Result.FAILURE);
-        }
-        // Grab the current set range for characters in a tag.
-        int charsMin = getTagMinimumCharacterCount();
-        int charsMax = getTagMaximumCharacterCount();
-        // Trim the tag, just in-case spaces are passed.
-        tag = tag.trim();
-        // Grab the length of the tag.
-        int lengthTag = tag.length();
-        // If the Tag is too small or too large, prompt the user with the current limits
-        // set.
-        if (lengthTag < charsMin || lengthTag > charsMax) {
-            return new Response(
-                    "Faction tags need to be between " + charsMin + " and " + charsMax + " characters long.", "",
-                    Result.FAILURE);
-        }
-        // All tags are forced upper-case.
-        tag = tag.toUpperCase();
-
-        // Check to see if the tag is already being used by another Faction.
-        if (tagExists(tag)) {
-            return new Response("Faction tag is already taken: " + tag, "", Result.FAILURE);
-        }
-        return response;
-    }
-
-    /**
      * Properly assigns a new String tag for a Faction.
      *
      * @param faction The Faction being re-tagged.
@@ -440,82 +1281,6 @@ public class ModuleFactions extends MongoModule {
         faction.setFactionTag(tagNew, true);
         // Place the faction back into the tag map with the nww tag.
         mapFactionsByTag.put(faction.getFactionTag(), faction);
-    }
-
-    /**
-     * @param name The String Faction name being validated.
-     * @return Returns a Response that is never null. If the validation is a
-     * success, response.getResult() should return Result.SUCCESS.
-     */
-    public Response validateFactionName(String name) {
-        // Create the valid Response. All subsequent checks will return a Result.FAILURE
-        // if the tag fails a validation check.
-        Response response = new Response("Success!", "", Result.SUCCESS);
-        // Check and see if the tag is null or is a blank entry.
-        if (name == null || name.isEmpty()) {
-            return new Response("Faction name is invalid.", "", Result.FAILURE);
-        }
-        // Grab the current set range for characters in a name.
-        int charsMin = getNameMinimumCharacterCount();
-        int charsMax = getNameMaximumCharacterCount();
-        // Trim the name, just in-case spaces are passed.
-        name = name.trim();
-        // Grab the length of the name.
-        int lengthTag = name.length();
-        // If the Tag is too small or too large, prompt the user with the current limits
-        // set.
-        if (lengthTag < charsMin || lengthTag > charsMax) {
-            return new Response(
-                    "Faction names need to be between " + charsMin + " and " + charsMax + " characters long.", "",
-                    Result.FAILURE);
-        }
-        // Check to see if the tag is already being used by another Faction.
-        if (factionNameExists(name)) {
-            return new Response("Faction name is already taken: " + name, "", Result.FAILURE);
-        }
-        return response;
-    }
-
-    /**
-     * Returns whether or not the Player is valid to create a Faction
-     *
-     * @param player The Player being validated.
-     * @return Returns a Response based on the results of the tests. If all tests
-     * pass, Result.SUCCESS is passed to the Response.
-     */
-    public Response validatePlayerFactionCreate(Player player) {
-        // Create the valid Response. All subsequent checks will return a Result.FAILURE
-        // if the tag fails a validation check.
-        Response response = new Response("Success!", "", Result.SUCCESS);
-        UUID playerId = player.getUniqueId();
-        // If the player is a member of a faction, he cannot create one. Attempt to grab
-        // the member from the module.
-        FactionMember factionMember = getFactionMember(player.getUniqueId());
-        // If the player is indeed a member of a faction, display the proper failure
-        // message.
-        if (factionMember != null) {
-            // Grab the Faction for the FactionMember.
-            Faction faction = factionMember.getFaction();
-            // Data consistency check.
-            if (faction == null) {
-                throw new IllegalStateException("FactionMember exists for player ID: \"" + playerId.toString()
-                        + "\", yet the Faction representing the member is null.");
-            }
-            // If the member is the owner, describe how to get to the point to make a new
-            // faction.
-            if (faction.isOwner(factionMember)) {
-                return new Response("You already own a faction: \"" + faction.getFactionName()
-                        + "\". In order to create a new faction, you must first disband it, or transfer ownership and leave it.",
-                        "", Result.FAILURE);
-            }
-            // If the member is not the owner, describe leaving the faction in order to make
-            // a new faction.
-            else {
-                return new Response("You're already in a faction, and must leave in order to create a new faction.", "",
-                        Result.FAILURE);
-            }
-        }
-        return response;
     }
 
     /**
@@ -706,10 +1471,6 @@ public class ModuleFactions extends MongoModule {
         return "ModuleFactions";
     }
 
-    public FactionActions getActions() {
-        return this.actions;
-    }
-
     public List<FactionInvite> getInvitesForPlayer(Player player) {
         return getInvitesForPlayer(player.getUniqueId());
     }
@@ -759,39 +1520,6 @@ public class ModuleFactions extends MongoModule {
     }
 
     /**
-     * @param factionInvite The FactionInvite being accepted.
-     * @return Returns a Response. If the accept is successful, the Result
-     * included will be SUCCESS.
-     */
-    public Response acceptInvite(FactionInvite factionInvite) {
-        UUID playerId = factionInvite.getInvitedId();
-        // Check to make sure the Player still exists.
-        boolean exists = SledgeHammer.instance.playerExists(playerId);
-        if (!exists) {
-            deleteInvite(factionInvite);
-        }
-        // Grab the Faction representing the invite.
-        Faction faction = this.getFaction(factionInvite.getFactionId());
-        if (faction == null) {
-            // The Faction probably does not exist anymore. Remove the invite.
-            deleteInvite(factionInvite);
-            // Return this response.
-            return new Response("Faction does not exist.", "", Result.FAILURE);
-        }
-        // Attempt to grab a player container.
-        FactionMember factionMember = getFactionMember(playerId);
-        if (factionMember != null) {
-            factionMember.setFaction(faction, true);
-        } else {
-            createFactionMember(playerId, faction);
-        }
-        // Delete the Invite.
-        deleteInvite(factionInvite);
-        // Return success.
-        return new Response("Invite accepted.", "", Result.SUCCESS);
-    }
-
-    /**
      * Deletes and properly removes a FactionInvite, and its representing document.
      *
      * @param factionInvite The FactionInvite being deleted and removed.
@@ -834,13 +1562,13 @@ public class ModuleFactions extends MongoModule {
      */
     public ChatChannel createChatChannel(Faction faction) {
         // Creates a new ChatChannel wrapper for the Faction.
-		ChatChannel chatChannel = createChatChannel("Faction_" + faction.getFactionName());
+        ChatChannel chatChannel = createChatChannel("Faction_" + faction.getFactionName());
 //         new FactionChatChannel("Faction_" + faction.getFactionName());
-		chatChannel.setPermissionNode("sledgehammer.factions.chat", false);
-		chatChannel.setPublicChannel(false, false);
-		chatChannel.setGlobalChannel(true, false);
+        chatChannel.setPermissionNode("sledgehammer.factions.chat", false);
+        chatChannel.setPublicChannel(false, false);
+        chatChannel.setGlobalChannel(true, false);
         // Return the new ChatChannel.
-		return chatChannel;
+        return chatChannel;
     }
 
     /**
@@ -881,5 +1609,13 @@ public class ModuleFactions extends MongoModule {
         FactionInvite factionInvite = new FactionInvite(mongoFactionInvite);
         // Add the container to the map.
         mapFactionInvites.put(factionInvite.getUniqueId(), factionInvite);
+    }
+
+    public LanguagePackage getLanguagePackage() {
+        return this.lang;
+    }
+
+    private void setLanguagePackage(LanguagePackage lang) {
+        this.lang = lang;
     }
 }

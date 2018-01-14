@@ -32,8 +32,8 @@ modules:
     version: "2.0_0"
     description: "Discord module for Sledgehammer."
     class: "sledgehammer.module.discord.ModuleDiscord"
-#  Factions:
-#    client-module-id: "core.factions"
-#    version: "3.0_0"
-#    description: "Factions module for Sledgehammer."
-#    class: "sledgehammer.module.faction.ModuleFactions"
+  Factions:
+    client-module-id: "core.factions"
+    version: "3.0_0"
+    description: "Factions module for Sledgehammer."
+    class: "sledgehammer.module.faction.ModuleFactions"

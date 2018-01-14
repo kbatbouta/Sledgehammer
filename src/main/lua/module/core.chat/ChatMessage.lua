@@ -145,7 +145,7 @@ function ChatMessage:render(chat_channel)
 			history_header = ChatMessage.HISTORY_HEADER.."  ";
 		end
 		local player_header = self:getPlayerHeader();
-		self.rendered = history_header..self.timestamp_header..player_header..self.message;
+		self.rendered = history_header..tostring(self.timestamp_header)..tostring(player_header)..tostring(self.message);
 	end
 	-- Check if the explicit ChatMessage is already rendered.
 	if self.rendered_explicit == nil then
@@ -158,7 +158,7 @@ function ChatMessage:render(chat_channel)
 		if self.origin ~= nil and self.origin_text ~= nil and self.origin_text ~= "" then
 			explicit_name = self.origin_text;
 		end
-		self.rendered_explicit = history_header.."("..explicit_name..") "..self.timestamp_header..player_header..self.message;
+		self.rendered_explicit = history_header.."("..tostring(explicit_name)..") "..tostring(self.timestamp_header)..tostring(player_header)..tostring(self.message);
 	end
 	-- If we need the explicit form of the ChatMessage, return it.
 	if explicit then
@@ -175,15 +175,17 @@ function ChatMessage:getPlayerHeader()
         local player_color = "";
         if self.player ~= nil then
             local color = self.player.color;
-            local r = color.r;
-            local g = color.g;
-            local b = color.b;
-            if not r then r = 1; end
-            if not g then g = 1; end
-            if not b then b = 1; end
+			local r = 1;
+			local g = 1;
+			local b = 1;
+			if color then
+				r = color.r;
+				g = color.g;
+				b = color.b;
+			end
             player_color = " <RGB:"..r..","..g..","..b.."> ";
         end
-        player_header = player_color..self.player_name.." <RGB:1,1,1> : ";
+        player_header = player_color..tostring(self.player_name).." <RGB:1,1,1> : ";
     end
     return player_header;
 end

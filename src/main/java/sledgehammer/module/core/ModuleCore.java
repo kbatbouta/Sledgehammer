@@ -171,6 +171,11 @@ public class ModuleCore extends Module {
             HandShakeEvent handshakeEvent = new HandShakeEvent(player);
             // Handle the event.
             SledgeHammer.instance.handle(handshakeEvent);
+
+            SendPlayer sendPlayer = new SendPlayer(true);
+            sendPlayer.setPlayer(player);
+            SledgeHammer.instance.send(sendPlayer, player);
+
         } else if (clientCommand.equalsIgnoreCase("requestInfo")) {
             RequestInfo info = new RequestInfo();
             info.setSelf(player);

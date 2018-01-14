@@ -49,6 +49,16 @@ public class Response {
         set(response);
     }
 
+    @Override
+    public String toString() {
+        return "Response: \n"
+                + "Handled: " + isHandled() + "\n"
+                + "Result: " + getResult().name() + "\n"
+                + "Message: " + getResponse() + "\n"
+                + "Log: " + getLogMessage() + "\n"
+                + "Important: " + getLogImportance() + "\n";
+    }
+
     public void set(Response response) {
         // Sets the Response fields. @formatter:off
         this.result       = response.result      ;

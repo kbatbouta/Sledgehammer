@@ -60,6 +60,13 @@ public class CommandEvent extends Event {
         return ID;
     }
 
+    @Override
+    public String toString() {
+        return "CommandEvent: \n"
+                + "Command: " + command.toString() + "\n"
+                + "Response: " + response.toString() + "\n";
+    }
+
     /**
      * @return Returns the Command sent to Sledgehammer.
      */

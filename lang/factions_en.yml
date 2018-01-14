@@ -1,0 +1,122 @@
+# TODO: Documentation.
+#   _____                           _
+#  |     |___ _____ _____ ___ ___ _| |___
+#  |   --| . |     |     | .'|   | . |_ -|
+#  |_____|___|_|_|_|_|_|_|__,|_|_|___|___|
+#
+### General
+## Colors
+green: " <RGB:0.25,0.7,0.25> "
+white: " <RGB:1,1,1> "
+gray: " <RGB:0.75,0.75,0.75>"
+yellow: " <RGB:0.7,0.7,0.25>"
+
+## Factions General
+err: "(Internal Error)"
+# Explains which colors are accepted for Factions.
+only_colors: "(Only light or normal colors are allowed)"
+color_invalid: "Invalid color: \"{{color}}\". Use /colors to see list of available colors. {{only_colors}}"
+# Sent when a Player executes a Command requiring ownership of a Faction.
+player_not_in_faction: "Player is not in the faction."
+player_not_found: "Cannot find the player with the given name: \"{{name}}\"."
+username_invalid: "Username provided is invalid: \"{{username}}\"."
+faction_invite_not_found: "You do not have an invite from the faction: \"{{faction}}\"."
+faction_not_found: "The faction does not exist: {{faction}}."
+faction_not_own: "You do not own a faction."
+faction_not_own_in: "You do not own your faction."
+faction_not_own_name: "You do not own the faction: \"{{faction}}\"."
+faction_not_in: "You are not in a faction."
+faction_already_in: "You are already in the faction."
+faction_name_invalid: "The faction name is invalid: \"{{name}}\"."
+faction_name_rules: "Faction names need to be between {{minimum_characters}} and {{maximum_characters}} characters long."
+faction_name_taken: "The faction name is already taken: \"{{name}}\"."
+faction_tag_invalid: "The faction tag is invalid: \"{{tag}}\"."
+faction_tag_rules: "Faction tags need to be between {{minimum_characters}} and {{maximum_characters}} characters long."
+faction_tag_taken: "The faction tag is already taken: \"{{tag}}\"."
+faction_tag_already_used: "The faction already uses the tag: \"{{tag}}\"."
+faction_password_invalid: "The given password is invalid. A password MUST be provided and cannot be empty."
+faction_color_already_used: "The faction already uses the color: \"{{color}}\"."
+
+### Commands
+## /faction create
+command_faction_create_already_own_faction:
+- "You already own the faction \"{{faction}}\"."
+- "In order to create a new faction, you must first disband it, or transfer ownership and leave it."
+command_faction_create_already_in_faction: "You're in a faction, and must leave in order to create a new faction."
+command_faction_create_success: "The faction has been created. Be sure to write down your password!"
+command_faction_create_failure: "Failed to create the faction. {{err}}"
+
+## /faction disband
+command_faction_disband_success: "The faction has been disbanded."
+command_faction_disband_failure: "Failed to disband the faction. {{err}}"
+
+## /faction invite
+command_faction_invite_owner: "Player \"{{player}}\" is the owner of another faction, and cannot be invited to your faction."
+command_faction_invite_yourself: "You cannot invite yourself."
+command_faction_invite_success: "The Player \"{{player}}\" has been invited to the faction."
+command_faction_invite_failure: "Failed to invite player. {{err}}"
+
+## /faction join
+command_faction_join_owner: "You are currently the owner of a faction and cannot join another faction."
+command_faction_join_success: "You joined the faction: \"{{faction}}\"."
+command_faction_join_failure: "Failed to join faction. {{err}}"
+
+## /faction leave
+command_faction_leave_owner:
+- "You are the owner of your faction."
+- "In order to leave the faction, you must disband it, or transfer ownership to another member."
+command_faction_leave_success: "You left the faction."
+command_faction_leave_failure: "Failed to leave faction. {{err}}"
+
+## /faction accept
+command_faction_accept_not_found: "You do not have an invite from the faction: \"{{faction}}\"."
+command_faction_accept_success: "Invite accepted."
+command_faction_accept_failure: "Failed to accept invite. {{err}}"
+
+## /faction reject
+command_faction_reject_none: "There are no invites for you to reject."
+command_faction_reject_success: "You have rejected the invite from the faction: \"{{faction}}\"."
+command_faction_reject_failure: "Failed to reject invite. {{err}}"
+command_faction_reject_success_all: "You have rejected all invites from factions."
+command_faction_reject_failure_all: "Failed to reject all invites. {{err}}"
+
+## /faction kick
+command_faction_kick_success: "The player \"{{player}}\" has been kicked from the faction."
+command_faction_kick_failure: "Failed to kick player. {{err}}"
+
+## /faction set color
+command_faction_set_color_success: "Changed the faction's color to \"{{color}}\"."
+command_faction_set_color_failure: "Failed to change the faction's color. {err}}"
+
+## /faction set owner
+command_faction_set_owner_success: "Changed the faction's owner to \"{{player}}\"."
+command_faction_set_owner_failure: "Failed to change the faction's owner. {{err}}"
+
+## /faction set name
+command_faction_set_name_success: "Changed the faction's name to \"{{faction}}\"."
+command_faction_set_name_failure: "Failed to change the faction's name. {{err}}"
+
+## /faction set tag
+command_faction_set_tag_success: "Changed the faction's tag to \"{{tag}}\"."
+command_faction_set_tag_failure: "Failed to change the faction's tag. {{err}}"
+
+## /faction set password
+command_faction_set_password_success: "Changed the faction's password."
+command_faction_set_password_failure: "Failed to change the faction's password. {{err}}"
+
+## Tool-Tips
+command_tooltip_faction_header: "{{green}}Factions commands:{{white}}"
+command_tooltip_faction: "/faction [create|disband|join|leave|invite|accept|reject|kick|set]"
+command_tooltip_faction_accept: "/faction accept \"name\""
+command_tooltip_faction_create: "/faction create \"name\" \"tag\" \"password\""
+command_tooltip_faction_disband: "/faction disband"
+command_tooltip_faction_invite: "/faction invite"
+command_tooltip_faction_join: "/faction join \"name\" \"password\""
+command_tooltip_faction_kick: "/faction kick \"player\" \"reason\""
+command_tooltip_faction_leave: "/faction leave"
+command_tooltip_faction_reject: "/faction reject [\"name\"|\"all\"]"
+command_tooltip_faction_set: "/faction set [tag|name|color|password]"
+command_tooltip_faction_set_color: "/faction set color \"color\""
+command_tooltip_faction_set_name: "/faction set name \"name\""
+command_tooltip_faction_set_password: "/faction set password \"password\" \"new-password\""
+command_tooltip_faction_set_tag: "/faction set tag \"tag\""

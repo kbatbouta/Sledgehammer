@@ -284,6 +284,10 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
     }
 
     public String getCachedPlayerName() {
+        Player player = getPlayer();
+        if(player != null) {
+            return player.getName();
+        }
         return getMongoDocument().getCachedPlayerName();
     }
 

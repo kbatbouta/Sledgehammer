@@ -32,6 +32,7 @@ import sledgehammer.language.Language;
 import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.lua.core.send.SendPlayer;
 import sledgehammer.module.chat.ModuleChat;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -148,7 +149,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
         if (mongoDocument == null) {
             mongoDocument = SledgeHammer.instance.getDatabase().createPlayer("admin", password);
         }
-        mongoDocument.setAdministrator(true);
+        mongoDocument.setAdministrator(true, false);
         mongoDocument.setEncryptedPassword(password);
         mongoDocument.save();
         setMongoDocument(mongoDocument);
@@ -240,6 +241,12 @@ public class Player extends MongoLuaObject<MongoPlayer> {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public void updatePlayer() {
+        SendPlayer sendPlayer = new SendPlayer();
+        sendPlayer.setPlayer(this);
+        SledgeHammer.instance.send(sendPlayer);
     }
 
     /**
@@ -383,7 +390,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
         return connection != null && connection.connected;
     }
 
-   /**
+    /**
      * @param node        The String node that is being tested.
      * @param ignoreAdmin Boolean flag for ignoring Administrator check.
      * @return Returns true if the Player is granted the given String node
@@ -695,6 +702,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     public void setColor(Color color) {
         this.color = color;
+        updatePlayer();
     }
 
     /**
@@ -748,6 +756,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     public void setNickname(String nickname) {
         this.nickname = nickname;
+        updatePlayer();
     }
 
     /**
@@ -767,6 +776,7 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     private void setUsername(String username) {
         this.username = username;
+        updatePlayer();
     }
 
     /**
@@ -831,6 +841,12 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     public void setLanguage(Language language) {
         this.language = language;
+        updatePlayer();
+    }
+
+    public void setAdministrator(boolean flag, boolean save) {
+        getMongoDocument().setAdministrator(flag, save);
+        updatePlayer();
     }
 
     /**

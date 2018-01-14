@@ -45,6 +45,15 @@ public class SendPlayer extends Send {
         super("core", "sendPlayer");
     }
 
+    /**
+     * Main constructor.
+     *
+     * @param self Flag to send the Player data to the Player, flagged as 'sendSelf'.
+     */
+    public SendPlayer(boolean self) {
+        super("core", self ? "sendSelf" : "sendPlayer");
+    }
+
     @Override
     public void onExport() {
         set("player", getPlayer());

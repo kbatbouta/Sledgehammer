@@ -46,9 +46,9 @@ SledgeHammer = class(function(o)
 	 o.handshakeAttempt = 1;
 	-- List of SledgeHammer Player LuaObjects, identified via ID.
 	o.players = {};
-	-- Map of SledgeHammer Player LuaObjects, identified via string (name).
+	-- Map of SledgeHammer Player LuaObjects, identified via string (username).
 	o.playersByName = {};
-	 -- Player Object.
+	 -- Player Object for the player running this engine.
 	 o.self = nil;
 end);
 
@@ -346,6 +346,23 @@ function SledgeHammer:onClientCommand(mod, command, args)
 				local func = load_function(args.lua);
 				func();
 				return;
+			elseif command == "sendSelf" then
+				-- Grab the Player and the information.
+				local player = args.player    ;
+				local id     = player.id      ;
+				local name   = player.username;
+				-- Set the Player object in the maps.
+				self.players[id]         = player;
+				self.playersByName[name] = player;
+				self.self                = player;
+			elseif command == "sendPlayer" then
+				-- Grab the Player and the information.
+				local player = args.player    ;
+				local id     = player.id      ;
+				local name   = player.username;
+				-- Set the Player object in the maps.
+				self.players[id]         = player;
+				self.playersByName[name] = player;
 			end
 		end
 		-- Grab the module being commanded.
