@@ -283,8 +283,8 @@ public class Command extends LuaTable {
         if (args.length <= index) {
             throw new IndexOutOfBoundsException("Index provided is larger or equal to the length of the arguments array given.");
         }
-        StringBuilder builder = new StringBuilder(args[index - 1]);
-        for (int i = index + 1; i < args.length; i++) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = index; i < args.length; i++) {
             builder.append(args[i]);
         }
         return builder.toString().trim();

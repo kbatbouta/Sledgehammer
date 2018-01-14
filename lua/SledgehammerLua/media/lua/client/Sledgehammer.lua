@@ -30,7 +30,7 @@ require "Sledgehammer/Module"
 ----------------------------------------------------------------
 SledgeHammer = class(function(o)
 	 -- Debug flag for global debugging of SledgeHammer's Lua framework.
-	 o.DEBUG = false;
+	 o.DEBUG = true;
 	 -- List of the modules.
 	 o.modules = {};
 	 -- List of the modules by their Names.

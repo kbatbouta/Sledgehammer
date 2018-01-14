@@ -33,9 +33,9 @@ ChatChannel = class(function(o)
 	o.name = nil;
 	-- The flags for the ChatChannel.
 	o.flags = {
-		-- Whether or not the ChatChannel is Global. This means that if global is set 
-		--   to false, the nature of the ChatChannel will be like the 'Local' 
-		--   ChatChannel, where only Players by the Player authoring the ChatMessage 
+		-- Whether or not the ChatChannel is Global. This means that if global is set
+		--   to false, the nature of the ChatChannel will be like the 'Local'
+		--   ChatChannel, where only Players by the Player authoring the ChatMessage
 		--   will see it.
 		global = true,
 		-- To force the explicit tag on this ChatChannel regardless of origin.
@@ -80,7 +80,9 @@ function ChatChannel:addChatMessage(chat_message)
 end
 
 function ChatChannel:rename(name)
-	self.name        = name;
-	self.panel.name  = name;
-	self.panel._name = name;
+	print("Renaming ChatChannel "..tostring(self.name).." to "..tostring(name)..".");
+	self.name               = name;
+	self.panel.name         = name;
+	self.panel._name        = name;
+    self.panel._name_length = nil ;
 end

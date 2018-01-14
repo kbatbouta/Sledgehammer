@@ -140,7 +140,7 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
     public boolean hasAccess(Player player) {
         boolean returned;
         String permissionNode = getPermissionNode();
-        returned = permissionNode == null || player.hasPermission(permissionNode, true);
+        returned = listPlayersSent.contains(player) || permissionNode == null || player.hasPermission(permissionNode, true);
         return returned;
     }
 

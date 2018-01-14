@@ -40,8 +40,6 @@ function TabPanel:new(x, y, w, h)
 	o.active_index = 0;
 	-- Panel content for each tab. Requires a 'name' field.
 	o.panels = {};
-	-- String lengths of each tab pre-calculated.
-	o.tab_lengths = {};
 	-- For when a tab is added.
 	o.tabs_dirty = false;
 	-- Beginning x position after the tab space. 
@@ -140,9 +138,11 @@ function TabPanel:prerender()
 		for index = 0, length, 1 do
 			local panel = self.panels[index];
 			if panel ~= nil then
-				local name = self.panels[index]._name;
-				-- Set the length of the tab.
-				self.tab_lengths[index] = sLength(name, self.tab_font_size) + 7;
+				if not panel._name_length then
+					local name = self.panels[index]._name;
+					-- Set the length of the tab.
+					panel._name_length = sLength(name, self.tab_font_size) + 7;
+				end 
 			end
 		end
 		-- Reset the font height variable.
@@ -173,7 +173,11 @@ function TabPanel:_render()
 		for index = 0, panels_length, 1 do
 			local panel = self.panels[index];
 			if panel ~= nil then
-				local tab_length = self.tab_lengths[index];
+				local tab_length = panel._name_length;
+				if not tab_length then
+					tab_length = sLength(panel._name, self.tab_font_size) + 7;
+					panel._name_length = tab_length;
+				end 
 				local dim = nil;
 				-- Draw the tab.
 				if panel.active == true then

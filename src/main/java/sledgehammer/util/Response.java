@@ -53,7 +53,7 @@ public class Response {
     public String toString() {
         return "Response: \n"
                 + "Handled: " + isHandled() + "\n"
-                + "Result: " + getResult().name() + "\n"
+                + (result != null ? "Result: " + result.name() + "\n" : "")
                 + "Message: " + getResponse() + "\n"
                 + "Log: " + getLogMessage() + "\n"
                 + "Important: " + getLogImportance() + "\n";

@@ -81,7 +81,7 @@ public class FactionsEventHandler implements EventListener {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
         module.println("FactionMember: " + factionMember);
-        if(factionMember != null) {
+        if (factionMember != null) {
             factionMember.setTag(player);
         }
         List<FactionInvite> invites = module.getInvitesForPlayer(player);
@@ -105,7 +105,7 @@ public class FactionsEventHandler implements EventListener {
             player.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
             player.sendChatMessage("To reject all invitations, type \'/faction reject all\'.");
         }
-        for(FactionInvite invite: invitesToDelete) {
+        for (FactionInvite invite : invitesToDelete) {
             module.deleteInvite(invite);
         }
     }
@@ -132,9 +132,11 @@ public class FactionsEventHandler implements EventListener {
     private void handleRequestChannelsEvent(RequestChannelsEvent event) {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
+        module.println("RequestChannslsEvent: FactionMember: " + factionMember);
         if (factionMember != null) {
             Faction faction = factionMember.getFaction();
             ChatChannel chatChannel = faction.getChatChannel();
+            chatChannel.addPlayer(player, false);
             event.addChatChannel(chatChannel);
         }
     }

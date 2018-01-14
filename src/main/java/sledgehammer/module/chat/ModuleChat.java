@@ -72,14 +72,14 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
         addDefaultPermission("sledgehammer.chat.global");
         addDefaultPermission("sledgehammer.chat.local");
         addDefaultPermission("sledgehammer.chat.pm");
-        addDefaultPermission(getPermissionNode("espanol"));
+        addDefaultPermission("sledgehammer.chat.command.espanol");
         // @formatter:on
+        loadMongoDocuments();
+        verifyCoreChannels();
     }
 
     @Override
     public void onStart() {
-        loadMongoDocuments();
-        verifyCoreChannels();
         register((EventListener) this);
         register((CommandListener) this);
     }
@@ -123,7 +123,6 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
         Player player = event.getPlayer();
         if (command.equalsIgnoreCase("requestChatChannels")) {
             RequestChannelsEvent requestEvent = new RequestChannelsEvent(player);
-            onEvent(requestEvent);
             RequestChatChannels request = new RequestChatChannels();
             // Add the main ChatChannels first in order.
             if (global.hasAccess(player)) {
@@ -142,14 +141,9 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
                 espanol.addPlayer(player, false);
                 request.addChannel(espanol);
             }
-            for (ChatChannel channel : getChatChannels()) {
-                if (channel.equals(global) || channel.equals(local) || channel.equals(pms) || channel.equals(espanol)) {
-                    continue;
-                }
-                if (channel.hasAccess(player)) {
-                    channel.addPlayer(player, false);
-                    request.addChannel(channel);
-                }
+            handleEvent(requestEvent);
+            for (ChatChannel chatChannel : requestEvent.getChatChannels()) {
+                request.addChannel(chatChannel);
             }
             event.respond(request);
         } else if (command.equalsIgnoreCase("requestChatHistories")) {

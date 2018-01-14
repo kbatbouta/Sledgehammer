@@ -173,13 +173,13 @@ public class ModuleFactions extends MongoModule {
      * Constructs Lua wrapper Objects to represent the data.
      */
     private void createLuaObjects() {
-        // Create HashMap(s).
-        mapFactionsByUniqueId = new HashMap<>();
-        mapFactionsByTag = new HashMap<>();
-        mapFactionsByName = new HashMap<>();
+        // Create HashMap(s). @formatter:off
+        mapFactionsByUniqueId       = new HashMap<>();
+        mapFactionsByTag            = new HashMap<>();
+        mapFactionsByName           = new HashMap<>();
         mapFactionMembersByUniqueId = new HashMap<>();
-        mapFactionInvites = new HashMap<>();
-        // Go through each MongoFaction.
+        mapFactionInvites           = new HashMap<>();
+        // Go through each MongoFaction. @formatter:on
         for (MongoFaction mongoFaction : mapMongoFactions.values()) {
             // Create the Lua container.
             Faction faction = new Faction(mongoFaction);
@@ -1561,14 +1561,9 @@ public class ModuleFactions extends MongoModule {
      * @return Returns a ChatChannel for the given Faction.
      */
     public ChatChannel createChatChannel(Faction faction) {
-        // Creates a new ChatChannel wrapper for the Faction.
-        ChatChannel chatChannel = createChatChannel("Faction_" + faction.getFactionName());
-//         new FactionChatChannel("Faction_" + faction.getFactionName());
-        chatChannel.setPermissionNode("sledgehammer.factions.chat", false);
-        chatChannel.setPublicChannel(false, false);
-        chatChannel.setGlobalChannel(true, false);
-        // Return the new ChatChannel.
-        return chatChannel;
+        return createChatChannel("Faction_" + faction.getFactionName(),
+                "A Faction chat channel.", "sledgehammer.faction.chat",
+                true, false, true, true, true);
     }
 
     /**
