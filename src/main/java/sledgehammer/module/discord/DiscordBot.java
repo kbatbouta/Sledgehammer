@@ -58,6 +58,7 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
     private boolean connectedUsingToken = false;
     private boolean connected = false;
     private boolean inCommand;
+    private Server server;
 
     public DiscordBot(ModuleDiscord instance) {
         module = instance;
@@ -126,9 +127,8 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
         Collection<ChatChannel> channels = module.getChatModule().getChatChannels();
         for (ChatChannel channel : channels) {
             String name = channel.getChannelName();
-            // TODO: Find a way to work around the JDK8 limitation with
-            // JavaCord 3.0 not being able to support categories.
-            if(name.toLowerCase().contains("faction")) {
+            // TODO: Find a way to work around the JDK8 limitation with JavaCord 3.0 not being able to support categories.
+            if (name.toLowerCase().contains("faction")) {
                 continue;
             }
             // Only register public channels.
@@ -154,13 +154,17 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
     }
 
     public Server getServer() {
-        return api.getServers().iterator().next();
+        if (server == null) {
+            server = api.getServers().iterator().next();
+        }
+        return server;
     }
 
     /**
      * Executes when successfully connecting to Discord services.
      */
     public void onSuccess(DiscordAPI api) {
+
         ModuleDiscord module = getModule();
         DiscordSettings settings = module.getSettings();
         String inviteURL = settings.getInviteURL();
@@ -172,6 +176,7 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
             if (api.getServers().isEmpty()) {
                 return;
             }
+            this.server = api.getServers().iterator().next();
             registerChannels();
         }
         if (ModuleDiscord.DEBUG) {
@@ -227,6 +232,9 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
     }
 
     public synchronized void say(String channelName, boolean alert, String... messages) {
+        if (server == null) {
+            return;
+        }
         if (mapMessageQueue == null) {
             mapMessageQueue = new HashMap<>();
         }
@@ -357,7 +365,7 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
                 if (content.startsWith("!z")) {
                     try {
                         onZCommand(username, content);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         //
                     }
                 } else {
@@ -366,7 +374,7 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
                     String[] args = new String[args_.length - 1];
                     try {
                         System.arraycopy(args, 1, args, 0, args_.length - 1);
-                    } catch(Exception e) {
+                    } catch (Exception e) {
                         args = new String[0];
                     }
                     onCommand(username, args_[0].toLowerCase(), args);
