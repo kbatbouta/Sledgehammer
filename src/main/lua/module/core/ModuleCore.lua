@@ -25,17 +25,18 @@ Module_Core = class(Module, function(o)
 end);
 
 function Module_Core:handshake()
-    print("Handshake core");
 	local success = function(table, request)
-		SledgeHammer.instance.self = table.self;
-		if SledgeHammer.instance.DEBUG then
-			print("Player's ID is " .. tostring(SledgeHammer.instance.self.id));
-		end
-	end
-	local failure = function(error, request)
-		print("SledgeHammer: Failed to request post-login information. ErrorCode: ".. tostring(error));
-	end
-	self:sendRequest("requestInfo", nil, success, failure);
+        SledgeHammer.instance.self = table.self;
+        if SledgeHammer.instance.DEBUG then
+            print("Player's ID is " .. tostring(SledgeHammer.instance.self.id));
+        end
+        addMainScreenRender(render_sledgehammer);
+        addMainScreenFocus(focus_sledgehammer);
+    end
+    local failure = function(error, request)
+        print("SledgeHammer: Failed to request post-login information. ErrorCode: ".. tostring(error));
+    end
+    self:sendRequest("requestInfo", nil, success, failure);
 end
 
 function Module_Core:updatePlayer(player)
@@ -50,6 +51,32 @@ function Module_Core:command(command, args)
 	if command == "updatePlayer" then
 		self:updatePlayer(args.player);
 	end
+end
+
+render_sledgehammer = function(main_screen)
+	if not SledgeHammer.instance then return end
+	if not SledgeHammer.instance:isStarted() then return end
+	local tex  = getTexture("media/ui/Sledgehammer/logo.png");
+	local sw = getCore():getScreenWidth();
+	local sh = getCore():getScreenHeight();
+	local w  = tex:getWidth()  / 2;
+	local h  = tex:getHeight() / 2;
+	local x  = sw - w - 46;
+	local y  = sh - h - 100;
+	local a = 1-(warningFade / warningFadeMax);
+	main_screen:drawTextureScaled(tex , x , y , w , h , a     , 1  , 1  , 1  );
+	lx = x;
+	ly = y;
+	lw = w;
+	lh = h;
+	warningFade = warningFade - (1.5 / 60.0);
+	if warningFade < 0 then warningFade = 0; end
+end
+
+function focus_sledgehammer(main_screen, x, y)
+    if contains(lx, ly, lw, lh, x, y) then
+        openUrl("https://github.com/JabJabJab/Sledgehammer/");
+    end
 end
 
 register(Module_Core());
