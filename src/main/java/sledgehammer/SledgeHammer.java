@@ -26,13 +26,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import javafx.concurrent.Task;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.event.CommandEvent;
+import sledgehammer.event.core.CommandEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.PlayerCreatedEvent;
+import sledgehammer.event.core.player.PlayerCreatedEvent;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ThrowableListener;
@@ -217,6 +216,7 @@ public class SledgeHammer extends Printable {
         }
         try {
             synchronized (this) {
+                managerTask.onUpdate();
                 managerPlugin.onUpdate();
                 managerNPC.onUpdate();
             }
@@ -225,12 +225,19 @@ public class SledgeHammer extends Printable {
         }
     }
 
+    public void reloadPlugins() {
+        managerPlugin.onShutDown();
+        managerPlugin.onLoad(false);
+        managerPlugin.onStart();
+    }
+
     /**
      * Stops all SledgeHammer components.
      */
     public void stop() {
         try {
             synchronized (this) {
+                managerTask.onShutDown();
                 managerPlugin.onShutDown();
                 managerPlayer.onShutDown();
                 getDatabase().shutDown();
@@ -702,6 +709,10 @@ public class SledgeHammer extends Printable {
      */
     public Event handle(Event event) {
         return getEventManager().handleEvent(event);
+    }
+
+    public void handle(String reason, Throwable throwable) {
+        getEventManager().handleException(reason, throwable);
     }
 
     /**

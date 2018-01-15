@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.ClientEvent;
+import sledgehammer.event.core.player.ClientEvent;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.module.chat.ModuleChat;

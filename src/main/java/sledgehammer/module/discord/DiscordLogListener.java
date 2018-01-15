@@ -21,12 +21,12 @@
 package sledgehammer.module.discord;
 
 import sledgehammer.enums.LogType;
-import sledgehammer.event.ChatEvent;
-import sledgehammer.event.CheaterEvent;
-import sledgehammer.event.CommandEvent;
+import sledgehammer.event.chat.ChatEvent;
+import sledgehammer.event.core.player.CheaterEvent;
+import sledgehammer.event.core.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.LogEvent;
-import sledgehammer.event.PVPAttackEvent;
+import sledgehammer.event.core.player.pvp.PVPAttackEvent;
 import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;

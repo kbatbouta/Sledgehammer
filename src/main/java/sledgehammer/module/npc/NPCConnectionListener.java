@@ -20,8 +20,8 @@
 
 package sledgehammer.module.npc;
 
-import sledgehammer.event.ConnectEvent;
-import sledgehammer.event.DisconnectEvent;
+import sledgehammer.event.core.player.ConnectEvent;
+import sledgehammer.event.core.player.DisconnectEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.core.Player;

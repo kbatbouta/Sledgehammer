@@ -30,14 +30,13 @@ import java.util.UUID;
 import com.mongodb.DBCursor;
 
 import se.krka.kahlua.vm.KahluaTable;
-import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoPeriodicMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.event.ClientEvent;
-import sledgehammer.event.CommandEvent;
-import sledgehammer.event.HandShakeEvent;
+import sledgehammer.event.core.player.ClientEvent;
+import sledgehammer.event.core.CommandEvent;
+import sledgehammer.event.core.player.HandShakeEvent;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;

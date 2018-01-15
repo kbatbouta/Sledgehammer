@@ -24,13 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.DeathEvent;
+import sledgehammer.event.core.player.DeathEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.PVPKillEvent;
+import sledgehammer.event.core.player.pvp.PVPKillEvent;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
-import zombie.core.raknet.UdpConnection;
 import zombie.sledgehammer.npc.NPC;
 
 //Imports chat colors for short-hand.

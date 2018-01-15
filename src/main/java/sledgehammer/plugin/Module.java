@@ -25,7 +25,7 @@ import java.util.List;
 
 import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.ClientEvent;
+import sledgehammer.event.core.player.ClientEvent;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.CommandListener;
 import sledgehammer.interfaces.EventListener;

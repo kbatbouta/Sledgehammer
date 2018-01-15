@@ -18,38 +18,12 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event;
-
-import sledgehammer.lua.core.Player;
+package sledgehammer.util;
 
 /**
- * PlayerEvent that is passed when a Player connected to the PZ server.
- *
- * @author Jab
+ * Enumeration to define the nature of a Task's assignment to the TaskManager.
  */
-public class ConnectEvent extends PlayerEvent {
-
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "ConnectEvent";
-
-    /**
-     * Main constructor.
-     *
-     * @param player The Player connecting to the PZ server.
-     */
-    public ConnectEvent(Player player) {
-        super(player);
-    }
-
-    @Override
-    public String getLogMessage() {
-        return getPlayer().getUsername() + " connected.";
-    }
-
-    @Override
-    public String getID() {
-        return ID;
-    }
+public enum TaskType {
+    ONCE,
+    TIMER;
 }
