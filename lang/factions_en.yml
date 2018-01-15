@@ -18,6 +18,7 @@ only_colors: "(Only light or normal colors are allowed)"
 color_invalid: "Invalid color: \"{{color}}\". Use /colors to see list of available colors. {{only_colors}}"
 # Sent when a Player executes a Command requiring ownership of a Faction.
 player_not_in_faction: "Player is not in the faction."
+player_in_faction: "Player \"{{player}}\" is already in your faction."
 player_not_found: "Cannot find the player with the given name: \"{{name}}\"."
 username_invalid: "Username provided is invalid: \"{{username}}\"."
 faction_invite_not_found: "You do not have an invite from the faction: \"{{faction}}\"."
@@ -53,7 +54,8 @@ command_faction_disband_failure: "Failed to disband the faction. {{err}}"
 ## /faction invite
 command_faction_invite_owner: "Player \"{{player}}\" is the owner of another faction, and cannot be invited to your faction."
 command_faction_invite_yourself: "You cannot invite yourself."
-command_faction_invite_success: "The Player \"{{player}}\" has been invited to the faction."
+command_faction_invite_exists: "The player \"{{player}}\" is already invited to join the faction."
+command_faction_invite_success: "The player \"{{player}}\" has been invited to the faction."
 command_faction_invite_failure: "Failed to invite player. {{err}}"
 
 ## /faction join

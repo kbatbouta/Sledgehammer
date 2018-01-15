@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="SledgeHammer-License" pattern="(src[Sledgehammer]:sledgehammer..*||src[mongo-conversion-tool]:sledgehammer.*)&amp;&amp;!src[Sledgehammer]:sledgehammer.util.RandomXS128" />
+</component>

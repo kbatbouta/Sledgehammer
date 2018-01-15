@@ -72,7 +72,7 @@ function Module_Chat:command(command, args)
             local channel_id = message.channel_id;
             local chat_channel = self:getChannelWithId(channel_id);
             if chat_channel == nil then
-                chat_channel = self:getChannelWithName("global");
+                chat_channel = self:getChannelWithName("Global");
             end
             local chat_message = ChatMessage();
             chat_message:initialize(message, chat_channel);

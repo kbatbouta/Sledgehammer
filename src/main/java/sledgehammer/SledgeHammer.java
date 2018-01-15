@@ -1,37 +1,24 @@
 /*
-This file is part of Sledgehammer.
-
-   Sledgehammer is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Lesser General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Sledgehammer is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ * This file is part of Sledgehammer.
+ *
+ *    Sledgehammer is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Lesser General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    Sledgehammer is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public License
+ *    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    Sledgehammer is free to use and modify, ONLY for non-official third-party servers
+ *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
+
 package sledgehammer;
-
-/*
-This file is part of Sledgehammer.
-
-   Sledgehammer is free software: you can redistribute it and/or modify
-   it under the terms of the GNU Lesser General Public License as published by
-   the Free Software Foundation, either version 3 of the License, or
-   (at your option) any later version.
-
-   Sledgehammer is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public License
-   along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
-*/
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -39,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+import javafx.concurrent.Task;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.database.module.core.SledgehammerDatabase;
@@ -53,10 +41,7 @@ import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.EventManager;
-import sledgehammer.manager.NPCManager;
-import sledgehammer.manager.PlayerManager;
-import sledgehammer.manager.PluginManager;
+import sledgehammer.manager.*;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
 import sledgehammer.module.faction.ModuleFactions;
@@ -119,6 +104,10 @@ public class SledgeHammer extends Printable {
      * Manager to handle logging of Players and Player data.
      */
     private PlayerManager managerPlayer;
+    /**
+     * Manager to handle registered tasks for Modules.
+     */
+    private TaskManager managerTask;
     /**
      * UdpEngine pointer for the Project Zomboid GameServer UdpEngine instance, to
      * communicate with connections.
@@ -183,9 +172,10 @@ public class SledgeHammer extends Printable {
     public void init() {
         try {
             directoryLang = new File("lang/");
-            directoryLua  = new File("lua/" );
+            directoryLua = new File("lua/");
             publicServerName = ServerOptions.instance.getOption("PublicName");
             // Initialize the Chat Engine.
+            managerTask = new TaskManager();
             managerEvent = new EventManager();
             managerPlugin = new PluginManager();
             managerPlayer = new PlayerManager();
@@ -195,6 +185,7 @@ public class SledgeHammer extends Printable {
             if (!testModule) {
                 managerPlugin.onLoad(false);
             }
+            managerTask.onLoad(testModule);
         } catch (Exception e) {
             stackTrace("An Error occurred while initializing Sledgehammer.", e);
         }
@@ -206,6 +197,7 @@ public class SledgeHammer extends Printable {
     public void start() {
         getPluginManager().onStart();
         getPlayerManager().onStart();
+        getTaskManager().onStart();
         for (Player player : getPlayers()) {
             PlayerCreatedEvent event = new PlayerCreatedEvent(player);
             SledgeHammer.instance.handle(event);
@@ -217,7 +209,7 @@ public class SledgeHammer extends Printable {
      * Main update method for SledgeHammer components.
      */
     public void update() {
-        if(stopNextTick) {
+        if (stopNextTick) {
             ServerMap.instance.QueueSaveAll();
             ServerMap.instance.QueueQuit();
             stop();
@@ -1017,5 +1009,9 @@ public class SledgeHammer extends Printable {
         stopNextTick = true;
         ServerMap.instance.QueueSaveAll();
         ServerMap.instance.QueueQuit();
+    }
+
+    public TaskManager getTaskManager() {
+        return this.managerTask;
     }
 }
