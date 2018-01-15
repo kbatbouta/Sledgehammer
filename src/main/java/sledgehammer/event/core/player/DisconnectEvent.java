@@ -95,9 +95,6 @@ public class DisconnectEvent extends PlayerEvent {
      */
     public DisconnectEvent(Player player, DisconnectType disconnectType) {
         super(player);
-        if (player == null) {
-            throw new IllegalArgumentException("Player is null!");
-        }
         setDisconnectType(disconnectType);
     }
 

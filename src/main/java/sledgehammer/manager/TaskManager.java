@@ -76,6 +76,9 @@ public class TaskManager extends Manager {
                         listTasks.removeAll(listTasksRemove);
                         listTasksRemove.clear();
                     }
+                    if (listTasks.isEmpty()) {
+                        mapTickTasks.remove(module);
+                    }
                 }
             }
             mapTickTasksTemporary.clear();

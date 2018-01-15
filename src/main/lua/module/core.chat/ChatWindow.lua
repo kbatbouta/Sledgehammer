@@ -69,7 +69,26 @@ function ChatWindow:new(module_chat)
 	ChatWindow.instance = o;
 	-- Return the result instance.
 	Events.OnKeyPressed.Add(ChatWindow.onChatKeyPressed);
+    -- Register the 'onTick()' method
+    Events.OnTickEvenPaused.Add(ChatWindow.onTick);
 	return o;
+end
+
+----------------------------------------------------------------
+--
+----------------------------------------------------------------
+function ChatWindow:unload()
+    -- Unregister the 'onTick()' method
+    Events.OnTickEvenPaused.Remove(ChatWindow.onTick);
+    Events.OnKeyPressed.Remove(ChatWindow.onChatKeyPressed);
+    self.tab_panel.onTabFocus    = nil;
+    self.input.onCommandEntered  = nil;
+    self.input.onPressDown       = nil;
+    self.input.onOtherKey        = nil;
+    self.input                   = nil;
+    self.tab_panel               = nil;
+    self:setVisible(false);
+    ChatWindow.instance = nil;
 end
 
 ----------------------------------------------------------------
@@ -596,5 +615,3 @@ function ChatWindow:getDefaultBackgroundColor()
 		a = 0
 	};
 end
--- Register the 'onTick()' method
-Events.OnTickEvenPaused.Add(ChatWindow.onTick);

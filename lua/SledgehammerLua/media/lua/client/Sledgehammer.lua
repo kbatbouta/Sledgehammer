@@ -69,7 +69,6 @@ function SledgeHammer:init()
 		-- nullify the preload table.
 		preloaded_modules_index = 0;
 		preloaded_modules = nil;
-
 	end
 	-- Set loaded flag.
 	self.loaded = true;
@@ -87,6 +86,21 @@ function SledgeHammer:start()
 	-- Register the command method.
 	Events.OnServerCommand.Add(command_sledgehammer);
 	self.startTimeStamp = getTimestamp();
+	self:doHandshake();
+	self.started = true;
+end
+
+----------------------------------------------------------------
+-- Handles SledgeHammer protocol.
+----------------------------------------------------------------
+function SledgeHammer:onHandshake()
+	-- Start Modules after the initial handshake for Sledgehammer.
+	self:startModules();
+	-- Also Handshake Modules.
+	self:handshakeModules();
+end
+
+function SledgeHammer:doHandshake()
 	local handshakeSuccess = function(table, request)
 		-- Flag the handshake as successful.
 		SledgeHammer.instance.handshake = true;
@@ -102,17 +116,6 @@ function SledgeHammer:start()
 	end
 	local handshake = Request("sledgehammer.module.core", "handshake", nil, handshakeSuccess, handshakeFailure);
 	handshake:send();
-	self.started = true;
-end
-
-----------------------------------------------------------------
--- Handles SledgeHammer protocol.
-----------------------------------------------------------------
-function SledgeHammer:onHandshake()
-	-- Start Modules after the initial handshake for Sledgehammer.
-	self:startModules();
-	-- Also Handshake Modules.
-	self:handshakeModules();
 end
 
 ----------------------------------------------------------------
@@ -128,18 +131,6 @@ function SledgeHammer:update()
 		self:updateModules();
 	end
 	self.hasUpdated = true;
-end
-
-----------------------------------------------------------------
--- Stops the Sledgehammer Lua Framework.
-----------------------------------------------------------------
-function SledgeHammer:stop()
-	-- Unregister the update method.
-	Events.OnTickEvenPaused.Remove(update_sledgehammer);
-	-- Unregister the command method.
-	Events.OnServerCommand.Remove(command_sledgehammer);
-	self:stopModules();
-	self.started = false;
 end
 
 ----------------------------------------------------------------
@@ -236,6 +227,7 @@ function SledgeHammer:unloadModules()
 			self:unloadModule(nextModule);
 		end
 	end
+	self.modules = {};
 end
 
 ----------------------------------------------------------------
@@ -295,7 +287,7 @@ function SledgeHammer:unloadModule(mod)
 		self:stopModule(mod);
 	end
 	print("Sledgehammer: Unloading Module: '"..tostring(mod:getName()).."'.");
-	mod:unloadModule();
+	mod:unload();
 	mod.loaded = false;
 end
 
@@ -342,7 +334,14 @@ function SledgeHammer:onClientCommand(mod, command, args)
 		end
 		-- If this is the core, route directly and return.
 		if modName == "core" then
-			if command == "sendLua" then
+			if command == "reload" then
+				self:stopModules();
+				self:unloadModules();
+				self.modules     = {}   ;
+				self.modulesByID = {}   ;
+				self.handshake   = false;
+				self:doHandshake();
+			elseif command == "sendLua" then
 				local func = load_function(args.lua);
 				func();
 				return;
@@ -369,7 +368,7 @@ function SledgeHammer:onClientCommand(mod, command, args)
 		local modu = self.modulesByID[modName];
 		-- Validity check.
 		if modu == nil then
-			print("SledgeHammer: Module is null: '" .. tostring(modName) .. "', for command: '" .. command .. "'.");
+			-- print("SledgeHammer: Module is null: '" .. tostring(modName) .. "', for command: '" .. command .. "'.");
 			return;
 		end
 		-- Handle the command.
@@ -574,7 +573,7 @@ function register(mod)
 		end
 		-- Check to see if the Module is already loaded.
 		if duplicateRegistry then
-			print("register() -> Module is already registered: "..tostring(module:getID()));
+			print("register() -> Module is already registered: "..tostring(nextModule:getID()));
 			return;
 		end
 		-- Formally register the Module.
@@ -595,7 +594,7 @@ function register(mod)
 		end
 		-- Check to see if the Module is already preloaded.
 		if duplicateRegistry then
-			print("register() -> Module is already registered: "..tostring(module:getID()));
+			print("register() -> Module is already registered: "..tostring(nextModule:getID()));
 			return;
 		end
 		-- Set the module.

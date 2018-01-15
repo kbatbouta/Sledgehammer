@@ -122,7 +122,7 @@ public class Faction extends MongoLuaObject<MongoFaction> {
         // Remove the Player from the ChatChannel if he is online.
         Player player = SledgeHammer.instance.getPlayer(factionMember.getPlayerId());
         if (player != null) {
-            getChatChannel().removePlayer(player);
+            getChatChannel().removePlayer(player, true);
         }
     }
 

@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import sledgehammer.SledgeHammer;
 import sledgehammer.lua.core.Player;
 
 /**
@@ -98,6 +97,23 @@ public class PlayerManager extends Manager {
         }
         if (!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
             mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
+        }
+    }
+
+    /**
+     * Removes a Player from the PlayerManager.
+     *
+     * @param player The Player to remove.
+     */
+    public void removePlayer(Player player) {
+        if (listPlayers.contains(player)) {
+            listPlayers.remove(player);
+        }
+        if (mapPlayersByID.containsKey(player.getUniqueId())) {
+            mapPlayersByID.remove(player.getUniqueId());
+        }
+        if (mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
+            mapPlayersByUsername.remove(player.getUsername().toLowerCase());
         }
     }
 }

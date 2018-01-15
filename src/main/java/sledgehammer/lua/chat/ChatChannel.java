@@ -64,7 +64,7 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
      * Lua load constructor.
      *
      * @param mongoDocument The MongoDocument storing the data for the ChatChannel.
-     * @param table The KahluaTable to import from the client.
+     * @param table         The KahluaTable to import from the client.
      */
     public ChatChannel(MongoChatChannel mongoDocument, KahluaTable table) {
         super(mongoDocument, "ChatChannel");
@@ -136,6 +136,12 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
         return table;
     }
 
+    /**
+     * Adds a Player to the ChatChannel.
+     *
+     * @param player The Player to add.
+     * @param send   Set to true to send the addition to the Player.
+     */
     public void addPlayer(Player player, boolean send) {
         if (!listPlayersSent.contains(player)) {
             if (send) {
@@ -145,15 +151,25 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
         }
     }
 
-    public void removePlayer(Player player) {
+    /**
+     * Removes a Player from the ChatChannel.
+     *
+     * @param player The Player to remove.
+     * @param send   Set to true to send the removal to the Player. (False if disconnecting)
+     */
+    public void removePlayer(Player player, boolean send) {
         if (listPlayersSent.contains(player)) {
             listPlayersSent.remove(player);
-            SledgeHammer.instance.send(sendChatChannelRemove, player);
+            if (send) {
+                SledgeHammer.instance.send(sendChatChannelRemove, player);
+            }
         }
     }
 
-    public void removePlayers() {
-        SledgeHammer.instance.send(sendChatChannelRemove, getPlayers());
+    public void removePlayers(boolean send) {
+        if(send) {
+            SledgeHammer.instance.send(sendChatChannelRemove, getPlayers());
+        }
         listPlayersSent.clear();
     }
 

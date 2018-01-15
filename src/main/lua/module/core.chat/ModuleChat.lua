@@ -50,14 +50,29 @@ end
 ----------------------------------------------------------------
 -- @Override
 ----------------------------------------------------------------
-function Module_Chat:start()
-end
+function Module_Chat:start() end
 
 ----------------------------------------------------------------
 -- @Override
 ----------------------------------------------------------------
 function Module_Chat:handshake()
     self:requestChannels();
+end
+
+----------------------------------------------------------------
+-- @Override
+----------------------------------------------------------------
+function Module_Chat:stop() end
+
+----------------------------------------------------------------
+-- @Override
+----------------------------------------------------------------
+function Module_Chat:unload()
+    self.gui:removeFromUIManager();
+    self.gui:unload();
+    self.gui = nil;
+    self:enableLegacyChat();
+    self.channels = nil;
 end
 
 ----------------------------------------------------------------
@@ -196,8 +211,7 @@ function Module_Chat:assignChatMessage(chat_message)
         end
     else
         local chat_channel_global = self:getChannelWithName("global");
-        local channel_id = chat_message.channel_id;
-        local channel = self:getChannelWithId(channel_id);
+        local channel = self:getChannelWithId(chat_message.channel_id);
         if channel == nil then
             channel = chat_channel_global;
         end
@@ -232,10 +246,30 @@ function Module_Chat:getChannelWithName(channel_name)
     return nil;
 end
 
-function Module_Chat:disableLegacyChat()
-    ISChat.createChat = function()
+----------------------------------------------------------------
+-- Endables Project Zomboid's ISChat window.
+----------------------------------------------------------------
+function Module_Chat:enableLegacyChat()
+    if ISChat.chat == nil then
+        ISChat.chat = self.legacy;
+        -- Adds legacy chat event hooks.
+        Events.OnWorldMessage.Add(ISChat.addLineInChat);
+        Events.OnMouseDown.Add(ISChat.unfocus);
+        Events.OnKeyPressed.Add(ISChat.onToggleChatBox);
+        Events.OnKeyKeepPressed.Add(ISChat.onKeyKeepPressed);
+        ISChat.chat:addToUIManager();
+        ISChat.instance.moreinfo:setVisible(true);
+        ISChat.instance.chatText:setVisible(true);
+        ISChat.invisibleTimer = ISChat.toggleInvisibleTimer;
     end
+end
+
+----------------------------------------------------------------
+-- Disables Project Zomboid's ISChat window.
+----------------------------------------------------------------
+function Module_Chat:disableLegacyChat()
     if ISChat.chat ~= nil then
+        self.legacy = ISChat.chat;
         -- Removes legacy chat from UI update.
         ISChat.chat:removeFromUIManager();
         -- Hides legacy chat.

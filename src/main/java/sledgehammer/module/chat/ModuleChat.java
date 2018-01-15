@@ -61,7 +61,7 @@ import sledgehammer.util.Response;
  *
  * @author Jab
  */
-public class ModuleChat extends MongoModule implements EventListener, CommandListener {
+public class ModuleChat extends MongoModule {
 
     private Map<UUID, ChatChannel> mapChatChannels;
     private LinkedList<ChatChannel> listOrderedChatChannels;
@@ -72,6 +72,8 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     private ChatChannel local;
     private ChatChannel pms;
     private ChatChannel espanol;
+    private ChatEventListener eventListener;
+    private ChatCommandListener commandListener;
 
     private SendLua sendLua;
 
@@ -85,6 +87,8 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     @Override
     public void onLoad() {
         loadLua();
+        eventListener = new ChatEventListener(this);
+        commandListener = new ChatCommandListener(this);
         mapChatChannels = new LinkedHashMap<>();
         listOrderedChatChannels = new LinkedList<>();
         // Grab the MongoCollections storing the data for this Module.
@@ -103,8 +107,8 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 
     @Override
     public void onStart() {
-        register((EventListener) this);
-        register((CommandListener) this);
+        register(eventListener);
+        register(commandListener);
     }
 
     @Override
@@ -114,16 +118,18 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
 
     @Override
     public void onStop() {
-        unregister((EventListener) this);
-        unregister((CommandListener) this);
+        unregister(eventListener);
+        unregister(commandListener);
     }
 
     @Override
     public void onUnload() {
         for (ChatChannel chatChannel : getChatChannels()) {
-            chatChannel.removePlayers();
+            chatChannel.removePlayers(false);
         }
         // Nullify all fields. @formatter:off
+        this.eventListener           = null;
+        this.commandListener         = null;
 		this.collectionChannels      = null;
 		this.collectionMessages      = null;
 		this.mapChatChannels         = null;
@@ -196,28 +202,6 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
     }
 
     @Override
-    public void onEvent(Event event) {
-        String Id = event.getID();
-        if (Id.equals(DisconnectEvent.ID)) {
-            handleDisconnectEvent((DisconnectEvent) event);
-        }
-    }
-
-    @Override
-    public String[] getTypes() {
-        // @formatter:off
-		return new String[] {
-		        DisconnectEvent.ID
-		};
-		// @formatter:on
-    }
-
-    @Override
-    public boolean runSecondary() {
-        return false;
-    }
-
-    @Override
     public String getName() {
         return "ModuleChat";
     }
@@ -258,7 +242,7 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
         if (chatChannel == null) {
             throw new IllegalArgumentException("ChatChannel given is null.");
         }
-        chatChannel.removePlayers();
+        chatChannel.removePlayers(true);
         chatChannel.delete();
         mapChatChannels.remove(chatChannel.getUniqueId());
         listOrderedChatChannels.remove(chatChannel);
@@ -277,51 +261,6 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
         return chatMessage;
     }
 
-    @Override
-    public void onCommand(Command com, Response r) {
-        Player commander = com.getPlayer();
-        String command = com.getCommand().toLowerCase();
-        if (command.equals("espanol")) {
-            String permissionNode = "sledgehammer.chat.espanol";
-            ChatChannel channel = getChatChannel("Espanol");
-            if (commander.hasPermission(permissionNode, true)) {
-                commander.setPermission(permissionNode, false);
-                channel.removePlayer(commander);
-                r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
-            } else {
-                commander.setPermission(permissionNode, true);
-                channel.addPlayer(commander, true);
-                r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
-            }
-        }
-    }
-
-    @Override
-    public String[] getCommands() {
-        // @formatter:off
-		return new String[] {
-				"espanol"
-		};
-		// @formatter:on
-    }
-
-    @Override
-    public String onTooltip(Player player, Command com) {
-        String command = com.getCommand().toLowerCase();
-        if (command.equals("espanol")) {
-            return "Adds you to the Spanish chat channel.";
-        }
-        return null;
-    }
-
-    @Override
-    public String getPermissionNode(String command) {
-        if (command.equalsIgnoreCase("espanol")) {
-            return "sledgehammer.chat.command.espanol";
-        }
-        return null;
-    }
-
     private void loadLua() {
         File lua = getLuaDirectory();
         boolean overwrite = !isLuaOverriden();
@@ -338,13 +277,6 @@ public class ModuleChat extends MongoModule implements EventListener, CommandLis
         saveResourceAs("lua/module/core.chat/ModuleChat.lua" , fileChatModule , overwrite);
         // @formatter:on
         sendLua = new SendLua(fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow, fileChatModule);
-    }
-
-    private void handleDisconnectEvent(DisconnectEvent event) {
-        Player player = event.getPlayer();
-        for (ChatChannel channel : mapChatChannels.values()) {
-            channel.removePlayer(player);
-        }
     }
 
     private void loadMongoDocuments() {

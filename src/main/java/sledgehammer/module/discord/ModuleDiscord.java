@@ -30,6 +30,7 @@ import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.lua.discord.DiscordInformation;
 import sledgehammer.lua.discord.request.RequestDiscordInformation;
 import sledgehammer.plugin.MongoModule;
+import sledgehammer.util.TickTask;
 
 /**
  * Module designed to load a Discord bot for SledgeHammer logging, and
@@ -102,7 +103,6 @@ public class ModuleDiscord extends MongoModule {
             bot = new DiscordBot(this);
             bot.connect(settings.getBotAccessToken());
         }
-
         register(eventListener);
         register(logListener);
         register(exceptionListener);
@@ -129,13 +129,17 @@ public class ModuleDiscord extends MongoModule {
     }
 
     @Override
-    public void onClientCommand(ClientEvent event) {
+    public void onClientCommand(final ClientEvent event) {
         String clientCommand = event.getCommand();
         if (clientCommand.equalsIgnoreCase("requestInformation")) {
             RequestDiscordInformation request = new RequestDiscordInformation();
-            if( discordInformation == null) {
+            if (discordInformation == null) {
                 discordInformation = new DiscordInformation();
-                discordInformation.setDiscordName(bot.getServer().getName());
+                try {
+                    discordInformation.setDiscordName(bot.getServer().getName());
+                } catch (Exception e) {
+                    discordInformation.setDiscordName("The Discord Server");
+                }
                 discordInformation.setInviteURL(settings.getInviteURL());
             }
             request.setInfo(discordInformation);

@@ -40,6 +40,8 @@ import sledgehammer.interfaces.PermissionListener;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.core.send.SendLua;
+import sledgehammer.lua.core.send.SendReload;
 import sledgehammer.manager.*;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
@@ -139,6 +141,8 @@ public class SledgeHammer extends Printable {
     private boolean started = false;
     private boolean stopNextTick = false;
 
+    private boolean reloading = false;
+
     /**
      * Test-Case constructor. Use this constructor for testing a Module.
      *
@@ -226,8 +230,11 @@ public class SledgeHammer extends Printable {
     }
 
     public void reloadPlugins() {
+        send(new SendReload());
+        this.reloading = true;
         managerPlugin.onShutDown();
         managerPlugin.onLoad(false);
+        this.reloading = false;
         managerPlugin.onStart();
     }
 
@@ -399,7 +406,7 @@ public class SledgeHammer extends Printable {
      */
     public void send(Send send, Player player) {
         // Make sure the Player is online before attempting to send to the Player.
-        if (player.isConnected()) {
+        if (!isReloading() && player.isConnected()) {
             if (DEBUG) {
                 println("Sending to player: " + player + ", send=" + send);
             }
@@ -504,8 +511,10 @@ public class SledgeHammer extends Printable {
      * @param send The Send LuaTable being sent.
      */
     public void send(Send send) {
-        for (Player player : getPlayers()) {
-            send(send, player);
+        if (!isReloading()) {
+            for (Player player : getPlayers()) {
+                send(send, player);
+            }
         }
     }
 
@@ -516,8 +525,10 @@ public class SledgeHammer extends Printable {
      * @param players The Collection of Players being sent the Send Object.
      */
     public void send(Send send, Collection<Player> players) {
-        for (Player player : players) {
-            send(send, player);
+        if (!isReloading()) {
+            for (Player player : players) {
+                send(send, player);
+            }
         }
     }
 
@@ -914,6 +925,13 @@ public class SledgeHammer extends Printable {
      */
     public boolean playerExists(UUID playerId) {
         return getDatabase().playerExists(playerId);
+    }
+
+    /**
+     * @return Returns true if Sledgehammer is currently reloading.
+     */
+    public boolean isReloading() {
+        return this.reloading;
     }
 
     /**

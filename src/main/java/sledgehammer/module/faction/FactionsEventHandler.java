@@ -25,10 +25,7 @@ import java.util.List;
 
 import sledgehammer.event.*;
 import sledgehammer.event.chat.RequestChannelsEvent;
-import sledgehammer.event.core.player.ConnectEvent;
-import sledgehammer.event.core.player.DisconnectEvent;
-import sledgehammer.event.core.player.HandShakeEvent;
-import sledgehammer.event.core.player.PlayerCreatedEvent;
+import sledgehammer.event.core.player.*;
 import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Color;
@@ -62,6 +59,9 @@ public class FactionsEventHandler implements EventListener {
     public void onEvent(Event event) {
         String ID = event.getID();
         switch (ID) {
+            case PlayerJoinEvent.ID:
+                handlePlayerJoinEvent((PlayerJoinEvent) event);
+                break;
             case ConnectEvent.ID:
                 handleConnectEvent((ConnectEvent) event);
                 break;
@@ -88,6 +88,7 @@ public class FactionsEventHandler implements EventListener {
                 ConnectEvent.ID        ,
                 HandShakeEvent.ID      ,
                 RequestChannelsEvent.ID,
+                PlayerJoinEvent.ID     ,
                 DisconnectEvent.ID
         };
         // @formatter:on
@@ -117,8 +118,7 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
-    private void handleHandShakeEvent(HandShakeEvent event) {
-        module.println("Faction handshake.");
+    private void handlePlayerJoinEvent(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         List<FactionInvite> invites = module.getInvitesForPlayer(player);
         if (invites != null && invites.size() > 0) {
@@ -146,6 +146,9 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
+    private void handleHandShakeEvent(HandShakeEvent event) {
+    }
+
     private void handleRequestChannelsEvent(RequestChannelsEvent event) {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
@@ -162,7 +165,7 @@ public class FactionsEventHandler implements EventListener {
         FactionMember factionMember = module.getFactionMember(player);
         if (factionMember != null) {
             Faction faction = factionMember.getFaction();
-            faction.getChatChannel().removePlayer(player);
+            faction.getChatChannel().removePlayer(player, false);
         }
     }
 

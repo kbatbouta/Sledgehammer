@@ -246,15 +246,6 @@ public class Player extends MongoLuaObject<MongoPlayer> {
         return getName();
     }
 
-    public void updatePlayer() {
-//        if(getMongoDocument() == null) {
-//            return;
-//        }
-//        SendPlayer sendPlayer = new SendPlayer();
-//        sendPlayer.setPlayer(this);
-//        SledgeHammer.instance.send(sendPlayer);
-    }
-
     /**
      * Initializes the Player.
      */
@@ -709,7 +700,6 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     public void setColor(Color color) {
         this.color = color;
-        updatePlayer();
     }
 
     /**
@@ -763,7 +753,6 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     public void setNickname(String nickname) {
         this.nickname = nickname;
-        updatePlayer();
     }
 
     /**
@@ -783,7 +772,6 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     private void setUsername(String username) {
         this.username = username;
-        updatePlayer();
     }
 
     /**
@@ -848,12 +836,10 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      */
     public void setLanguage(Language language) {
         this.language = language;
-        updatePlayer();
     }
 
     public void setAdministrator(boolean flag, boolean save) {
         getMongoDocument().setAdministrator(flag, save);
-        updatePlayer();
     }
 
     /**

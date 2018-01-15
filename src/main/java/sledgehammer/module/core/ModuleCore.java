@@ -37,6 +37,7 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.core.player.ClientEvent;
 import sledgehammer.event.core.CommandEvent;
 import sledgehammer.event.core.player.HandShakeEvent;
+import sledgehammer.event.core.player.PlayerJoinEvent;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
@@ -47,6 +48,7 @@ import sledgehammer.lua.core.send.SendPlayer;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.plugin.Module;
 import sledgehammer.util.Command;
+import sledgehammer.util.TickTask;
 import zombie.network.ServerWorldDatabase;
 
 /**
@@ -163,7 +165,7 @@ public class ModuleCore extends Module {
         // Get event content.
         // String module = event.getModule();
         String clientCommand = event.getCommand();
-        Player player = event.getPlayer();
+        final Player player = event.getPlayer();
         if (clientCommand.equalsIgnoreCase("handshake")) {
             // Grab the Lua code from all Modules and send it to the Player.
             SendLua sendLua = getPluginManager().getLua(player);
@@ -174,10 +176,18 @@ public class ModuleCore extends Module {
             HandShakeEvent handshakeEvent = new HandShakeEvent(player);
             // Handle the event.
             SledgeHammer.instance.handle(handshakeEvent);
-
             SendPlayer sendPlayer = new SendPlayer(true);
             sendPlayer.setPlayer(player);
             SledgeHammer.instance.send(sendPlayer, player);
+            // Delay the task of sending a PlayerJoinEvent after the handshake by one tick.
+            (new TickTask() {
+                @Override
+                public boolean run() {
+                    PlayerJoinEvent playerJoinEvent = new PlayerJoinEvent(player);
+                    SledgeHammer.instance.handle(playerJoinEvent);
+                    return false;
+                }
+            }).runTask(this);
 
         } else if (clientCommand.equalsIgnoreCase("requestInfo")) {
             RequestInfo info = new RequestInfo();

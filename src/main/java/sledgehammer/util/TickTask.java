@@ -31,10 +31,18 @@ import sledgehammer.plugin.Module;
 public abstract class TickTask extends Printable {
 
     private TaskType type;
-    private int delayTicksStart = 0;
     private int delayTicksTimer = 1;
     private int delayTicks = 0;
     private boolean alive = false;
+
+    @Override
+    public String getName() {
+        String name = getClass().getSimpleName();
+        if (name.isEmpty()) {
+            name = "Anonymous TickTask";
+        }
+        return name;
+    }
 
     /**
      * Executes a TickTask implementation directly. This is called from the Sledgehammer engine directly, and should not
@@ -102,9 +110,10 @@ public abstract class TickTask extends Printable {
             throw new IllegalStateException("TickTask is already running.");
         }
         // @formatter:off
-        this.delayTicksStart = 0;
-        this.delayTicksTimer = 1;
-        this.delayTicks      = 0;
+        this.delayTicksTimer = 0            ;
+        this.delayTicks      = 0            ;
+        this.alive           = true         ;
+        this.type            = TaskType.ONCE;
         // @formatter:on
         SledgeHammer.instance.getTaskManager().register(module, this);
     }
@@ -123,7 +132,19 @@ public abstract class TickTask extends Printable {
      * @param delayTicksStart The delay in ticks to execute the TickTask the first time.
      */
     public void runTaskLater(Module module, int delayTicksStart) {
-
+        if (module == null || !module.isLoaded()) {
+            throw new IllegalArgumentException("Module provided is null or isn't loaded.");
+        }
+        if (isAlive()) {
+            throw new IllegalStateException("TickTask is already running.");
+        }
+        // @formatter:off
+        this.delayTicksTimer = 0              ;
+        this.delayTicks      = delayTicksStart;
+        this.alive           = true           ;
+        this.type            = TaskType.ONCE  ;
+        // @formatter:on
+        SledgeHammer.instance.getTaskManager().register(module, this);
     }
 
     /**
@@ -156,7 +177,6 @@ public abstract class TickTask extends Printable {
         }
         // @formatter:off
         this.delayTicks      = delayTicksStart;
-        this.delayTicksStart = delayTicksStart;
         this.delayTicksTimer = delayTicksTimer;
         this.type            = TaskType.TIMER ;
         this.alive           = true           ;
@@ -177,8 +197,7 @@ public abstract class TickTask extends Printable {
         // @formatter:off
         this.alive           = false;
         this.delayTicks      = 0    ;
-        this.delayTicksTimer = 1    ;
-        this.delayTicksStart = 0    ;
+        this.delayTicksTimer = 0    ;
         // @formatter:on
     }
 
