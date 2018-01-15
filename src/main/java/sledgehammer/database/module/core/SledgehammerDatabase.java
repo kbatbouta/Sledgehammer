@@ -257,6 +257,10 @@ public class SledgehammerDatabase extends MongoDatabase {
         if (username == null || username.isEmpty()) {
             throw new IllegalArgumentException("SledgehammerDatabase: Username is null or empty!");
         }
+        MongoPlayer player = getMongoPlayer(username);
+        if (player != null) {
+            return player.getUniqueId();
+        }
         UUID returned = null;
         DBCursor cursor = collectionPlayers.find(new BasicDBObject("username", username));
         if (cursor.hasNext()) {
@@ -307,5 +311,14 @@ public class SledgehammerDatabase extends MongoDatabase {
         String url = settings.getDatabaseURL();
         int port = settings.getDatabasePort();
         return "mongodb://" + username + ":" + password + "@" + url + ":" + port;
+    }
+
+    public void removeMongoPlayer(MongoPlayer player) {
+        long steamId = player.getSteamId();
+        if (steamId > -1L) {
+            mapPlayersBySteamID.remove(steamId);
+        }
+        mapPlayersByUsername.remove(player.getUsername());
+        mapPlayersByUUID.remove(player.getUniqueId());
     }
 }

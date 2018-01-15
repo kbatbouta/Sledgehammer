@@ -45,8 +45,8 @@ public class MongoPlayer extends MongoUniqueDocument {
     private String username;
     private String nickname;
     private String passwordEncrypted;
-    private long steamIdOwner;
-    private long steamId;
+    private long steamIdOwner = -1L;
+    private long steamId = -1L;
     private long timeConnectedLast;
     private long timeConnected;
     private long timeCreated;
@@ -410,7 +410,8 @@ public class MongoPlayer extends MongoUniqueDocument {
     }
 
     public boolean hasPassword() {
-        return getEncryptedPassword() != null;
+        String password = getEncryptedPassword();
+        return password != null && !password.isEmpty();
     }
 
     public void setLastConnection(long time) {

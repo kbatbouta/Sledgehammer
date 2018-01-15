@@ -20,6 +20,7 @@
 
 package sledgehammer.module.chat;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.event.Event;
 import sledgehammer.event.core.player.DisconnectEvent;
 import sledgehammer.interfaces.EventListener;
@@ -56,8 +57,11 @@ public class ChatEventListener implements EventListener {
 
     private void handleDisconnectEvent(DisconnectEvent event) {
         Player player = event.getPlayer();
-        for (ChatChannel channel : getModule().getChatChannels()) {
-            channel.removePlayer(player, false);
+        if(player != null) {
+            for (ChatChannel channel : getModule().getChatChannels()) {
+                channel.removePlayer(player, false);
+            }
+            SledgeHammer.instance.getDatabase().removeMongoPlayer(player.getMongoDocument());
         }
     }
 
