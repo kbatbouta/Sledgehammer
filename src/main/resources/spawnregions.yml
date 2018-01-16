@@ -1,0 +1,377 @@
+# The SpawnRegions definition file for Sledgehammer.
+spawn_regions:
+- name: "Muldraugh, KY"
+  file: "media/maps/Muldraugh, KY/spawnpoints.lua"
+  points:
+  - unemployed:
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - policeofficer:
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - constructionworker:
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - repairman:
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - securityguard:
+    - {world: {x: 36, y: 31}, position: {x:  40, y: 236}} # Small Shop
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - parkranger:
+    - {world: {x: 36, y: 31}, position: {x: 140, y:  74}} # Medium House near forest
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - fireofficer:
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+    - {world: {x: 36, y: 31}, position: {x:  72, y: 189}} # 
+    - {world: {x: 36, y: 32}, position: {x: 176, y: 185}} # 
+    - {world: {x: 36, y: 32}, position: {x:  51, y: 246}} # 
+    - {world: {x: 36, y: 32}, position: {x:  54, y: 294}} # 
+    - {world: {x: 36, y: 33}, position: {x: 108, y:  94}} # 
+    - {world: {x: 36, y: 33}, position: {x:  84, y: 259}} # 
+    - {world: {x: 36, y: 33}, position: {x: 123, y: 196}} # 
+  - chef:
+    - {world: {x: 35, y: 31}, position: {x: 106, y: 174}} # Burger
+    - {world: {x: 35, y: 35}, position: {x: 124, y:  33}} # Diner
+    - {world: {x: 35, y: 32}, position: {x: 129, y:  58}} # Spiffo's
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+    - {world: {x: 36, y: 31}, position: {x: 151, y: 190}} # 
+  - doctor:
+    - {world: {x: 36, y: 33}, position: {x:  76, y: 128}} # Cortman
+    - {world: {x: 36, y: 33}, position: {x:  76, y: 128}} # Cortman
+    - {world: {x: 36, y: 34}, position: {x:  62, y:  47}} # Medium house2
+    - {world: {x: 36, y: 33}, position: {x: 116, y: 232}} # little house2
+    - {world: {x: 36, y: 33}, position: {x:   3, y: 173}} # little house2
+    - {world: {x: 36, y: 33}, position: {x: 118, y: 229}} # little house2
+    - {world: {x: 36, y: 31}, position: {x: 142, y:  72}} # 
+- name: "West Point, KY"
+  file: "media/maps/West Point, KY/spawnpoints.lua"
+  points:
+  - unemployed:
+    - {world: {x: 39, y: 22}, position: {x: 204, y: 125}} # Medium house1
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 40, y: 23}, position: {x:  21, y:  14}} # Motel
+    - {world: {x: 38, y: 23}, position: {x: 137, y:  86}} # Small house 3
+    - {world: {x: 38, y: 23}, position: {x:  80, y: 124}} # Medium house 4
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+    - {world: {x: 38, y: 22}, position: {x:  12, y: 124}} # Medium house 6
+    - {world: {x: 37, y: 22}, position: {x: 197, y: 130}} # Small house 5
+  - policeofficer:
+    - {world: {x: 39, y: 22}, position: {x: 246, y: 285}} # Government
+    - {world: {x: 39, y: 22}, position: {x:  72, y: 152}} # Big house1
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 206, y:  16}} # Bank
+    - {world: {x: 39, y: 23}, position: {x: 208, y:  49}} # Police station
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 38, y: 23}, position: {x:  80, y: 124}} # Medium house 4
+    - {world: {x: 38, y: 23}, position: {x: 133, y:  24}} # Big house 2
+    - {world: {x: 38, y: 22}, position: {x: 240, y: 277}} # Big house 3
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+  - constructionworker:
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 40, y: 23}, position: {x:  21, y:  14}} # Motel
+    - {world: {x: 40, y: 23}, position: {x:  62, y:  15}} # Portacabin
+    - {world: {x: 38, y: 23}, position: {x: 137, y:  86}} # Small house 3
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+    - {world: {x: 38, y: 22}, position: {x:  12, y: 124}} # Medium house 6
+    - {world: {x: 37, y: 22}, position: {x: 197, y: 130}} # Small house 5
+  - repairman:
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 40, y: 23}, position: {x:  21, y:  14}} # Motel
+    - {world: {x: 40, y: 23}, position: {x:  62, y:  15}} # Portacabin
+    - {world: {x: 38, y: 23}, position: {x: 137, y:  86}} # Small house 3
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+    - {world: {x: 38, y: 22}, position: {x:  12, y: 124}} # Medium house 6
+    - {world: {x: 37, y: 22}, position: {x: 197, y: 130}} # Small house 5
+  - securityguard:
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 40, y: 23}, position: {x:  21, y:  14}} # Motel
+    - {world: {x: 38, y: 23}, position: {x: 137, y:  86}} # Small house 3
+    - {world: {x: 38, y: 22}, position: {x: 240, y: 277}} # Big house 3
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+    - {world: {x: 38, y: 22}, position: {x:  12, y: 124}} # Medium house 6
+    - {world: {x: 37, y: 22}, position: {x: 197, y: 130}} # Small house 5
+  - parkranger:
+    - {world: {x: 39, y: 22}, position: {x:  72, y: 152}} # Big house1
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 40, y: 23}, position: {x:  21, y:  14}} # Motel
+    - {world: {x: 38, y: 23}, position: {x:  80, y: 124}} # Medium house 4
+    - {world: {x: 38, y: 22}, position: {x: 240, y: 277}} # Big house 3
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+    - {world: {x: 38, y: 22}, position: {x:  12, y: 124}} # Medium house 6
+    - {world: {x: 37, y: 22}, position: {x: 267, y: 275}} # Small house 6
+  - fireofficer:
+    - {world: {x: 39, y: 22}, position: {x:  72, y: 152}} # Big house1
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 38, y: 23}, position: {x:  80, y: 124}} # Medium house 4
+    - {world: {x: 38, y: 23}, position: {x: 133, y:  24}} # Big house 2
+    - {world: {x: 38, y: 22}, position: {x: 240, y: 277}} # Big house 3
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+    - {world: {x: 38, y: 22}, position: {x:  94, y: 102}} # Medium house 5
+    - {world: {x: 38, y: 22}, position: {x:  12, y: 124}} # Medium house 6
+  - chef:
+    - {world: {x: 40, y: 23}, position: {x:  77, y: 180}} # Burger
+    - {world: {x: 38, y: 23}, position: {x: 255, y: 184}} # Pizza
+    - {world: {x: 39, y: 22}, position: {x: 282, y: 205}} # Spiffo's
+    - {world: {x: 39, y: 22}, position: {x: 203, y: 265}} # Crystal pie
+    - {world: {x: 39, y: 22}, position: {x: 204, y: 125}} # Medium house1
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 40, y: 23}, position: {x:  21, y:  14}} # Motel
+    - {world: {x: 38, y: 23}, position: {x: 137, y:  86}} # Small house 3
+    - {world: {x: 38, y: 23}, position: {x:  80, y: 124}} # Medium house 4
+  - doctor:
+    - {world: {x: 39, y: 22}, position: {x: 235, y: 212}} # Pharma hug
+    - {world: {x: 39, y: 22}, position: {x: 235, y: 212}} # Pharma hug
+    - {world: {x: 39, y: 22}, position: {x: 235, y: 212}} # Pharma hug
+    - {world: {x: 39, y: 22}, position: {x: 235, y: 212}} # Pharma hug
+    - {world: {x: 39, y: 22}, position: {x:  72, y: 152}} # Big house1
+    - {world: {x: 39, y: 22}, position: {x:  59, y:  84}} # Small house 1
+    - {world: {x: 39, y: 22}, position: {x:  92, y: 186}} # Small house 2
+    - {world: {x: 39, y: 23}, position: {x: 196, y: 115}} # Medium house 2
+    - {world: {x: 38, y: 23}, position: {x:  80, y: 124}} # Medium house 4
+    - {world: {x: 38, y: 23}, position: {x: 133, y:  24}} # Big house 2
+    - {world: {x: 38, y: 22}, position: {x: 240, y: 277}} # Big house 3
+    - {world: {x: 38, y: 22}, position: {x: 243, y:  96}} # Small house 4
+- name: "Rosewood, KY"
+  file: "media/maps/Rosewood, KY/spawnpoints.lua"
+  points:
+  - unemployed:
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 28, y: 38}, position: {x: 18 , y: 286}} # Small house 5
+  - policeofficer:
+    - {world: {x: 26, y: 39}, position: {x: 273, y:  30}} # Police station
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - constructionworker:
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - repairman:
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - securityguard:
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - parkranger:
+    - {world: {x: 27, y: 39}, position: {x: 242, y:  49}} # Small house 3 + garden
+    - {world: {x: 28, y: 39}, position: {x:  41, y: 111}} # Medium house 2 + park
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - fireofficer:
+    - {world: {x: 27, y: 39}, position: {x:  44, y:  39}} # Fire station
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 26, y: 38}, position: {x: 203, y: 145}} # Big House 1
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - chef:
+    - {world: {x: 26, y: 38}, position: {x: 285, y: 112}} # Restaurant 1
+    - {world: {x: 27, y: 38}, position: {x: 151, y: 208}} # Small house 1
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 27, y: 38}, position: {x: 146, y: 270}} # Small house 2
+    - {world: {x: 27, y: 39}, position: {x: 227, y: 114}} # Small house 4
+    - {world: {x: 26, y: 38}, position: {x: 203, y: 145}} # Big House 1
+    - {world: {x: 28, y: 38}, position: {x:  18, y: 286}} # Small house 5
+  - doctor:
+    - {world: {x: 27, y: 38}, position: {x: 108, y: 200}} # Medium house 1
+    - {world: {x: 26, y: 38}, position: {x: 203, y: 145}} # Big House 1
+    - {world: {x: 27, y: 38}, position: {x:  27, y: 222}} # Big House 2
+- name: "Riverside, KY"
+  file: "media/maps/Riverside, KY/spawnpoints.lua"
+  points:
+  - unemployed:
+    - {world: {x:  17, y:  20}, position: {x: 295, y:  56, z:   0}} # trailer park 1
+    - {world: {x:  17, y:  20}, position: {x: 233, y:  63, z:   0}} # trailer park 2
+    - {world: {x:  20, y:  17}, position: {x:  57, y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  19, y:  17}, position: {x: 114, y: 216, z:   0}} # small house 3
+    - {world: {x:  19, y:  17}, position: {x:  79, y: 258, z:   0}} # small house 4
+    - {world: {x:  21, y:  18}, position: {x:  51, y:  20, z:   0}} # small house 5
+    - {world: {x:  19, y:  18}, position: {x: 260, y:  23, z:   0}} # bar
+  - policeofficer:
+    - {world: {x:  21, y:  18}, position: {x: 219, y:  79, z:   0}} # medium house 3
+    - {world: {x:  20, y:  17}, position: {x:  57, y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  19, y:  17}, position: {x: 114, y: 216, z:   0}} # small house 3
+    - {world: {x:  19, y:  17}, position: {x:  79, y: 258, z:   0}} # small house 4
+    - {world: {x:  21, y:  18}, position: {x:  51, y:  20, z:   0}} # small house 5
+    - {world: {x:  20, y:  18}, position: {x: 284, y: 106, z:   0}} # medium house 1
+    - {world: {x:  20, y:  18}, position: {x: 282, y:  49, z:   0}} # medium house 2
+    - {world: {x:  21, y:  18}, position: {x: 219, y:  79, z:   0}} # medium house 3
+    - {world: {x:  21, y:  18}, position: {x: 227, y:  31, z:   0}} # big house 1
+    - {world: {x:  22, y:  17}, position: {x: 205, y: 270, z:   0}} # big house 3
+    - {world: {x:  21, y:  17}, position: {x:  71, y: 168, z:   0}} # hotel
+  - constructionworker:
+    - {world: {x:  21, y:  17}, position: {x:  71, y: 168, z:   0}} # hotel
+    - {world: {x:  17, y:  20}, position: {x: 295, y:  56, z:   0}} # trailer park 1
+    - {world: {x:  17, y:  20}, position: {x: 233, y:  63, z:   0}} # trailer park 2
+    - {world: {x:  20, y:  17}, position: {x:  57, y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  21, y:  18}, position: {x:  51, y:  20, z:   0}} # small house 5
+    - {world: {x:  22, y:  17}, position: {x: 138, y: 144, z:   0}} # construction site
+    - {world: {x:  20, y:  17}, position: {x:  71, y: 223, z:   0}} # gassoil repair
+    - {world: {x:  19, y:  18}, position: {x: 260, y:  23, z:   0}} # bar
+  - repairman:
+    - {world: {x:  17, y:  20}, position: {x: 295, y:  56, z:   0}} # trailer park 1
+    - {world: {x:  17, y:  20}, position: {x: 233, y:  63, z:   0}} # trailer park 2
+    - {world: {x:  20, y:  17}, position: {x:  57, y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  19, y:  17}, position: {x: 114, y: 216, z:   0}} # small house 3
+    - {world: {x:  19, y:  17}, position: {x:  79, y: 258, z:   0}} # small house 4
+    - {world: {x:  21, y:  18}, position: {x:  51, y:  20, z:   0}} # small house 5
+    - {world: {x:  19, y:  18}, position: {x: 260, y:  23, z:   0}} # bar
+    - {world: {x:  22, y:  17}, position: {x: 138, y: 144, z:   0}} # construction site
+    - {world: {x:  20, y:  17}, position: {x:  71, y: 223, z:   0}} # gassoil repair
+  - securityguard:
+    - {world: {x:  17, y:  20}, position: {x: 295, y:  56, z:   0}} # trailer park 1
+    - {world: {x:  17, y:  20}, position: {x: 233, y:  63, z:   0}} # trailer park 2
+    - {world: {x:  20, y:  17}, position: {x:  57, y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  19, y:  17}, position: {x: 114, y: 216, z:   0}} # small house 3
+    - {world: {x:  19, y:  17}, position: {x:  79, y: 258, z:   0}} # small house 4
+    - {world: {x:  21, y:  18}, position: {x:  51, y:  20, z:   0}} # small house 5
+    - {world: {x:  19, y:  18}, position: {x: 260, y:  23, z:   0}} # bar
+    - {world: {x:  20, y:  18}, position: {x: 284, y: 106, z:   0}} # medium house 1
+    - {world: {x:  20, y:  18}, position: {x: 282, y:  49, z:   0}} # medium house 2
+  - parkranger:
+    - {world: {x:  20, y:  17}, position: {x: 57 , y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  21, y:  18}, position: {x: 51 , y: 20 , z:   0}} # small house 5
+    - {world: {x:  20, y:  18}, position: {x: 282, y: 49 , z:   0}} # medium house 2
+    - {world: {x:  21, y:  18}, position: {x: 219, y: 79 , z:   0}} # medium house 3
+    - {world: {x:  21, y:  18}, position: {x: 227, y: 31 , z:   0}} # big house 1
+    - {world: {x:  22, y:  17}, position: {x: 115, y: 231, z:   0}} # big house 2
+  - fireofficer:
+    - {world: {x:  20, y:  17}, position: {x: 57 , y: 249, z:   0}} # small house 1
+    - {world: {x:  20, y:  17}, position: {x: 266, y: 228, z:   0}} # small house 2
+    - {world: {x:  21, y:  18}, position: {x: 51 , y:  20, z:   0}} # small house 5
+    - {world: {x:  20, y:  18}, position: {x: 282, y:  49, z:   0}} # medium house 2
+    - {world: {x:  21, y:  18}, position: {x: 219, y:  79, z:   0}} # medium house 3
+    - {world: {x:  21, y:  18}, position: {x: 227, y:  31, z:   0}} # big house 1
+    - {world: {x:  22, y:  17}, position: {x: 115, y: 231, z:   0}} # big house 2
+  - chef:
+    - {world: {x:  21, y:  18}, position: {x: 227, y:  31, z:   0}} # big house 1
+    - {world: {x:  22, y:  17}, position: {x: 115, y: 231, z:   0}} # big house 2
+    - {world: {x:  22, y:  17}, position: {x: 205, y: 270, z:   0}} # big house 3
+    - {world: {x:  22, y:  18}, position: {x: 159, y:  87, z:   0}} # big house 4
+    - {world: {x:  20, y:  21}, position: {x: 179, y:  73, z:   0}} # park restaurant
+    - {world: {x:  21, y:  17}, position: {x:  71, y: 168, z:   0}} # hotel
+  - doctor:
+    - {world: {x:  21, y:  18}, position: {x: 227, y:  31, z:   0}} # big house 1
+    - {world: {x:  22, y:  17}, position: {x: 115, y: 231, z:   0}} # big house 2
+    - {world: {x:  22, y:  17}, position: {x: 205, y: 270, z:   0}} # big house 3
+    - {world: {x:  22, y:  18}, position: {x: 159, y:  87, z:   0}} # big house 4
+    - {world: {x:  21, y:  17}, position: {x: 172, y: 171, z:   0}} # pharmahug

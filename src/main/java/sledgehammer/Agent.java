@@ -50,29 +50,37 @@ public class Agent {
      *             exclusively.
      */
     public static void premain(String args, Instrumentation inst) {
-        // Make sure that the Sledgehammer folders exist. @formatter:off
-		if(new File("natives/"  ).mkdirs()) {
+        // Make sure that the Sledgehammer folders exist.
+		if(new File("natives/").mkdirs()) {
 		    System.out.println("Created directory: .../natives/");
 		}
-		if(new File("saves/"    ).mkdirs()) {
+		if(new File("saves/").mkdirs()) {
 		    System.out.println("Created directory: .../saves/");
 		}
-		if(new File("plugins/"  ).mkdirs()) {
+		if(new File("plugins/").mkdirs()) {
 		    System.out.println("Created directory: .../plugins/");
 		}
-		if(new File("settings/" ).mkdirs()) {
+		if(new File("settings/").mkdirs()) {
 		    System.out.println("Created directory: .../settings/");
 		}
         if(new File("steamapps/").mkdirs()) {
 		    System.out.println("Created directory: .../steamapps/");
         }
-        if(new File("lang/"  ).mkdirs()) {
+        if(new File("lang/").mkdirs()) {
 		    System.out.println("Created directory: .../lang/");
 		}
-         if(new File("lua/"  ).mkdirs()) {
+		if(new File("lua/").mkdirs()) {
 		    System.out.println("Created directory: .../lua/");
 		}
-		// @formatter:on
+		if(new File("cache/").mkdirs()) {
+		    System.out.println("Created directory: .../cache/");
+		}
+        if(new File("logs/").mkdirs()) {
+            System.out.println("Created directory: .../logs/");
+        }
+        if(new File("cache/map/").mkdirs()) {
+            System.out.println("Created directory: .../cache/map/");
+        }
         File craftboid = new File("natives/CraftBoid.jar");
         // Load the Settings for Sledgehammer.
         Settings settings = Settings.getInstance();
