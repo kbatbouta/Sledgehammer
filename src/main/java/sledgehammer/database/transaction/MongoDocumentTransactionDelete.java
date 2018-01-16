@@ -22,6 +22,8 @@ package sledgehammer.database.transaction;
 
 import com.mongodb.BasicDBObject;
 
+import com.mongodb.DBCollection;
+import sledgehammer.Settings;
 import sledgehammer.database.MongoCollection;
 
 public class MongoDocumentTransactionDelete extends MongoDocumentTransaction {
@@ -37,9 +39,14 @@ public class MongoDocumentTransactionDelete extends MongoDocumentTransaction {
 
     @Override
     public void run() {
+        MongoCollection collection = getMongoCollection();
+        DBCollection dbCollection = collection.getDBCollection();
         String field = getField();
         Object value = getValue();
-        getMongoCollection().getDBCollection().remove(new BasicDBObject(field, value));
+        if(Settings.getInstance().isDebug()) {
+            System.out.println("(" + dbCollection.getName() + "): Deleting Document (Field:" + field + " Value:" + value + ")");
+        }
+        dbCollection.remove(new BasicDBObject(field, value));
     }
 
     public String getField() {

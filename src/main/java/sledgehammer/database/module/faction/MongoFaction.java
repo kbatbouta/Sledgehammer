@@ -195,4 +195,9 @@ public class MongoFaction extends MongoDocument {
     public String getFactionRawColor() {
         return this.color;
     }
+
+    public String getFactionColorTag() {
+        return this.colorCache;
+    }
+
 }

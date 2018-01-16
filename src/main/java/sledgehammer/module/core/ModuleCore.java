@@ -30,6 +30,7 @@ import java.util.UUID;
 import com.mongodb.DBCursor;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoPeriodicMessage;
@@ -39,6 +40,7 @@ import sledgehammer.event.core.CommandEvent;
 import sledgehammer.event.core.player.HandShakeEvent;
 import sledgehammer.event.core.player.PlayerJoinEvent;
 import sledgehammer.language.LanguagePackage;
+import sledgehammer.lua.LuaObject;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
@@ -168,6 +170,9 @@ public class ModuleCore extends Module {
         String clientCommand = event.getCommand();
         final Player player = event.getPlayer();
         if (clientCommand.equalsIgnoreCase("handshake")) {
+            KahluaTable table = LuaObject.newTable();
+            table.rawset("debug", Settings.getInstance().isDebug());
+            SledgeHammer.instance.sendServerCommand(player, "sledgehammer.module.core", "debug", table);
             // Grab the Lua code from all Modules and send it to the Player.
             SendLua sendLua = getPluginManager().getLua(player);
             sendLua.send();
@@ -203,11 +208,16 @@ public class ModuleCore extends Module {
             }
             String raw = oRaw.toString();
             Object oChannelId = command_table.rawget("channel_id");
-            if (oChannelId == null) {
-                errln("Warning: Player " + player.getName() + " sent a command with a undefined ChatChannel ID.");
-                return;
+            UUID channelId = null;
+            if(oChannelId != null) {
+                try {
+                    channelId = UUID.fromString(oChannelId.toString());
+                } catch(Exception e) {
+                    channelId = getChatModule().getGlobalChatChannel().getUniqueId();
+                }
+            } else {
+                channelId = getChatModule().getGlobalChatChannel().getUniqueId();
             }
-            UUID channelId = UUID.fromString(command_table.rawget("channel_id").toString());
             Command command = new Command(raw);
             command.setChannelId(channelId);
             command.setPlayer(event.getPlayer());

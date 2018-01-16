@@ -167,7 +167,7 @@ function MainScreen:prerender()
         end
     end
     local mainScreen = MainScreenState.getInstance();
-    if mainScreen ~= nil and (ISDemoPopup.instance == nil) then
+    if mainScreen ~= nil and (ISDemoPopup.instance == nil) and (ISScoreboard.instance and not ISScoreboard.instance:isVisible()) then
         local length = tLength(MainScreen.render_functions) - 1;
         for index = 0, length, 1 do
             MainScreen.render_functions[index](self);
@@ -176,6 +176,7 @@ function MainScreen:prerender()
 end
 
 function MainScreen:onFocus(x, y)
+    if ISScoreboard.instance and ISScoreboard.instance:isVisible() then return; end
     local length = tLength(MainScreen.focus_functions) - 1;
     for index = 0, length, 1 do
         MainScreen.focus_functions[index](self, x, y);

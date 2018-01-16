@@ -23,6 +23,7 @@ package sledgehammer.module.faction;
 import java.util.ArrayList;
 import java.util.List;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.event.*;
 import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.event.core.player.*;
@@ -59,14 +60,8 @@ public class FactionsEventHandler implements EventListener {
     public void onEvent(Event event) {
         String ID = event.getID();
         switch (ID) {
-            case PlayerJoinEvent.ID:
-                handlePlayerJoinEvent((PlayerJoinEvent) event);
-                break;
             case ConnectEvent.ID:
                 handleConnectEvent((ConnectEvent) event);
-                break;
-            case DisconnectEvent.ID:
-                handleDisconnectEvent((DisconnectEvent) event);
                 break;
             case PlayerCreatedEvent.ID:
                 handlePlayerCreatedEvent((PlayerCreatedEvent) event);
@@ -74,8 +69,11 @@ public class FactionsEventHandler implements EventListener {
             case RequestChannelsEvent.ID:
                 handleRequestChannelsEvent((RequestChannelsEvent) event);
                 break;
-            case HandShakeEvent.ID:
-                handleHandShakeEvent((HandShakeEvent) event);
+            case PlayerChatReadyEvent.ID:
+                handlePlayerChatReadyEvent((PlayerChatReadyEvent) event);
+                break;
+            case DisconnectEvent.ID:
+                handleDisconnectEvent((DisconnectEvent) event);
                 break;
         }
     }
@@ -86,9 +84,8 @@ public class FactionsEventHandler implements EventListener {
         return new String[]{
                 PlayerCreatedEvent.ID  ,
                 ConnectEvent.ID        ,
-                HandShakeEvent.ID      ,
                 RequestChannelsEvent.ID,
-                PlayerJoinEvent.ID     ,
+                PlayerChatReadyEvent.ID,
                 DisconnectEvent.ID
         };
         // @formatter:on
@@ -96,7 +93,6 @@ public class FactionsEventHandler implements EventListener {
 
     @Override
     public boolean runSecondary() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -118,7 +114,18 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
-    private void handlePlayerJoinEvent(PlayerJoinEvent event) {
+    private void handleRequestChannelsEvent(RequestChannelsEvent event) {
+        Player player = event.getPlayer();
+        FactionMember factionMember = module.getFactionMember(player);
+        if (factionMember != null) {
+            Faction faction = factionMember.getFaction();
+            ChatChannel chatChannel = faction.getChatChannel();
+            chatChannel.addPlayer(player, false);
+            event.addChatChannel(chatChannel);
+        }
+    }
+
+    private void handlePlayerChatReadyEvent(PlayerChatReadyEvent event) {
         Player player = event.getPlayer();
         List<FactionInvite> invites = module.getInvitesForPlayer(player);
         if (invites != null && invites.size() > 0) {
@@ -134,29 +141,24 @@ public class FactionsEventHandler implements EventListener {
                     invitesToDelete.add(factionInvite);
                     continue;
                 }
-                player.sendChatMessage(factionInvite.getUniqueId() + " has invited you to join the faction "
-                        + faction.getFactionName() + ".");
+                Player playerInvitee = SledgeHammer.instance.getPlayer(factionInvite.getUniqueId());
+                if (playerInvitee == null) {
+                    SledgeHammer.instance.getOfflinePlayer(factionInvite.getUniqueId());
+                }
+                if (playerInvitee != null) {
+                    player.sendChatMessage(playerInvitee.getUsername() + " has invited you to join the faction "
+                            + faction.getFactionName() + ".");
+                } else {
+                    player.sendChatMessage("You have been invited to join the faction "
+                            + faction.getFactionName() + ".");
+                }
             }
             for (FactionInvite invite : invitesToDelete) {
                 module.deleteInvite(invite);
             }
-            player.sendChatMessage("Type \'/faction accept <FACTION>\' to accept.");
+            player.sendChatMessage("Type \'/faction accept \"faction\"\' to accept.");
             player.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
             player.sendChatMessage("To reject all invitations, type \'/faction reject all\'.");
-        }
-    }
-
-    private void handleHandShakeEvent(HandShakeEvent event) {
-    }
-
-    private void handleRequestChannelsEvent(RequestChannelsEvent event) {
-        Player player = event.getPlayer();
-        FactionMember factionMember = module.getFactionMember(player);
-        if (factionMember != null) {
-            Faction faction = factionMember.getFaction();
-            ChatChannel chatChannel = faction.getChatChannel();
-            chatChannel.addPlayer(player, false);
-            event.addChatChannel(chatChannel);
         }
     }
 

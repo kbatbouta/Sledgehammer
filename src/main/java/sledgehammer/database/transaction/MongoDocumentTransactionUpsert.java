@@ -21,8 +21,10 @@
 package sledgehammer.database.transaction;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 
+import sledgehammer.Settings;
 import sledgehammer.database.MongoCollection;
 
 public class MongoDocumentTransactionUpsert extends MongoDocumentTransaction {
@@ -40,11 +42,17 @@ public class MongoDocumentTransactionUpsert extends MongoDocumentTransaction {
 
     @Override
     public void run() {
+        MongoCollection collection = getMongoCollection();
+        DBCollection dbCollection = collection.getDBCollection();
         String field = getField();
         DBObject object = getObject();
         BasicDBObject append = new BasicDBObject();
         append.append("$set", object);
-        getMongoCollection().getDBCollection().update(new BasicDBObject(field, object.get(field)), append, true, false);
+        Object id = object.get(field);
+        if(Settings.getInstance().isDebug()) {
+            System.out.println("(" + dbCollection.getName() + "): Upserting document: (field:" + field + " id:" + id + ")");
+        }
+        dbCollection.update(new BasicDBObject(field, object.get(field)), append, true, false);
     }
 
     public Object getLock() {

@@ -33,6 +33,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
@@ -40,6 +41,7 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.chat.ChatMessageEvent;
 import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.event.core.player.ClientEvent;
+import sledgehammer.event.core.player.PlayerChatReadyEvent;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatHistory;
 import sledgehammer.lua.chat.ChatMessage;
@@ -169,6 +171,8 @@ public class ModuleChat extends MongoModule {
                 }
             }
             event.respond(request);
+            // Let the modules know that the player is ready to be sent messages.
+            SledgeHammer.instance.handle(new PlayerChatReadyEvent(player));
         } else if (command.equalsIgnoreCase("sendChatMessage")) {
             MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages);
             KahluaTable table = (KahluaTable) event.getTable().rawget("message");
@@ -287,7 +291,7 @@ public class ModuleChat extends MongoModule {
             // Create the History container.
             ChatHistory chatHistory = new ChatHistory(chatChannel);
             chatChannel.setHistory(chatHistory);
-            if(!chatChannel.saveHistory()) {
+            if (!chatChannel.saveHistory()) {
                 continue;
             }
             // Grab the chat messages from the message collection for this history.

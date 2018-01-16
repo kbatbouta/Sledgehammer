@@ -30,7 +30,7 @@ require "Sledgehammer/Module"
 ----------------------------------------------------------------
 SledgeHammer = class(function(o)
 	 -- Debug flag for global debugging of SledgeHammer's Lua framework.
-	 o.DEBUG = true;
+	 o.DEBUG = false;
 	 -- List of the modules.
 	 o.modules = {};
 	 -- List of the modules by their Names.
@@ -334,7 +334,9 @@ function SledgeHammer:onClientCommand(mod, command, args)
 		end
 		-- If this is the core, route directly and return.
 		if modName == "core" then
-			if command == "reload" then
+			if command == "debug" then
+				self.DEBUG = args.debug;
+			elseif command == "reload" then
 				self:stopModules();
 				self:unloadModules();
 				self.modules     = {}   ;

@@ -20,6 +20,7 @@
 
 package sledgehammer.lua.core.send;
 
+import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
@@ -34,11 +35,6 @@ import java.io.FileReader;
  * @author Jab
  */
 public class SendLua extends Send {
-
-    /**
-     * If set to true, the lua code will be packaged line by line with preservation, so that the code can be debugged.
-     */
-    public static boolean debugLua = true;
 
     /**
      * The string of the lua code to send to the Player.
@@ -147,7 +143,7 @@ public class SendLua extends Send {
      */
     public void send() {
         Player player = getPlayer();
-        if(player == null) {
+        if (player == null) {
             errln("Player is not set. Cannot send the SendLua Object.");
             return;
         }
@@ -196,6 +192,7 @@ public class SendLua extends Send {
      * @return Returns the String equivalent of the Lua Files.
      */
     public static String packageLuaFiles(File... files) {
+        boolean debug = Settings.getInstance().isDebug();
         StringBuilder sb = new StringBuilder();
         for (File file : files) {
             sb.append(" ");
@@ -226,10 +223,6 @@ public class SendLua extends Send {
                             space = false;
                             sb.append(charCurrent);
                         }
-                    }
-                    // If the lua needs to be debugged, then line numbers will be preserved.
-                    if (debugLua) {
-                        sb.append("\n");
                     }
                 }
             } catch (Exception e) {

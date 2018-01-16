@@ -282,7 +282,7 @@ public class ModuleFactions extends MongoModule {
         // Go through each entry.
         while (cursor.hasNext()) {
             // Create an object for each entry.
-            MongoFactionInvite mongoFactionInvite = new MongoFactionInvite(collectionFactionMembers, cursor.next());
+            MongoFactionInvite mongoFactionInvite = new MongoFactionInvite(collectionFactionInvites, cursor.next());
             // Add to the map with the UUID of the MongoFactionInvite.
             mapMongoFactionInvites.put(mongoFactionInvite.getUniqueId(), mongoFactionInvite);
         }
@@ -484,6 +484,10 @@ public class ModuleFactions extends MongoModule {
         try {
             // Process the invite.
             createFactionInvite(factionOwner, commander.getUniqueId(), playerInvited.getUniqueId());
+            playerInvited.sendChatMessage("You have been invited to join the faction "
+                    + factionOwner.getFactionName() + ".");
+            playerInvited.sendChatMessage("Type \'/faction accept \"faction\"\' to accept.");
+            playerInvited.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
             response.set(Result.SUCCESS, lang.getString("command_faction_invite_success", language, fieldPlayer));
             // TODO: Log message.
         } catch (Exception e) {

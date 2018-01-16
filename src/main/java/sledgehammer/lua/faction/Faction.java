@@ -105,8 +105,6 @@ public class Faction extends MongoLuaObject<MongoFaction> {
             Player player = SledgeHammer.instance.getPlayer(factionMember.getPlayerId());
             if (player != null) {
                 getChatChannel().addPlayer(player, true);
-            } else {
-                errln("addMember() -> Player is null.");
             }
         }
         return returned;
