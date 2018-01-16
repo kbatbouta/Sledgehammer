@@ -37,14 +37,9 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
 import sledgehammer.database.module.chat.MongoChatMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.enums.Result;
-import sledgehammer.event.*;
 import sledgehammer.event.chat.ChatMessageEvent;
 import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.event.core.player.ClientEvent;
-import sledgehammer.event.core.player.DisconnectEvent;
-import sledgehammer.interfaces.CommandListener;
-import sledgehammer.interfaces.EventListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatHistory;
 import sledgehammer.lua.chat.ChatMessage;
@@ -53,8 +48,6 @@ import sledgehammer.lua.chat.request.RequestChatHistory;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.plugin.MongoModule;
-import sledgehammer.util.Command;
-import sledgehammer.util.Response;
 
 /**
  * TODO: Document.
@@ -70,7 +63,6 @@ public class ModuleChat extends MongoModule {
     private ChatChannel all;
     private ChatChannel global;
     private ChatChannel local;
-    private ChatChannel pms;
     private ChatChannel espanol;
     private ChatEventListener eventListener;
     private ChatCommandListener commandListener;
@@ -98,7 +90,6 @@ public class ModuleChat extends MongoModule {
         // Handle chat command initializations.
         addDefaultPermission("sledgehammer.chat.global");
         addDefaultPermission("sledgehammer.chat.local");
-        addDefaultPermission("sledgehammer.chat.pm");
         addDefaultPermission("sledgehammer.chat.command.espanol");
         // @formatter:on
         loadMongoDocuments();
@@ -137,7 +128,6 @@ public class ModuleChat extends MongoModule {
 		this.all                     = null;
 		this.global                  = null;
 		this.local                   = null;
-		this.pms                     = null;
 		// @formatter:on
     }
 
@@ -161,10 +151,6 @@ public class ModuleChat extends MongoModule {
             if (local.hasAccess(player)) {
                 local.addPlayer(player, false);
                 request.addChannel(local);
-            }
-            if (pms.hasAccess(player)) {
-                pms.addPlayer(player, false);
-                request.addChannel(pms);
             }
             if (espanol.hasAccess(player)) {
                 espanol.addPlayer(player, false);
@@ -301,6 +287,9 @@ public class ModuleChat extends MongoModule {
             // Create the History container.
             ChatHistory chatHistory = new ChatHistory(chatChannel);
             chatChannel.setHistory(chatHistory);
+            if(!chatChannel.saveHistory()) {
+                continue;
+            }
             // Grab the chat messages from the message collection for this history.
             List<ChatMessage> listChatMessages = getChatMessages(chatChannel.getUniqueId(), ChatHistory.MAX_SIZE);
             chatHistory.addChatMessages(listChatMessages, false);
@@ -387,15 +376,6 @@ public class ModuleChat extends MongoModule {
             local = createChatChannel(channelName, channelDescription, channelPermissionNode, false,
                     true, false, false, true);
         }
-        // Create the PM's ChatChannel.
-        ChatChannel pms = getChatChannel("PM's");
-        if (pms == null) {
-            channelName = "PM's";
-            channelDescription = "PM channel for the server.";
-            channelPermissionNode = "sledgehammer.chat.pm";
-            pms = createChatChannel(channelName, channelDescription, channelPermissionNode, false,
-                    true, false, false, false);
-        }
         ChatChannel espanol = getChatChannel("Espanol");
         if (espanol == null) {
             channelName = "Espanol";
@@ -406,7 +386,6 @@ public class ModuleChat extends MongoModule {
         }
         setGlobalChatChannel(global);
         setLocalChatChannel(local);
-        setPMsChatChannel(pms);
         setEspanolChannel(espanol);
     }
 
@@ -474,14 +453,6 @@ public class ModuleChat extends MongoModule {
      */
     private void setLocalChatChannel(ChatChannel local) {
         this.local = local;
-    }
-
-    public ChatChannel getPMsChatChannel() {
-        return this.pms;
-    }
-
-    private void setPMsChatChannel(ChatChannel pms) {
-        this.pms = pms;
     }
 
     private void loadMongoChatBroadcasts() {

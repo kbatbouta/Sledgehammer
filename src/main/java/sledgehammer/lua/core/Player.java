@@ -206,11 +206,19 @@ public class Player extends MongoLuaObject<MongoPlayer> {
 
     @Override
     public void onExport() {
+        int nativeId = -1;
+
+        IsoPlayer iso = getIso();
+        if(iso != null) {
+            nativeId = iso.getOnlineID();
+        }
+
         // @formatter:off
-		set("id"      , getUniqueId().toString());
-		set("username", getUsername()           );
-		set("nickname", getNickname()           );
-		set("color"   , getColor()              );
+		set("id"       , getUniqueId().toString());
+		set("native_id", nativeId                );
+		set("username" , getUsername()           );
+		set("nickname" , getNickname()           );
+		set("color"    , getColor()              );
 		// @formatter:on
     }
 

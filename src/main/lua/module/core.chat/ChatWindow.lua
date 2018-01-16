@@ -347,26 +347,30 @@ function ChatWindow:handleMessage(message)
 		deleted            = false,
 		muted              = false
 	};
-	if send then
-		-- Create a SendChatMessage LuaObject.
-		local args = {
-			__name  = "SendChatMessage",
-			message = lua_table
-		};
-		-- Send the LuaObject to the server.
-		sendClientCommand("core.chat", "sendChatMessage", args);
-	else
-		-- Apply the System values to the LuaObject. 
-		lua_table.origin            = "system";
-		lua_table.player_name       = nil     ;
-		lua_table.timestamp_printed = nil     ;
-		-- Create a local ChatMessage.
-		local chat_message = ChatMessage();
-		-- Initialize the local ChatMessage.
-		chat_message:initialize(lua_table, chat_channel);
-		-- Add it to the ChatChannel.
-		chat_channel:addChatMessage(chat_message);
-	end
+    if send then
+        -- Create a SendChatMessage LuaObject.
+        local args = {
+            __name  = "SendChatMessage",
+            message = lua_table
+        };
+        -- Send the LuaObject to the server.
+        sendClientCommand("core.chat", "sendChatMessage", args);
+        -- If the chat is local, print the text over the head of the player.
+        if not chat_channel.flags.global then
+            getPlayer():Say(message);
+        end
+    else
+        -- Apply the System values to the LuaObject.
+        lua_table.origin            = "system";
+        lua_table.player_name       = nil     ;
+        lua_table.timestamp_printed = nil     ;
+        -- Create a local ChatMessage.
+        local chat_message = ChatMessage();
+        -- Initialize the local ChatMessage.
+        chat_message:initialize(lua_table, chat_channel);
+        -- Add it to the ChatChannel.
+        chat_channel:addChatMessage(chat_message);
+        end
 end
 
 ----------------------------------------------------------------

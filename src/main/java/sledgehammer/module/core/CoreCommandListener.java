@@ -67,7 +67,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
         // @formatter:off
 		mapTooltips = new HashMap<>();
 		mapTooltips.put("colors", "Displays all supported colors on this server.");
-		mapTooltips.put("pm", "Private messages a player. ex: /pm \"player\" \"message\"");
+//		mapTooltips.put("pm", "Private messages a player. ex: /pm \"player\" \"message\"");
 		mapTooltips.put("warn", "Warns a player. ex: /warn \"player\" \"message\"");
 		mapTooltips.put("broadcast", "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\"");
 		mapTooltips.put("commitsuicide", "End your character's life.");
@@ -83,7 +83,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 				+ NEW_LINE + " -S: SteamID flag (ID required!) ex: /unban -S \"11330\""
 				+ NEW_LINE + " -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\"");
 		mapContexts = new HashMap<>();
-		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
+//		mapContexts.put("pm"           , "sledgehammer.core.basic.pm"             );
 		mapContexts.put("colors"       , "sledgehammer.core.basic.colors"         );
 		mapContexts.put("commitsuicide", "sledgehammer.core.basic.commitsuicide"  );
 		mapContexts.put("properties"   , "sledgehammer.core.moderation.properties");
@@ -91,7 +91,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
-		module.addDefaultPermission(getPermissionNode("pm"));
+//		module.addDefaultPermission(getPermissionNode("pm"));
 		module.addDefaultPermission(getPermissionNode("colors"));
 		module.addDefaultPermission(getPermissionNode("commitsuicide"));
 		// @formatter:on
@@ -118,7 +118,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
         // @formatter:off
 		return new String[] { 
 				"colors", 
-				"pm", 
+//				"pm",
 				"warn", 
 				"broadcast", 
 				"commitsuicide", 
@@ -157,6 +157,7 @@ public class CoreCommandListener extends Printable implements CommandListener {
                 return;
             }
         }
+        /*
         if (command.startsWith("pm")) {
             if (commander.hasPermission(getPermissionNode("pm"))) {
                 if (args.length >= 2) {
@@ -191,7 +192,8 @@ public class CoreCommandListener extends Printable implements CommandListener {
             } else {
                 r.deny();
             }
-        } else if (command.startsWith("warn")) {
+        } */
+        if (command.startsWith("warn")) {
             if (commander.hasPermission(getPermissionNode("warn"))) {
                 if (commander.isAdministrator()) {
                     if (args.length >= 2) {
