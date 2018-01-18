@@ -368,11 +368,11 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
             if (ModuleDiscord.DEBUG) {
                 println("[DISCORD] -> #" + channelName + ": " + username + ": " + COLOR_WHITE + " " + output);
             }
-            if (!channelName.equalsIgnoreCase("console") && channelName.startsWith("channel_")) {
+            if (channelName.startsWith("channel_")) {
                 channelName = channelName.split("channel_")[1];
             }
             ChatChannel c = module.getChatChannel(channelName);
-            if (c != null && c.isPublicChannel()) {
+            if (c != null) {
                 ChatMessage chatMessage = module.createChatMessage(username + " : " + output);
                 chatMessage.setOrigin(ChatMessage.ORIGIN_DISCORD, false);
                 chatMessage.setChannelId(c.getUniqueId(), false);
