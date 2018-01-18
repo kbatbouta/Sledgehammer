@@ -68,13 +68,17 @@ public class DiscordEventListener implements EventListener {
             }
             compiled = ChatTags.stripTags(compiled, false);
             if (chatChannelName.equalsIgnoreCase("local")) {
-                if (!message.getMessage().equalsIgnoreCase("ZzzZZZzzzz")) {
-                    module.getBot().say("console", false, "[" + chatChannel.getChannelName() + "] : " + compiled);
+                if (message.getMessage().equalsIgnoreCase("ZzzZZZzzzz")) {
                     return;
                 }
+                module.getBot().say("console", false, "[" + chatChannel.getChannelName() + "] : " + compiled);
+                return;
             } else {
-                String channelName = "channel_" + DiscordBot.toAsciiString(chatChannel.getChannelName());
-                Channel channel = module.getBot().getChannel(channelName);
+                String channelName = DiscordBot.toAsciiString(chatChannel.getChannelName());
+                Channel channel = module.getBot().getChannel("channel_" + channelName);
+                if (channel == null) {
+                    channel = module.getBot().getChannel(channelName);
+                }
                 if (channel != null) {
                     module.getBot().say(channelName, false, compiled);
                     return;
@@ -88,5 +92,4 @@ public class DiscordEventListener implements EventListener {
     public boolean runSecondary() {
         return false;
     }
-
 }
