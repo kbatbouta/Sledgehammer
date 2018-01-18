@@ -112,6 +112,21 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
                 // Assign the value directly.
                 returned = nodeSpecific.getFlag();
             }
+        } else {
+            List<Node> listAllPermissionNodes = getAllPermissionNodes();
+            if(listAllPermissionNodes.size() > 0) {
+                Node superNode = null;
+                for(Node permissionNodeNext : listAllPermissionNodes) {
+                    if(permissionNodeNext.isSubNode(node)) {
+                        if(superNode == null || superNode.isSubNode(permissionNodeNext)) {
+                            superNode = permissionNodeNext;
+                        }
+                    }
+                }
+                if(superNode != null) {
+                    returned = superNode.getFlag();
+                }
+            }
         }
         // Return the result.
         return returned;

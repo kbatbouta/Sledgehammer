@@ -27,6 +27,7 @@ import sledgehammer.interfaces.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
+import sledgehammer.lua.permissions.PermissionGroup;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
@@ -80,7 +81,16 @@ public class PermissionsCommandListener implements CommandListener {
             if (args.length > 0) {
                 command = args[0];
                 args = Command.getSubArgs(args, 1);
-                if (command.equals("help")) {
+                if (command.equals("test")) {
+                  if(!commander.isAdministrator()) {
+                      r.deny();
+                      return;
+                  }
+                  String permission = args[0];
+                  PermissionGroup groupDefault = module.getDefaultPermissionGroup();
+                  boolean flag = groupDefault.hasPermission(permission);
+                  r.set(Result.SUCCESS, "[" + groupDefault.getGroupName() + "] Node: " + permission + " = " + flag + ".");
+                } else if (command.equals("help")) {
                     processHelpMessage(commander, r);
                 } else if (command.equalsIgnoreCase("group")) {
                     if (args.length > 0) {
