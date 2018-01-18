@@ -29,12 +29,29 @@ import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
 
+/**
+ * TODO: Document.
+ *
+ * @author Jab
+ */
 public class DiscordEventListener implements EventListener {
 
     private ModuleDiscord module;
 
+    /**
+     * Main constructor.
+     *
+     * @param module The Discord Module instance using the EventListener.
+     */
     DiscordEventListener(ModuleDiscord module) {
         this.module = module;
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        if (event.getID().equals(ChatMessageEvent.ID)) {
+            handleChatEvent((ChatMessageEvent) event);
+        }
     }
 
     @Override
@@ -43,10 +60,8 @@ public class DiscordEventListener implements EventListener {
     }
 
     @Override
-    public void onEvent(Event event) {
-        if (event.getID().equals(ChatMessageEvent.ID)) {
-            handleChatEvent((ChatMessageEvent) event);
-        }
+    public boolean runSecondary() {
+        return false;
     }
 
     private void handleChatEvent(ChatMessageEvent event) {
@@ -86,10 +101,5 @@ public class DiscordEventListener implements EventListener {
             }
             module.getBot().say("console", false, "[" + chatChannel.getChannelName() + "] : " + compiled);
         }
-    }
-
-    @Override
-    public boolean runSecondary() {
-        return false;
     }
 }

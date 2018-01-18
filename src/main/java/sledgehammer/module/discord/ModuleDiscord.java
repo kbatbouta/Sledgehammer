@@ -206,5 +206,4 @@ public class ModuleDiscord extends MongoModule {
     public Channel getConsoleChannel() {
         return getBot().getConsoleChannel();
     }
-
 }

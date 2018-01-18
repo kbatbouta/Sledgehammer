@@ -251,6 +251,24 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
         return connectedUsingToken;
     }
 
+    public void warn(boolean alert, String string) {
+        if (string == null || string.isEmpty())
+            return;
+        say(module.getSettings().getModeratorChannel(), alert, "[WARNING]: " + string);
+    }
+
+    public void info(boolean alert, String string) {
+        if (string == null || string.isEmpty())
+            return;
+        say(module.getSettings().getModeratorChannel(), alert, "[INFO]: " + string);
+    }
+
+    public void staff(String staffMember, String string) {
+        if (string == null || string.isEmpty())
+            return;
+        say(module.getSettings().getModeratorChannel(), false, "[STAFF][" + staffMember + "]: " + string);
+    }
+
     public synchronized void say(String channelName, boolean alert, String... messages) {
         if (server == null) {
             return;
@@ -296,24 +314,6 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
         if (channelQueue.size() > 5) {
             ZUtil.compactList(channelQueue);
         }
-    }
-
-    public void warn(boolean alert, String string) {
-        if (string == null || string.isEmpty())
-            return;
-        say(module.getSettings().getModeratorChannel(), alert, "[WARNING]: " + string);
-    }
-
-    public void info(boolean alert, String string) {
-        if (string == null || string.isEmpty())
-            return;
-        say(module.getSettings().getModeratorChannel(), alert, "[INFO]: " + string);
-    }
-
-    public void staff(String staffMember, String string) {
-        if (string == null || string.isEmpty())
-            return;
-        say(module.getSettings().getModeratorChannel(), false, "[STAFF][" + staffMember + "]: " + string);
     }
 
     /**
@@ -373,7 +373,7 @@ public class DiscordBot extends Printable implements FutureCallback<DiscordAPI>,
             }
             ChatChannel c = module.getChatChannel(channelName);
             if (c != null) {
-                ChatMessage chatMessage = module.createChatMessage(username + " : " + output);
+                ChatMessage chatMessage = module.createChatMessage("[Discord] " + username + " : " + output);
                 chatMessage.setOrigin(ChatMessage.ORIGIN_DISCORD, false);
                 chatMessage.setChannelId(c.getUniqueId(), false);
                 chatMessage.save();
