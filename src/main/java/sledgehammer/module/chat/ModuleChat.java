@@ -186,7 +186,7 @@ public class ModuleChat extends MongoModule {
             }
             ChatMessageEvent chatMessageEvent = new ChatMessageEvent(chatMessage);
             handleEvent(chatMessageEvent);
-            chatChannel.getHistory().addChatMessage(chatMessage, true);
+            chatChannel.addChatMessage(chatMessage);
             chatMessage.save();
         }
     }

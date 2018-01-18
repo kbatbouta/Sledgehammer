@@ -38,20 +38,27 @@ import sledgehammer.lua.core.Player;
  */
 public class ChatHistory extends LuaTable {
 
-    /** The Maximum amount of messages stored in the ChatChannel's history. */
+    /**
+     * The Maximum amount of messages stored in the ChatChannel's history.
+     */
     public static final int MAX_SIZE = 10;
-    /** The LinkedList to store the ChatMessages. */
+    /**
+     * The LinkedList to store the ChatMessages.
+     */
     private LinkedList<ChatMessage> listMessages;
-    /** The ChatChannel using this ChatHistory. */
+    /**
+     * The ChatChannel using this ChatHistory.
+     */
     private ChatChannel chatChannel;
-    /** The Send Object to send the ChatMessages. */
+    /**
+     * The Send Object to send the ChatMessages.
+     */
     private SendChatMessages sendChatMessages;
 
     /**
      * Main constructor.
      *
-     * @param chatChannel
-     *            The ChatChannel using the history.
+     * @param chatChannel The ChatChannel using the history.
      */
     public ChatHistory(ChatChannel chatChannel) {
         super("ChatHistory");
@@ -96,35 +103,48 @@ public class ChatHistory extends LuaTable {
      * @param chatMessage The ChatMessage being added to the history.
      */
     public void addChatMessage(ChatMessage chatMessage, boolean send) {
-        // Make sure the history doesn't already contain the ChatMessage.
-        if (!listMessages.contains(chatMessage)) {
-            // Add the ChatMessage to the history.
-            listMessages.add(chatMessage);
-            if (send) {
-                sendChatMessages.clearChatMessages();
-                sendChatMessages.addChatMessage(chatMessage);
-                if (chatChannel.isGlobalChannel()) {
-                    SledgeHammer.instance.send(sendChatMessages, chatChannel.getPlayers());
-                } else {
-                    Player chatMessagePlayer = chatMessage.getPlayer();
-                    List<Player> listPlayers = new ArrayList<>();
-                    if (chatMessagePlayer != null) {
-                        for (Player player : chatChannel.getPlayers()) {
-                            if (player.isWithinLocalRange(chatMessagePlayer)) {
-                                listPlayers.add(player);
-                            }
-                        }
-                    }
-                    if(listPlayers.size() > 0) {
-                        SledgeHammer.instance.send(sendChatMessages, listPlayers);
+        if (chatChannel.saveHistory()) {
+            // Make sure the history doesn't already contain the ChatMessage.
+            if (!listMessages.contains(chatMessage)) {
+                // Add the ChatMessage to the history.
+                listMessages.add(chatMessage);
+                if (send) {
+
+                }
+                // Check if the history is at message capacity.
+                if (listMessages.size() > MAX_SIZE) {
+                    // If it is, grab the oldest ChatMessage to the list and delete it.
+                    listMessages.removeFirst();
+                    // chatMessageRemoved.delete();
+                }
+            }
+            // If the ChatMessage is already stored, it does not need to be sent again.
+            else {
+                return;
+            }
+        }
+        if (send) {
+            sendChatMessage(chatMessage);
+        }
+    }
+
+    public void sendChatMessage(ChatMessage chatMessage) {
+        sendChatMessages.clearChatMessages();
+        sendChatMessages.addChatMessage(chatMessage);
+        if (chatChannel.isGlobalChannel()) {
+            SledgeHammer.instance.send(sendChatMessages, chatChannel.getPlayers());
+        } else {
+            Player chatMessagePlayer = chatMessage.getPlayer();
+            List<Player> listPlayers = new ArrayList<>();
+            if (chatMessagePlayer != null) {
+                for (Player player : chatChannel.getPlayers()) {
+                    if (player.isWithinLocalRange(chatMessagePlayer)) {
+                        listPlayers.add(player);
                     }
                 }
             }
-            // Check if the history is at message capacity.
-            if (listMessages.size() > MAX_SIZE) {
-                // If it is, grab the oldest ChatMessage to the list and delete it.
-                listMessages.removeFirst();
-                // chatMessageRemoved.delete();
+            if (listPlayers.size() > 0) {
+                SledgeHammer.instance.send(sendChatMessages, listPlayers);
             }
         }
     }
