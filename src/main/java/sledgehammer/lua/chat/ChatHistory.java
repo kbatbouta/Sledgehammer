@@ -39,7 +39,7 @@ import sledgehammer.lua.core.Player;
 public class ChatHistory extends LuaTable {
 
     /** The Maximum amount of messages stored in the ChatChannel's history. */
-    public static final int MAX_SIZE = 1024;
+    public static final int MAX_SIZE = 64;
     /** The LinkedList to store the ChatMessages. */
     private LinkedList<ChatMessage> listMessages;
     /** The ChatChannel using this ChatHistory. */
@@ -127,6 +127,7 @@ public class ChatHistory extends LuaTable {
                 // chatMessageRemoved.delete();
             }
         }
+        println(getChatChannel().getChannelName() + ": chat_messages: " + listMessages.size());
     }
 
     /**

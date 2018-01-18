@@ -20,6 +20,8 @@
 
 package sledgehammer.plugin;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import sledgehammer.lua.LuaTable;
@@ -56,6 +58,7 @@ public class ModuleProperties extends LuaTable {
      * The String client ID of the Module for Lua communication.
      */
     private String clientModuleId;
+    private List<String> defaultPermissions;
 
     /**
      * Used for core modules, or test-cases.
@@ -110,6 +113,7 @@ public class ModuleProperties extends LuaTable {
         String description = "No description.";
         String moduleLocation = "unknown";
         String clientModuleId = name.toLowerCase().trim();
+        List<String> listPermissionNodes = new LinkedList<>();
         // Grab the version.
         Object oVersion = map.get("version");
         // If it exists, set it.
@@ -132,18 +136,29 @@ public class ModuleProperties extends LuaTable {
         if (oClientModuleId != null) {
             clientModuleId = oClientModuleId.toString().toLowerCase().trim();
         }
+        List oDefaultPermissions = (List) map.get("default-permissions");
+        if(oDefaultPermissions != null) {
+            for (Object o : oDefaultPermissions) {
+                listPermissionNodes.add((String) o);
+            }
+        }
         if (DEBUG) {
             System.out.println("Name: " + name);
             System.out.println("Version: " + version);
             System.out.println("Location: " + moduleLocation);
             System.out.println("Description: " + description);
             System.out.println("ClientModuleId: " + clientModuleId);
+            System.out.println("Permission-Nodes:");
+            for(String permissionNode : listPermissionNodes) {
+                System.out.println("\t" + permissionNode);
+            }
         }
         // Set the result properties.
         setModuleVersion(version);
         setModuleLocation(moduleLocation);
         setModuleDescription(description);
         setClientModuleId(clientModuleId);
+        setDefaultPermissions(listPermissionNodes);
     }
 
     /**
@@ -250,5 +265,20 @@ public class ModuleProperties extends LuaTable {
      */
     public void setPluginProperties(PluginProperties pluginProperties) {
         this.pluginProperties = pluginProperties;
+    }
+
+    /**
+     * @return Returns the List of defined default Permission Nodes.
+     */
+    public List<String> getDefaultPermissions() {
+        return this.defaultPermissions;
+    }
+
+    /**
+     * Sets the List of defined default Permission Nodes.
+     * @param defaultPermissions The List to set.
+     */
+    public void setDefaultPermissions(List<String> defaultPermissions) {
+        this.defaultPermissions = defaultPermissions;
     }
 }

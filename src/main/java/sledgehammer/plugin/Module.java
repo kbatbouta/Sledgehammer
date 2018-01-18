@@ -83,6 +83,7 @@ public abstract class Module extends Printable {
      */
     public boolean loadModule() {
         try {
+            addDefaultPermissions(getProperties().getDefaultPermissions());
             onLoad();
             loaded = true;
             return true;
@@ -719,10 +720,23 @@ public abstract class Module extends Printable {
         return SledgeHammer.instance.getLanguageDirectory();
     }
 
+    /**
+     * @return Returns the directory to store Lua files. This is "/lua/module/[client_module_id]/"
+     */
     public File getLuaDirectory() {
         File dir = new File(SledgeHammer.instance.getLuaDirectory(), "Module" + File.separator + getClientModuleId());
         if (!dir.exists()) dir.mkdirs();
         return dir;
+    }
+
+    /**
+     * Adds a List of default permissions.
+     * @param listDefaultPermissions
+     */
+    public void addDefaultPermissions(List<String> listDefaultPermissions) {
+        for (String defaultPermission : listDefaultPermissions) {
+            addDefaultPermission(defaultPermission);
+        }
     }
 
     public boolean isLangOverriden() {

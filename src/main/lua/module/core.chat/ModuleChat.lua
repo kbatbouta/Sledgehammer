@@ -145,9 +145,9 @@ end
 function Module_Chat:requestChannelsHistory()
     local moduleChat = self;
     local success = function(table, request)
-        if SledgeHammer.instance.DEBUG then
-            rPrint(table, 1024);
-        end
+        --if SledgeHammer.instance.DEBUG then
+        --    rPrint(table, 1024);
+        --end
         local histories = table.histories;
         local length = tLength(histories) - 1;
         for index = 0, length, 1 do

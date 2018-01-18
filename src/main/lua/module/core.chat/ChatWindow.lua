@@ -235,7 +235,6 @@ end
 -- @Override
 ----------------------------------------------------------------
 function ChatWindow:onFocus(x, y)
-	print("onFocus("..tostring(x)..","..tostring(y)..")");
 	-- Grab the Discord button's position.
 	local discord_button_position = self:getDiscordButtonPosition();
 	-- Grab the Alpha button's position.
@@ -518,7 +517,6 @@ end
 -- @static
 ----------------------------------------------------------------
 ChatWindow.onKeyPressed = function(key)
-	print("input key pressed: "..tostring(key));
 	local chat = ChatWindow.instance;
 	if key == Keyboard.KEY_ESCAPE then
 		chat.input:clear();
@@ -528,7 +526,6 @@ ChatWindow.onKeyPressed = function(key)
 end
 
 ChatWindow.onChatKeyPressed = function(key)
-	print("key pressed: "..tostring(key));
 	local chat = ChatWindow.instance;
 	-- This handles the ChatWindow setting itself visible.
 	if key == 20 then -- 'T'

@@ -328,10 +328,6 @@ function SledgeHammer:onClientCommand(mod, command, args)
 	if luautils.stringStarts(mod, "sledgehammer.module.") then
 		-- Converts to simple module name.
 		local modName = toSimpleModuleName(mod);
-		if self.DEBUG then
-			print("SledgeHammer: Received command: module = '"..tostring(modName).."' command = '"..tostring(command).."'.");
-			rPrint(args, 1024);
-		end
 		-- If this is the core, route directly and return.
 		if modName == "core" then
 			if command == "debug" then

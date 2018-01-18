@@ -91,9 +91,6 @@ public class CoreCommandListener extends Printable implements CommandListener {
 		mapContexts.put("warn"         , "sledgehammer.core.moderation.warn"      );
 		mapContexts.put("unban"        , "sledgehammer.core.moderation.unban"     );
 		mapContexts.put("broadcast"    , "sledgehammer.core.moderation.broadcast" );
-//		module.addDefaultPermission(getPermissionNode("pm"));
-		module.addDefaultPermission(getPermissionNode("colors"));
-		module.addDefaultPermission(getPermissionNode("commitsuicide"));
 		// @formatter:on
     }
 

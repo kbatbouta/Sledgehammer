@@ -66,38 +66,17 @@ function ChatHistory:addChatMessage(chat_message)
 	local length = tLength(self.messages);
 	-- Add the ChatMessage to the Array.
 	self.messages[length] = chat_message;
-	-- If the messages Array contains more than the maximum number of lines
-	--   allowed, the messages Array needs to be pruned.
-	if length > ChatHistory.MAX_LINES then
-		-- The new Array to replace the messages Array.
-		local messagesNew = {};
-		-- This is the starting index for the messages Array.
-		local starting_value = tLength(self.messages);
-		-- This is the ending index for the messages Array.
-		local ending_value = starting_value - ChatHistory.MAX_LINES;
-		-- The index to place into the new Array.
-		local newIndex = ChatHistory.MAX_LINES;
-		-- Go through each of the last MAX_LINES in the message Array.
-		for index = starting_value, ending_value, -1 do
-			-- Set the position in the new messages Array.
-			messagesNew[newIndex] = messages[index];
-			newIndex = newIndex - 1; 
-		end
-		-- Set the pruned Array as the new messages Array.
-		self.messages = messagesNew;
-		local panel = self.chat_channel.panel;
-		panel:clear();
-		local length_messages = tLength(self.messages) - 1;
-		for index_messages = 0, length_messages, 1 do
-			local chat_message_next = self.messages[index_messages];
-			local rendered = chat_message_next:render(self.chat_channel);
-			panel:addLine(rendered);
-		end
-	else
-		local panel = self.chat_channel.panel;
-		local rendered = chat_message:render(self.chat_channel);
-		panel:addLine(rendered);
-	end
+    if length > ChatHistory.MAX_LINES then
+        for index = 1, length, 1 do
+            self.messages[index - 1] = self.messages[index];
+        end
+        self.messages[length] = nil;
+    end
+    self:renderChatMessage(chat_message);
+end
+
+function ChatHistory:renderChatMessage(chat_message)
+    self.chat_channel.panel:addLine(chat_message:render(self.chat_channel));
 end
 
 function ChatHistory:clear()
@@ -106,4 +85,4 @@ function ChatHistory:clear()
 end
 
 -- The Maximum amount of lines that can be stored at one time in the ChatHistory.
-ChatHistory.MAX_LINES = 1024;
+ChatHistory.MAX_LINES = 64;

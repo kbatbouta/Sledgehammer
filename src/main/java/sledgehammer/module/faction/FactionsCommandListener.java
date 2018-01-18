@@ -65,21 +65,6 @@ public class FactionsCommandListener extends Printable implements CommandListene
 		mapContexts.put("faction set name"    , "sledgehammer.factions.set.name"    );
 		mapContexts.put("faction set password", "sledgehammer.factions.set.password");
 		mapContexts.put("faction set tag"     , "sledgehammer.factions.set.tag"     );
-		// Add all commands to the default permissions list.
-		module.addDefaultPermission(mapContexts.get("faction"             ));
-		module.addDefaultPermission(mapContexts.get("faction create"      ));
-		module.addDefaultPermission(mapContexts.get("faction disband"     ));
-		module.addDefaultPermission(mapContexts.get("faction join"        ));
-		module.addDefaultPermission(mapContexts.get("faction leave"       ));
-		module.addDefaultPermission(mapContexts.get("faction invite"      ));
-		module.addDefaultPermission(mapContexts.get("faction accept"      ));
-		module.addDefaultPermission(mapContexts.get("faction reject"      ));
-		module.addDefaultPermission(mapContexts.get("faction kick"        ));
-		module.addDefaultPermission(mapContexts.get("faction set"         ));
-		module.addDefaultPermission(mapContexts.get("faction set tag"     ));
-		module.addDefaultPermission(mapContexts.get("faction set name"    ));
-		module.addDefaultPermission(mapContexts.get("faction set color"   ));
-		module.addDefaultPermission(mapContexts.get("faction set password"));
 		// @formatter:on
     }
 
@@ -237,10 +222,6 @@ public class FactionsCommandListener extends Printable implements CommandListene
                 }
                 // /faction set
                 else if (command.equals("set")) {
-                    if (!commander.hasPermission(getPermissionNode("faction set") + ".*")) {
-                        r.deny();
-                        return;
-                    }
                     if (args.length > 0) {
                         command = args[0].toLowerCase();
                         args = Command.getSubArgs(args, 1);
@@ -299,9 +280,17 @@ public class FactionsCommandListener extends Printable implements CommandListene
                                 r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set_tag", language));
                             }
                         } else {
+                            if (!commander.hasPermission(getPermissionNode("faction set") + ".*")) {
+                                r.deny();
+                                return;
+                            }
                             r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set", language));
                         }
                     } else {
+                        if (!commander.hasPermission(getPermissionNode("faction set") + ".*")) {
+                            r.deny();
+                            return;
+                        }
                         r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set", language));
                     }
                 } else {
