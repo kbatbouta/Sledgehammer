@@ -21,12 +21,7 @@
 package sledgehammer.module.chat;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
@@ -327,16 +322,19 @@ public class ModuleChat extends MongoModule {
         DBObject query = new BasicDBObject("channel_id", channelId);
         DBCursor cursor = collectionMessages.find(query);
         // Sort the list by timestamp so that the last messages appear first.
-        cursor.sort(new BasicDBObject("timestamp", 1));
+        cursor.sort(new BasicDBObject("timestamp", -1));
         cursor.limit(limit);
-        // Go through all entries.
-        while (cursor.hasNext()) {
-            // Create the MongoDocument.
-            MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages, cursor.next());
-            // Create the container for the document.
-            ChatMessage chatMessage = new ChatMessage(mongoChatMessage);
-            // Add this to the list to return.
-            listChatMessages.add(chatMessage);
+        if(cursor.size() > 0) {
+            List<DBObject> listObjects = cursor.toArray();
+            Collections.reverse(listObjects);
+            for(DBObject object : listObjects) {
+                // Create the MongoDocument.
+                MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages, object);
+                // Create the container for the document.
+                ChatMessage chatMessage = new ChatMessage(mongoChatMessage);
+                // Add this to the list to return.
+                listChatMessages.add(chatMessage);
+            }
         }
         // Close the cursor to release resources.
         cursor.close();

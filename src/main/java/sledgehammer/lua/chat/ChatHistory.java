@@ -108,9 +108,6 @@ public class ChatHistory extends LuaTable {
             if (!listMessages.contains(chatMessage)) {
                 // Add the ChatMessage to the history.
                 listMessages.add(chatMessage);
-                if (send) {
-
-                }
                 // Check if the history is at message capacity.
                 if (listMessages.size() > MAX_SIZE) {
                     // If it is, grab the oldest ChatMessage to the list and delete it.
