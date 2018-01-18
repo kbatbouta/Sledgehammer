@@ -59,7 +59,7 @@ public interface PermissionListener {
 	 * @param flag
 	 *            The flag for the node to be explicitly authorized or denied.
 	 */
-	void setPermission(Player player, String node, boolean flag);
+	void setPermission(Player player, String node, Boolean flag);
 
 	/**
 	 * Sets a default permission flag.

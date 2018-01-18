@@ -53,6 +53,7 @@ public class PermissionGroup extends PermissionObject<MongoPermissionGroup> {
      */
     public PermissionGroup(MongoPermissionGroup mongoDocument) {
         super(mongoDocument, "PermissionGroup");
+        loadNodes(mongoDocument);
         listPermissionUsers = new ArrayList<>();
     }
 

@@ -43,7 +43,7 @@ public class ChatCommandListener implements CommandListener {
             String permissionNode = "sledgehammer.chat.espanol";
             ChatChannel channel = module.getChatChannel("Espanol");
             if (commander.hasPermission(permissionNode, true)) {
-                commander.setPermission(permissionNode, false);
+                commander.setPermission(permissionNode, null);
                 channel.removePlayer(commander, true);
                 r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
             } else {

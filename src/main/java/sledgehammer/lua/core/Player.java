@@ -424,9 +424,9 @@ public class Player extends MongoLuaObject<MongoPlayer> {
      * Boolean flag.
      *
      * @param node The String permission-node to set.
-     * @param flag The Boolean flag to set.
+     * @param flag The Boolean flag to set. If set to null, the node is removed from the PermissionUser.
      */
-    public void setPermission(String node, boolean flag) {
+    public void setPermission(String node, Boolean flag) {
         SledgeHammer.instance.setPermission(this, node, flag);
     }
 

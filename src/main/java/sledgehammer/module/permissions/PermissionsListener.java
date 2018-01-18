@@ -77,7 +77,7 @@ public class PermissionsListener implements PermissionListener {
 	}
 
 	@Override
-	public void setPermission(Player player, String node, boolean flag) {
+	public void setPermission(Player player, String node, Boolean flag) {
 		// Validate the Player argument.
 		if (player == null) {
 			throw new IllegalArgumentException("Player given is null.");

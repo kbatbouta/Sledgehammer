@@ -958,7 +958,7 @@ public class ModulePermissions extends MongoModule {
         }
         // Pass this to the LanguagePackage to show the proper name of the Player when responding
         // to the commanding Player.
-        EntryField fieldPlayer = new EntryField("player", player.getName());
+        EntryField fieldPlayer = new EntryField("player", player.getUsername());
         // Grab the Unique ID of the Player. This is shared between the Player and the PermissionUser,
         // and is used for identification between the two.
         UUID playerId = player.getUniqueId();

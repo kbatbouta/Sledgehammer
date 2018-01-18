@@ -49,6 +49,7 @@ public class PermissionUser extends PermissionObject<MongoPermissionUser> {
      */
     public PermissionUser(MongoPermissionUser mongoDocument) {
         super(mongoDocument, "PermissionUser");
+        loadNodes(mongoDocument);
     }
 
     @Override
