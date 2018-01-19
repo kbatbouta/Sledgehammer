@@ -141,9 +141,11 @@ public abstract class LuaTable extends LuaObject {
         if (value instanceof Number) {
             // Set the double version of the value;
             this.data.put(field, ((Number) value).doubleValue());
-        } else {
+        } else if (value != null) {
             // Set the raw data.
             this.data.put(field, value);
+        } else {
+            this.data.remove(field);
         }
     }
 

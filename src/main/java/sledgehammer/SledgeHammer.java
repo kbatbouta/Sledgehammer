@@ -20,7 +20,7 @@
 
 package sledgehammer;
 
-import java.io.File;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.List;
@@ -37,6 +37,7 @@ import sledgehammer.interfaces.EventListener;
 import sledgehammer.interfaces.ThrowableListener;
 import sledgehammer.interfaces.LogEventListener;
 import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.lua.LuaObject;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
@@ -502,6 +503,33 @@ public class SledgeHammer extends Printable {
     public void updateScoreboard() {
         for (UdpConnection connection : getConnections()) {
             GameServer.scoreboard(connection);
+        }
+    }
+
+    public void sendFile(File file, String path) {
+        if(file == null) {
+            throw new IllegalArgumentException("File given is null.");
+        }
+        if(path == null || path.isEmpty()) {
+            throw new IllegalArgumentException("Path given is null or empty.");
+        }
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            DataInputStream dis = new DataInputStream(fis);
+            int bytesLength = dis.available();
+            KahluaTable tableData = LuaObject.newTable();
+            for(int index = 0; index < bytesLength; index++) {
+                tableData.rawset(index, (Double) (double) dis.readByte());
+            }
+            dis.close();
+            fis.close();
+            KahluaTable tableFile = LuaObject.newTable();
+            tableFile.rawset("__name", "sendFile");
+            tableFile.rawset("path", path);
+            tableFile.rawset("data", tableData);
+        } catch(IOException e) {
+            stackTrace(e);
+            getEventManager().handleException("sendFile", e);
         }
     }
 

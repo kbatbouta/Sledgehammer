@@ -198,6 +198,19 @@ function load_function(body, args)
   	end
 end
 
+-- https://stackoverflow.com/a/7615129
+function splitString(inputstr, sep)
+    if sep == nil then
+        sep = "%s";
+    end
+    local t={} ; i=1
+    for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+        t[i] = str;
+        i = i + 1;
+    end
+    return t;
+end
+
 function contains(x, y, w, h, px, py) 
     return px >= x and px <= x + w and py >= y and py <= y + h;
 end

@@ -24,6 +24,10 @@ Module_Core = class(Module, function(o)
 	o.DEBUG = true;
 end);
 
+function Module_Core:load()
+	self.sounds = {};
+end
+
 function Module_Core:handshake()
 	local success = function(table, request)
         SledgeHammer.instance.self = table.self;
@@ -48,9 +52,12 @@ function Module_Core:updatePlayer(player)
 end
 
 function Module_Core:command(command, args)
-	if command == "updatePlayer" then
-		self:updatePlayer(args.player);
-	end
+	rPrint(args);
+    if command == "updatePlayer" then
+        self:updatePlayer(args.player);
+    elseif command == "sendFile" then
+		self:writeFile(args);
+    end
 end
 
 render_sledgehammer = function(main_screen)

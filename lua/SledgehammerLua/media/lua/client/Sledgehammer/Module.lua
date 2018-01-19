@@ -50,6 +50,29 @@ function Module:sendRequest(command, args, success, failure)
 end
 
 ----------------------------------------------------------------
+--
+----------------------------------------------------------------
+function Module:writeFile(args)
+	local packet = args.packet;
+	local execute = false;
+	if packet == 0 then
+		self._explodedFile          = args.explodedFile;
+		self._explodedFile.segment  = 0                ;
+		self._explodedFile.fileData = {}               ;
+		self._explodedFile.path     = "Sledgehammer/module/"..self:getName().."/"..self._explodedFile.path;
+	elseif packet == 2 then
+		execute = true;
+	end
+	self._explodedFile.segment = self._explodedFile.segment + 1;
+	self._explodedFile.fileData[tLength(self._explodedFile.fileData)] = args.data;
+	print("("..self._explodedFile.path..") "..tostring(self._explodedFile.segment).."/"..tostring(self._explodedFile.segments));
+	if execute then
+		writeFile(self._explodedFile);
+		self._explodedFile = nil;
+	end
+end
+
+----------------------------------------------------------------
 -- @return 	Returns the version of the Module.
 ----------------------------------------------------------------
 function Module:getVersion() return self.version; end
