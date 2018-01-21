@@ -95,8 +95,10 @@ public class Agent {
         String _classDir = pzDirectory + "/java";
         String _nativeDir = pzDirectory + "/natives";
         File[] classDirectories = new File[]{new File(_classDir + "/com"), new File(_classDir + "/de"),
-                new File(_classDir + "/fmod"), new File(_classDir + "/javax"), new File(_classDir + "/org"),
-                new File(_classDir + "/se"), new File(_classDir + "/zombie"),};
+                new File(_classDir + "/fmod"), new File(_classDir + "/javax"),
+//                new File(_classDir + "/org"),
+//                new File(_classDir + "/se"),
+                new File(_classDir + "/zombie"),};
         File[] additionalFiles = new File[]{new File(_nativeDir + "/RakNet32.dll"),
                 new File(_nativeDir + "/RakNet64.dll"), new File(_nativeDir + "/ZNetJNI32.dll"),
                 new File(_nativeDir + "/ZNetJNI64.dll"), new File(_nativeDir + "/ZNetNoSteam32.dll"),

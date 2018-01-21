@@ -69,6 +69,14 @@
             <version>2.7</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Kahlua 2 custom JAR file -->
+        <dependency>
+            <groupId>krha</groupId>
+            <artifactId>kahlua2</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/kahlua2-1.0.0.jar</systemPath>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.jbellis/jamm -->
         <dependency>
             <groupId>com.github.jbellis</groupId>

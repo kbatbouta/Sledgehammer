@@ -2,6 +2,7 @@
 #
 # Legal exclusion of class files.
 src/main/java/zombie/
+**/se/**
 
 # Production builds
 prod/
