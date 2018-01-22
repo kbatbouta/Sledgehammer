@@ -96,8 +96,8 @@ public class Agent {
         String _nativeDir = pzDirectory + "/natives";
         File[] classDirectories = new File[]{new File(_classDir + "/com"), new File(_classDir + "/de"),
                 new File(_classDir + "/fmod"), new File(_classDir + "/javax"),
-//                new File(_classDir + "/org"),
-//                new File(_classDir + "/se"),
+                new File(_classDir + "/org"),
+                new File(_classDir + "/se"),
                 new File(_classDir + "/zombie"),};
         File[] additionalFiles = new File[]{new File(_nativeDir + "/RakNet32.dll"),
                 new File(_nativeDir + "/RakNet64.dll"), new File(_nativeDir + "/ZNetJNI32.dll"),
@@ -120,6 +120,7 @@ public class Agent {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         for (File file : additionalFiles) {
             File dest = new File("natives/" + file.getName());
             try {
@@ -130,15 +131,20 @@ public class Agent {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            if (dest.getName().endsWith("jar")) {
-                System.out.println("Craftboid: Loading library: " + dest.getName());
+        }
+
+        File fileNativeDirectory = new File("natives/");
+        for (File file : fileNativeDirectory.listFiles()) {
+            if (file.getName().endsWith("jar")) {
+                System.out.println("Craftboid: Loading library: " + file.getName());
                 try {
-                    inst.appendToSystemClassLoaderSearch(new JarFile(dest));
+                    inst.appendToSystemClassLoaderSearch(new JarFile(file));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
+
         File from, dest;
         String[] filesToCopy = new String[]{pzDirectory + "/steam_appid.txt", pzDirectory + "/media"};
         try {

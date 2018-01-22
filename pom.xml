@@ -51,9 +51,9 @@
             </plugin>
         </plugins>
     </build>
-    <modules>
-        <module>mongoconversiontool</module>
-    </modules>
+    <!--<modules>-->
+        <!--<module>mongoconversiontool</module>-->
+    <!--</modules>-->
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
         <dependency>
@@ -68,14 +68,6 @@
             <artifactId>gson</artifactId>
             <version>2.7</version>
             <scope>compile</scope>
-        </dependency>
-        <!-- Kahlua 2 custom JAR file -->
-        <dependency>
-            <groupId>krha</groupId>
-            <artifactId>kahlua2</artifactId>
-            <version>1.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/kahlua2-1.0.0.jar</systemPath>
         </dependency>
         <!-- https://mvnrepository.com/artifact/com.github.jbellis/jamm -->
         <dependency>
@@ -135,6 +127,14 @@
             <version>2.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/prod/natives/CraftBoid.jar</systemPath>
+        </dependency>
+        <!-- Kahlua 2 custom JAR file -->
+        <dependency>
+            <groupId>krha</groupId>
+            <artifactId>kahlua2</artifactId>
+            <version>1.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/kahlua2-1.0.0.jar</systemPath>
         </dependency>
     </dependencies>
     <repositories>
