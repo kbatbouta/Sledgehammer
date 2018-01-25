@@ -61,7 +61,7 @@ public class ModuleProperties extends LuaTable {
     private List<String> defaultPermissions;
 
     /**
-     * Used for core modules, or test-cases.
+     * Used for core module, or test-cases.
      *
      * @param name           The String name of the Module.
      * @param version        The String version of the Module.

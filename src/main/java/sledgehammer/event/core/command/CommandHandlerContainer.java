@@ -18,11 +18,14 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event;
+package sledgehammer.event.core.command;
 
 import sledgehammer.Settings;
-import sledgehammer.annotations.EventHandler;
+import sledgehammer.annotations.CommandHandler;
+import sledgehammer.event.Event;
 import sledgehammer.util.ClassUtil;
+import sledgehammer.util.Command;
+import sledgehammer.util.Response;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -31,33 +34,34 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * CommandHandlerContainer is a container class for the event handler Annotation. This is to help
- * cache and handle data and operations for event handlers in Sledgehammer. The method of
+ * CommandHandlerContainer is a container class for the CommandHandler Annotation. This is to help
+ * cache and handle data and operations for command handlers in Sledgehammer. The method of
  * invocation is through the MethodHandle API introduced in the JDK 1.7 version in order to
  * handle methodical invocation that pre-compiles the data required to execute the method using
- * the traditional reflection API, allowing the execution of the event handler to execute with
+ * the traditional reflection API, allowing the execution of the command handler to execute with
  * the least amount of computations possible in the JVM.
  * <p>
- * event handlers must contain one parameter for the method, which is the Event being interpreted
- * and handled. If the parameters are not setup to only have the event being handled, the
- * container will not be enabled. The handler will still be registered for debugging purposes.
+ * Command handlers must contain one parameter for the method, which is the command being
+ * interpreted and handled. If the parameters are not setup to only have the command being
+ * handled and the response object, the container will not be enabled. The handler will still be
+ * registered for debugging purposes.
  * <p>
- * An example event handler is as follows:
+ * An example command handler is as follows:
  * <p>
  * <code>
- * EventHandler(ignoreCancelled = true, priority = 5)
- * private void on(ChatMessageEvent event) {
- * // Handle Event here.
+ * CommandHandler(ignoreCancelled = true, priority = 5)
+ * private void on(Command command, Response response) {
+ * // Handle Command here.
  * }
  * </code>
  *
  * @author Jab
  */
-public class EventHandlerContainer {
+public class CommandHandlerContainer {
 
     private static MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-    private EventHandler annotation;
+    private CommandHandler annotation;
     private Class<?>[] methodParameters;
     private Method method;
     private MethodHandle methodHandle;
@@ -73,14 +77,14 @@ public class EventHandlerContainer {
     /**
      * Main constructor.
      *
-     * @param container  The Object to identify with the event handler.
+     * @param container  The Object to identify with the command handler.
      *                   This is typically the declaring class.
-     * @param method     The Method that is the event handler to invoke.
-     * @param annotation The event handler Annotation that contains
+     * @param method     The Method that is the command handler to invoke.
+     * @param annotation The command handler annotation that contains
      *                   the information important to the functions
-     *                   of the event handler.
+     *                   of the command handler.
      */
-    public EventHandlerContainer(Object container, Method method, EventHandler annotation) {
+    public CommandHandlerContainer(Object container, Method method, CommandHandler annotation) {
         setTimeCreated(System.currentTimeMillis());
         setContainer(container);
         setMethod(method);
@@ -116,7 +120,7 @@ public class EventHandlerContainer {
     }
 
     /**
-     * Handles setting up the MethodHandle cache to invoke when executing an event handler.
+     * Handles setting up the method handle cache to invoke when executing a command handler.
      */
     private void createMethodHandler() {
         // In order to invoke the Method, the Method must be accessible, otherwise an
@@ -124,27 +128,34 @@ public class EventHandlerContainer {
         method.setAccessible(true);
         // We need to make sure that we can identify the Method for any debugging purposes.
         methodName = method.getName();
-        // Grab the parameters of the Method to make sure that the event handler is valid.
+        // Grab the parameters of the Method to make sure that the handler is valid.
         methodParameters = method.getParameterTypes();
-        // If there's no parameters or excess parameters, we cannot enable the event handler.
-        if (methodParameters.length != 1) {
-            return;
-        }
-        // Make sure that the first parameter given is an Event Object.
-        if (!ClassUtil.isSubClass(methodParameters[0], Event.class)) {
-            if (Settings.getInstance().isDebug()) {
-                System.err.println("The EventHandler does not have Event as the first parameter.");
-                System.err.println(toString());
+        // If there's no parameters or excess parameters, we cannot enable the handler.
+        if (methodParameters.length != 2) {
+            if(Settings.getInstance().isDebug()) {
+                System.err.println("Invalid parameter count for CommandHandler:\n" + toString());
             }
             return;
         }
-        // Grab the identifying Event to pass to the event handler.
-        classEvent = (Class<? extends Event>) methodParameters[0];
-        // Make note if the event handler is static.
+        // Make sure that the first parameter given is a Command Object.
+        if (!methodParameters[0].equals(Command.class)) {
+            if (Settings.getInstance().isDebug()) {
+                System.err.println("Invalid parameter 0 for CommandHandler:\n" + toString());
+            }
+            return;
+        }
+        // Make sure that the second parameter given is a Response Object.
+        if (!methodParameters[1].equals(Response.class)) {
+            if (Settings.getInstance().isDebug()) {
+                System.err.println("Invalid parameter 1 for CommandHandler:\n" + toString());
+            }
+            return;
+        }
+        // Make note if the handler is static.
         isStatic = Modifier.isStatic(method.getModifiers());
         // Make sure the container identifier is valid.
         setContainer(container != null ? container.getClass() : method.getDeclaringClass());
-        // This will expressly note the parameters to pass to the EventHandle, and the type of
+        // This will expressly note the parameters to pass to the handle, and the type of
         // Class expected to return.
         methodType = MethodType.methodType(method.getReturnType(), methodParameters);
         try {
@@ -154,73 +165,77 @@ public class EventHandlerContainer {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        // If the event handler method is static, the parameter cache does not require an instance
+        // If the handler method is static, the parameter cache does not require an instance
         // of the declaring class or anonymous class to invoke.
         if (isStatic) {
-            // In this case, the event handler will require only 1 parameter:
-            // [1] -> Event
-            methodArgumentsCache = new Object[1];
+            // In this case, the handler will require 2 parameter:
+            // [0] -> Command
+            // [1] -> Response
+            methodArgumentsCache = new Object[2];
         }
         // We will setup the parameter cache for a non-static (invokeVirtual) method. These
-        // methods are what is expected to be used as event handlers.
+        // methods are what is expected to be used as handlers.
         else {
-            // In this case, the event handler will require 2 parameters:
+            // In this case, the handler will require 3 parameters:
             // [0] -> self
-            // [1] -> Event
-            methodArgumentsCache = new Object[2];
+            // [1] -> Command
+            // [2] -> Response
+            methodArgumentsCache = new Object[3];
             // Set the self instance as the Container.
             methodArgumentsCache[0] = getContainer();
         }
-        // We are now good to start invoking the event handler. Let the EventManagerOld know this.
+        // We are now good to start invoking the handler. Let the EventManager know this.
         setEnabled(true);
     }
 
     /**
-     * Handles an Event. If the event handler is not enabled, then we return without attempting to
-     * handle the Event.
+     * Handles a command. If the command handler is not enabled, then we return without
+     * attempting to handle the command.
      *
-     * @param event The Event passed to handle.
-     * @throws Throwable Thrown if the event handler fails to handle the Event, or
-     *                   the MethodHandle fails to invoke.
+     * @param command  The command to handle.
+     * @param response The response to set.
+     * @throws Throwable Thrown if the command handler fails to handle the command, or
+     *                   the method handle fails to invoke the method.
      */
-    public void handleEvent(Event event) throws Throwable {
-        // Make sure that the event handler is enabled before invoking the event handler.
+    public void handleCommand(Command command, Response response) throws Throwable {
+        // Make sure that the EventHandler is enabled before invoking the EventHandler.
         if (!isEnabled()) {
             return;
         }
-        // If the Event is cancelled, and the event handler does not ignore this, do not handle
+        // If the Event is cancelled, and the EventHandler does not ignore this, do not handle
         // the Event.
-        if (event.canceled() && !this.ignoreCancelled()) {
+        if (response.isHandled() && !this.ignoreHandled()) {
             return;
         }
-        if (Settings.getInstance().isDebug()) {
-            System.out.println("Invoking method:\n" + toString());
-        }
-        // Grab the parameter cache for the event handler.
+        // Grab the parameter cache for the EventHandler.
         Object[] parameters = getMethodParameters();
         // If the method is static, we do not need to reference the instance of the declaring class.
         if (isStatic()) {
             // The method is static, so we need to only pass the Event instance being handled.
-            methodArgumentsCache[0] = event;
+            methodArgumentsCache[0] = command;
+            methodArgumentsCache[1] = response;
             // Finally, invoke the method.
             methodHandle.invokeWithArguments(methodArgumentsCache);
             // Clear the cache of references to the arguments given.
             methodArgumentsCache[0] = null;
+            methodArgumentsCache[1] = null;
         }
         // The method is dynamic, so we need to pass the instance of the declaring class.
         else {
             // The declaring class instance is already defined in the first index of the
             // parameter array. All we need to do is assign the Event instance being handled.
-            methodArgumentsCache[1] = event;
+            methodArgumentsCache[1] = command;
+            methodArgumentsCache[2] = response;
             // Finally, invoke the method.
             methodHandle.invokeWithArguments(methodArgumentsCache);
             // Clear the cache of references to the arguments given.
             methodArgumentsCache[1] = null;
+            methodArgumentsCache[2] = null;
         }
     }
 
     /**
-     * @return Returns the Method that is the event handler being invocated when handling Events.
+     * @return Returns the method that is the command handler being invoked when handling commands.
      */
     public Method getMethod() {
         return this.method;
@@ -229,34 +244,34 @@ public class EventHandlerContainer {
     /**
      * (Private Method)
      * <p>
-     * Sets the Method that is the event handler being invocated when handling Events.
+     * Sets the method that is the command handler being invoked when handling commands.
      *
-     * @param method The Method to set.
+     * @param method The method to set.
      */
     private void setMethod(Method method) {
         this.method = method;
     }
 
     /**
-     * @return Returns the Annotation instance storing the meta-data for the event handler.
+     * @return Returns the annotation instance storing the metadata for the command handler.
      */
-    public EventHandler getAnnotation() {
+    public CommandHandler getAnnotation() {
         return this.annotation;
     }
 
     /**
      * (Private Method)
      * <p>
-     * Sets the Annotation instance for the event handler.
+     * Sets the annotation instance for the command handler.
      *
-     * @param annotation The Annotation instance to set.
+     * @param annotation The annotation instance to set.
      */
-    private void setAnnotation(EventHandler annotation) {
+    private void setAnnotation(CommandHandler annotation) {
         this.annotation = annotation;
     }
 
     /**
-     * @return Returns the container for the Method to invoke.
+     * @return Returns the container for the method to invoke.
      */
     public Object getContainer() {
         return this.container;
@@ -265,7 +280,7 @@ public class EventHandlerContainer {
     /**
      * (Private Method)
      * <p>
-     * Sets the container for the Method to invoke.
+     * Sets the container for the method to invoke.
      *
      * @param container The declaring class instance to set.
      */
@@ -274,44 +289,44 @@ public class EventHandlerContainer {
     }
 
     /**
-     * @return Returns the priority index for the event handler. The higher the number, the more
-     * priority the event handler has over other event handlers, and will be invoked first.
+     * @return Returns the priority index for the command handler. The higher the number, the more
+     * priority the command handler has over other command handler, and will be invoked first.
      */
     public int getPriority() {
         return getAnnotation().priority();
     }
 
     /**
-     * @return Returns true if the event handler handles the Event, even if the event is cancelled
-     * by a prior event handler.
+     * @return Returns true if the command handler handles the command, even if the command is
+     * cancelled by a prior command handler.
      */
-    public boolean ignoreCancelled() {
-        return getAnnotation().ignoreCancelled();
+    public boolean ignoreHandled() {
+        return getAnnotation().ignoreHandled();
     }
 
     /**
-     * @return Returns the String ID (if defined), for the event handler.
+     * @return Returns the string ID (if defined), for the command handler.
      */
     public String getId() {
         return getAnnotation().id();
     }
 
     /**
-     * @return Returns true if the event handler is declared as a static method.
+     * @return Returns true if the command handler is declared as a static method.
      */
     public boolean isStatic() {
         return this.isStatic;
     }
 
     /**
-     * @return Returns the Parameters for the Method.
+     * @return Returns the parameters for the method.
      */
     public Object[] getMethodParameters() {
         return this.methodParameters;
     }
 
     /**
-     * @return Returns true if the event handler is enabled. When this is disabled, Events will
+     * @return Returns true if the command handler is enabled. When this is disabled, commands will
      * not be passed and handled.
      */
     public boolean isEnabled() {
@@ -319,7 +334,7 @@ public class EventHandlerContainer {
     }
 
     /**
-     * Sets the event handler as enabled. When this is disabled. Events will not be passed and
+     * Sets the command handler as enabled. When this is disabled, commands will not be passed and
      * handled.
      *
      * @param flag The status to set.
@@ -329,25 +344,7 @@ public class EventHandlerContainer {
     }
 
     /**
-     * @return Returns the Class of the Event to handle.
-     */
-    public Class<? extends Event> getEventClass() {
-        return this.classEvent;
-    }
-
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the Class of the Event to handle.
-     *
-     * @param classEvent The Class to set.
-     */
-    private void setEventClass(Class<? extends Event> classEvent) {
-        this.classEvent = classEvent;
-    }
-
-    /**
-     * @return Returns the UNIX Timestamp for the container to identify when the contained was
+     * @return Returns the UNIX timestamp for the container to identify when the container is
      * created.
      */
     public long getTimeCreated() {
@@ -357,11 +354,15 @@ public class EventHandlerContainer {
     /**
      * (Private Method)
      * <p>
-     * Sets the UNIX Timestamp for the container to identify when the container was created.
+     * Sets the UNIX timestamp for the container to identify when the container is created.
      *
-     * @param timeCreated The UNIX Timestamp to set.
+     * @param timeCreated The UNIX timestamp to set.
      */
     private void setTimeCreated(long timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    public String getCommand() {
+        return getAnnotation().command().toLowerCase();
     }
 }

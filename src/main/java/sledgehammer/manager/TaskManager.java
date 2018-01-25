@@ -65,7 +65,6 @@ public class TaskManager extends Manager {
                         } catch (Exception e) {
                             remove = true;
                             stackTrace(e);
-                            SledgeHammer.instance.handle("TickTask failed to execute.", e);
                         }
                         if (remove) {
                             listTasksRemove.add(tickTask);

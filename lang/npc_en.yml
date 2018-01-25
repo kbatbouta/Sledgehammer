@@ -1,0 +1,2 @@
+tooltip_command_createnpc: "Adds a fake player at current location. E.G: /addnpc \"name\""
+tooltip_command_destroynpcs: "Destroys all active NPCs."

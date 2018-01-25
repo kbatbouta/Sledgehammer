@@ -24,13 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.annotations.EventHandler;
 import sledgehammer.event.core.player.DeathEvent;
-import sledgehammer.event.Event;
 import sledgehammer.event.core.player.DisconnectEvent;
 import sledgehammer.event.core.player.PlayerJoinEvent;
 import sledgehammer.event.core.player.PlayerQuitEvent;
 import sledgehammer.event.core.player.pvp.PVPKillEvent;
-import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
 import zombie.sledgehammer.npc.NPC;
@@ -43,7 +43,7 @@ import static sledgehammer.util.ChatTags.*;
  *
  * @author Jab
  */
-public class CoreEventListener implements EventListener {
+public class CoreEventListener implements Listener {
 
     private ModuleCore module;
     private Map<String, Long> mapPlayerTimeStamps;
@@ -53,63 +53,30 @@ public class CoreEventListener implements EventListener {
         mapPlayerTimeStamps = new HashMap<>();
     }
 
-    public Map<String, Long> getPlayerTimeStamps() {
-        return mapPlayerTimeStamps;
+    @EventHandler(id = "core.event.join", priority = 1)
+    private void on(PlayerJoinEvent event) {
     }
 
-    @Override
-    public String[] getTypes() {
-        return new String[]{
-                PlayerJoinEvent.ID,
-                PlayerQuitEvent.ID,
-                DisconnectEvent.ID,
-                DeathEvent.ID,
-                PVPKillEvent.ID
-        };
-    }
-
-    @Override
-    public void onEvent(Event event) {
-        event.setIgnoreCore(true);
-        String id = event.getID();
-        if (id.equals(PlayerJoinEvent.ID)) {
-            onPlayerJoinEvent((PlayerJoinEvent) event);
-        } else if (id.equals(PlayerQuitEvent.ID)) {
-            onPlayerQuitEvent((PlayerQuitEvent) event);
-        } else if (event.getID().equals(DisconnectEvent.ID)) {
-            onDisconnectEvent((DisconnectEvent) event);
-        } else if (id.equals(DeathEvent.ID)) {
-            onPlayerDeathEvent((DeathEvent) event);
-        } else if (event.getID().equals(PVPKillEvent.ID)) {
-            onPVPKillEvent((PVPKillEvent) event);
-        }
-    }
-
-    @Override
-    public boolean runSecondary() {
-        return true;
-    }
-
-    private void onPlayerJoinEvent(PlayerJoinEvent event) {
-    }
-
-    private void onPlayerQuitEvent(PlayerQuitEvent event) {
+    @EventHandler(id = "core.event.quit", priority = 1)
+    private void on(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         SledgeHammer.instance.getPlayerManager().removePlayer(player);
     }
 
-    private void onDisconnectEvent(DisconnectEvent event) {
+    @EventHandler(id = "core.event.disconnect", priority = 1)
+    private void on(DisconnectEvent event) {
         Player player = event.getPlayer();
         if (player != null) {
             SledgeHammer.instance.getPlayerManager().removePlayer(player);
         }
     }
 
-    private void onPlayerDeathEvent(DeathEvent event) {
-        if (!event.shouldAnnounce() || ((DeathEvent) event).getPlayer().getIso() instanceof NPC) {
+    @EventHandler(id = "core.event.death", priority = 1)
+    private void on(DeathEvent event) {
+        if (!event.shouldAnnounce() || event.getPlayer().getIso() instanceof NPC) {
             return;
         }
-        String username = ((DeathEvent) event).getPlayer().getUsername();
+        String username = event.getPlayer().getUsername();
         if (username != null) {
             Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
             if (timeStamp != null) {
@@ -124,11 +91,12 @@ public class CoreEventListener implements EventListener {
         }
     }
 
-    private void onPVPKillEvent(PVPKillEvent event) {
+    @EventHandler(id = "core.event.pvp.kill", priority = 1)
+    private void on(PVPKillEvent event) {
         if (!event.shouldAnnounce()) {
             return;
         }
-        Player killed = ((PVPKillEvent) event).getKilled();
+        Player killed = event.getKilled();
         if (killed.getIso() instanceof NPC) {
             return;
         }
@@ -147,5 +115,9 @@ public class CoreEventListener implements EventListener {
 
     public void update() {
         mapPlayerTimeStamps.clear();
+    }
+
+    public Map<String, Long> getPlayerTimeStamps() {
+        return this.mapPlayerTimeStamps;
     }
 }

@@ -24,13 +24,13 @@ import java.io.File;
 
 import de.btobastian.javacord.entities.Channel;
 import sledgehammer.event.core.player.ClientEvent;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.lua.discord.DiscordInformation;
 import sledgehammer.lua.discord.request.RequestDiscordInformation;
 import sledgehammer.plugin.MongoModule;
-import sledgehammer.util.TickTask;
 
 /**
  * Module designed to load a Discord bot for SledgeHammer logging, and
@@ -56,12 +56,11 @@ public class ModuleDiscord extends MongoModule {
     private DiscordBot bot;
 
     private DiscordEventListener eventListener;
-    private DiscordLogListener logListener;
-    private DiscordExceptionListener exceptionListener;
     private DiscordCommandListener commandHandler;
     private String __debugToken;
     private SendLua sendLuaDiscord;
     private DiscordInformation discordInformation;
+    private LanguagePackage languagePackage;
 
     public ModuleDiscord() {
         super(getDefaultDatabase());
@@ -69,14 +68,13 @@ public class ModuleDiscord extends MongoModule {
 
     @Override
     public void onLoad() {
+        loadLanguagePackage();
+        loadLua();
         File directory = getModuleDirectory();
         if (!directory.exists()) {
             directory.mkdirs();
         }
-        loadLua();
         eventListener = new DiscordEventListener(this);
-        logListener = new DiscordLogListener(this);
-        exceptionListener = new DiscordExceptionListener(this);
         commandHandler = new DiscordCommandListener(this);
         register(commandHandler);
     }
@@ -104,8 +102,6 @@ public class ModuleDiscord extends MongoModule {
             bot.connect(settings.getBotAccessToken());
         }
         register(eventListener);
-        register(logListener);
-        register(exceptionListener);
     }
 
     @Override
@@ -114,8 +110,6 @@ public class ModuleDiscord extends MongoModule {
             bot.disconnect();
         }
         unregister(eventListener);
-        unregister(logListener);
-        unregister(exceptionListener);
     }
 
     @Override
@@ -147,12 +141,20 @@ public class ModuleDiscord extends MongoModule {
         }
     }
 
-    public void start() {
-        onStart();
+    private void loadLanguagePackage() {
+        File langDir = getLanguageDirectory();
+        boolean override = !isLangOverriden();
+        saveResourceAs("lang/discord_en.yml", new File(langDir, "discord_en.yml"), override);
+        languagePackage = new LanguagePackage(getLanguageDirectory(), "discord");
     }
 
-    public void stop() {
-        onStop();
+    private void loadLua() {
+        File lua = getLuaDirectory();
+        boolean overwrite = !isLuaOverriden();
+        File fileDiscordModule = new File(lua, "ModuleDiscord.lua");
+        saveResourceAs("lua/module/core.discord/ModuleDiscord.lua", fileDiscordModule, overwrite);
+        // Make sure that the core language file(s) are provided.
+        sendLuaDiscord = new SendLua(fileDiscordModule);
     }
 
     public void broadcast(String channelName, String text) {
@@ -168,15 +170,6 @@ public class ModuleDiscord extends MongoModule {
         }
         ChatMessage message = createChatMessage(text);
         // TODO: Implement. ?
-    }
-
-    private void loadLua() {
-        File lua = getLuaDirectory();
-        boolean overwrite = !isLuaOverriden();
-        File fileDiscordModule = new File(lua, "ModuleDiscord.lua");
-        saveResourceAs("lua/module/core.discord/ModuleDiscord.lua", fileDiscordModule, overwrite);
-        // Make sure that the core language file(s) are provided.
-        sendLuaDiscord = new SendLua(fileDiscordModule);
     }
 
     public String getPublicChannelName() {
@@ -205,5 +198,9 @@ public class ModuleDiscord extends MongoModule {
 
     public Channel getConsoleChannel() {
         return getBot().getConsoleChannel();
+    }
+
+    public LanguagePackage getLanguagePackage() {
+        return this.languagePackage;
     }
 }

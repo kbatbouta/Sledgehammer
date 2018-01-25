@@ -20,14 +20,19 @@
 
 package sledgehammer.module.chat;
 
+import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.CommandListener;
+import sledgehammer.interfaces.Listener;
+import sledgehammer.language.Language;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
-public class ChatCommandListener implements CommandListener {
+public class ChatCommandListener implements Listener {
+
+    private static final String permissionNodeEspanol = "core.chat.channel.espanol";
 
     private ModuleChat module;
 
@@ -35,49 +40,24 @@ public class ChatCommandListener implements CommandListener {
         setModule(module);
     }
 
-    @Override
-    public void onCommand(Command com, Response r) {
-        Player commander = com.getPlayer();
-        String command = com.getCommand().toLowerCase();
-        if (command.equals("espanol")) {
-            String permissionNode = "sledgehammer.chat.espanol";
-            ChatChannel channel = module.getChatChannel("Espanol");
-            if (commander.hasPermission(permissionNode, true)) {
-                commander.setPermission(permissionNode, null);
-                channel.removePlayer(commander, true);
-                r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
-            } else {
-                commander.setPermission(permissionNode, true);
-                channel.addPlayer(commander, true);
-                r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
-            }
+    @CommandHandler(command = "espanol", permission = permissionNodeEspanol,
+            defaultPermission = true)
+    public void onCommandEspanol(Command c, Response r) {
+        Player commander = c.getPlayer();
+        ChatChannel channel = module.getChatChannel("Espanol");
+        if (commander.hasPermission(permissionNodeEspanol, true)) {
+            commander.setPermission(permissionNodeEspanol, null);
+            channel.removePlayer(commander, true);
+            r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
+        } else {
+            commander.setPermission(permissionNodeEspanol, true);
+            channel.addPlayer(commander, true);
+            r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
         }
     }
 
-    @Override
-    public String[] getCommands() {
-        // @formatter:off
-		return new String[] {
-				"espanol"
-		};
-		// @formatter:on
-    }
-
-    @Override
-    public String onTooltip(Player player, Command com) {
-        String command = com.getCommand().toLowerCase();
-        if (command.equals("espanol")) {
-            return "Adds you to the Spanish chat channel.";
-        }
-        return null;
-    }
-
-    @Override
-    public String getPermissionNode(String command) {
-        if (command.equalsIgnoreCase("espanol")) {
-            return "sledgehammer.chat.command.espanol";
-        }
-        return null;
+    public LanguagePackage getLanguagePackage() {
+        return getModule().getLanguagePackage();
     }
 
     public ModuleChat getModule() {

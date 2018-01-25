@@ -104,7 +104,8 @@ public class ModuleFactions extends MongoModule {
     public void onLoad() {
         File langDirectory = getLanguageDirectory();
         boolean overrideLang = !this.isLangOverriden();
-        saveResourceAs("lang/factions_en.yml", new File(langDirectory, "factions_en.yml"), overrideLang);
+        saveResourceAs("lang/factions_en.yml", new File(langDirectory, "factions_en.yml"),
+                overrideLang);
         lang = new LanguagePackage(getLanguageDirectory(), "factions");
         lang.load();
         factionsCommandListener = new FactionsCommandListener(this);
@@ -240,7 +241,8 @@ public class ModuleFactions extends MongoModule {
         cursor.close();
         // Report statistics.
         int size = mapMongoFactions.size();
-        println("Loaded " + (size == 0 ? "no" : size + "") + " Faction" + (size == 1 ? "" : "s") + ".");
+        println("Loaded " + (size == 0 ? "no" : size + "") + " Faction" + (size == 1 ? "" : "s")
+                + ".");
     }
 
     /**
@@ -257,7 +259,8 @@ public class ModuleFactions extends MongoModule {
         // Go through each entry.
         while (cursor.hasNext()) {
             // Create an object for each entry.
-            MongoFactionMember mongoFactionMember = new MongoFactionMember(collectionFactionMembers, cursor.next());
+            MongoFactionMember mongoFactionMember = new MongoFactionMember
+                    (collectionFactionMembers, cursor.next());
             // Add to the map with the UUID of the FactionMember.
             mapMongoFactionMembers.put(mongoFactionMember.getPlayerId(), mongoFactionMember);
         }
@@ -265,7 +268,8 @@ public class ModuleFactions extends MongoModule {
         cursor.close();
         // Report statistics.
         int size = mapMongoFactionMembers.size();
-        println("Loaded " + (size == 0 ? "no" : size + "") + " Faction Member" + (size == 1 ? "" : "s") + ".");
+        println("Loaded " + (size == 0 ? "no" : size + "") + " Faction Member" + (size == 1 ? ""
+                : "s") + ".");
     }
 
     /**
@@ -282,7 +286,8 @@ public class ModuleFactions extends MongoModule {
         // Go through each entry.
         while (cursor.hasNext()) {
             // Create an object for each entry.
-            MongoFactionInvite mongoFactionInvite = new MongoFactionInvite(collectionFactionInvites, cursor.next());
+            MongoFactionInvite mongoFactionInvite = new MongoFactionInvite
+                    (collectionFactionInvites, cursor.next());
             // Add to the map with the UUID of the MongoFactionInvite.
             mapMongoFactionInvites.put(mongoFactionInvite.getUniqueId(), mongoFactionInvite);
         }
@@ -290,7 +295,8 @@ public class ModuleFactions extends MongoModule {
         cursor.close();
         // Report statistics.
         int size = mapMongoFactionInvites.size();
-        println("Loaded " + (size == 0 ? "no" : size + "") + " Faction Invite" + (size == 1 ? "" : "s") + ".");
+        println("Loaded " + (size == 0 ? "no" : size + "") + " Faction Invite" + (size == 1 ? ""
+                : "s") + ".");
     }
 
     /**
@@ -323,7 +329,8 @@ public class ModuleFactions extends MongoModule {
      * @param password    The administrator String password of the Faction.
      * @return The Response result.
      */
-    public Response commandCreateFaction(Player commander, String factionName, String tag, String password) {
+    public Response commandCreateFaction(Player commander, String factionName, String tag, String
+            password) {
         if (commander == null) {
             throw new IllegalArgumentException("Player given is null!");
         }
@@ -332,7 +339,8 @@ public class ModuleFactions extends MongoModule {
         Language language = commander.getLanguage();
         EntryField fieldName = new EntryField("name", factionName);
         if (factionName == null || factionName.isEmpty()) {
-            response.set(Result.FAILURE, lang.getString("faction_name_invalid", language, fieldName));
+            response.set(Result.FAILURE, lang.getString("faction_name_invalid", language,
+                    fieldName));
             return response;
         }
         factionName = factionName.trim();
@@ -356,12 +364,14 @@ public class ModuleFactions extends MongoModule {
         }
         try {
             createFaction(factionName, tag, password, commander.getUniqueId());
-            response.set(Result.SUCCESS, lang.getString("command_faction_create_success", language));
+            response.set(Result.SUCCESS, lang.getString("command_faction_create_success",
+                    language));
             response.log(LogType.INFO,
                     commander.getUsername() + " created faction \"" + factionName + "\".");
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_create_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_create_failure",
+                    language));
         }
         return response;
     }
@@ -391,12 +401,15 @@ public class ModuleFactions extends MongoModule {
         }
         try {
             deleteFaction(faction);
-            response.set(Result.SUCCESS, lang.getString("command_faction_disband_success", language));
+            response.set(Result.SUCCESS, lang.getString("command_faction_disband_success",
+                    language));
             response.log(LogType.INFO,
-                    commander.getUsername() + " disbanded the faction \"" + faction.getFactionName() + "\".");
+                    commander.getUsername() + " disbanded the faction \"" + faction
+                            .getFactionName() + "\".");
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_disband_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_disband_failure",
+                    language));
         }
         return response;
     }
@@ -416,7 +429,8 @@ public class ModuleFactions extends MongoModule {
         // Make sure the username argument is valid.
         if (usernameInvited == null || usernameInvited.isEmpty()) {
             EntryField fieldUsername = new EntryField("username", usernameInvited);
-            response.set(Result.FAILURE, lang.getString("username_invalid", language, fieldUsername));
+            response.set(Result.FAILURE, lang.getString("username_invalid", language,
+                    fieldUsername));
             return response;
         }
         // Grab the Player if he is online.
@@ -435,7 +449,8 @@ public class ModuleFactions extends MongoModule {
         UUID playerOwnerId = commander.getUniqueId();
         UUID playerInvitedId = playerInvited.getUniqueId();
         if (commander.equals(playerInvited)) {
-            response.set(Result.FAILURE, lang.getString("command_faction_invite_yourself", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_invite_yourself",
+                    language));
             return response;
         }
         // Grab the FactionMember.
@@ -449,13 +464,15 @@ public class ModuleFactions extends MongoModule {
         Faction factionOwner = member.getFaction();
         // Data consistency check.
         if (factionOwner == null) {
-            throw new IllegalStateException("FactionMember exists for player ID: \"" + playerOwnerId.toString()
+            throw new IllegalStateException("FactionMember exists for player ID: \"" +
+                    playerOwnerId.toString()
                     + "\", yet the Faction representing the member is null.");
         }
         EntryField fieldFaction = new EntryField("faction", factionOwner.getFactionName());
         // Check to see if the FactionMember is the owner of the Faction.
         if (!factionOwner.isOwner(commander)) {
-            response.set(Result.FAILURE, lang.getString("faction_not_own_name", language, fieldFaction));
+            response.set(Result.FAILURE, lang.getString("faction_not_own_name", language,
+                    fieldFaction));
             return response;
         }
         // Grab the FactionMember of the invited player.
@@ -467,18 +484,21 @@ public class ModuleFactions extends MongoModule {
             Faction factionInvited = memberInvited.getFaction();
             // If the invited player's faction is the same as the owner.
             if (factionInvited.equals(factionOwner)) {
-                response.set(Result.FAILURE, lang.getString("player_in_faction", language, fieldPlayer));
+                response.set(Result.FAILURE, lang.getString("player_in_faction", language,
+                        fieldPlayer));
                 return response;
             }
             // If the invited player is the owner of his faction.
             if (factionInvited.isOwner(playerInvited)) {
-                response.set(Result.FAILURE, lang.getString("command_faction_invite_owner", language, fieldPlayer));
+                response.set(Result.FAILURE, lang.getString("command_faction_invite_owner",
+                        language, fieldPlayer));
                 return response;
             }
         }
         FactionInvite factionInvite = getFactionInvite(playerInvited, factionOwner);
         if (factionInvite != null && !factionInvite.isExpired(timeToLiveInvites)) {
-            response.set(Result.FAILURE, lang.getString("command_faction_invite_exists", language, fieldPlayer));
+            response.set(Result.FAILURE, lang.getString("command_faction_invite_exists",
+                    language, fieldPlayer));
             return response;
         }
         try {
@@ -487,12 +507,15 @@ public class ModuleFactions extends MongoModule {
             playerInvited.sendChatMessage("You have been invited to join the faction "
                     + factionOwner.getFactionName() + ".");
             playerInvited.sendChatMessage("Type \'/faction accept \"faction\"\' to accept.");
-            playerInvited.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
-            response.set(Result.SUCCESS, lang.getString("command_faction_invite_success", language, fieldPlayer));
+            playerInvited.sendChatMessage("To reject an invitation, type \'/faction reject " +
+                    "\"faction\'.");
+            response.set(Result.SUCCESS, lang.getString("command_faction_invite_success",
+                    language, fieldPlayer));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_invite_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_invite_failure",
+                    language));
         }
         return response;
     }
@@ -513,7 +536,8 @@ public class ModuleFactions extends MongoModule {
         EntryField fieldFaction = new EntryField("faction", factionName);
         Faction faction = getFactionByName(factionName);
         if (faction == null) {
-            response.set(Result.FAILURE, lang.getString("faction_not_found", language, fieldFaction));
+            response.set(Result.FAILURE, lang.getString("faction_not_found", language,
+                    fieldFaction));
             return response;
         }
         // Grab the FactionMember container if it exists.
@@ -525,7 +549,8 @@ public class ModuleFactions extends MongoModule {
             factionCurrent = factionMember.getFaction();
             // Check to make sure the player joining isn't the owner of a faction.
             if (factionCurrent.isOwner(factionMember)) {
-                response.set(Result.FAILURE, lang.getString("command_faction_join_owner", language));
+                response.set(Result.FAILURE, lang.getString("command_faction_join_owner",
+                        language));
                 return response;
             }
             // Check to make sure the faction to join isn't the same faction.
@@ -551,7 +576,8 @@ public class ModuleFactions extends MongoModule {
                 factionMember.setFaction(factionCurrent, true);
             }
             // Return success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_join_success", language, fieldFaction));
+            response.set(Result.SUCCESS, lang.getString("command_faction_join_success", language,
+                    fieldFaction));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
@@ -613,7 +639,8 @@ public class ModuleFactions extends MongoModule {
         EntryField fieldFaction = new EntryField("faction", factionName);
         Faction faction = getFactionByName(factionName);
         if (faction == null) {
-            response.set(Result.FAILURE, lang.getString("faction_not_found", language, fieldFaction));
+            response.set(Result.FAILURE, lang.getString("faction_not_found", language,
+                    fieldFaction));
             return response;
         }
         // Check to see if the invite exists.
@@ -629,7 +656,8 @@ public class ModuleFactions extends MongoModule {
             return acceptInvite(factionInvite, language);
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_accept_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_accept_failure",
+                    language));
         }
         return response;
     }
@@ -640,7 +668,8 @@ public class ModuleFactions extends MongoModule {
      * rejects and deleted.
      *
      * @param commander   The Player being affected.
-     * @param factionName The name of the Faction being specified. If "all" is passed, all FactionInvites will be
+     * @param factionName The name of the Faction being specified. If "all" is passed, all
+     *                    FactionInvites will be
      *                    processed.
      * @return Returns a Response that details the result of the action.
      */
@@ -656,7 +685,8 @@ public class ModuleFactions extends MongoModule {
         if (!factionName.equalsIgnoreCase("all")) {
             faction = getFactionByName(factionName);
             if (faction == null) {
-                response.set(Result.FAILURE, lang.getString("faction_not_found", language, fieldFaction));
+                response.set(Result.FAILURE, lang.getString("faction_not_found", language,
+                        fieldFaction));
                 return response;
             }
         }
@@ -666,18 +696,21 @@ public class ModuleFactions extends MongoModule {
             FactionInvite factionInvite = getFactionInvite(commander, faction);
             // If the invite does not exist, then let the player know.
             if (factionInvite == null) {
-                response.set(Result.FAILURE, lang.getString("faction_invite_not_found", language, fieldFaction));
+                response.set(Result.FAILURE, lang.getString("faction_invite_not_found", language,
+                        fieldFaction));
                 return response;
             }
             try {
                 // It exists, so delete it.
                 deleteInvite(factionInvite);
                 // Let the player know that the invite is rejected.
-                response.set(Result.SUCCESS, lang.getString("command_faction_reject_success", language, fieldFaction));
+                response.set(Result.SUCCESS, lang.getString("command_faction_reject_success",
+                        language, fieldFaction));
                 // TODO: Log message.
             } catch (Exception e) {
                 stackTrace(e);
-                response.set(Result.FAILURE, lang.getString("command_faction_reject_failure", language));
+                response.set(Result.FAILURE, lang.getString("command_faction_reject_failure",
+                        language));
             }
             return response;
         }
@@ -690,7 +723,8 @@ public class ModuleFactions extends MongoModule {
             // if the amount of invites is 0, let the player know that he doesn't have any
             // invites.
             if (countInvites == 0) {
-                response.set(Result.FAILURE, lang.getString("command_faction_reject_none", language));
+                response.set(Result.FAILURE, lang.getString("command_faction_reject_none",
+                        language));
                 return response;
             }
             try {
@@ -699,11 +733,13 @@ public class ModuleFactions extends MongoModule {
                     // Delete the invite.
                     deleteInvite(factionInvite);
                 }
-                response.set(Result.SUCCESS, lang.getString("command_faction_reject_success_all", language));
+                response.set(Result.SUCCESS, lang.getString("command_faction_reject_success_all",
+                        language));
                 // TODO: Log message;
             } catch (Exception e) {
                 stackTrace(e);
-                response.set(Result.FAILURE, lang.getString("command_faction_reject_failure_all", language));
+                response.set(Result.FAILURE, lang.getString("command_faction_reject_failure_all",
+                        language));
             }
             return response;
         }
@@ -759,7 +795,8 @@ public class ModuleFactions extends MongoModule {
         try {
             removeFactionMember(factionMemberKick);
             // Return the success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_kick_success", language, fieldPlayer));
+            response.set(Result.SUCCESS, lang.getString("command_faction_kick_success", language,
+                    fieldPlayer));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
@@ -777,7 +814,8 @@ public class ModuleFactions extends MongoModule {
      * @param passwordNew      The new String password to set for the Faction.
      * @return Returns a Response that details the result of the action.
      */
-    public Response commandSetFactionPassword(Player commander, String passwordOriginal, String passwordNew) {
+    public Response commandSetFactionPassword(Player commander, String passwordOriginal, String
+            passwordNew) {
         if (commander == null) {
             throw new IllegalArgumentException("Player given is null!");
         }
@@ -807,11 +845,13 @@ public class ModuleFactions extends MongoModule {
             // Set the password, and save.
             faction.setPassword(passwordNew, true);
             // Return the success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_set_password_success", language));
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_password_success",
+                    language));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_set_password_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_set_password_failure",
+                    language));
         }
         return response;
     }
@@ -848,7 +888,8 @@ public class ModuleFactions extends MongoModule {
         EntryField fieldTag = new EntryField("tag", tagNew);
         // Check to make sure the tag isn't already being used by the faction.
         if (faction.isTag(tagNew)) {
-            response.set(Result.FAILURE, lang.getString("faction_tag_already_used", language, fieldTag));
+            response.set(Result.FAILURE, lang.getString("faction_tag_already_used", language,
+                    fieldTag));
             return response;
         }
         // Check to make sure no other faction is using the tag.
@@ -865,11 +906,13 @@ public class ModuleFactions extends MongoModule {
             // Set the tag, and save.
             setFactionTag(faction, tagNew);
             // Return the success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_set_tag_success", language, fieldTag));
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_tag_success",
+                    language, fieldTag));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_set_tag_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_set_tag_failure",
+                    language));
         }
         return response;
     }
@@ -912,11 +955,13 @@ public class ModuleFactions extends MongoModule {
             // Set the new name, and save the document.
             setFactionName(faction, nameNew);
             // Return the success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_set_name_success", language, fieldFaction));
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_name_success",
+                    language, fieldFaction));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_set_name_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_set_name_failure",
+                    language));
         }
         return response;
     }
@@ -964,18 +1009,21 @@ public class ModuleFactions extends MongoModule {
         String colorCode = ChatTags.getColor(colorNew);
         // Make sure the color is not already the one being used.
         if (faction.getFactionColor().equalsIgnoreCase(colorCode)) {
-            response.set(Result.FAILURE, lang.getString("faction_color_already_used", language, fieldColor));
+            response.set(Result.FAILURE, lang.getString("faction_color_already_used", language,
+                    fieldColor));
             return response;
         }
         try {
             // Change the faction color, and save.
             faction.setFactionColor(colorNew, true);
             // Return the success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_set_color_success", language, fieldColor));
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_color_success",
+                    language, fieldColor));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_set_color_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_set_color_failure",
+                    language));
         }
         return response;
     }
@@ -1018,11 +1066,13 @@ public class ModuleFactions extends MongoModule {
             faction.setOwner(factionMemberOwnerNew, true);
             EntryField fieldPlayer = new EntryField("player", playerOwnerNew.getName());
             // Return the success message.
-            response.set(Result.SUCCESS, lang.getString("command_faction_set_owner_success", language));
+            response.set(Result.SUCCESS, lang.getString("command_faction_set_owner_success",
+                    language));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_set_owner_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_set_owner_failure",
+                    language));
         }
         return response;
     }
@@ -1056,7 +1106,8 @@ public class ModuleFactions extends MongoModule {
             EntryField fieldMinimumCharacters = new EntryField("minimum_characters", charsMin);
             EntryField fieldMaximumCharacters = new EntryField("maximum_characters", charsMax);
             response.set(Result.FAILURE,
-                    lang.getString("faction_tag_rules", language, fieldMinimumCharacters, fieldMaximumCharacters));
+                    lang.getString("faction_tag_rules", language, fieldMinimumCharacters,
+                            fieldMaximumCharacters));
             return response;
         }
         // All tags are forced upper-case.
@@ -1081,7 +1132,8 @@ public class ModuleFactions extends MongoModule {
         // Check and see if the tag is null or is a blank entry.
         EntryField fieldName = new EntryField("name", name);
         if (name == null || name.isEmpty()) {
-            response.set(Result.FAILURE, lang.getString("faction_name_invalid", language, fieldName));
+            response.set(Result.FAILURE, lang.getString("faction_name_invalid", language,
+                    fieldName));
             return response;
         }
         // Grab the current set range for characters in a name.
@@ -1097,7 +1149,8 @@ public class ModuleFactions extends MongoModule {
             EntryField fieldMinimumCharacters = new EntryField("minimum_characters", charsMin);
             EntryField fieldMaximumCharacters = new EntryField("maximum_characters", charsMax);
             response.set(Result.FAILURE,
-                    lang.getString("faction_name_rules", language, fieldMinimumCharacters, fieldMaximumCharacters));
+                    lang.getString("faction_name_rules", language, fieldMinimumCharacters,
+                            fieldMaximumCharacters));
             return response;
         }
         // Check to see if the tag is already being used by another Faction.
@@ -1131,21 +1184,24 @@ public class ModuleFactions extends MongoModule {
             Faction faction = factionMember.getFaction();
             // Data consistency check.
             if (faction == null) {
-                throw new IllegalStateException("FactionMember exists for player ID: \"" + playerId.toString()
+                throw new IllegalStateException("FactionMember exists for player ID: \"" +
+                        playerId.toString()
                         + "\", yet the Faction representing the member is null.");
             }
             EntryField fieldFaction = new EntryField("faction", faction.getFactionName());
             // If the member is the owner, describe how to get to the point to make a new
             // faction.
             if (faction.isOwner(factionMember)) {
-                response.set(Result.FAILURE, lang.getString("command_faction_create_already_own_faction", language,
+                response.set(Result.FAILURE, lang.getString
+                        ("command_faction_create_already_own_faction", language,
                         fieldFaction));
                 return response;
             }
             // If the member is not the owner, describe leaving the faction in order to make
             // a new faction.
             else {
-                response.set(Result.FAILURE, lang.getString("command_faction_create_already_in_faction", language));
+                response.set(Result.FAILURE, lang.getString
+                        ("command_faction_create_already_in_faction", language));
             }
         }
         return response;
@@ -1170,9 +1226,11 @@ public class ModuleFactions extends MongoModule {
         if (faction == null) {
             // The Faction probably does not exist anymore. Remove the invite.
             deleteInvite(factionInvite);
-            EntryField fieldFactionId = new EntryField("faction", "(UUID: " + factionInvite.getUniqueId().toString() + ")");
+            EntryField fieldFactionId = new EntryField("faction", "(UUID: " + factionInvite
+                    .getUniqueId().toString() + ")");
             // Return this response.
-            response.set(Result.FAILURE, lang.getString("faction_not_found", language, fieldFactionId));
+            response.set(Result.FAILURE, lang.getString("faction_not_found", language,
+                    fieldFactionId));
             return response;
         }
         try {
@@ -1186,11 +1244,13 @@ public class ModuleFactions extends MongoModule {
             // Delete the Invite.
             deleteInvite(factionInvite);
             // Return success.
-            response.set(Result.SUCCESS, lang.getString("command_faction_accept_success", language));
+            response.set(Result.SUCCESS, lang.getString("command_faction_accept_success",
+                    language));
             // TODO: Log message.
         } catch (Exception e) {
             stackTrace(e);
-            response.set(Result.FAILURE, lang.getString("command_faction_accept_failure", language));
+            response.set(Result.FAILURE, lang.getString("command_faction_accept_failure",
+                    language));
         }
         return response;
     }
@@ -1228,7 +1288,8 @@ public class ModuleFactions extends MongoModule {
         MongoFactionMember mongoFactionMember;
         Faction faction;
         FactionMember factionMember;
-        mongoFaction = new MongoFaction(collectionFactions, factionName, tag, color, ownerId, password);
+        mongoFaction = new MongoFaction(collectionFactions, factionName, tag, color, ownerId,
+                password);
         mongoFaction.save();
         mapMongoFactions.put(mongoFaction.getUniqueId(), mongoFaction);
         faction = new Faction(mongoFaction);
@@ -1238,7 +1299,8 @@ public class ModuleFactions extends MongoModule {
         mapFactionsByName.put(faction.getFactionName().toLowerCase(), faction);
         mongoFactionMember = mapMongoFactionMembers.get(ownerId);
         if (mongoFactionMember == null) {
-            mongoFactionMember = new MongoFactionMember(collectionFactionMembers, ownerId, faction.getUniqueId());
+            mongoFactionMember = new MongoFactionMember(collectionFactionMembers, ownerId,
+                    faction.getUniqueId());
             mongoFactionMember.save();
             mapMongoFactionMembers.put(mongoFactionMember.getPlayerId(), mongoFactionMember);
         }
@@ -1316,7 +1378,8 @@ public class ModuleFactions extends MongoModule {
             Faction faction = member.getFaction();
             // Data consistency check.
             if (faction == null) {
-                throw new IllegalStateException("FactionMember exists for player ID: \"" + playerId.toString()
+                throw new IllegalStateException("FactionMember exists for player ID: \"" +
+                        playerId.toString()
                         + "\", yet the Faction representing the member is null.");
             }
             // Check if the OwnerID is the member's ID.
@@ -1367,7 +1430,8 @@ public class ModuleFactions extends MongoModule {
      */
     public FactionMember createFactionMember(UUID playerId, Faction faction) {
         // Create & add the MongoDocument.
-        MongoFactionMember mongoFactionMember = new MongoFactionMember(collectionFactionMembers, playerId,
+        MongoFactionMember mongoFactionMember = new MongoFactionMember(collectionFactionMembers,
+                playerId,
                 faction.getUniqueId());
         mapMongoFactionMembers.put(mongoFactionMember.getPlayerId(), mongoFactionMember);
         // Create the container.
@@ -1612,7 +1676,8 @@ public class ModuleFactions extends MongoModule {
      * @param playerIdOwner   The Unique ID of the Player inviting.
      * @param playerIdInvited The Unique ID of the Player invited.
      */
-    public void createFactionInvite(Faction factionOwner, UUID playerIdOwner, UUID playerIdInvited) {
+    public void createFactionInvite(Faction factionOwner, UUID playerIdOwner, UUID
+            playerIdInvited) {
         // Create the MongoDB document.
         MongoFactionInvite mongoFactionInvite = new MongoFactionInvite(collectionFactionInvites,
                 playerIdOwner, playerIdInvited, factionOwner.getUniqueId());

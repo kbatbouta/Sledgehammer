@@ -27,7 +27,7 @@ import sledgehammer.plugin.Module;
 
 /**
  * This is an Event sub-type that allows Modules to author commands, and send
- * them to other modules for evaluation and execution.
+ * them to other module for evaluation and execution.
  *
  * @author Jab
  */

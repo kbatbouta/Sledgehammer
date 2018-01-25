@@ -22,7 +22,7 @@ package sledgehammer.event;
 
 /**
  * Class designed to handle common event operations and utilities for
- * Sledgehammer's EventManager.
+ * Sledgehammer's EventManagerOld.
  *
  * @author Jab
  */

@@ -94,7 +94,8 @@ public class SendFile extends Send {
         }
         for (int packet = 0; packet < fileExploded.size(); packet++) {
             offset = packet;
-            packetType = packet == 0 ? PACKET_START : packet == fileExploded.size() - 1 ? PACKET_END : PACKET_PART;
+            packetType = packet == 0 ? PACKET_START : packet == fileExploded.size() - 1 ?
+                    PACKET_END : PACKET_PART;
             SledgeHammer.instance.sendServerCommand(player, "sledgehammer.module." + getModule(),
                     getCommand(), export());
         }
@@ -122,9 +123,7 @@ public class SendFile extends Send {
             throw new IllegalArgumentException("File given is null.");
         }
         int chunkSize = 8192;
-        ExplodedFile fileExploded = new ExplodedFile(path);
-        // TODO: Implement.
-        return fileExploded;
+        return new ExplodedFile(path);
     }
 
     private static ExplodedFile readFileBytes(File file, String path) {
@@ -160,7 +159,6 @@ public class SendFile extends Send {
             }
         } catch (IOException e) {
             SledgeHammer.instance.stackTrace(e);
-            SledgeHammer.instance.getEventManager().handleException("sendFile", e);
         }
         return explodedFile;
     }
@@ -179,7 +177,8 @@ public class SendFile extends Send {
         /**
          * Main constructor.
          *
-         * @param path The module-directory path for the File to be saved on the Player's Lua cache directory.
+         * @param path The module-directory path for the File to be saved on the Player's Lua
+         *             cache directory.
          */
         ExplodedFile(String path) {
             super("ExplodedFile");
@@ -221,7 +220,8 @@ public class SendFile extends Send {
         }
 
         /**
-         * Sets the path for the File to be stored at in the Player's Lua cache directory relative to the Module.
+         * Sets the path for the File to be stored at in the Player's Lua cache directory
+         * relative to the Module.
          *
          * @param path The path to set.
          */

@@ -20,12 +20,11 @@
 
 package sledgehammer.module.vanilla;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
-import sledgehammer.interfaces.LogEventListener;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.plugin.Module;
-import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
+import zombie.sledgehammer.module.vanilla.VanillaCommandListener;
 
 /**
  * Module to handle Vanilla data and operations for the Core Plug-in.
@@ -35,69 +34,32 @@ import zombie.sledgehammer.modules.vanilla.VanillaCommandListener;
 public class ModuleVanilla extends Module {
 
     /**
-     * The Map of String permission-nodes identified by the String commands
-     * they represent.
+     * The CommandListener instance for the Module.
      */
-    private Map<String, String> mapPermissionNodes;
-    /** The CommandListener instance for the Module. */
     private VanillaCommandListener commandListener;
-    private LogEventListener logListener;
 
-    public ModuleVanilla() {
-        // Adding contexts to this class for exposure & modification purposes. (This is
-        // not in vanilla) Otherwise, this would be defined in the CommandHandler.
-        // @formatter:off
-		mapPermissionNodes = new HashMap<>();
-		mapPermissionNodes.put("roll"                   , "base.command.player.rolldice"              );
-		mapPermissionNodes.put("changepwd"              , "base.command.player.changepwd"             );
-		mapPermissionNodes.put("card"                   , "base.command.player.card"                  );
-		mapPermissionNodes.put("addalltowhitelist"      , "base.command.admin.addalltowhitelist"      );
-		mapPermissionNodes.put("additem"                , "base.command.admin.additem"                );
-		mapPermissionNodes.put("adduser"                , "base.command.admin.adduser"                );
-		mapPermissionNodes.put("addusertowhitelist"     , "base.command.admin.addusertowhitelist"     );
-		mapPermissionNodes.put("addxp"                  , "base.command.admin.addxp"                  );
-		mapPermissionNodes.put("alarm"                  , "base.command.admin.alarm"                  );
-		mapPermissionNodes.put("changeoption"           , "base.command.admin.changeoption"           );
-		mapPermissionNodes.put("chopper"                , "base.command.admin.chopper"                );
-		mapPermissionNodes.put("createhorde"            , "base.command.admin.createhorde"            );
-		mapPermissionNodes.put("disconnect"             , "base.command.admin.disconnect"             );
-		mapPermissionNodes.put("godmod"                 , "base.command.admin.godmod"                 );
-		mapPermissionNodes.put("grantadmin"             , "base.command.admin.grantadmin"             );
-		mapPermissionNodes.put("gunshot"                , "base.command.admin.gunshot"                );
-		mapPermissionNodes.put("invisible"              , "base.command.admin.invisible"              );
-		mapPermissionNodes.put("kickuser"               , "base.command.admin.kickuser"               );
-		mapPermissionNodes.put("noclip"                 , "base.command.admin.noclip"                 );
-		mapPermissionNodes.put("players"                , "base.command.admin.players"                );
-		mapPermissionNodes.put("quit"                   , "base.command.admin.quit"                   );
-		mapPermissionNodes.put("reloadlua"              , "base.command.admin.reloadlua"              );
-		mapPermissionNodes.put("reload"                 , "base.command.admin.reload"                 );
-		mapPermissionNodes.put("reloadoptions"          , "base.command.admin.reloadoptions"          );
-		mapPermissionNodes.put("removeadmin"            , "base.command.admin.removeadmin"            );
-		mapPermissionNodes.put("removeuserfromwhitelist", "base.command.admin.removeuserfromwhitelist");
-		mapPermissionNodes.put("save"                   , "base.command.admin.save"                   );
-		mapPermissionNodes.put("sendpulse"              , "base.command.admin.sendpulse"              );
-		mapPermissionNodes.put("showoptions"            , "base.command.admin.showoptions"            );
-		mapPermissionNodes.put("startrain"              , "base.command.admin.startrain"              );
-		mapPermissionNodes.put("stoprain"               , "base.command.admin.stoprain"               );
-		mapPermissionNodes.put("teleport"               , "base.command.admin.teleport"               );
-		mapPermissionNodes.put("thunder"                , "base.command.admin.thunder"                );
-		mapPermissionNodes.put("banuser"                , "base.command.admin.banuser"                );
-		mapPermissionNodes.put("unbanuser"              , "base.command.admin.unbanuser"              );
-		mapPermissionNodes.put("banid"                  , "base.command.admin.banid"                  );
-		mapPermissionNodes.put("unbanid"                , "base.command.admin.unbanid"                );
-		// @formatter:on
-    }
+    private VanillaEventListener eventListener;
+
+    private LanguagePackage languagePackage;
 
     @Override
     public void onLoad() {
+        loadLanguagePackage();
         commandListener = new VanillaCommandListener(this);
-        logListener = new VanillaLogListener();
-        register(logListener);
+        eventListener = new VanillaEventListener();
+        register(eventListener);
     }
 
     @Override
     public void onUnload() {
-        unregister(logListener);
+        unregister(eventListener);
+    }
+
+    private void loadLanguagePackage() {
+        File langDir = getLanguageDirectory();
+        boolean override = !isLangOverriden();
+        saveResourceAs("lang/vanilla_en.yml", new File(langDir, "vanilla_en.yml"), override);
+        languagePackage = new LanguagePackage(getLanguageDirectory(), "vanilla");
     }
 
     /**
@@ -118,11 +80,7 @@ public class ModuleVanilla extends Module {
         this.commandListener = listener;
     }
 
-    /**
-     * @return Returns the Map of String permission-nodes identified by the
-     * String commands they represent.
-     */
-    public Map<String, String> getCommandPermissionNodes() {
-        return this.mapPermissionNodes;
+    public LanguagePackage getLanguagePackage() {
+        return languagePackage;
     }
 }

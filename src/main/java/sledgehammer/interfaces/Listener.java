@@ -21,18 +21,11 @@
 package sledgehammer.interfaces;
 
 /**
- * Listener for Exceptions that are thrown within the scope of the Sledgehammer
- * engine.
- *
+ * Interface for listening to and handling Events in the Sledgehammer engine.
+ * 
+ * TODO: Rewrite to support Annotation assignment.
+ * 
  * @author Jab
  */
-public interface ThrowableListener {
-
-    /**
-     * Handles Throwables thrown within the scope of the Sledgehammer engine.
-     *
-     * @param reason    The String reason provided by the situation.
-     * @param throwable The Throwable thrown.
-     */
-    void onError(String reason, Throwable throwable);
+public interface Listener {
 }

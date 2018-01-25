@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.*;
+import sledgehammer.annotations.EventHandler;
 import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.event.core.player.*;
-import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
@@ -40,63 +40,22 @@ import sledgehammer.lua.faction.FactionMember;
  *
  * @author Jab
  */
-public class FactionsEventHandler implements EventListener {
+public class FactionsEventHandler implements Listener {
 
-    /**
-     * The Module using the listener.
-     */
     private ModuleFactions module;
 
     /**
      * Main constructor.
      *
-     * @param module The ModuleFactions instance using the listener.
+     * @param module The faction module instance using the listener.
      */
-    public FactionsEventHandler(ModuleFactions module) {
+    FactionsEventHandler(ModuleFactions module) {
         setModule(module);
     }
 
-    @Override
-    public void onEvent(Event event) {
-        String ID = event.getID();
-        switch (ID) {
-            case ConnectEvent.ID:
-                handleConnectEvent((ConnectEvent) event);
-                break;
-            case PlayerCreatedEvent.ID:
-                handlePlayerCreatedEvent((PlayerCreatedEvent) event);
-                break;
-            case RequestChannelsEvent.ID:
-                handleRequestChannelsEvent((RequestChannelsEvent) event);
-                break;
-            case PlayerChatReadyEvent.ID:
-                handlePlayerChatReadyEvent((PlayerChatReadyEvent) event);
-                break;
-            case DisconnectEvent.ID:
-                handleDisconnectEvent((DisconnectEvent) event);
-                break;
-        }
-    }
 
-    @Override
-    public String[] getTypes() {
-        // @formatter:off
-        return new String[]{
-                PlayerCreatedEvent.ID  ,
-                ConnectEvent.ID        ,
-                RequestChannelsEvent.ID,
-                PlayerChatReadyEvent.ID,
-                DisconnectEvent.ID
-        };
-        // @formatter:on
-    }
-
-    @Override
-    public boolean runSecondary() {
-        return false;
-    }
-
-    private void handlePlayerCreatedEvent(PlayerCreatedEvent event) {
+    @EventHandler(id = "core.faction.event.playercreated")
+    private void on(PlayerCreatedEvent event) {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
         if (factionMember != null) {
@@ -106,7 +65,8 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
-    private void handleConnectEvent(ConnectEvent event) {
+    @EventHandler(id = "core.faction.event.connect")
+    private void on(ConnectEvent event) {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
         if (factionMember != null) {
@@ -114,7 +74,8 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
-    private void handleRequestChannelsEvent(RequestChannelsEvent event) {
+    @EventHandler(id = "core.faction.event.requestchannels")
+    private void on(RequestChannelsEvent event) {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
         if (factionMember != null) {
@@ -125,7 +86,8 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
-    private void handlePlayerChatReadyEvent(PlayerChatReadyEvent event) {
+    @EventHandler(id = "core.faction.event.playerchatready")
+    private void on(PlayerChatReadyEvent event) {
         Player player = event.getPlayer();
         List<FactionInvite> invites = module.getInvitesForPlayer(player);
         if (invites != null && invites.size() > 0) {
@@ -146,7 +108,8 @@ public class FactionsEventHandler implements EventListener {
                     SledgeHammer.instance.getOfflinePlayer(factionInvite.getUniqueId());
                 }
                 if (playerInvitee != null) {
-                    player.sendChatMessage(playerInvitee.getUsername() + " has invited you to join the faction "
+                    player.sendChatMessage(playerInvitee.getUsername() + " has invited you to " +
+                            "join the faction "
                             + faction.getFactionName() + ".");
                 } else {
                     player.sendChatMessage("You have been invited to join the faction "
@@ -162,7 +125,8 @@ public class FactionsEventHandler implements EventListener {
         }
     }
 
-    private void handleDisconnectEvent(DisconnectEvent event) {
+    @EventHandler(id = "core.faction.event.disconnect")
+    private void on(DisconnectEvent event) {
         Player player = event.getPlayer();
         FactionMember factionMember = module.getFactionMember(player);
         if (factionMember != null) {
@@ -172,7 +136,7 @@ public class FactionsEventHandler implements EventListener {
     }
 
     /**
-     * @return Returns the ModuleFactions instance using the listener.
+     * @return Returns the faction module instance using the listener.
      */
     public ModuleFactions getModule() {
         return this.module;
@@ -181,9 +145,9 @@ public class FactionsEventHandler implements EventListener {
     /**
      * (Private Method)
      * <p>
-     * Sets the ModuleFactions instance using the listener.
+     * Sets the faction module instance using the listener.
      *
-     * @param module The ModuleFactions instance.
+     * @param module The faction module instance.
      */
     private void setModule(ModuleFactions module) {
         this.module = module;

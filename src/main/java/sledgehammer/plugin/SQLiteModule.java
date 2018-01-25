@@ -740,7 +740,7 @@ public abstract class SQLiteModule extends Module {
                     statement.close();
                 }
             } catch (SQLException e) {
-                stackTrace("Failed to close statement.", e);
+                stackTrace(e);
             }
         }
     }

@@ -38,46 +38,19 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event;
+package sledgehammer.event.core.command;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Comparator;
 
 /**
- * This Annotation handles the assignment and identification of a method to handle
- * Events passed to the Sledgehammer engine.
+ * The comparator is for organizing command handlers by the priority defined with the annotation.
  *
  * @author Jab
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface EventHandler {
+public class CommandHandlerComparator implements Comparator<CommandHandlerContainer> {
 
-    /**
-     * Set this to true if the EventHandler should handle Events that are set
-     * cancelled prior to being handled by the EventHandler.
-     *
-     * @return Returns false by default.
-     */
-    boolean ignoreCancelled() default false;
-
-    /**
-     * The EventHandler priority is a means of determining the importance of
-     * the EventHandler when compared to other handlers. If the number set is
-     * higher than another event handler, then the event handler will run
-     * first. The highest number is the most important.
-     *
-     * @return Returns 0 by default.
-     */
-    int eventPriority() default 0;
-
-    /**
-     * The module ID defined is useful for determining the origin of the
-     * EventHandler, or the associated ID of the EventHandler. This is an
-     * optional setting.
-     * @return Returns an empty String by default.
-     */
-    String moduleId() default "";
+    @Override
+    public int compare(CommandHandlerContainer handler1, CommandHandlerContainer handler2) {
+        return handler1.getPriority() - handler2.getPriority();
+    }
 }

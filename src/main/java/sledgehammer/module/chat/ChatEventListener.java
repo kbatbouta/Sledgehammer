@@ -21,13 +21,14 @@
 package sledgehammer.module.chat;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.Event;
+import sledgehammer.annotations.EventHandler;
+import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.core.player.DisconnectEvent;
-import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 
-public class ChatEventListener implements EventListener {
+public class ChatEventListener implements Listener {
 
     private ModuleChat module;
 
@@ -35,33 +36,15 @@ public class ChatEventListener implements EventListener {
         setModule(module);
     }
 
-    @Override
-    public void onEvent(Event event) {
-        String Id = event.getID();
-        if (Id.equals(DisconnectEvent.ID)) {
-            handleDisconnectEvent((DisconnectEvent) event);
-        }
-    }
-
-    @Override
-    public String[] getTypes() {
-        return new String[] {
-            DisconnectEvent.ID
-        };
-    }
-
-    @Override
-    public boolean runSecondary() {
-        return false;
-    }
-
-    private void handleDisconnectEvent(DisconnectEvent event) {
+    @EventHandler(id = "core.chat.event.disconnect")
+    private void on(DisconnectEvent event) {
         Player player = event.getPlayer();
-        if(player != null) {
+        if (player != null) {
             for (ChatChannel channel : getModule().getChatChannels()) {
                 channel.removePlayer(player, false);
             }
-            SledgeHammer.instance.getDatabase().removeMongoPlayer(player.getMongoDocument());
+            SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
+            database.removeMongoPlayer(player.getMongoDocument());
         }
     }
 

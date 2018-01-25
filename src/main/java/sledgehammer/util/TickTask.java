@@ -83,7 +83,7 @@ public abstract class TickTask extends Printable {
         catch (Exception e) {
             returned = false;
             stackTrace(e);
-            SledgeHammer.instance.handle("TickTask failed to execute.", e);
+            SledgeHammer.instance.handle(e);
         }
         // Set the flag for being alive. This flag is synonymous with the returned boolean value.
         this.alive = returned;

@@ -501,7 +501,7 @@ public abstract class SQLiteHelper extends Printable {
             try {
                 Objects.requireNonNull(statement).close();
             } catch (SQLException e) {
-                stackTrace("Failed to close statement.", e);
+                stackTrace(e);
             }
         }
     }

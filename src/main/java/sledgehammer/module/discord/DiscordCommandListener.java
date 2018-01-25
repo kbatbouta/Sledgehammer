@@ -20,67 +20,55 @@
 
 package sledgehammer.module.discord;
 
+import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.CommandListener;
+import sledgehammer.interfaces.Listener;
+import sledgehammer.language.Language;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
-public class DiscordCommandListener implements CommandListener {
+public class DiscordCommandListener implements Listener {
 
     private ModuleDiscord module;
 
-    DiscordCommandListener(ModuleDiscord instance) {
-        module = instance;
+    DiscordCommandListener(ModuleDiscord module) {
+        setModule(module);
     }
 
-    public String[] getCommands() {
-        return new String[]{"discord"};
-    }
-
-    public void onCommand(Command c, Response r) {
-        String command = c.getCommand();
+    @CommandHandler(command = "discord", permission = "core.discord.command.discord")
+    public void onCommandDiscord(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String command;
         String[] args = c.getArguments();
-        Player player = c.getPlayer();
-
-        if (command.equalsIgnoreCase("discord")) {
-            if (player.hasPermission(getPermissionNode("discord"))) {
-                if (args.length == 1) {
-                    command = args[0];
-                    if (command.equalsIgnoreCase("start")) {
-                        module.start();
-                        r.set(Result.SUCCESS, "Starting the Discord bot.");
-                    } else if (command.equalsIgnoreCase("stop")) {
-                        module.stop();
-                        r.set(Result.SUCCESS, "Stopping the Discord bot.");
-                    } else {
-                        r.set(Result.FAILURE, onTooltip(player, c));
-                    }
-                } else {
-                    r.set(Result.FAILURE, onTooltip(player, c));
-                }
-            } else {
-                r.set(Result.FAILURE, module.getPermissionDeniedMessage());
-            }
+        if (args.length != 1) {
+            r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
+            return;
+        }
+        command = args[0];
+        if (command.equalsIgnoreCase("start")) {
+            module.onStart();
+            r.set(Result.SUCCESS, "Starting the Discord bot.");
+        } else if (command.equalsIgnoreCase("stop")) {
+            module.onStop();
+            r.set(Result.SUCCESS, "Stopping the Discord bot.");
+        } else {
+            r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
         }
     }
 
-    public String onTooltip(Player player, Command c) {
-        String command = c.getCommand();
-        if (command.equalsIgnoreCase("discord")) {
-            if (player.hasPermission(getPermissionNode("discord"))) {
-                return "Manages the discord bot. EX: '/discord start' '/discord stop'";
-            } else {
-                return module.getPermissionDeniedMessage();
-            }
-        }
-        return null;
+    public LanguagePackage getLanguagePackage() {
+        return getModule().getLanguagePackage();
     }
 
-    public String getPermissionNode(String command) {
-        if (command.equalsIgnoreCase("discord")) {
-            return "sledgehammer.discord";
-        }
-        return null;
+    public ModuleDiscord getModule() {
+        return this.module;
+    }
+
+    private void setModule(ModuleDiscord module) {
+        this.module = module;
     }
 }

@@ -20,10 +20,9 @@
 
 package sledgehammer.module.permissions;
 
-import java.util.*;
-
+import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.CommandListener;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
@@ -36,317 +35,291 @@ import sledgehammer.util.Response;
  *
  * @author Jab
  */
-public class PermissionsCommandListener implements CommandListener {
+public class PermissionsCommandListener implements Listener {
 
     private ModulePermissions module;
 
-    private Map<String, String> mapPermissionNodes;
-
     PermissionsCommandListener(ModulePermissions module) {
         setModule(module);
-        mapPermissionNodes = new HashMap<>();
-        // @formatter:off
-        mapPermissionNodes.put("permissions"                 , "sledgehammer.permissions"                  );
-        mapPermissionNodes.put("permissions group"           , "sledgehammer.permissions.group"            );
-        mapPermissionNodes.put("permissions group create"    , "sledgehammer.permissions.group.create"     );
-        mapPermissionNodes.put("permissions group delete"    , "sledgehammer.permissions.group.delete"     );
-        mapPermissionNodes.put("permissions group list"      , "sledgehammer.permissions.group.list"       );
-        mapPermissionNodes.put("permissions group rename"    , "sledgehammer.permissions.group.rename"     );
-        mapPermissionNodes.put("permissions group set"       , "sledgehammer.permissions.group.set"        );
-        mapPermissionNodes.put("permissions group set node"  , "sledgehammer.permissions.group.set.context");
-        mapPermissionNodes.put("permissions group set parent", "sledgehammer.permissions.group.set.parent" );
-        mapPermissionNodes.put("permissions user"            , "sledgehammer.permissions.user"             );
-        mapPermissionNodes.put("permissions user create"     , "sledgehammer.permissions.user.create"      );
-        mapPermissionNodes.put("permissions user delete"     , "sledgehammer.permissions.user.delete"      );
-        mapPermissionNodes.put("permissions user set"        , "sledgehammer.permissions.user.set"         );
-        mapPermissionNodes.put("permissions user set node"   , "sledgehammer.permissions.user.set.context" );
-        mapPermissionNodes.put("permissions user set group"  , "sledgehammer.permissions.user.set.group"   );
-        mapPermissionNodes.put("permissions user set list"   , "sledgehammer.permissions.user.list"        );
-        // @formatter:on
     }
 
-    @Override
-    public void onCommand(Command c, Response r) {
-        ModulePermissions module = getModule();
-        LanguagePackage lang = module.getLanguagePackage();
-        Result result = Result.FAILURE;
+    @CommandHandler(
+            command = "permissions",
+            permission = "core.permissions.command.permissions"
+    )
+    public void onCommandPermissions(Command c, Response r) {
         Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
         Language language = commander.getLanguage();
-        String commanderName = commander.getUsername();
-        String response = null;
-        String command = c.getCommand().toLowerCase();
-        String[] args = c.getArguments();
-        Response moduleResponse = null;
-        if (command.equals("permissions")) {
-            if (args.length > 0) {
-                command = args[0];
-                args = Command.getSubArgs(args, 1);
-                if (command.equals("test")) {
-                  if(!commander.isAdministrator()) {
-                      r.deny();
-                      return;
-                  }
-                  String permission = args[0];
-                  PermissionGroup groupDefault = module.getDefaultPermissionGroup();
-                  boolean flag = groupDefault.hasPermission(permission);
-                  r.set(Result.SUCCESS, "[" + groupDefault.getGroupName() + "] Node: " + permission + " = " + flag + ".");
-                } else if (command.equals("help")) {
-                    processHelpMessage(commander, r);
-                } else if (command.equalsIgnoreCase("group")) {
-                    if (args.length > 0) {
-                        command = args[0];
-                        args = Command.getSubArgs(args, 1);
-                        // /permissions group create
-                        if(command.equalsIgnoreCase("create")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions group create"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length == 1) {
-                                String permissionGroupName = args[0];
-                                r.set(module.commandCreatePermissionGroup(commander, permissionGroupName));
-                            }
-                            // tool-tip
-                            else {
-                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_create", language));
-                            }
-                        }
-                        // /permissions group delete
-                        else if(command.equalsIgnoreCase("delete")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions group delete"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length == 1) {
-                                String permissionGroupName = args[0];
-                                r.set(module.commandDeletePermissionGroup(commander, permissionGroupName));
-                            } else {
-                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_delete", language));
-                            }
-                        }
-                        // /permissions group list
-                        else if(command.equalsIgnoreCase("list")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions group list"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length == 1) {
-                                String permissionGroupName = args[0];
-                                r.set(module.commandListPermissionGroup(commander, permissionGroupName));
-                            } else {
-                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_list", language));
-                            }
-                        }
-                        // /permissions group rename
-                        else if(command.equalsIgnoreCase("rename")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions group rename"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length == 2) {
-                                String permissionGroupName = args[0];
-                                String permissionGroupNameNew = args[1];
-                                r.set(module.commandRenamePermissionGroup(commander, permissionGroupName, permissionGroupNameNew));
-                            } else {
-                                r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_rename", language));
-                            }
-                        }
-                        // /permissions group set
-                        else if(command.equalsIgnoreCase("set")) {
-                            if(args.length > 0) {
-                                command = args[0];
-                                args = Command.getSubArgs(args, 1);
-                                // /permissions group set node
-                                if(command.equalsIgnoreCase("node")) {
-                                    if(!commander.hasPermission(getPermissionNode("permissions group set node"))) {
-                                        r.deny();
-                                        return;
-                                    }
-                                    if(args.length == 3) {
-                                        String permissionGroupName = args[0];
-                                        String node = args[1];
-                                        String flag = args[2];
-                                        r.set(module.commandSetPermissionGroupNode(commander, permissionGroupName, node, flag));
-                                    } else {
-                                        r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_node", language));
-                                    }
-                                }
-                                // /permissions group set parent
-                                else if(command.equalsIgnoreCase("parent")) {
-                                    if(!commander.hasPermission(getPermissionNode("permissions group set parent"))) {
-                                        r.deny();
-                                        return;
-                                    }
-                                    if(args.length == 2) {
-                                        String permissionGroupName = args[0];
-                                        String permissionGroupNameParent = args[1];
-                                        r.set(module.commandSetPermissionGroupParent(commander, permissionGroupName, permissionGroupNameParent));
-                                    } else {
-                                        r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_parent", language));
-                                    }
-                                }
-                            } else {
-                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_group_set", language));
-                            }
-                        } else {
-                            r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_group", language));
-                        }
-                    } else {
-                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_group", language));
-                    }
-                }
-                // /permission user
-                else if(command.equalsIgnoreCase("user")) {
-                    if (args.length > 0) {
-                        command = args[0];
-                        args = Command.getSubArgs(args, 1);
-                        // /permission user create
-                        if(command.equalsIgnoreCase("create")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions user create"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length > 0) {
-                                String username = args[0];
-                                r.set(module.commandCreatePermissionUser(commander, username));
-                            } else {
-                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_create", language));
-                            }
-                        }
-                        // /permission user delete
-                        else if(command.equalsIgnoreCase("delete")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions user delete"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length > 0) {
-                                String username = args[0];
-                                r.set(module.commandDeletePermissionUser(commander, username));
-                            } else {
-                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_delete", language));
-                            }
-                        }
-                        // /permission user list
-                        else if(command.equalsIgnoreCase("list")) {
-                            if(!commander.hasPermission(getPermissionNode("permissions user list"))) {
-                                r.deny();
-                                return;
-                            }
-                            if(args.length == 1) {
-                                String username = args[0];
-                                r.set(module.commandListPermissionUser(commander, username));
-                            } else {
-                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_list", language));
-                            }
-                        }
-                        // /permission user set
-                        else if(command.equals("set")) {
-                            if(args.length > 0) {
-                                command = args[0];
-                                args = Command.getSubArgs(args, 1);
-                                // /permission user set group
-                                if(command.equalsIgnoreCase("group")) {
-                                    if(!commander.hasPermission(getPermissionNode("permissions user set group"))) {
-                                        r.deny();
-                                        return;
-                                    }
-                                    if(args.length == 2) {
-                                        String username = args[0];
-                                        String permissionGroupName = args[1];
-                                        r.set(module.commandSetPermissionUserGroup(commander, username, permissionGroupName));
-                                    } else {
-                                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set_group", language));
-                                    }
-                                }
-                                // /permission user set node
-                                else if(command.equalsIgnoreCase("node")) {
-                                    if(!commander.hasPermission(getPermissionNode("permissions user set node"))) {
-                                        r.deny();
-                                        return;
-                                    }
-                                    if(args.length == 3) {
-                                        String username = args[0];
-                                        String node = args[1];
-                                        String flag = args[2];
-                                        r.set(module.commandSetPermissionUserNode(commander, username, node, flag));
-                                    } else {
-                                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set_node", language));
-                                    }
-                                }
-                            } else {
-                                r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set", language));
-                            }
-                        }
-                        else {
-                            r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user", language));
-                        }
-                    } else {
-                        r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user", language));
-                    }
-                } else {
-                    r.set(Result.FAILURE, lang.getString("command_tooltip_permissions", language));
-                }
-            } else {
-                // No sub-commands exist.
-                processHelpMessage(commander, r);
-            }
-        }
+        r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions", language));
     }
 
-    @Override
-    public String onTooltip(Player commander, Command c) {
-        String command = c.getCommand().toLowerCase();
-        if (command.equals("permissions") && commander.hasPermission(getPermissionNode("permissions") + ".*")) {
-            Response r = new Response();
-            processHelpMessage(commander, r);
-            return r.getResponse();
-        }
-        return null;
-    }
-
-    @Override
-    public String getPermissionNode(String command) {
-        return mapPermissionNodes.get(command.toLowerCase().trim());
-    }
-
-    @Override
-    public String[] getCommands() {
-        return new String[]{"permissions"};
-    }
-
-    private void processHelpMessage(Player commander, Response r) {
-        ModulePermissions module = getModule();
-        LanguagePackage lang = module.getLanguagePackage();
+    @CommandHandler(
+            command = "permissions group",
+            permission = "core.permissions.command.permissions.group"
+    )
+    public void onCommandPermissionsGroup(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
         Language language = commander.getLanguage();
-        StringBuilder builder = new StringBuilder();
-        builder.append(lang.getString("command_tooltip_permissions_header", language));
-        List<String> listCommands = new ArrayList<>(mapPermissionNodes.keySet());
-        Collections.sort(listCommands, new Comparator<String>() {
-            @Override
-            public int compare(String string1, String string2) {
-                return string1.compareTo(string2);
-            }
-        });
-        for (String key : listCommands) {
-            // Grab the PermissionNode.
-            String permissionNode = mapPermissionNodes.get(key);
-            if (commander.hasPermission(permissionNode)) {
-                String langString = "command_tooltip_" + key.replaceAll(" ", "_");
-                module.println("langString: " + langString);
-                String langResult = lang.getString(langString, language);
-                if (langResult != null) {
-                    langResult = langResult.replaceAll("\n", " <LINE> ");
-                    builder.append(" <LINE> ").append(langResult);
-                }
-            }
-        }
-        // If the Commander does not have any of the permission nodes for the commands, send him a denied message.
-        if (builder.length() == 0) {
-            r.set(Result.FAILURE, module.getPermissionDeniedMessage());
+        r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group", language));
+    }
+
+    @CommandHandler(
+            command = "permissions group create",
+            permission = "core.permissions.command.permissions.group.create"
+    )
+    public void onCommandPermissionsGroupCreate(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 1) {
+            r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_create",
+                    language));
             return;
         }
-        // If there are any help responses, return the result help string.
-        r.set(Result.SUCCESS, builder.toString());
+        String permissionGroupName = args[0];
+        r.set(module.commandCreatePermissionGroup(commander, permissionGroupName));
+    }
+
+    @CommandHandler(
+            command = "permissions group delete",
+            permission = "core.permissions.command.permissions.group.delete"
+    )
+    public void onCommandPermissionsGroupDelete(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 1) {
+            r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_delete",
+                    language));
+            return;
+        }
+        String permissionGroupName = args[0];
+        r.set(module.commandDeletePermissionGroup(commander, permissionGroupName));
+    }
+
+    @CommandHandler(
+            command = "permissions group list",
+            permission = "core.permissions.command.permissions.group.list"
+    )
+    public void onCommandPermissionsGroupList(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 1) {
+            r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_list",
+                    language));
+            return;
+        }
+        String permissionGroupName = args[0];
+        r.set(module.commandListPermissionGroup(commander, permissionGroupName));
+    }
+
+    @CommandHandler(
+            command = "permissions group rename",
+            permission = "core.permissions.command.permissions.group.rename"
+    )
+    public void onCommandPermissionsGroupRename(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 2) {
+            r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_rename",
+                    language));
+            return;
+        }
+        String permissionGroupName = args[0];
+        String permissionGroupNameNew = args[1];
+        r.set(module.commandRenamePermissionGroup(commander, permissionGroupName,
+                permissionGroupNameNew));
+    }
+
+    @CommandHandler(
+            command = "permissions group set",
+            permission = "core.permissions.command.permissions.group.set"
+    )
+    public void onCommandPermissionsGroupSet(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group_set", language));
+    }
+
+    @CommandHandler(
+            command = "permissions group set node",
+            permission = "core.permissions.command.permissions.group.set.node"
+    )
+    public void onCommandPermissionsGroupSetNode(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 3);
+        if (args.length != 3) {
+            r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_node",
+                    language));
+            return;
+        }
+        String permissionGroupName = args[0];
+        String node = args[1];
+        String flag = args[2];
+        r.set(module.commandSetPermissionGroupNode(commander, permissionGroupName, node, flag));
+    }
+
+    @CommandHandler(
+            command = "permissions group set parent",
+            permission = "core.permissions.command.permissions.group.set.parent"
+    )
+    public void onCommandPermissionsGroupSetParent(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 3);
+        if (args.length != 2) {
+            r.set(Result.SUCCESS,
+                    lang.getString("command_tooltip_permissions_group_set_parent", language));
+            return;
+        }
+        String permissionGroupName = args[0];
+        String permissionGroupNameParent = args[1];
+        r.set(module.commandSetPermissionGroupParent(commander, permissionGroupName,
+                permissionGroupNameParent));
+    }
+
+    @CommandHandler(
+            command = "permissions test",
+            permission = "core.permissions.command.permissions.test"
+    )
+    public void onCommandPermissionsTest(Command c, Response r) {
+        String[] args = Command.getSubArgs(c.getArguments(), 1);
+        String permission = args[0];
+        PermissionGroup groupDefault = module.getDefaultPermissionGroup();
+        boolean flag = groupDefault.hasPermission(permission);
+        r.set(Result.SUCCESS,
+                "[" + groupDefault.getGroupName() + "] Node: " + permission + " = " + flag + ".");
+    }
+
+    @CommandHandler(
+            command = "permissions user",
+            permission = "core.permissions.command.permissions.user"
+    )
+    public void onCommandPermissionsUser(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_user", language));
+    }
+
+    @CommandHandler(
+            command = "permissions user create",
+            permission = "core.permissions.command.permissions.user.create"
+    )
+    public void onCommandPermissionsUserCreate(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 1) {
+            r.set(Result.FAILURE,
+                    lang.getString("command_tooltip_permissions_user_create", language));
+            return;
+        }
+        String username = args[0];
+        r.set(module.commandCreatePermissionUser(commander, username));
+    }
+
+    @CommandHandler(
+            command = "permissions user delete",
+            permission = "core.permissions.command.permissions.user.delete"
+    )
+    public void onCommandPermissionsUserDelete(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 1) {
+            r.set(Result.FAILURE,
+                    lang.getString("command_tooltip_permissions_user_delete", language));
+            return;
+        }
+        String username = args[0];
+        r.set(module.commandDeletePermissionUser(commander, username));
+    }
+
+    @CommandHandler(
+            command = "permissions user list",
+            permission = "core.permissions.command.permissions.user.list"
+    )
+    public void onCommandPermissionsUserList(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 2);
+        if (args.length != 1) {
+            r.set(Result.FAILURE,
+                    lang.getString("command_tooltip_permissions_user_list", language));
+            return;
+        }
+        String username = args[0];
+        r.set(module.commandListPermissionUser(commander, username));
+    }
+
+    @CommandHandler(
+            command = "permissions user set",
+            permission = "core.permissions.command.permissions.user.set"
+    )
+    public void onCommandPermissionsUserSet(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_user_set", language));
+    }
+
+    @CommandHandler(
+            command = "permissions user set node",
+            permission = "core.permissions.command.permissions.user.set.node"
+    )
+    public void onCommandPermissionsUserSetNode(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 3);
+        if (args.length != 3) {
+            r.set(Result.FAILURE,
+                    lang.getString("command_tooltip_permissions_user_set_node", language));
+            return;
+        }
+        String username = args[0];
+        String node = args[1];
+        String flag = args[2];
+        r.set(module.commandSetPermissionUserNode(commander, username, node, flag));
+    }
+
+    @CommandHandler(
+            command = "permissions user set group",
+            permission = "core.permissions.command.permissions.user.set.group"
+    )
+    public void onCommandPermissionsUserSetGroup(Command c, Response r) {
+        Player commander = c.getPlayer();
+        LanguagePackage lang = getLanguagePackage();
+        Language language = commander.getLanguage();
+        String[] args = Command.getSubArgs(c.getArguments(), 3);
+        if (args.length != 2) {
+            r.set(Result.FAILURE,
+                    lang.getString("command_tooltip_permissions_user_set_group", language));
+            return;
+        }
+        String username = args[0];
+        String permissionGroupName = args[1];
+        r.set(module.commandSetPermissionUserGroup(commander, username, permissionGroupName));
+    }
+
+    public LanguagePackage getLanguagePackage() {
+        return getModule().getLanguagePackage();
     }
 
     public ModulePermissions getModule() {

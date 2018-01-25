@@ -51,9 +51,9 @@
             </plugin>
         </plugins>
     </build>
-    <!--<modules>-->
+    <!--<module>-->
         <!--<module>mongoconversiontool</module>-->
-    <!--</modules>-->
+    <!--</module>-->
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
         <dependency>

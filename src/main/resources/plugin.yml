@@ -17,18 +17,11 @@ modules:
     version: "2.0_0"
     description: "Core module for Sledgehammer."
     class: "sledgehammer.module.core.ModuleCore"
-    default-permissions:
-    - "sledgehammer.core.basic.colors"
-    - "sledgehammer.core.basic.commitsuicide"
   Vanilla:
     client-module-id: "core.vanilla"
     version: "1.3_0"
     description: "Vanilla module for Sledgehammer."
     class: "sledgehammer.module.vanilla.ModuleVanilla"
-    default-permissions:
-    - "base.command.player.card"
-    - "base.command.player.changepwd"
-    - "base.command.player.rolldice"
   Chat:
     client-module-id: "core.chat"
     version: "2.0_0"
@@ -44,5 +37,3 @@ modules:
     version: "3.0_0"
     description: "Factions module for Sledgehammer."
     class: "sledgehammer.module.faction.ModuleFactions"
-    default-permissions:
-    - "sledgehammer.factions"

@@ -20,12 +20,10 @@
 
 package sledgehammer.module.npc;
 
+import sledgehammer.annotations.EventHandler;
 import sledgehammer.event.core.player.ConnectEvent;
-import sledgehammer.event.core.player.DisconnectEvent;
-import sledgehammer.event.Event;
-import sledgehammer.interfaces.EventListener;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.core.Player;
-import sledgehammer.manager.NPCManager;
 import zombie.core.raknet.UdpConnection;
 import zombie.network.GameServer;
 import zombie.sledgehammer.npc.NPC;
@@ -34,45 +32,38 @@ import zombie.sledgehammer.npc.NPC;
  * EventListener to assist the NPCManager to send NPC player info to connecting
  * Players, since NPCs do not have a UDPConnection instance.
  * <p>
+ *
  * TODO: Rewrite NPCs and remove the NPCManager.
  *
  * @author Jab
  */
-public class NPCConnectionListener implements EventListener {
+class NPCEventListener implements Listener {
 
-    /**
-     * The NPCManager instance.
-     */
-    private NPCManager npcManager;
+    private ModuleNPC module;
 
     /**
      * Main constructor.
      *
-     * @param npcManager The NPCManager instance.
+     * @param module The npc module instance registering the listener.
      */
-    public NPCConnectionListener(NPCManager npcManager) {
-        this.npcManager = npcManager;
+    public NPCEventListener(ModuleNPC module) {
+        setModule(module);
     }
 
-    @Override
-    public void onEvent(Event event) {
-        if (event.getID().equals(ConnectEvent.ID)) {
-            ConnectEvent connectEvent = (ConnectEvent) event;
-            Player player = connectEvent.getPlayer();
-            UdpConnection connection = player.getConnection();
-            for (NPC npc : npcManager.getNPCs()) {
-                GameServer.sendPlayerConnect(npc, connection);
-            }
+    @EventHandler(id = "core.npc.event.connect")
+    public void on(ConnectEvent event) {
+        Player commander = event.getPlayer();
+        UdpConnection connection = commander.getConnection();
+        for (NPC npc : getModule().getNPCs()) {
+            GameServer.sendPlayerConnect(npc, connection);
         }
     }
 
-    @Override
-    public String[] getTypes() {
-        return new String[]{ConnectEvent.ID, DisconnectEvent.ID};
+    private ModuleNPC getModule() {
+        return this.module;
     }
 
-    @Override
-    public boolean runSecondary() {
-        return false;
+    private void setModule(ModuleNPC module) {
+        this.module = module;
     }
 }

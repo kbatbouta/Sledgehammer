@@ -31,11 +31,11 @@ require "Sledgehammer/Module"
 SledgeHammer = class(function(o)
 	 -- Debug flag for global debugging of SledgeHammer's Lua framework.
 	 o.DEBUG = false;
-	 -- List of the modules.
+	 -- List of the module.
 	 o.modules = {};
-	 -- List of the modules by their Names.
+	 -- List of the module by their Names.
 	 o.modulesByName = {};
-	 -- List of the modules by their IDs.
+	 -- List of the module by their IDs.
 	 o.modulesByID = {};
 	 -- Load flag.
 	 o.loaded = false;
@@ -59,9 +59,9 @@ function SledgeHammer:init()
 	local startTimeStamp = getTimestamp();
 	print("Initializing SledgeHammer Lua framework. Version: " .. tostring(SledgeHammer:getVersion()));
 	if preloaded_modules_index > 0 then
-		-- Grab the length of the preloaded modules table.
+		-- Grab the length of the preloaded module table.
 		local length = preloaded_modules_index - 1;
-		-- Formally register preloaded modules.
+		-- Formally register preloaded module.
 		for index = 0, length, 1 do
 			local nextModule = preloaded_modules[index];
 			self:register(nextModule);
@@ -137,7 +137,7 @@ end
 -- Loads the Modules registered.
 ----------------------------------------------------------------
 function SledgeHammer:loadModules()
-	-- Get the length of the modules.
+	-- Get the length of the module.
 	local length = tLength(self.modules) - 1;
 	-- Go through each module.
 	for index = 0, length, 1 do
@@ -153,7 +153,7 @@ end
 -- Starts the Modules registered.
 ----------------------------------------------------------------
 function SledgeHammer:startModules()
-	-- Get the length of the modules.
+	-- Get the length of the module.
 	local length = tLength(self.modules) - 1;
 	-- Go through each module.
 	for index = 0, length, 1 do
@@ -169,7 +169,7 @@ end
 -- Handshakes all registered Modules.
 ----------------------------------------------------------------
 function SledgeHammer:handshakeModules()
-	-- Get the length of the modules.
+	-- Get the length of the module.
 	local length = tLength(self.modules) - 1;
 	-- Go through each module.
 	for index = 0, length, 1 do
@@ -185,7 +185,7 @@ end
 -- Updates the Modules registered.
 ----------------------------------------------------------------
 function SledgeHammer:updateModules()
-	-- Get the length of the modules.
+	-- Get the length of the module.
 	local length = tLength(self.modules) - 1;
 	-- Go through each module.
 	for index = 0, length, 1 do
@@ -203,7 +203,7 @@ end
 -- Stops the Modules registered.
 ----------------------------------------------------------------
 function SledgeHammer:stopModules()
-	-- Get the length of the modules.
+	-- Get the length of the module.
 	local length = tLength(self.modules) - 1;
 	-- Go through each module.
 	for index = 0, length, 1 do
@@ -217,7 +217,7 @@ end
 -- Unloads the Modules registered.
 ----------------------------------------------------------------
 function SledgeHammer:unloadModules()
-	-- Get the length of the modules.
+	-- Get the length of the module.
 	local length = tLength(self.modules) - 1;
 	-- Go through each module.
 	for index = 0, length, 1 do
@@ -435,7 +435,7 @@ end
 
 -- Returns a Player LuaObject, with a given ID, or name. Returns nil if player isn't found.
 --
--- TODO: Associate an async request with modules.
+-- TODO: Associate an async request with module.
 function SledgeHammer:getPlayer(identifier)
 	if identifier == nil then
 		print("Sledgehammer:getPlayer() -> Given Identifier is null!");
@@ -499,9 +499,9 @@ function SledgeHammer:isDebug() return SledgeHammer.instance.DEBUG; end
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 
--- List of modules to be loaded. (static for preloading)
+-- List of module to be loaded. (static for preloading)
 preloaded_modules       = {};
--- Index of pre-loaded modules.
+-- Index of pre-loaded module.
 preloaded_modules_index =  0;
 
 ----------------------------------------------------------------
@@ -543,7 +543,7 @@ function command_sledgehammer(mod, command, args)
 end
 
 ----------------------------------------------------------------
--- Static method for preloading modules.
+-- Static method for preloading module.
 -- 
 -- @static
 ----------------------------------------------------------------

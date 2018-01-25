@@ -116,7 +116,7 @@ public class PluginManager extends Manager {
         mapPlugins = new HashMap<>();
         // Load the core Plugin first.
         loadCorePlugin();
-        // Store the core modules for reference after unloading. @formatter:off
+        // Store the core module for reference after unloading. @formatter:off
 		modulePermissions = pluginSledgehammer.getModule(ModulePermissions.class);
 		moduleCore        = pluginSledgehammer.getModule(ModuleCore.class       );
 		moduleVanilla     = pluginSledgehammer.getModule(ModuleVanilla.class    );

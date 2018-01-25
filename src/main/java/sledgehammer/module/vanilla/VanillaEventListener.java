@@ -20,9 +20,9 @@
 
 package sledgehammer.module.vanilla;
 
+import sledgehammer.annotations.EventHandler;
 import sledgehammer.event.LogEvent;
-import sledgehammer.interfaces.LogEventListener;
-import sledgehammer.util.Printable;
+import sledgehammer.interfaces.Listener;
 import zombie.core.logger.LoggerManager;
 
 /**
@@ -31,26 +31,21 @@ import zombie.core.logger.LoggerManager;
  *
  * @author Jab
  */
-public class VanillaLogListener extends Printable implements LogEventListener {
+class VanillaEventListener implements Listener {
 
     /**
      * The String name of the Module.
      */
     public static final String NAME = "VanillaLogListener";
 
-    @Override
-    public void onLogEvent(LogEvent logEntry) {
-        String message = logEntry.getLogMessage();
-        boolean important = logEntry.isImportant();
+    @EventHandler(id = "core.vanilla.event.log")
+    public void on(LogEvent event) {
+        String message = event.getLogMessage();
+        boolean important = event.isImportant();
         if (important) {
             LoggerManager.getLogger("admin").write(message, "IMPORTANT");
         } else {
             LoggerManager.getLogger("admin").write(message);
         }
-    }
-
-    @Override
-    public String getName() {
-        return NAME;
     }
 }

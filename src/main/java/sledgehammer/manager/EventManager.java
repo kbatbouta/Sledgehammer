@@ -20,334 +20,138 @@
 
 package sledgehammer.manager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
-import sledgehammer.enums.Result;
-import sledgehammer.event.chat.ChatEvent;
-import sledgehammer.event.core.CommandEvent;
-import sledgehammer.event.Event;
-import sledgehammer.event.LogEvent;
-import sledgehammer.interfaces.CommandListener;
-import sledgehammer.interfaces.EventListener;
-import sledgehammer.interfaces.ThrowableListener;
+import sledgehammer.annotations.CommandHandler;
+import sledgehammer.annotations.EventHandler;
+import sledgehammer.event.*;
+import sledgehammer.event.core.command.CommandEvent;
+import sledgehammer.event.core.ThrowableEvent;
+import sledgehammer.event.core.command.CommandHandlerComparator;
+import sledgehammer.event.core.command.CommandHandlerContainer;
 import sledgehammer.lua.core.Player;
-import sledgehammer.interfaces.LogEventListener;
-import sledgehammer.module.core.CoreCommandListener;
-import sledgehammer.util.ChatTags;
+import sledgehammer.util.ClassUtil;
 import sledgehammer.util.Command;
-import zombie.core.logger.LoggerManager;
+import sledgehammer.interfaces.Listener;
 import zombie.core.raknet.UdpConnection;
 
-//Imports chat colors for short-hand.
-import static sledgehammer.util.ChatTags.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.*;
 
 /**
- * Manager class designed to organize EventListeners and execution of Events.
+ * This manager handles the Events fired in the Sledgehammer Engine, and Craftboid.
  *
  * @author Jab
  */
 public class EventManager extends Manager {
 
-    /**
-     * Name of the Manager.
-     */
-    public static final String NAME = "EventManager";
+    private EventHandlerComparator comparatorEventHandlers;
+    private CommandHandlerComparator comparatorCommandHandlers;
 
-    /**
-     * Map for registered EventListener interfaces.
-     */
-    private Map<String, List<EventListener>> mapEventListeners;
-    /**
-     * Map for registered CommandListener interfaces.
-     */
-    private Map<String, List<CommandListener>> mapCommandListeners;
-    /**
-     * List for registered LogListener interfaces.
-     */
-    private List<LogEventListener> listLogListeners;
-    /**
-     * List for registered ExceptionListener interfaces.
-     */
-    private List<ThrowableListener> listExceptionListeners;
+    private Map<Class<? extends Event>, LinkedList<EventHandlerContainer>> mapEventHandlers;
+    private Map<String, LinkedList<CommandHandlerContainer>> mapCommandHandlers;
 
-    /**
-     * Main constructor.
-     */
-    public EventManager() {
-        // Initialize Maps.
-        mapEventListeners = new HashMap<>();
-        mapCommandListeners = new HashMap<>();
-        // Initialize Lists.
-        listLogListeners = new ArrayList<>();
-        listExceptionListeners = new ArrayList<>();
-        // Put a wild-card List for the CommandListener interface Map.
-        mapCommandListeners.put("*", new ArrayList<CommandListener>());
+    @Override
+    public void onLoad(boolean debug) {
+        comparatorEventHandlers = new EventHandlerComparator();
+        comparatorCommandHandlers = new CommandHandlerComparator();
+        // Create Handler Maps. @formatter:off
+        mapEventHandlers   = new HashMap<>();
+        mapCommandHandlers = new HashMap<>();
+        // @formatter:on
+    }
+
+    @Override
+    public void onShutDown() {
+        reset();
     }
 
     @Override
     public String getName() {
-        return NAME;
+        return "EventManager";
     }
 
     /**
-     * Resolves all tool-tips for each registered Command.
-     *
-     * @param c The CommandEvent requesting the tool-tips.
-     */
-    private void help(CommandEvent c) {
-        Command command = c.getCommand();
-        Player player = command.getPlayer();
-        SledgeHammer sledgeHammer = SledgeHammer.instance;
-        StringBuilder builder = new StringBuilder();
-        builder.append("Commands: ").append(NEW_LINE).append(" ").append(COLOR_WHITE).append(" ");
-        for (List<CommandListener> listListeners : mapCommandListeners.values()) {
-            if (listListeners != null) {
-                for (CommandListener listener : listListeners) {
-                    if (listener != null) {
-                        String[] commands = listener.getCommands();
-                        if (commands != null) {
-                            for (String com : listener.getCommands()) {
-                                if (com != null) {
-                                    String tip = listener.onTooltip(player, new Command(com, null));
-                                    if (tip != null) {
-                                        // @formatter:off
-                                        builder.append(COLOR_LIGHT_GREEN)
-                                                .append(" ")
-                                                .append(com)
-                                                .append(": ")
-                                                .append(COLOR_WHITE)
-                                                .append(" ")
-                                                .append(listener.onTooltip(player, new Command(com, null)))
-                                                .append(COLOR_WHITE)
-                                                .append(" ")
-                                                .append(NEW_LINE)
-                                                .append(" ")
-                                                .append(NEW_LINE)
-                                                .append(" ");
-                                        // @formatter:on
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        CoreCommandListener coreCommandListener = sledgeHammer.getPluginManager().getCoreModule().getCommandListener();
-        if (coreCommandListener != null) {
-            String[] commands = coreCommandListener.getCommands();
-            if (commands != null) {
-                for (String com : coreCommandListener.getCommands()) {
-                    if (com != null) {
-                        String tip = coreCommandListener.onTooltip(player, new Command(com.toLowerCase()));
-                        if (tip != null) {
-                            // @formatter:off
-                            builder.append(COLOR_LIGHT_GREEN)
-                                    .append(" ")
-                                    .append(com)
-                                    .append(": ")
-                                    .append(COLOR_WHITE)
-                                    .append(" ")
-                                    .append(coreCommandListener.onTooltip(player, new Command(com.toLowerCase())))
-                                    .append(COLOR_WHITE)
-                                    .append(" ")
-                                    .append(NEW_LINE)
-                                    .append(" ")
-                                    .append(NEW_LINE)
-                                    .append(" ");
-                            // @formatter:on
-                        }
-                    }
-                }
-            }
-        }
-        CommandListener vanillaListener = sledgeHammer.getPluginManager().getVanillaModule().getCommandListener();
-        if (vanillaListener != null) {
-            String[] commands = vanillaListener.getCommands();
-            if (commands != null) {
-                for (String com : vanillaListener.getCommands()) {
-                    if (com != null) {
-                        String tip = vanillaListener.onTooltip(player, command);
-                        if (tip != null) {
-                            // @formatter:off
-                            builder.append(COLOR_LIGHT_GREEN)
-                                    .append(" ")
-                                    .append(com)
-                                    .append(": ")
-                                    .append(COLOR_WHITE)
-                                    .append(" ")
-                                    .append(vanillaListener.onTooltip(player, command))
-                                    .append(COLOR_WHITE)
-                                    .append(" ")
-                                    .append(NEW_LINE)
-                                    .append(" ")
-                                    .append(NEW_LINE)
-                                    .append(" ");
-                            // @formatter:on
-                        }
-                    }
-                }
-            }
-        }
-        c.getResponse().set(Result.SUCCESS, builder.toString());
-    }
-
-    /**
-     * Handles a Event and logs it as a LogEvent.
+     * Handles a Event by sending the Event to all registered EventHandlers for the Event type.
+     * <p>
+     * If the event given is null, a IllegalArgumentException is thrown.
      *
      * @param event The Event to handle.
-     * @return Returns the passed Event.
+     * @param log   Flag to issue a LogEvent after handling the Event.
      */
-    public Event handleEvent(Event event) {
-        return handleEvent(event, true);
-    }
-
-    /**
-     * Handles a Event.
-     *
-     * @param event    The Event to handle.
-     * @param logEvent Flag to log the Event as a LogEvent.
-     * @return Returns the passed Event.
-     */
-    public Event handleEvent(Event event, boolean logEvent) {
-        SledgeHammer sledgeHammer = SledgeHammer.instance;
-        try {
-            if (event == null) {
-                throw new IllegalArgumentException("Event is null!");
-            }
-            if (event.getID().equals(CommandEvent.ID)) {
-                return (handleCommand((CommandEvent) event, logEvent));
-            }
-            EventListener coreEventListener = sledgeHammer.getPluginManager().getCoreModule().getEventListener();
-            List<EventListener> listEventListeners = mapEventListeners.get(event.getID());
-            if (listEventListeners != null) {
-                for (EventListener listener : listEventListeners) {
-                    if (!listener.runSecondary()) {
-                        if (listener != coreEventListener) {
-                            listener.onEvent(event);
-                        }
-                        if (event.canceled()) {
-                            return event;
-                        }
-                        if (event.handled()) {
-                            break;
-                        }
-                    }
-                }
-                for (EventListener listener : listEventListeners) {
-                    if (listener.runSecondary()) {
-                        if (listener != coreEventListener) {
-                            listener.onEvent(event);
-                        }
-                        if (event.canceled()) {
-                            return event;
-                        }
-                        if (event.handled()) {
-                            break;
-                        }
-                    }
-                }
-            }
-            // If the Event is set to canceled, return.
-            if (event.canceled()) {
-                return event;
-            }
-            // Force Core Event-handling to be last, for modification potential.
-            if (!event.handled() && !event.ignoreCore()) {
-                coreEventListener.onEvent(event);
-            }
-            // If the Event is set to canceled, return before logging it.
-            if (event.canceled()) {
-                return event;
-            }
-            // Log the Event.
-            if (logEvent) {
-                logEvent(event);
-            }
-        } catch (Exception e) {
-            stackTrace("Error handling event " + event + ": " + e.getMessage(), e);
+    public Event handleEvent(Event event, boolean log) {
+        if (event == null) {
+            throw new IllegalArgumentException("Event given is null.");
         }
-        // Return the result Event.
+        LinkedList<EventHandlerContainer> listContainers = getEventHandlers(event);
+        if (listContainers != null) {
+            for (EventHandlerContainer container : listContainers) {
+                // Make sure the EventHandler is enabled to handle events.
+                if (container.isEnabled()) {
+                    continue;
+                }
+                // If the Event is cancelled and the EventHandler does not handle cancelled
+                // events, do
+                // not invoke it.
+                if (event.canceled() && !container.ignoreCancelled()) {
+                    continue;
+                }
+                try {
+                    // Invoke the EventHandler.
+                    container.handleEvent(event);
+                } catch (Throwable throwable) {
+                    // Print the information of the handler if debug mode is enabled.
+                    if (Settings.getInstance().isDebug()) {
+                        errln("The EventHandler failed to execute: ");
+                        errln(container.toString());
+                        errln("The EventHandler is now disabled.");
+                    }
+                    // Disable the container to prevent further issues. Disabling the Event
+                    // before handling the Throwable can prevent a infinite event loop.
+                    container.setEnabled(false);
+                    // Handle the Throwable as a Event.
+                    handleThrown(throwable);
+                }
+            }
+        }
+        // Make sure that we do not try to Log a ThrowableEvent or Log a LogEvent. Make sure that
+        // a logged message is present, and that the event is not cancelled.
+        if (log && !(event instanceof LogEvent) && !(event instanceof ThrowableEvent)
+                && !event.canceled()
+                && event.getLogMessage() != null) {
+            // Create a LogEvent, and handle it.
+            LogEvent logEvent = new LogEvent(event);
+            handleEvent(logEvent, false);
+        }
         return event;
     }
 
     /**
-     * Handles a thrown Exception, passing it to all registered
-     * ThrowableListeners with a String reason.
+     * Handles a Command by packaging it as a CommandEvent and handling the Event, then logging it.
+     * <p>
+     * All Command listeners must use a EventHandler method for the event.
      *
-     * @param reason    The String reason provided from the code.
-     * @param throwable The thrown Throwable being passed to the ThrowableListener.
+     * @param command The Command to handle as a CommandEvent.
+     * @return Returns the CommandEvent result.
      */
-    public void handleException(String reason, Throwable throwable) {
-        for (ThrowableListener listener : listExceptionListeners) {
-            if (listener != null) {
-                listener.onError(reason, throwable);
-            }
-        }
+    public CommandEvent handleCommand(Command command) {
+        return handleCommand(command, true);
     }
 
     /**
-     * Processes a LogEvent.
+     * Handles a Command by packaging it as a CommandEvent and handling the Event.
+     * <p>
+     * All Command listeners must use a EventHandler method for the event.
      *
-     * @param logEvent The LogEvent to process.
+     * @param command The Command to handle as a CommandEvent.
+     * @param log     Set to true to log the event.
+     * @return Returns the CommandEvent result.
      */
-    private void log(LogEvent logEvent) {
-        try {
-            Event event = logEvent.getEvent();
-            // Go through each LogListener interface and fire it.
-            for (LogEventListener listener : listLogListeners) {
-                if (listener != null) {
-                    listener.onLogEvent(logEvent);
-                }
-            }
-            String log = "SledgeHammer";
-            // Grab the ID of the event.
-            String eName = event.getID();
-            // For organization purposes.
-            if (eName.equalsIgnoreCase(ChatEvent.ID)) {
-                log += "-CHAT";
-            } else if (eName.equalsIgnoreCase(CommandEvent.ID)) {
-                log += "-COMMAND";
-            }
-            // If important, log as such. Else log normally.
-            if (logEvent.isImportant()) {
-                LoggerManager.getLogger(log).write(logEvent.getLogMessage(), "IMPORTANT");
-            } else {
-                LoggerManager.getLogger(log).write(logEvent.getLogMessage());
-            }
-        } catch (Exception e) {
-            errln("Error logging event " + logEvent.getEvent() + ": " + e.getMessage());
-            for (StackTraceElement o : e.getStackTrace()) {
-                errln(o);
-            }
-        }
-    }
-
-    /**
-     * Logs a Event as a LogEvent, running through each LogListener interface.
-     *
-     * @param event     The Event to log.
-     * @param important Flag to note the importance of the LogEvent.
-     */
-    public void logEvent(Event event, boolean important) {
-        LogEvent logEvent = new LogEvent(event);
-        logEvent.setImportant(important);
-        log(logEvent);
-    }
-
-    /**
-     * Logs an Event as a LogEvent, running through each LogListener interface.
-     *
-     * @param event The Event to log.
-     */
-    public void logEvent(Event event) {
-        LogEvent logEvent = new LogEvent(event);
-        log(logEvent);
+    public CommandEvent handleCommand(Command command, boolean log) {
+        CommandEvent event = new CommandEvent(command);
+        handleEvent(event, log);
+        return event;
     }
 
     /**
@@ -370,304 +174,290 @@ public class EventManager extends Manager {
      * @return Returns the result CommandEvent.
      */
     public CommandEvent handleCommand(UdpConnection connection, String input, boolean logEvent) {
-        SledgeHammer sledgeHammer = SledgeHammer.instance;
-        Player player;
-        // Create a Player instance.
-        if (connection == null) {
-            player = SledgeHammer.getAdministrator();
-        } else {
-            player = sledgeHammer.getPlayer(connection.username);
-        }
+        Player p = connection == null ? SledgeHammer.getAdministrator()
+                : SledgeHammer.instance.getPlayer(connection.username);
         // Create a CommandEvent.
         Command command = new Command(input);
-        command.setPlayer(player);
-        CommandEvent c = new CommandEvent(command);
+        command.setPlayer(p);
         // Fire the CommandEvent handle method, and return its result.
-        return handleCommand(c, logEvent);
+        return handleCommand(command, logEvent);
     }
 
     /**
-     * Handles a CommandEvent.
+     * Handles a thrown Throwable by packaging it as a ThrowableEvent and handling the Event.
+     * <p>
+     * All Throwable listeners must use a EventHandler method for the event.
      *
-     * @param c        The CommandEvent to handle.
-     * @param logEvent Flag to log the CommandEvent.
-     * @return Returns the given CommandEvent.
+     * @param throwable The Throwable to handle as a ThrowableEvent.
+     * @return Returns the ThrowableEvent result.
      */
-    public CommandEvent handleCommand(CommandEvent c, boolean logEvent) {
-        synchronized (this) {
-            try {
-                Command com = c.getCommand();
-                String command = com.getCommand();
-                // If '/help' is fired.
-                if (command.equalsIgnoreCase("help")) {
-                    help(c);
-                    return c;
-                }
-                // Run through selected command listeners first (Optimization).
-                List<CommandListener> listListeners = mapCommandListeners
-                        .get(c.getCommand().getCommand().toLowerCase());
-                if (listListeners != null) {
-                    for (CommandListener listener : listListeners) {
-                        // If the listener is not null, fire the
-                        // CommandListener.
-                        if (listener != null) {
-                            listener.onCommand(c.getCommand(), c.getResponse());
-                        }
-                        // If the listener set the command as handled, break the
-                        // loop.
-                        if (c.handled()) {
-                            break;
-                        }
-                    }
-                }
-                // Check native command handlers if the command is not handled.
-                if (!c.isHandled()) {
-                    SledgeHammer sledgeHammer = SledgeHammer.instance;
-                    CommandListener vanillaListener = sledgeHammer.getPluginManager().getVanillaModule()
-                            .getCommandListener();
-                    vanillaListener.onCommand(c.getCommand(), c.getResponse());
-                    if (!c.isHandled()) {
-                        CoreCommandListener coreCommandListener = sledgeHammer.getPluginManager().getCoreModule()
-                                .getCommandListener();
-                        coreCommandListener.onCommand(c.getCommand(), c.getResponse());
-                    }
-                }
-                if (logEvent) {
-                    // Iterate the log listeners after the command.
-                    if (c.getResponse().getLogMessage() != null) {
-                        LogEvent entry = new LogEvent(c);
-                        for (LogEventListener listener : listLogListeners) {
-                            if (listener != null) {
-                                listener.onLogEvent(entry);
-                            }
-                        }
-                    }
-                }
-                // For console commands, or other methods outside of the game,
-                // this strips the color codes, and replaces '<LINE>' with \n.
-                if (c.getCommand().getPlayer().getConnection() == null) {
-                    c.getResponse().set(c.getResponse().getResult(),
-                            ChatTags.stripTags(c.getResponse().getResponse(), true));
-                }
-            } catch (Exception e) {
-                errln("Error handling command " + c + ": " + e.getMessage());
-                for (StackTraceElement o : e.getStackTrace()) {
-                    errln(o);
-                }
+    public ThrowableEvent handleThrown(Throwable throwable) {
+        ThrowableEvent event = new ThrowableEvent(throwable);
+        handleEvent(event, false);
+        return event;
+    }
+
+    /**
+     * Registers a given Listener. All EventHandlers declared in the Listener will be
+     * registered into the EventManager's EventHandler registry.
+     * <p>
+     * If a null is given for the Listener parameter, an IllegalArgumentException is thrown.
+     * <p>
+     * If the Listener instance is already registered, none of the EventHandlers will be
+     * registered. This allows for multiple instances of the same class to be registered,
+     * although this is not recommended.
+     *
+     * @param listener The Listener to register.
+     */
+    public void register(Listener listener) {
+        // Grab the methods for the Listener.
+        Method[] methods = ClassUtil.getAllDeclaredMethods(listener.getClass());
+        if (Settings.getInstance().isDebug()) {
+            println("Registering listener: " + listener.getClass().getSimpleName());
+            println("Methods: " + methods.length);
+        }
+        // We will go through each one to see if it is an EventHandler.
+        for (Method method : methods) {
+            EventHandler eventHandler = method.getAnnotation(EventHandler.class);
+            if (eventHandler != null) {
+                EventHandlerContainer container = new EventHandlerContainer(listener, method,
+                        eventHandler);
+                register(container);
+                continue;
             }
-        }
-        if(Settings.getInstance().isDebug()) {
-            println("Result CommandEvent: " + c.toString());
-        }
-        return c;
-    }
-
-    /**
-     * Registers an EventListener for a given Event type.
-     *
-     * @param type     The type of an Event. (Event.getID() or Event.ID)
-     * @param listener The EventListener to register.
-     */
-    public void register(String type, EventListener listener) {
-        // Validate the EventListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        List<EventListener> listListeners = mapEventListeners.get(type);
-        if (listListeners == null) {
-            listListeners = new ArrayList<>();
-            mapEventListeners.put(type, listListeners);
-            listListeners.add(listener);
-        } else {
-            listListeners.add(listener);
-        }
-    }
-
-    /**
-     * Registers all Events defined in the EventListener.
-     *
-     * @param listener The EventListener being registered.
-     */
-    public void register(EventListener listener) {
-        // Validate the EventListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        String[] types = listener.getTypes();
-        if (types == null)
-            throw new IllegalArgumentException("listener.getTypes() array is null!");
-        for (String type : types) {
-            register(type, listener);
-        }
-    }
-
-    /**
-     * Registers a CommandListener to a given String command.
-     *
-     * @param command  The String command to register under.
-     * @param listener The CommandListener to register.
-     */
-    public void register(String command, CommandListener listener) {
-        // Validate the CommandListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        command = command.toLowerCase();
-        List<CommandListener> listListeners = mapCommandListeners.get(command);
-        if (listListeners == null) {
-            listListeners = new ArrayList<>();
-            mapCommandListeners.put(command, listListeners);
-            listListeners.add(listener);
-        } else {
-            listListeners.add(listener);
-        }
-    }
-
-    /**
-     * Registers a LogEventListener for LogEvents.
-     *
-     * @param listener The LogEventListener to register.
-     */
-    public void register(LogEventListener listener) {
-        // Validate the LogListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        // Make sure that the listener isn't registered twice.
-        if (!listLogListeners.contains(listener)) {
-            listLogListeners.add(listener);
-        }
-    }
-
-    /**
-     * Registers a ThrowableListener to handle thrown Exceptions in the scope of
-     * the Sledgehammer engine.
-     *
-     * @param listener The ThrowableListener to register.
-     */
-    public void register(ThrowableListener listener) {
-        // Validate the ExceptionListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        // Make sure that the listener isn't registered twice.
-        if (!listExceptionListeners.contains(listener)) {
-            listExceptionListeners.add(listener);
-        }
-    }
-
-    /**
-     * Unregisters a CommandListener from a Command.
-     *
-     * @param command  The String command to unregister.
-     * @param listener The CommandListener to unregister.
-     */
-    public void unregister(String command, CommandListener listener) {
-        // Validate the CommandListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        // Grab the list associated with the command.
-        List<CommandListener> list = mapCommandListeners.get(command);
-        // If the list exists, tell the list to remove the CommandListener.
-        if (list != null) {
-            list.remove(listener);
-        }
-    }
-
-    /**
-     * Unregisters a EventListener.
-     *
-     * @param listener The EventListener to unregister.
-     */
-    public void unregister(EventListener listener) {
-        // Validate the EventListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
-        }
-        String[] types = listener.getTypes();
-        // Make sure the Listener has assigned types.
-        if (types == null || types.length == 0) {
-            throw new IllegalArgumentException("Listener does not have defined types!");
-        }
-        // Go through each type registered with the listener.
-        for (String type : listener.getTypes()) {
-            // Grab the list holding the listener.
-            List<EventListener> list = mapEventListeners.get(type);
-            // If the list is valid, remove the listener from the List.
-            if (list != null) {
-                list.remove(listener);
+            CommandHandler commandHandler = method.getAnnotation(CommandHandler.class);
+            if (commandHandler != null) {
+                CommandHandlerContainer container = new CommandHandlerContainer(listener, method,
+                        commandHandler);
+                register(container);
+                continue;
             }
         }
     }
 
     /**
-     * Unregisters a CommandListener.
+     * (Private Method)
+     * <p>
+     * Registers a given CommandHandlerContainer to the EventManager registry.
+     * <p>
+     * If the container is already registered, then no further actions occur.
      *
-     * @param listener The CommandListener to unregister.
+     * @param container The CommandHandlerContainer to register.
      */
-    public void unregister(CommandListener listener) {
-        // Validate the CommandListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
+    private void register(EventHandlerContainer container) {
+        // Make sure that the event class is fully registered.
+        if (!container.isEnabled()) {
+            println("EventHandler is not enabled: " + container.toString());
+            return;
         }
-        for (String command : listener.getCommands()) {
-            mapCommandListeners.get(command).remove(listener);
+        // Grab the class for the event being handled. This is how we identify the event handler.
+        Class<? extends Event> classEvent = container.getEventClass();
+        LinkedList<EventHandlerContainer> listContainers = mapEventHandlers.get(classEvent);
+        // If the event has no list of handlers, then create one.
+        if (listContainers == null) {
+            listContainers = new LinkedList<>();
+            mapEventHandlers.put(classEvent, listContainers);
         }
+        // The list already exists for the event, so a check is needed to make sure that the handler
+        // does not register more than once in the list.
+        else if (listContainers.contains(container)) {
+            if (Settings.getInstance().isDebug()) {
+                errln("EventHandler is already registered:\n" + container.toString());
+            }
+            return;
+        }
+        if (Settings.getInstance().isDebug()) {
+            println("Registered EventHandler:\n" + container.toString());
+        }
+        // At this point we know that the handler is valid, and is not already in the list for the
+        // event, so we add it to the list.
+        listContainers.add(container);
+        // In order to maintain priority of event handlers, each addition must follow with a sort.
+        Collections.sort(listContainers, comparatorEventHandlers);
+    }
+
+    private void register(CommandHandlerContainer container) {
+        // Make sure that the event class is fully registered.
+        if (!container.isEnabled()) {
+            println("CommandHandler is not enabled: " + container.toString());
+            return;
+        }
+        // Grab the command for the container.
+        String command = container.getCommand();
+        LinkedList<CommandHandlerContainer> listContainers = mapCommandHandlers.get(command);
+        // If the event has no list of handlers, then create one.
+        if (listContainers == null) {
+            listContainers = new LinkedList<>();
+            mapCommandHandlers.put(command, listContainers);
+        }
+        // The list already exists for the event, so a check is needed to make sure that the handler
+        // does not register more than once in the list.
+        else if (listContainers.contains(container)) {
+            if (Settings.getInstance().isDebug()) {
+                errln("CommandHandler is already registered:\n" + container.toString());
+            }
+            return;
+        }
+        if (Settings.getInstance().isDebug()) {
+            println("Registered CommandHandler:\n" + container.toString());
+        }
+        // At this point we know that the handler is valid, and is not already in the list for the
+        // event, so we add it to the list.
+        listContainers.add(container);
+        // In order to maintain priority of event handlers, each addition must follow with a sort.
+        Collections.sort(listContainers, comparatorCommandHandlers);
     }
 
     /**
-     * Unregisters a LogEventListener.
+     * Unregisters all handlers registered with the given listener instance.
      *
-     * @param listener The LogEventListener to unregister.
+     * @param Listener The listener instance to unregister all handlers
+     *                 registered that identify with the listener instance.
      */
-    public void unregister(LogEventListener listener) {
-        // Validate the LogListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
+    public void unregister(Listener Listener) {
+        // Go through all registered Event Classes.
+        for (Class<? extends Event> classEvent : mapEventHandlers.keySet()) {
+            // Grab the EventHandlers that handle the current Event.
+            List<EventHandlerContainer> listContainers = getEventHandlers(classEvent);
+            // Make sure that the list is defined to check EventHandlers.
+            if (listContainers == null) {
+                continue;
+            }
+            // Iterate through all entries for the Event.
+            Iterator<EventHandlerContainer> iterator = listContainers.iterator();
+            while (iterator.hasNext()) {
+                EventHandlerContainer container = iterator.next();
+                // If the container identifies with the Listener, then we remove it. It will
+                // be unregistered from the EventManager.
+                if (container.getContainer().equals(Listener)) {
+                    iterator.remove();
+                }
+            }
+            // If the list no longer contains any EventHandlers, then unregister the list.
+            if (listContainers.size() == 0) {
+                mapEventHandlers.remove(classEvent);
+            }
         }
-        listLogListeners.remove(listener);
     }
 
     /**
-     * Unregisters a ThrowableListener.
+     * This returns a event handler container that represents a event handler registered to the
+     * event manager. If no container is identified with the ID given, null is returned.
+     * <p>
+     * If a null or empty ID is passed, a IllegalArgumentException is thrown.
      *
-     * @param listener The ThrowableListener to unregister.
+     * @param id The string ID of the event handler.
+     * @return Returns a event handler container identified with the id given. If no event
+     * handler is registered with the ID given, null is returned.
      */
-    public void unregister(ThrowableListener listener) {
-        // Validate the ExceptionListener argument.
-        if (listener == null) {
-            throw new IllegalArgumentException("Listener is null!");
+    public EventHandlerContainer getContainer(String id) {
+        EventHandlerContainer returned = null;
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("EventHandler ID given is null or empty.");
         }
-        listExceptionListeners.remove(listener);
+        for (Class<? extends Event> classEvent : mapEventHandlers.keySet()) {
+            EventHandlerContainer container = getContainer(classEvent, id);
+            if (container != null) {
+                returned = container;
+                break;
+            }
+        }
+        return returned;
     }
 
     /**
-     * @return Returns the map of EventListener interfaces registered.
+     * This returns a CommandHandlerContainer that represents a EventHandler registered to the
+     * EventManager for the Event given. If no container is identified with the ID given, null
+     * is returned.
+     * <p>
+     * If a null or empty ID is given, a IllegalArgumentException is thrown.
+     * If a null Event is given, a IllegalArgumentException is thrown.
+     *
+     * @param event The Event that the EventHandler handles.
+     * @param id    The String ID of the EventHandler.
+     * @return Returns a CommandHandlerContainer with the ID given. If no EventHandler is registered
+     * with the ID given, null is returned.
      */
-    public Map<String, List<EventListener>> getEventListeners() {
-        return this.mapEventListeners;
+    public EventHandlerContainer getContainer(Event event, String id) {
+        if (event == null) {
+            throw new IllegalArgumentException("Event given is null.");
+        }
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("EventHandler ID given is null or empty.");
+        }
+        return getContainer(event.getClass(), id);
     }
 
     /**
-     * @return Returns the List of registered LogListeners.
+     * This returns a CommandHandlerContainer that represents a EventHandler registered to the
+     * EventManager for the class of the Event given. If no container is identified with the ID
+     * given, null is returned.
+     * <p>
+     * If a null or empty ID is given, a IllegalArgumentException is thrown.
+     * If a null class is given, a IllegalArgumentException is thrown.
+     *
+     * @param classEvent The Class of the Event that the EventHandler handles.
+     * @param id         The String ID of te EventHandler.
+     * @return Returns a CommandHandlerContainer with the ID given. If no EventHandler is registered
+     * with the ID given, null is returned.
      */
-    public List<LogEventListener> getLogListeners() {
-        return this.listLogListeners;
+    public EventHandlerContainer getContainer(Class<? extends Event> classEvent, String id) {
+        if (classEvent == null) {
+            throw new IllegalArgumentException("The Event Class given is null.");
+        }
+        if (id == null || id.isEmpty()) {
+            throw new IllegalArgumentException("EventHandler ID given is null or empty.");
+        }
+        EventHandlerContainer returned = null;
+        LinkedList<EventHandlerContainer> listContainers = mapEventHandlers.get(classEvent);
+        if (listContainers != null && listContainers.size() > 0) {
+            for (EventHandlerContainer container : listContainers) {
+                if (container.getId().equals(id)) {
+                    returned = container;
+                    break;
+                }
+            }
+        }
+        return returned;
     }
 
     /**
-     * @return Returns the List of registered ExceptionListeners.
+     * Resets the EventManager by removing all EventHandlers from the registry.
      */
-    public List<ThrowableListener> getExceptionListeners() {
-        return this.listExceptionListeners;
+    public void reset() {
+        for (Class<? extends Event> classEvent : mapEventHandlers.keySet()) {
+            LinkedList<EventHandlerContainer> listContainers = mapEventHandlers.get(classEvent);
+            if (listContainers != null) {
+                Iterator<EventHandlerContainer> iterator = listContainers.iterator();
+                while (iterator.hasNext()) {
+                    EventHandlerContainer container = iterator.next();
+                    container.setEnabled(false);
+                    iterator.remove();
+                }
+            }
+        }
+        mapEventHandlers.clear();
     }
 
     /**
-     * @return Returns the Map of registered CommandListeners, organized as Lists
-     * with the given command as a key, in lower-case.
+     * This returns the List of registered EventHandlers for a given Event to handle.
+     *
+     * @param event The Event that is handled.
+     * @return Returns a LinkedList of ordered EventHandlers that handle the Event given. If no
+     * listeners are assigned to the event, null is returned.
      */
-    public Map<String, List<CommandListener>> getCommandListeners() {
-        return this.mapCommandListeners;
+    public LinkedList<EventHandlerContainer> getEventHandlers(Event event) {
+        return getEventHandlers(event.getClass());
+    }
+
+    /**
+     * This returns the List of registered EventHandlers for a given Event to handle.
+     *
+     * @param classEvent The Class of the Event that is handled.
+     * @return Returns a LinkedList of ordered EventHandlers that handle the Event given. If no
+     * listeners are assigned to the event, null is returned.
+     */
+    public LinkedList<EventHandlerContainer> getEventHandlers(Class<? extends Event> classEvent) {
+        return mapEventHandlers.get(classEvent);
     }
 }

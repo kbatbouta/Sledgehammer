@@ -37,6 +37,7 @@ import sledgehammer.event.chat.ChatMessageEvent;
 import sledgehammer.event.chat.RequestChannelsEvent;
 import sledgehammer.event.core.player.ClientEvent;
 import sledgehammer.event.core.player.PlayerChatReadyEvent;
+import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatHistory;
 import sledgehammer.lua.chat.ChatMessage;
@@ -63,6 +64,7 @@ public class ModuleChat extends MongoModule {
     private ChatChannel espanol;
     private ChatEventListener eventListener;
     private ChatCommandListener commandListener;
+    private LanguagePackage languagePackage;
 
     private SendLua sendLua;
 
@@ -75,6 +77,7 @@ public class ModuleChat extends MongoModule {
 
     @Override
     public void onLoad() {
+        loadLanguagePackage();
         loadLua();
         eventListener = new ChatEventListener(this);
         commandListener = new ChatCommandListener(this);
@@ -91,6 +94,13 @@ public class ModuleChat extends MongoModule {
         // @formatter:on
         loadMongoDocuments();
         verifyCoreChannels();
+    }
+
+    private void loadLanguagePackage() {
+        File langDir = getLanguageDirectory();
+        boolean override = !isLangOverriden();
+        saveResourceAs("lang/chat_en.yml", new File(langDir, "chat_en.yml"), override);
+        languagePackage = new LanguagePackage(getLanguageDirectory(), "chat");
     }
 
     @Override
@@ -166,7 +176,7 @@ public class ModuleChat extends MongoModule {
                 }
             }
             event.respond(request);
-            // Let the modules know that the player is ready to be sent messages.
+            // Let the module know that the player is ready to be sent messages.
             SledgeHammer.instance.handle(new PlayerChatReadyEvent(player));
         } else if (command.equalsIgnoreCase("sendChatMessage")) {
             MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages);
@@ -206,15 +216,19 @@ public class ModuleChat extends MongoModule {
     }
 
     @Override
-    public ChatChannel createChatChannel(String channelName, String channelDescription, String permissionNode,
-                                         boolean isGlobalChannel, boolean isPublicChannel, boolean isCustomChannel,
+    public ChatChannel createChatChannel(String channelName, String channelDescription, String
+            permissionNode,
+                                         boolean isGlobalChannel, boolean isPublicChannel,
+                                         boolean isCustomChannel,
                                          boolean saveHistory, boolean canSpeak) {
         ChatChannel chatChannel = getChatChannel(channelName);
         if (chatChannel != null) {
             return chatChannel;
         }
-        MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName, channelDescription,
-                permissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory, canSpeak);
+        MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName,
+                channelDescription,
+                permissionNode, isGlobalChannel, isPublicChannel, isCustomChannel, saveHistory,
+                canSpeak);
         chatChannel = new ChatChannel(mongoChatChannel);
         mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
         listOrderedChatChannels.add(chatChannel);
@@ -261,7 +275,8 @@ public class ModuleChat extends MongoModule {
         saveResourceAs("lua/module/core.chat/ChatWindow.lua" , fileChatWindow , overwrite);
         saveResourceAs("lua/module/core.chat/ModuleChat.lua" , fileChatModule , overwrite);
         // @formatter:on
-        sendLua = new SendLua(fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow, fileChatModule);
+        sendLua = new SendLua(fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow,
+                fileChatModule);
     }
 
     private void loadMongoDocuments() {
@@ -273,7 +288,8 @@ public class ModuleChat extends MongoModule {
     private void loadMongoChatChannels() {
         DBCursor cursor = collectionChannels.find();
         while (cursor.hasNext()) {
-            MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, cursor.next());
+            MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, cursor
+                    .next());
             ChatChannel chatChannel = new ChatChannel(mongoChatChannel);
             mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
             listOrderedChatChannels.add(chatChannel);
@@ -290,7 +306,8 @@ public class ModuleChat extends MongoModule {
                 continue;
             }
             // Grab the chat messages from the message collection for this history.
-            List<ChatMessage> listChatMessages = getChatMessages(chatChannel.getUniqueId(), ChatHistory.MAX_SIZE);
+            List<ChatMessage> listChatMessages = getChatMessages(chatChannel.getUniqueId(),
+                    ChatHistory.MAX_SIZE);
             chatHistory.addChatMessages(listChatMessages, false);
         }
     }
@@ -324,12 +341,13 @@ public class ModuleChat extends MongoModule {
         // Sort the list by timestamp so that the last messages appear first.
         cursor.sort(new BasicDBObject("timestamp", -1));
         cursor.limit(limit);
-        if(cursor.size() > 0) {
+        if (cursor.size() > 0) {
             List<DBObject> listObjects = cursor.toArray();
             Collections.reverse(listObjects);
-            for(DBObject object : listObjects) {
+            for (DBObject object : listObjects) {
                 // Create the MongoDocument.
-                MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages, object);
+                MongoChatMessage mongoChatMessage = new MongoChatMessage(collectionMessages,
+                        object);
                 // Create the container for the document.
                 ChatMessage chatMessage = new ChatMessage(mongoChatMessage);
                 // Add this to the list to return.
@@ -350,10 +368,12 @@ public class ModuleChat extends MongoModule {
     private void verifyCoreChannels() {
         // Create the wild-card ChatChannel.
         String channelName = "*";
-        String channelDescription = "Wildcard channel for the server. Sends messages to all spoken channels.";
+        String channelDescription = "Wildcard channel for the server. Sends messages to all " +
+                "spoken channels.";
         String channelPermissionNode = "sledgehammer.chat";
         // Create the MongoDocument.
-        MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName, channelDescription,
+        MongoChatChannel mongoChatChannel = new MongoChatChannel(collectionChannels, channelName,
+                channelDescription,
                 channelPermissionNode, false, false, false, false, false);
         setAllChatChannel(new ChatChannel(mongoChatChannel));
         // Create the global ChatChannel.
@@ -383,7 +403,8 @@ public class ModuleChat extends MongoModule {
             channelName = "Espanol";
             channelDescription = "Spanish channel for the server.";
             channelPermissionNode = "sledgehammer.chat.espanol";
-            espanol = createChatChannel(channelName, channelDescription, channelPermissionNode, true,
+            espanol = createChatChannel(channelName, channelDescription, channelPermissionNode,
+                    true,
                     false, false, true, true);
         }
         setGlobalChatChannel(global);
@@ -467,5 +488,9 @@ public class ModuleChat extends MongoModule {
 
     public Collection<ChatChannel> getChatChannels() {
         return listOrderedChatChannels;
+    }
+
+    public LanguagePackage getLanguagePackage() {
+        return this.languagePackage;
     }
 }

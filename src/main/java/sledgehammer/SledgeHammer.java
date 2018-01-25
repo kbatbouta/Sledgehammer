@@ -29,19 +29,14 @@ import java.util.UUID;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.event.core.CommandEvent;
+import sledgehammer.event.core.command.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.core.player.PlayerCreatedEvent;
-import sledgehammer.interfaces.CommandListener;
-import sledgehammer.interfaces.EventListener;
-import sledgehammer.interfaces.ThrowableListener;
-import sledgehammer.interfaces.LogEventListener;
-import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.interfaces.*;
 import sledgehammer.lua.LuaObject;
 import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
-import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.lua.core.send.SendReload;
 import sledgehammer.manager.*;
 import sledgehammer.module.chat.ModuleChat;
@@ -90,10 +85,6 @@ public class SledgeHammer extends Printable {
      * The MongoDB Database instance for the SledgeHammer instance.
      */
     private SledgehammerDatabase database;
-    /**
-     * Manager instance to handle NPC operations.
-     */
-    private NPCManager managerNPC;
     /**
      * Manager instance to handle Plug-in operations.
      */
@@ -178,20 +169,17 @@ public class SledgeHammer extends Printable {
             directoryLang = new File("lang/");
             directoryLua = new File("lua/");
             publicServerName = ServerOptions.instance.getOption("PublicName");
-            // Initialize the Chat Engine.
             managerTask = new TaskManager();
             managerEvent = new EventManager();
             managerPlugin = new PluginManager();
             managerPlayer = new PlayerManager();
-            // Initialize the NPC Engine.
-            managerNPC = new NPCManager();
-            // Then, load the core modules, and start the Modules.
+            managerEvent.onLoad(testModule);
+            managerTask.onLoad(testModule);
             if (!testModule) {
                 managerPlugin.onLoad(false);
             }
-            managerTask.onLoad(testModule);
         } catch (Exception e) {
-            stackTrace("An Error occurred while initializing Sledgehammer.", e);
+            stackTrace(e);
         }
     }
 
@@ -223,10 +211,9 @@ public class SledgeHammer extends Printable {
             synchronized (this) {
                 managerTask.onUpdate();
                 managerPlugin.onUpdate();
-                managerNPC.onUpdate();
             }
         } catch (Exception e) {
-            stackTrace("An Error occurred in Sledgehammer's update method.", e);
+            stackTrace(e);
         }
     }
 
@@ -251,7 +238,7 @@ public class SledgeHammer extends Printable {
                 getDatabase().shutDown();
             }
         } catch (Exception e) {
-            stackTrace("An Error occurred while stopping Sledgehammer.", e);
+            stackTrace(e);
         }
         started = false;
     }
@@ -292,7 +279,8 @@ public class SledgeHammer extends Printable {
             }
         } else {
             throw new IllegalStateException(
-                    "No PermissionHandlers are registered for SledgeHammer, so permissions cannot be tested.");
+                    "No PermissionHandlers are registered for SledgeHammer, so permissions cannot" +
+                            " be tested.");
         }
         // If no permissions handler identified as true, return false.
         return returned;
@@ -353,7 +341,8 @@ public class SledgeHammer extends Printable {
             getPermissionListener().setPermission(player, node, flag);
         } else {
             throw new IllegalStateException(
-                    "No PermissionHandlers are registered for SledgeHammer, so permissions cannot be set.");
+                    "No PermissionHandlers are registered for SledgeHammer, so permissions cannot" +
+                            " be set.");
         }
     }
 
@@ -412,7 +401,8 @@ public class SledgeHammer extends Printable {
                 println("Sending to player: " + player + ", send=" + send);
             }
             // Send the packet using the native packet code.
-            GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send.getCommand(), send.export(),
+            GameServer.sendServerCommand("sledgehammer.module." + send.getModule(), send
+                            .getCommand(), send.export(),
                     player.getConnection());
         }
     }
@@ -507,10 +497,10 @@ public class SledgeHammer extends Printable {
     }
 
     public void sendFile(File file, String path) {
-        if(file == null) {
+        if (file == null) {
             throw new IllegalArgumentException("File given is null.");
         }
-        if(path == null || path.isEmpty()) {
+        if (path == null || path.isEmpty()) {
             throw new IllegalArgumentException("Path given is null or empty.");
         }
         try {
@@ -518,7 +508,7 @@ public class SledgeHammer extends Printable {
             DataInputStream dis = new DataInputStream(fis);
             int bytesLength = dis.available();
             KahluaTable tableData = LuaObject.newTable();
-            for(int index = 0; index < bytesLength; index++) {
+            for (int index = 0; index < bytesLength; index++) {
                 tableData.rawset(index, (Double) (double) dis.readByte());
             }
             dis.close();
@@ -527,9 +517,9 @@ public class SledgeHammer extends Printable {
             tableFile.rawset("__name", "sendFile");
             tableFile.rawset("path", path);
             tableFile.rawset("data", tableData);
-        } catch(IOException e) {
+        } catch (IOException e) {
             stackTrace(e);
-            getEventManager().handleException("sendFile", e);
+            getEventManager().handleThrown(e);
         }
     }
 
@@ -573,13 +563,6 @@ public class SledgeHammer extends Printable {
      */
     public PluginManager getPluginManager() {
         return this.managerPlugin;
-    }
-
-    /**
-     * @return Returns the NPCManager instance.
-     */
-    public NPCManager getNPCManager() {
-        return this.managerNPC;
     }
 
     /**
@@ -636,7 +619,8 @@ public class SledgeHammer extends Printable {
      * plug-ins.
      */
     public static String getCacheFolder() {
-        return GameWindow.getCacheDir() + File.separator + "Server" + File.separator + "SledgeHammer";
+        return GameWindow.getCacheDir() + File.separator + "Server" + File.separator +
+                "SledgeHammer";
     }
 
     /**
@@ -677,62 +661,21 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Registers a CommandListener to the EventManager.
+     * Registers a listener to the event manager.
      *
-     * @param listener The CommandListener to register.
+     * @param listener The Listener to register.
      */
-    public void register(CommandListener listener) {
-        for (String command : listener.getCommands()) {
-            getEventManager().register(command, listener);
-        }
-    }
-
-    /**
-     * Registers an EventListener interface, with a Event ID, given as a String.
-     *
-     * @param type     The Event's ID.
-     * @param listener The EventListener to register.
-     */
-    public void register(String type, EventListener listener) {
-        getEventManager().register(type, listener);
-    }
-
-    /**
-     * Registers an EventListener interface, with all Event IDs listed in the
-     * interface as String[] getTypes().
-     *
-     * @param listener The EventListener to register.
-     */
-    public void register(EventListener listener) {
+    public void register(Listener listener) {
         getEventManager().register(listener);
     }
 
     /**
-     * Registers a CommandListener interface, with a command, given as a String.
+     * Unregisters a listener.
      *
-     * @param command  The Command to register under.
-     * @param listener The CommandListener to register.
+     * @param listener the listener to unregister.
      */
-    public void register(String command, CommandListener listener) {
-        getEventManager().register(command, listener);
-    }
-
-    /**
-     * Registers a CommandListener interface, with a command, given as a String.
-     *
-     * @param listener The LogEventListener to register.
-     */
-    public void register(LogEventListener listener) {
-        getEventManager().register(listener);
-    }
-
-    /**
-     * Registers a ExceptionListener interface.
-     *
-     * @param listener The ThrowableListener to register.
-     */
-    public void register(ThrowableListener listener) {
-        getEventManager().register(listener);
+    public void unregister(Listener listener) {
+        getEventManager().unregister(listener);
     }
 
     /**
@@ -747,22 +690,22 @@ public class SledgeHammer extends Printable {
      * @return Returns the Event handled.
      */
     public Event handle(Event event) {
-        return getEventManager().handleEvent(event);
+        return getEventManager().handleEvent(event, true);
     }
 
-    public void handle(String reason, Throwable throwable) {
-        getEventManager().handleException(reason, throwable);
+    public void handle(Throwable throwable) {
+        getEventManager().handleThrown(throwable);
     }
 
     /**
      * Executes EventListeners from a given Event instance. Logging is optional.
      *
-     * @param event    The Event to handle.
-     * @param logEvent Flag to issue a LogEvent after handling the Event.
+     * @param event The Event to handle.
+     * @param log   Flag to issue a LogEvent after handling the Event.
      * @return Returns the Event handled.
      */
-    public Event handle(Event event, boolean logEvent) {
-        return getEventManager().handleEvent(event, logEvent);
+    public Event handle(Event event, boolean log) {
+        return getEventManager().handleEvent(event, log);
     }
 
     /**
@@ -809,7 +752,7 @@ public class SledgeHammer extends Printable {
      * @return Returns the result CommandEvent.
      */
     public CommandEvent handleCommand(Command command) {
-        return getEventManager().handleCommand(new CommandEvent(command), true);
+        return getEventManager().handleCommand(command);
     }
 
     /**
@@ -877,33 +820,6 @@ public class SledgeHammer extends Printable {
     }
 
     /**
-     * Unregisters a CommandListener.
-     *
-     * @param listener the CommandListener to unregister.
-     */
-    public void unregister(CommandListener listener) {
-        getEventManager().unregister(listener);
-    }
-
-    /**
-     * Unregisters a LogListener.
-     *
-     * @param listener The LogListener to unregister.
-     */
-    public void unregister(LogEventListener listener) {
-        getEventManager().unregister(listener);
-    }
-
-    /**
-     * Unregisters a EventListener.
-     *
-     * @param listener The EventListener to unregister.
-     */
-    public void unregister(EventListener listener) {
-        getEventManager().unregister(listener);
-    }
-
-    /**
      * Sends a Lua ServerCommand to a given Player.
      *
      * @param player   The Player to send.
@@ -923,7 +839,8 @@ public class SledgeHammer extends Printable {
      * @param command     The Command in the Module.
      * @param kahluaTable The KahluaTable containing any data associated with the Command.
      */
-    public void sendServerCommand(Player player, String module, String command, KahluaTable kahluaTable) {
+    public void sendServerCommand(Player player, String module, String command, KahluaTable
+            kahluaTable) {
         GameServer.sendServerCommand(module, command, kahluaTable, player.getConnection());
     }
 
@@ -1026,7 +943,8 @@ public class SledgeHammer extends Printable {
         String path = null;
         try {
             // Grab the URI path from the Java library from the Class library.
-            path = SledgeHammer.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+            path = SledgeHammer.class.getProtectionDomain().getCodeSource().getLocation().toURI()
+                    .getPath();
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

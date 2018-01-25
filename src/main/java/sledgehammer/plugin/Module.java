@@ -27,11 +27,7 @@ import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.event.core.player.ClientEvent;
 import sledgehammer.event.Event;
-import sledgehammer.interfaces.CommandListener;
-import sledgehammer.interfaces.EventListener;
-import sledgehammer.interfaces.ThrowableListener;
-import sledgehammer.interfaces.LogEventListener;
-import sledgehammer.interfaces.PermissionListener;
+import sledgehammer.interfaces.*;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
@@ -384,123 +380,22 @@ public abstract class Module extends Printable {
     }
 
     /**
-     * Approximate method for 'SledgeHammer.instance.register(type, listener)'.
-     * <p>
-     * Registers all Events defined in the EventListener.
-     *
-     * @param listener The EventListener being registered.
-     */
-    public void register(EventListener listener) {
-        // Grab the types definition from the listener.
-        String[] types = listener.getTypes();
-        // Make sure that the types are defined.
-        if (types == null) {
-            throw new IllegalArgumentException(
-                    "EventListener " + listener.getClass().getSimpleName() + "'s getTypes() returned null.");
-        }
-        // Make sure that there are types defined in the array.
-        if (types.length == 0) {
-            throw new IllegalArgumentException("EventListener " + listener.getClass().getSimpleName()
-                    + "'s getTypes() returned an empty String Array.");
-        }
-        // Go through each type.
-        for (String type : types) {
-            // Register each type individually.
-            register(type, listener);
-        }
-    }
-
-    /**
-     * Approximate method for 'SledgeHammer.instance.register(type, listener)'.
-     * <p>
-     * Registers an EventListener for a given Event type.
-     *
-     * @param type     The type of an Event. (Event.getID() or Event.ID)
-     * @param listener The EventListener to register.
-     */
-    public void register(String type, EventListener listener) {
-        SledgeHammer.instance.register(type, listener);
-    }
-
-    /**
      * Approximate method for 'SledgeHammer.instance.register(listener)'.
      * <p>
-     * Registers a LogEventListener for LogEvents.
+     * Registers a Listener.
      *
-     * @param listener The LogEventListener to register.
+     * @param listener The Listener to register.
      */
-    public void register(LogEventListener listener) {
+    public void register(Listener listener) {
         SledgeHammer.instance.register(listener);
     }
 
     /**
-     * Approximate method for 'SledgeHammer.instance.register(command, listener)'.
-     * <p>
-     * Registers a CommandListener to a given String command.
+     * Unregisters a listener.
      *
-     * @param command  The String command to register under.
-     * @param listener The CommandListener to register.
+     * @param listener The listener to unregister.
      */
-    public void register(String command, CommandListener listener) {
-        SledgeHammer.instance.register(command, listener);
-    }
-
-    /**
-     * Approximate method for 'SledgeHammer.instance.register(listener)'.
-     * <p>
-     * Registers a CommandListener.
-     *
-     * @param listener The CommandListener to register.
-     */
-    public void register(CommandListener listener) {
-        SledgeHammer.instance.register(listener);
-    }
-
-    /**
-     * Approximate method for 'SledgeHammer.instance.register(listener)'.
-     * <p>
-     * Registers a ThrowableListener to handle thrown Exceptions in the scope of
-     * the Sledgehammer engine.
-     *
-     * @param listener The ThrowableListener to register.
-     */
-    public void register(ThrowableListener listener) {
-        SledgeHammer.instance.register(listener);
-    }
-
-    /**
-     * Unregisters a EventListener.
-     *
-     * @param listener The EventListener to unregister.
-     */
-    public void unregister(EventListener listener) {
-        getEventManager().unregister(listener);
-    }
-
-    /**
-     * Unregisters a CommandListener.
-     *
-     * @param listener The CommandListener to unregister.
-     */
-    public void unregister(CommandListener listener) {
-        getEventManager().unregister(listener);
-    }
-
-    /**
-     * Unregisters a LogEventListener.
-     *
-     * @param listener The LogEventListener to unregister.
-     */
-    public void unregister(LogEventListener listener) {
-        getEventManager().unregister(listener);
-    }
-
-    /**
-     * Unregisters a ThrowableListener.
-     *
-     * @param listener The ThrowableListener to unregister.
-     */
-    public void unregister(ThrowableListener listener) {
+    public void unregister(Listener listener) {
         getEventManager().unregister(listener);
     }
 
@@ -799,7 +694,7 @@ public abstract class Module extends Printable {
     }
 
     /**
-     * Used to execute GenericEvent commands. This will be picked up by modules
+     * Used to execute GenericEvent commands. This will be picked up by module
      * that @override this this method.
      *
      * @param type    The type of event.

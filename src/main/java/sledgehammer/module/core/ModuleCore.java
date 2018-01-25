@@ -36,7 +36,7 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoPeriodicMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.core.player.ClientEvent;
-import sledgehammer.event.core.CommandEvent;
+import sledgehammer.event.core.command.CommandEvent;
 import sledgehammer.event.core.player.HandShakeEvent;
 import sledgehammer.event.core.player.PlayerJoinEvent;
 import sledgehammer.language.LanguagePackage;
@@ -71,6 +71,7 @@ public class ModuleCore extends Module {
     private List<MongoPeriodicMessage> listPeriodicMessages;
     private CoreCommandListener commandListener;
     private CoreEventListener eventListener;
+    private CoreBanCommandListener banCommandListener;
     private MongoCollection collectionPeriodicMessages;
     private SendPlayer sendPlayer;
     private LanguagePackage lang;
@@ -95,6 +96,7 @@ public class ModuleCore extends Module {
         collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
         // Initialize the listeners.
         commandListener = new CoreCommandListener(this);
+        banCommandListener = new CoreBanCommandListener(this);
         eventListener = new CoreEventListener(this);
         // Initialize the Lists & Maps.
         listPeriodicMessages = new ArrayList<>();
@@ -152,10 +154,20 @@ public class ModuleCore extends Module {
     }
 
     @Override
+    public void onStart() {
+        register(banCommandListener);
+        register(commandListener);
+        register(eventListener);
+    }
+
+    @Override
     public void onStop() {
         for (MongoPeriodicMessage message : listPeriodicMessages) {
             message.save();
         }
+        unregister(banCommandListener);
+        unregister(commandListener);
+        unregister(eventListener);
     }
 
     @Override
