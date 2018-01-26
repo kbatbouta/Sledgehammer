@@ -42,114 +42,114 @@ import sledgehammer.lua.faction.FactionMember;
  */
 public class FactionsEventHandler implements Listener {
 
-    private ModuleFactions module;
+  private ModuleFactions module;
 
-    /**
-     * Main constructor.
-     *
-     * @param module The faction module instance using the listener.
-     */
-    FactionsEventHandler(ModuleFactions module) {
-        setModule(module);
+  /**
+   * Main constructor.
+   *
+   * @param module The faction module instance using the listener.
+   */
+  FactionsEventHandler(ModuleFactions module) {
+    setModule(module);
+  }
+
+  @EventHandler(id = "core.faction.event.playercreated")
+  private void on(PlayerCreatedEvent event) {
+    Player player = event.getPlayer();
+    FactionMember factionMember = module.getFactionMember(player);
+    if (factionMember != null) {
+      Faction faction = factionMember.getFaction();
+      player.setColor(Color.getColor(faction.getFactionRawColor()));
+      player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
     }
+  }
 
+  @EventHandler(id = "core.faction.event.connect")
+  private void on(ConnectEvent event) {
+    Player player = event.getPlayer();
+    FactionMember factionMember = module.getFactionMember(player);
+    if (factionMember != null) {
+      factionMember.setTag(player);
+    }
+  }
 
-    @EventHandler(id = "core.faction.event.playercreated")
-    private void on(PlayerCreatedEvent event) {
-        Player player = event.getPlayer();
-        FactionMember factionMember = module.getFactionMember(player);
-        if (factionMember != null) {
-            Faction faction = factionMember.getFaction();
-            player.setColor(Color.getColor(faction.getFactionRawColor()));
-            player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
+  @EventHandler(id = "core.faction.event.requestchannels")
+  private void on(RequestChannelsEvent event) {
+    Player player = event.getPlayer();
+    FactionMember factionMember = module.getFactionMember(player);
+    if (factionMember != null) {
+      Faction faction = factionMember.getFaction();
+      ChatChannel chatChannel = faction.getChatChannel();
+      chatChannel.addPlayer(player, false);
+      event.addChatChannel(chatChannel);
+    }
+  }
+
+  @EventHandler(id = "core.faction.event.playerchatready")
+  private void on(PlayerChatReadyEvent event) {
+    Player player = event.getPlayer();
+    List<FactionInvite> invites = module.getInvitesForPlayer(player);
+    if (invites != null && invites.size() > 0) {
+      List<FactionInvite> invitesToDelete = new ArrayList<>();
+      for (FactionInvite factionInvite : invites) {
+        Faction faction = module.getFaction(factionInvite.getFactionId());
+        if (faction == null) {
+          invitesToDelete.add(factionInvite);
+          continue;
         }
-    }
-
-    @EventHandler(id = "core.faction.event.connect")
-    private void on(ConnectEvent event) {
-        Player player = event.getPlayer();
-        FactionMember factionMember = module.getFactionMember(player);
-        if (factionMember != null) {
-            factionMember.setTag(player);
+        FactionMember member = module.getFactionMember(factionInvite.getInviteeId());
+        if (member == null) {
+          invitesToDelete.add(factionInvite);
+          continue;
         }
-    }
-
-    @EventHandler(id = "core.faction.event.requestchannels")
-    private void on(RequestChannelsEvent event) {
-        Player player = event.getPlayer();
-        FactionMember factionMember = module.getFactionMember(player);
-        if (factionMember != null) {
-            Faction faction = factionMember.getFaction();
-            ChatChannel chatChannel = faction.getChatChannel();
-            chatChannel.addPlayer(player, false);
-            event.addChatChannel(chatChannel);
+        Player playerInvitee = SledgeHammer.instance.getPlayer(factionInvite.getUniqueId());
+        if (playerInvitee == null) {
+          SledgeHammer.instance.getOfflinePlayer(factionInvite.getUniqueId());
         }
-    }
-
-    @EventHandler(id = "core.faction.event.playerchatready")
-    private void on(PlayerChatReadyEvent event) {
-        Player player = event.getPlayer();
-        List<FactionInvite> invites = module.getInvitesForPlayer(player);
-        if (invites != null && invites.size() > 0) {
-            List<FactionInvite> invitesToDelete = new ArrayList<>();
-            for (FactionInvite factionInvite : invites) {
-                Faction faction = module.getFaction(factionInvite.getFactionId());
-                if (faction == null) {
-                    invitesToDelete.add(factionInvite);
-                    continue;
-                }
-                FactionMember member = module.getFactionMember(factionInvite.getInviteeId());
-                if (member == null) {
-                    invitesToDelete.add(factionInvite);
-                    continue;
-                }
-                Player playerInvitee = SledgeHammer.instance.getPlayer(factionInvite.getUniqueId());
-                if (playerInvitee == null) {
-                    SledgeHammer.instance.getOfflinePlayer(factionInvite.getUniqueId());
-                }
-                if (playerInvitee != null) {
-                    player.sendChatMessage(playerInvitee.getUsername() + " has invited you to " +
-                            "join the faction "
-                            + faction.getFactionName() + ".");
-                } else {
-                    player.sendChatMessage("You have been invited to join the faction "
-                            + faction.getFactionName() + ".");
-                }
-            }
-            for (FactionInvite invite : invitesToDelete) {
-                module.deleteInvite(invite);
-            }
-            player.sendChatMessage("Type \'/faction accept \"faction\"\' to accept.");
-            player.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
-            player.sendChatMessage("To reject all invitations, type \'/faction reject all\'.");
+        if (playerInvitee != null) {
+          player.sendChatMessage(
+              playerInvitee.getUsername()
+                  + " has invited you to "
+                  + "join the faction "
+                  + faction.getFactionName()
+                  + ".");
+        } else {
+          player.sendChatMessage(
+              "You have been invited to join the faction " + faction.getFactionName() + ".");
         }
+      }
+      for (FactionInvite invite : invitesToDelete) {
+        module.deleteInvite(invite);
+      }
+      player.sendChatMessage("Type \'/faction accept \"faction\"\' to accept.");
+      player.sendChatMessage("To reject an invitation, type \'/faction reject \"faction\'.");
+      player.sendChatMessage("To reject all invitations, type \'/faction reject all\'.");
     }
+  }
 
-    @EventHandler(id = "core.faction.event.disconnect")
-    private void on(DisconnectEvent event) {
-        Player player = event.getPlayer();
-        FactionMember factionMember = module.getFactionMember(player);
-        if (factionMember != null) {
-            Faction faction = factionMember.getFaction();
-            faction.getChatChannel().removePlayer(player, false);
-        }
+  @EventHandler(id = "core.faction.event.disconnect")
+  private void on(DisconnectEvent event) {
+    Player player = event.getPlayer();
+    FactionMember factionMember = module.getFactionMember(player);
+    if (factionMember != null) {
+      Faction faction = factionMember.getFaction();
+      faction.getChatChannel().removePlayer(player, false);
     }
+  }
 
-    /**
-     * @return Returns the faction module instance using the listener.
-     */
-    public ModuleFactions getModule() {
-        return this.module;
-    }
+  /** @return Returns the faction module instance using the listener. */
+  public ModuleFactions getModule() {
+    return this.module;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the faction module instance using the listener.
-     *
-     * @param module The faction module instance.
-     */
-    private void setModule(ModuleFactions module) {
-        this.module = module;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the faction module instance using the listener.
+   *
+   * @param module The faction module instance.
+   */
+  private void setModule(ModuleFactions module) {
+    this.module = module;
+  }
 }

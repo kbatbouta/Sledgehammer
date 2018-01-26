@@ -43,10 +43,9 @@ package sledgehammer.event.core.player;
 import sledgehammer.event.Event;
 
 /**
- * Abstract Event to identify the subset of Co-Op related Events fired in the PZ
- * server and sent to the Sledgehammer engine.
+ * Abstract Event to identify the subset of Co-Op related Events fired in the PZ server and sent to
+ * the Sledgehammer engine.
  *
  * @author Jab
  */
-public abstract class CoOpEvent extends Event {
-}
+public abstract class CoOpEvent extends Event {}

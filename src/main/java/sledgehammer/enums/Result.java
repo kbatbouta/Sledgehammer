@@ -26,8 +26,8 @@ package sledgehammer.enums;
  * @author Jab
  */
 public enum Result {
-    // @formatter:off
-    SUCCESS,
-    FAILURE;
-    // @formatter:on
+  // @formatter:off
+  SUCCESS,
+  FAILURE;
+  // @formatter:on
 }

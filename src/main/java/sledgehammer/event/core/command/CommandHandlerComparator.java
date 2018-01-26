@@ -49,8 +49,8 @@ import java.util.Comparator;
  */
 public class CommandHandlerComparator implements Comparator<CommandHandlerContainer> {
 
-    @Override
-    public int compare(CommandHandlerContainer handler1, CommandHandlerContainer handler2) {
-        return handler1.getPriority() - handler2.getPriority();
-    }
+  @Override
+  public int compare(CommandHandlerContainer handler1, CommandHandlerContainer handler2) {
+    return handler1.getPriority() - handler2.getPriority();
+  }
 }

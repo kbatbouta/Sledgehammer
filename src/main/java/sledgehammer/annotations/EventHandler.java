@@ -66,8 +66,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This Annotation handles the assignment and identification of a method to handle Events passed
- * to the Sledgehammer engine.
+ * This Annotation handles the assignment and identification of a method to handle Events passed to
+ * the Sledgehammer engine.
  *
  * @author Jab
  */
@@ -75,28 +75,28 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface EventHandler {
 
-    /**
-     * Set this to true if the EventHandler should handle Events that are set cancelled prior to
-     * being handled by the EventHandler.
-     *
-     * @return Returns false by default.
-     */
-    boolean ignoreCancelled() default false;
+  /**
+   * Set this to true if the EventHandler should handle Events that are set cancelled prior to being
+   * handled by the EventHandler.
+   *
+   * @return Returns false by default.
+   */
+  boolean ignoreCancelled() default false;
 
-    /**
-     * The EventHandler priority is a means of determining the importance of the EventHandler
-     * when compared to other handlers. If the number set is higher than another event handler,
-     * then the event handler will run first. The highest number is the most important.
-     *
-     * @return Returns 0 by default.
-     */
-    int priority() default 0;
+  /**
+   * The EventHandler priority is a means of determining the importance of the EventHandler when
+   * compared to other handlers. If the number set is higher than another event handler, then the
+   * event handler will run first. The highest number is the most important.
+   *
+   * @return Returns 0 by default.
+   */
+  int priority() default 0;
 
-    /**
-     * The String ID defined is useful for determining the origin of the EventHandler, or the
-     * associated ID of the EventHandler. This is an optional setting.
-     *
-     * @return Returns an empty String by default.
-     */
-    String id() default "";
+  /**
+   * The String ID defined is useful for determining the origin of the EventHandler, or the
+   * associated ID of the EventHandler. This is an optional setting.
+   *
+   * @return Returns an empty String by default.
+   */
+  String id() default "";
 }

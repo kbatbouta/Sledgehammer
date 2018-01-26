@@ -26,26 +26,23 @@ import sledgehammer.interfaces.Listener;
 import zombie.core.logger.LoggerManager;
 
 /**
- * LogListener that forwards LogEvents to Project Zomboid's administrator
- * ZLogger instance.
+ * LogListener that forwards LogEvents to Project Zomboid's administrator ZLogger instance.
  *
  * @author Jab
  */
 class VanillaEventListener implements Listener {
 
-    /**
-     * The String name of the Module.
-     */
-    public static final String NAME = "VanillaLogListener";
+  /** The String name of the Module. */
+  public static final String NAME = "VanillaLogListener";
 
-    @EventHandler(id = "core.vanilla.event.log")
-    public void on(LogEvent event) {
-        String message = event.getLogMessage();
-        boolean important = event.isImportant();
-        if (important) {
-            LoggerManager.getLogger("admin").write(message, "IMPORTANT");
-        } else {
-            LoggerManager.getLogger("admin").write(message);
-        }
+  @EventHandler(id = "core.vanilla.event.log")
+  public void on(LogEvent event) {
+    String message = event.getLogMessage();
+    boolean important = event.isImportant();
+    if (important) {
+      LoggerManager.getLogger("admin").write(message, "IMPORTANT");
+    } else {
+      LoggerManager.getLogger("admin").write(message);
     }
+  }
 }

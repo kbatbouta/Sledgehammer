@@ -36,109 +36,110 @@ import zombie.network.ServerMap;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * CommandListener to handle NPC Commands for the NPC Module for the Core
- * plug-in.
+ * CommandListener to handle NPC Commands for the NPC Module for the Core plug-in.
  *
- * TODO: Rewrite the NPC Module.
+ * <p>TODO: Rewrite the NPC Module.
  *
  * @author Jab
  */
 public class NPCCommandListener implements Listener {
 
-    /** The ModuleNPC instance using the CommandListener. */
-    private ModuleNPC module;
+  /** The ModuleNPC instance using the CommandListener. */
+  private ModuleNPC module;
 
-    /**
-     * Main constructor.
-     *
-     * @param module
-     *            The ModuleNPC instance using the CommandListener.
-     */
-    public NPCCommandListener(ModuleNPC module) {
-        setModule(module);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param module The ModuleNPC instance using the CommandListener.
+   */
+  public NPCCommandListener(ModuleNPC module) {
+    setModule(module);
+  }
 
-    @CommandHandler(
-            command = "addnpc",
-            permission = "core.npc.command.addnpc"
-    )
-    public void onCommandAddNPC(Command c, Response r) {
-        Player commader = c.getPlayer();
-        LanguagePackage lang = getLanguagePackage();
-        Language language = commader.getLanguage();
-        String[] args = c.getArguments();
-        if (args.length == 1) {
-            IsoPlayer player = c.getPlayer().getIso();
-            IsoGridSquare square = null;
-            float x = 0, y = 0, z = 0;
-            if (player != null) {
-                int attempts = 0;
-                int maxAttempts = 50;
-                while (square == null) {
-                    x = player.x + ZUtil.random.nextInt(11) - 5;
-                    y = player.y + ZUtil.random.nextInt(11) - 5;
-                    z = player.z;
-                    square = ServerMap.instance.getGridSquare((int) Math.floor(x), (int) Math.floor(y),
-                            (int) Math.floor(z));
-                    if (attempts >= maxAttempts) {
-                        x = player.x;
-                        y = player.y;
-                        z = player.z;
-                        square = ServerMap.instance.getGridSquare((int) Math.floor(x), (int) Math.floor(y),
-                                (int) Math.floor(z));
-                        if (square == null) {
-                            r.set(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
-                            return;
-                        }
-                    }
-                    attempts++;
-                }
+  @CommandHandler(command = "addnpc", permission = "core.npc.command.addnpc")
+  public void onCommandAddNPC(Command c, Response r) {
+    Player commader = c.getPlayer();
+    LanguagePackage lang = getLanguagePackage();
+    Language language = commader.getLanguage();
+    String[] args = c.getArguments();
+    if (args.length == 1) {
+      IsoPlayer player = c.getPlayer().getIso();
+      IsoGridSquare square = null;
+      float x = 0, y = 0, z = 0;
+      if (player != null) {
+        int attempts = 0;
+        int maxAttempts = 50;
+        while (square == null) {
+          x = player.x + ZUtil.random.nextInt(11) - 5;
+          y = player.y + ZUtil.random.nextInt(11) - 5;
+          z = player.z;
+          square =
+              ServerMap.instance.getGridSquare(
+                  (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+          if (attempts >= maxAttempts) {
+            x = player.x;
+            y = player.y;
+            z = player.z;
+            square =
+                ServerMap.instance.getGridSquare(
+                    (int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+            if (square == null) {
+              r.set(Result.FAILURE, "Could not find solid ground to spawn NPC on.");
+              return;
             }
-            String name = args[0];
-            NPC fakePlayer = module.createFakePlayer(name, x, y, z);
-            System.out.println("Adding fake player \"" + name + " at (" + x + "," + y +
-                    "," +
-                    z + "). PlayerIndex: "
-                    + fakePlayer.PlayerIndex + " OnlineID: " + fakePlayer.OnlineID);
-            BehaviorSurvive behavior = new BehaviorSurvive(fakePlayer);
-            behavior.setDefaultTarget(player);
-            behavior.setActive(true);
-            fakePlayer.addBehavior(behavior);
-            module.mapSpawns.put(fakePlayer, player);
-            r.set(Result.SUCCESS, "NPC created.");
-        } else {
-            r.set(Result.FAILURE, lang.getString("tooltip_command_addnpc", language));
+          }
+          attempts++;
         }
+      }
+      String name = args[0];
+      NPC fakePlayer = module.createFakePlayer(name, x, y, z);
+      System.out.println(
+          "Adding fake player \""
+              + name
+              + " at ("
+              + x
+              + ","
+              + y
+              + ","
+              + z
+              + "). PlayerIndex: "
+              + fakePlayer.PlayerIndex
+              + " OnlineID: "
+              + fakePlayer.OnlineID);
+      BehaviorSurvive behavior = new BehaviorSurvive(fakePlayer);
+      behavior.setDefaultTarget(player);
+      behavior.setActive(true);
+      fakePlayer.addBehavior(behavior);
+      module.mapSpawns.put(fakePlayer, player);
+      r.set(Result.SUCCESS, "NPC created.");
+    } else {
+      r.set(Result.FAILURE, lang.getString("tooltip_command_addnpc", language));
     }
+  }
 
-    @CommandHandler(
-            command = "destroynpcs",
-            permission = "core.npc.command.destroynpcs"
-    )
-    public void onCommandDestroyNPCS(Command c, Response r) {
-        getModule().destroyNPCs();
-        r.set(Result.SUCCESS, "NPCs destroyed.");
-    }
+  @CommandHandler(command = "destroynpcs", permission = "core.npc.command.destroynpcs")
+  public void onCommandDestroyNPCS(Command c, Response r) {
+    getModule().destroyNPCs();
+    r.set(Result.SUCCESS, "NPCs destroyed.");
+  }
 
-    public LanguagePackage getLanguagePackage() {
-        return getModule().getLanguagePackage();
-    }
+  public LanguagePackage getLanguagePackage() {
+    return getModule().getLanguagePackage();
+  }
 
-    /**
-     * @return Returns the ModuleNPC instance using the CommandListener.
-     */
-    public ModuleNPC getModule() {
-        return this.module;
-    }
+  /** @return Returns the ModuleNPC instance using the CommandListener. */
+  public ModuleNPC getModule() {
+    return this.module;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the ModuleNPC instance using the CommandListener.
-     *
-     * @param module The ModuleNPC instance to set.
-     */
-    private void setModule(ModuleNPC module) {
-        this.module = module;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the ModuleNPC instance using the CommandListener.
+   *
+   * @param module The ModuleNPC instance to set.
+   */
+  private void setModule(ModuleNPC module) {
+    this.module = module;
+  }
 }

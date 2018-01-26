@@ -33,81 +33,71 @@ import sledgehammer.lua.MongoLuaObject;
  */
 public class FactionInvite extends MongoLuaObject<MongoFactionInvite> {
 
-    /**
-     * Main constructor.
-     *
-     * @param mongoDocument The MongoDocument container.
-     */
-    public FactionInvite(MongoFactionInvite mongoDocument) {
-        super(mongoDocument, "FactionInvite");
-    }
+  /**
+   * Main constructor.
+   *
+   * @param mongoDocument The MongoDocument container.
+   */
+  public FactionInvite(MongoFactionInvite mongoDocument) {
+    super(mongoDocument, "FactionInvite");
+  }
 
-    /**
-     * Lua load constructor.
-     *
-     * @param mongoDocument The MongoDocument container.
-     * @param table         The KahluaTable to load.
-     */
-    public FactionInvite(MongoFactionInvite mongoDocument, KahluaTable table) {
-        super(mongoDocument, "FactionInvite");
-        onLoad(table);
-    }
+  /**
+   * Lua load constructor.
+   *
+   * @param mongoDocument The MongoDocument container.
+   * @param table The KahluaTable to load.
+   */
+  public FactionInvite(MongoFactionInvite mongoDocument, KahluaTable table) {
+    super(mongoDocument, "FactionInvite");
+    onLoad(table);
+  }
 
-    @Override
-    public void onLoad(KahluaTable table) {
-        // TODO: Implement.
-    }
+  @Override
+  public void onLoad(KahluaTable table) {
+    // TODO: Implement.
+  }
 
-    @Override
-    public void onExport() {
-        // TODO: Implement.
-    }
+  @Override
+  public void onExport() {
+    // TODO: Implement.
+  }
 
-    /**
-     * @return Returns the Long UNIX TimeStamp that the Invite was created.
-     */
-    public long getTimeInvited() {
-        return getMongoDocument().getTimeInvited();
-    }
+  /** @return Returns the Long UNIX TimeStamp that the Invite was created. */
+  public long getTimeInvited() {
+    return getMongoDocument().getTimeInvited();
+  }
 
-    /**
-     * @param timeToLive The Long Time in milliseconds that a invite is allowed to live.
-     * @return Returns true if the Invite has lived passed the provided time that it
-     * is allowed to live.
-     */
-    public boolean isExpired(long timeToLive) {
-        return System.currentTimeMillis() - getTimeInvited() > timeToLive;
-    }
+  /**
+   * @param timeToLive The Long Time in milliseconds that a invite is allowed to live.
+   * @return Returns true if the Invite has lived passed the provided time that it is allowed to
+   *     live.
+   */
+  public boolean isExpired(long timeToLive) {
+    return System.currentTimeMillis() - getTimeInvited() > timeToLive;
+  }
 
-    /**
-     * @return Returns the Unique ID representing the Player inviting.
-     */
-    public UUID getInviteeId() {
-        return getMongoDocument().getInviteeId();
-    }
+  /** @return Returns the Unique ID representing the Player inviting. */
+  public UUID getInviteeId() {
+    return getMongoDocument().getInviteeId();
+  }
 
-    /**
-     * @return Returns the Unique ID representing the Player invited.
-     */
-    public UUID getInvitedId() {
-        return getMongoDocument().getInvitedId();
-    }
+  /** @return Returns the Unique ID representing the Player invited. */
+  public UUID getInvitedId() {
+    return getMongoDocument().getInvitedId();
+  }
 
-    /**
-     * @return Returns the Unique ID representing the Faction being invited to.
-     */
-    public UUID getFactionId() {
-        return getMongoDocument().getFactionId();
-    }
+  /** @return Returns the Unique ID representing the Faction being invited to. */
+  public UUID getFactionId() {
+    return getMongoDocument().getFactionId();
+  }
 
-    /**
-     * @return Returns the Unique ID identifier for the Invite.
-     */
-    public UUID getUniqueId() {
-        return getMongoDocument().getUniqueId();
-    }
+  /** @return Returns the Unique ID identifier for the Invite. */
+  public UUID getUniqueId() {
+    return getMongoDocument().getUniqueId();
+  }
 
-    public void save() {
-        getMongoDocument().save();
-    }
+  public void save() {
+    getMongoDocument().save();
+  }
 }

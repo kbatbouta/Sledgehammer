@@ -31,65 +31,57 @@ import sledgehammer.util.Response;
  */
 public class CommandEvent extends Event {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "CommandEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "CommandEvent";
 
-    /**
-     * The Command sent to Sledgehammer.
-     */
-    private Command command;
-    /**
-     * The Response to send back.
-     */
-    private Response response;
+  /** The Command sent to Sledgehammer. */
+  private Command command;
+  /** The Response to send back. */
+  private Response response;
 
-    /**
-     * Main constructor.
-     *
-     * @param command The Command sent to Sledgehammer.
-     */
-    public CommandEvent(Command command) {
-        this.command = command;
-        this.response = new Response();
-    }
+  /**
+   * Main constructor.
+   *
+   * @param command The Command sent to Sledgehammer.
+   */
+  public CommandEvent(Command command) {
+    this.command = command;
+    this.response = new Response();
+  }
 
-    @Override
-    public String getLogMessage() {
-        return getResponse().getLogMessage();
-    }
+  @Override
+  public String getLogMessage() {
+    return getResponse().getLogMessage();
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 
-    @Override
-    public String toString() {
-        return "CommandEvent: \n"
-                + "Command: " + command.toString() + "\n"
-                + "Response: " + response.toString() + "\n";
-    }
+  @Override
+  public String toString() {
+    return "CommandEvent: \n"
+        + "Command: "
+        + command.toString()
+        + "\n"
+        + "Response: "
+        + response.toString()
+        + "\n";
+  }
 
-    /**
-     * @return Returns the Command sent to Sledgehammer.
-     */
-    public Command getCommand() {
-        return this.command;
-    }
+  /** @return Returns the Command sent to Sledgehammer. */
+  public Command getCommand() {
+    return this.command;
+  }
 
-    /**
-     * @return Returns the Response to send back.
-     */
-    public Response getResponse() {
-        return response;
-    }
+  /** @return Returns the Response to send back. */
+  public Response getResponse() {
+    return response;
+  }
 
-    /**
-     * @return Returns true if the CommandEvent is handled by a CommandListener.
-     */
-    public boolean isHandled() {
-        return getResponse().isHandled();
-    }
+  /** @return Returns true if the CommandEvent is handled by a CommandListener. */
+  public boolean isHandled() {
+    return getResponse().isHandled();
+  }
 }

@@ -43,39 +43,36 @@ package sledgehammer.event.core.player;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent to handle activated cheat detections in the Sledgehammer engine
- * and the PZ server.
- * 
+ * PlayerEvent to handle activated cheat detections in the Sledgehammer engine and the PZ server.
+ *
  * @author Jab
  */
 public class CheaterEvent extends PlayerEvent {
 
-	/** The String ID of the Event. */
-	public static final String ID = "CheaterEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "CheaterEvent";
 
-	/** The String message to log for the CheaterEvent. */
-	private String logMessage;
+  /** The String message to log for the CheaterEvent. */
+  private String logMessage;
 
-	/**
-	 * Main constructor.
-	 * 
-	 * @param player
-	 *            The Player detected for cheating.
-	 * @param logMessage
-	 *            THe String message to log for the CheaterEvent.
-	 */
-	public CheaterEvent(Player player, String logMessage) {
-		super(player);
-		this.logMessage = logMessage;
-	}
+  /**
+   * Main constructor.
+   *
+   * @param player The Player detected for cheating.
+   * @param logMessage THe String message to log for the CheaterEvent.
+   */
+  public CheaterEvent(Player player, String logMessage) {
+    super(player);
+    this.logMessage = logMessage;
+  }
 
-	@Override
-	public String getLogMessage() {
-		return "CHEATER: " + logMessage;
-	}
+  @Override
+  public String getLogMessage() {
+    return "CHEATER: " + logMessage;
+  }
 
-	@Override
-	public String getID() {
-		return ID;
-	}
+  @Override
+  public String getID() {
+    return ID;
+  }
 }

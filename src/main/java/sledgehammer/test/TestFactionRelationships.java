@@ -27,83 +27,75 @@ import zombie.network.ServerWorldDatabase;
 import sledgehammer.SledgeHammer;
 import sledgehammer.util.Printable;
 
-/**
- * 
- * @author Jab
- *
- */
+/** @author Jab */
 public class TestFactionRelationships extends Printable {
 
-	public int faction1ID = 1;
-	public int faction2ID = 127;
-	public String faction1Name = "Developer";
-	public String faction2Name = "Gonder";
+  public int faction1ID = 1;
+  public int faction2ID = 127;
+  public String faction1Name = "Developer";
+  public String faction2Name = "Gonder";
 
-//	private ModuleFactions module;
+  //	private ModuleFactions module;
 
-	public TestFactionRelationships() {
+  public TestFactionRelationships() {}
 
-	}
+  public void run() {
+    // module = new ModuleFactions();
+    // SledgeHammer.instance.getPluginManager().registerModule(module);
+    // module.onLoad();
+    // module.onStart();
 
-	public void run() {
-		// module = new ModuleFactions();
-		// SledgeHammer.instance.getPluginManager().registerModule(module);
-		// module.onLoad();
-		// module.onStart();
+    // test1();
+    // test2();
+    //
+    // module.onStop();
+    // module.onUnload();
+  }
 
-		// test1();
-		// test2();
-		//
-		// module.onStop();
-		// module.onUnload();
-	}
+  public void test1() {
+    // println("Test 1: Invoke Relationship.");
+    // module.getActions().invokeRelationship(faction1Name, faction2Name, false,
+    // false, ModuleFactions.RELATIONSHIP_WAR, null);
+    // println("\tDeleting Relationship.");
+    // module.deleteRelationship(faction1ID, faction2ID);
+    // println();
+  }
 
-	public void test1() {
-		// println("Test 1: Invoke Relationship.");
-		// module.getActions().invokeRelationship(faction1Name, faction2Name, false,
-		// false, ModuleFactions.RELATIONSHIP_WAR, null);
-		// println("\tDeleting Relationship.");
-		// module.deleteRelationship(faction1ID, faction2ID);
-		// println();
-	}
+  public void test2() {
+    // println("Test 2: Invoke Relationship Request.");
+    // module.getActions().invokeRelationship(faction1Name, faction2Name, false,
+    // false, ModuleFactions.RELATIONSHIP_ALLIED, "Please?");
+    // println("\tDeleting Relationship Request.");
+    // module.getActions().deleteRelationshipRequest(faction1ID, faction2ID);
+    // println();
+  }
 
-	public void test2() {
-		// println("Test 2: Invoke Relationship Request.");
-		// module.getActions().invokeRelationship(faction1Name, faction2Name, false,
-		// false, ModuleFactions.RELATIONSHIP_ALLIED, "Please?");
-		// println("\tDeleting Relationship Request.");
-		// module.getActions().deleteRelationshipRequest(faction1ID, faction2ID);
-		// println();
-	}
+  public void test3() {}
 
-	public void test3() {
+  public static void main(String[] args) {
+    try {
 
-	}
+      // Start the database.
+      ServerWorldDatabase.instance.create();
+      Core.GameSaveWorld = "servertest";
 
-	public static void main(String[] args) {
-		try {
+      SteamUtils.init();
+      LuaManager.init();
 
-			// Start the database.
-			ServerWorldDatabase.instance.create();
-			Core.GameSaveWorld = "servertest";
+      // Start Sledgehammer in debug mode.
+      SledgeHammer.instance = new SledgeHammer(false);
+      SledgeHammer.instance.init();
 
-			SteamUtils.init();
-			LuaManager.init();
+      TestFactionRelationships test = new TestFactionRelationships();
+      test.run();
 
-			// Start Sledgehammer in debug mode.
-			SledgeHammer.instance = new SledgeHammer(false);
-			SledgeHammer.instance.init();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-			TestFactionRelationships test = new TestFactionRelationships();
-			test.run();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public String getName() {
-		return "TEST-FACTIONS-RELATIONSHIPS";
-	}
+  @Override
+  public String getName() {
+    return "TEST-FACTIONS-RELATIONSHIPS";
+  }
 }

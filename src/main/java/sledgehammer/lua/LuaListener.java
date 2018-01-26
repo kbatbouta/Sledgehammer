@@ -1,4 +1,4 @@
-///*
+/// *
 // * This file is part of Sledgehammer.
 // *
 // *    Sledgehammer is free software: you can redistribute it and/or modify
@@ -18,24 +18,24 @@
 // *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
 // */
 //
-//package sledgehammer.lua;
+// package sledgehammer.lua;
 //
-//import se.krka.kahlua.vm.KahluaTable;
-//import sledgehammer.enums.LuaEvent;
-//import sledgehammer.event.Event;
-//import sledgehammer.event.ScriptEvent;
-//import sledgehammer.interfaces.EventListener;
-//import sledgehammer.interfaces.Listener;
-//import sledgehammer.util.Printable;
-//import zombie.characters.IsoGameCharacter;
-//import zombie.characters.IsoLivingCharacter;
-//import zombie.characters.IsoPlayer;
-//import zombie.characters.SurvivorDesc;
-//import zombie.iso.IsoGridSquare;
-//import zombie.iso.IsoObject;
-//import zombie.iso.IsoMovingObject;
+// import se.krka.kahlua.vm.KahluaTable;
+// import sledgehammer.enums.LuaEvent;
+// import sledgehammer.event.Event;
+// import sledgehammer.event.ScriptEvent;
+// import sledgehammer.interfaces.EventListener;
+// import sledgehammer.interfaces.Listener;
+// import sledgehammer.util.Printable;
+// import zombie.characters.IsoGameCharacter;
+// import zombie.characters.IsoLivingCharacter;
+// import zombie.characters.IsoPlayer;
+// import zombie.characters.SurvivorDesc;
+// import zombie.iso.IsoGridSquare;
+// import zombie.iso.IsoObject;
+// import zombie.iso.IsoMovingObject;
 //
-///**
+/// **
 // * Example EventListener showing how to interface with the ScriptEvent.
 // * <p>
 // * (Note: This should not be used because iterating over every single LuaEvent
@@ -46,7 +46,7 @@
 // *
 // * @author Jab
 // */
-//public class LuaListener extends Printable implements Listener {
+// public class LuaListener extends Printable implements Listener {
 //
 //    public static final String NAME = "LuaListener";
 //
@@ -230,7 +230,8 @@
 //    public void onGameStart() {
 //    }
 //
-//    public void onCharacterCollide(IsoGameCharacter characterColider, IsoGameCharacter characterColidedWith) {
+//    public void onCharacterCollide(IsoGameCharacter characterColider, IsoGameCharacter
+// characterColidedWith) {
 //    }
 //
 //    public void onObjectCollide(IsoMovingObject objectColider, IsoObject objectColidedWith) {
@@ -242,13 +243,16 @@
 //    public void onLoadMapZones() {
 //    }
 //
-//    public void onCreateLivingCharacter(IsoLivingCharacter livingCharacter, SurvivorDesc descriptor) {
+//    public void onCreateLivingCharacter(IsoLivingCharacter livingCharacter, SurvivorDesc
+// descriptor) {
 //    }
 //
-//    public void onClientCommand(String module, String command, IsoPlayer player, KahluaTable table) {
+//    public void onClientCommand(String module, String command, IsoPlayer player, KahluaTable
+// table) {
 //    }
 //
-//    public void onDoTileBuilding2(KahluaTable drag, boolean render, int pickedTileX, int pickedTileY, int cameraZ,
+//    public void onDoTileBuilding2(KahluaTable drag, boolean render, int pickedTileX, int
+// pickedTileY, int cameraZ,
 //                                  IsoGridSquare square) {
 //    }
-//}
+// }

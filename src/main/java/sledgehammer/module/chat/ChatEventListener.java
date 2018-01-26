@@ -30,29 +30,29 @@ import sledgehammer.lua.core.Player;
 
 public class ChatEventListener implements Listener {
 
-    private ModuleChat module;
+  private ModuleChat module;
 
-    ChatEventListener(ModuleChat module) {
-        setModule(module);
-    }
+  ChatEventListener(ModuleChat module) {
+    setModule(module);
+  }
 
-    @EventHandler(id = "core.chat.event.disconnect")
-    private void on(DisconnectEvent event) {
-        Player player = event.getPlayer();
-        if (player != null) {
-            for (ChatChannel channel : getModule().getChatChannels()) {
-                channel.removePlayer(player, false);
-            }
-            SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
-            database.removeMongoPlayer(player.getMongoDocument());
-        }
+  @EventHandler(id = "core.chat.event.disconnect")
+  private void on(DisconnectEvent event) {
+    Player player = event.getPlayer();
+    if (player != null) {
+      for (ChatChannel channel : getModule().getChatChannels()) {
+        channel.removePlayer(player, false);
+      }
+      SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
+      database.removeMongoPlayer(player.getMongoDocument());
     }
+  }
 
-    public ModuleChat getModule() {
-        return this.module;
-    }
+  public ModuleChat getModule() {
+    return this.module;
+  }
 
-    private void setModule(ModuleChat module) {
-        this.module = module;
-    }
+  private void setModule(ModuleChat module) {
+    this.module = module;
+  }
 }

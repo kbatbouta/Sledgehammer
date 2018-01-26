@@ -46,62 +46,53 @@ import org.lwjgl.util.vector.Vector3f;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent that handles the transmission of a Players position, and
- * meta-position.
+ * PlayerEvent that handles the transmission of a Players position, and meta-position.
  *
  * @author Jab
  */
 public class PlayerInfoEvent extends PlayerEvent {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "PlayerInfoEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "PlayerInfoEvent";
 
-    /**
-     * The String logged message for the PlayerInfoEvent.
-     */
-    private String logMessage = null;
+  /** The String logged message for the PlayerInfoEvent. */
+  private String logMessage = null;
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player being updated.
-     */
-    public PlayerInfoEvent(Player player) {
-        super(player);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param player The Player being updated.
+   */
+  public PlayerInfoEvent(Player player) {
+    super(player);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return this.logMessage;
-    }
+  @Override
+  public String getLogMessage() {
+    return this.logMessage;
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 
-    /**
-     * Sets the String logged message for the PlayerInfoEvent.
-     *
-     * @param logMessage The String logged message to set.
-     */
-    public void setLogMessage(String logMessage) {
-        this.logMessage = logMessage;
-    }
+  /**
+   * Sets the String logged message for the PlayerInfoEvent.
+   *
+   * @param logMessage The String logged message to set.
+   */
+  public void setLogMessage(String logMessage) {
+    this.logMessage = logMessage;
+  }
 
-    /**
-     * @return Returns the Vector3f position of the Player.
-     */
-    public Vector3f getPosition() {
-        return getPlayer().getPosition();
-    }
+  /** @return Returns the Vector3f position of the Player. */
+  public Vector3f getPosition() {
+    return getPlayer().getPosition();
+  }
 
-    /**
-     * @return Returns the Vector2f meta-position of the Player.
-     */
-    public Vector2f getMetaPosition() {
-        return getPlayer().getMetaPosition();
-    }
+  /** @return Returns the Vector2f meta-position of the Player. */
+  public Vector2f getMetaPosition() {
+    return getPlayer().getMetaPosition();
+  }
 }

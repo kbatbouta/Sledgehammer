@@ -32,59 +32,50 @@ import sledgehammer.database.module.core.SledgehammerDatabase;
  */
 public abstract class MongoModule extends Module {
 
-    /**
-     * The database for the MongoModule.
-     */
-    private DB database;
+  /** The database for the MongoModule. */
+  private DB database;
 
-    /**
-     * Main constructor. Use 'getDatabase(String databaseName)' to grab the
-     * database.
-     *
-     * @param database The DB database associated with the MongoModule
-     */
-    public MongoModule(DB database) {
-        setDatabase(database);
-    }
+  /**
+   * Main constructor. Use 'getDatabase(String databaseName)' to grab the database.
+   *
+   * @param database The DB database associated with the MongoModule
+   */
+  public MongoModule(DB database) {
+    setDatabase(database);
+  }
 
-    /**
-     * @return Returns the DB database associated with the MongoModule
-     */
-    public DB getDatabase() {
-        return this.database;
-    }
+  /** @return Returns the DB database associated with the MongoModule */
+  public DB getDatabase() {
+    return this.database;
+  }
 
-    /**
-     * Sets the DB database associated with the MongoModule
-     *
-     * @param database The DB database.
-     */
-    private void setDatabase(DB database) {
-        this.database = database;
-    }
+  /**
+   * Sets the DB database associated with the MongoModule
+   *
+   * @param database The DB database.
+   */
+  private void setDatabase(DB database) {
+    this.database = database;
+  }
 
-    /**
-     * @return Returns the SledgehammerDatabase instance for SledgeHammer.
-     */
-    public SledgehammerDatabase getSledgehammerDatabase() {
-        return SledgeHammer.instance.getDatabase();
-    }
+  /** @return Returns the SledgehammerDatabase instance for SledgeHammer. */
+  public SledgehammerDatabase getSledgehammerDatabase() {
+    return SledgeHammer.instance.getDatabase();
+  }
 
-    /**
-     * Returns a DB database with a given String name.
-     *
-     * @param databaseName The String name of the DB database.
-     * @return The DB database.
-     */
-    @SuppressWarnings("deprecation")
-    public static DB getDatabase(String databaseName) {
-        return SledgeHammer.instance.getDatabase().getClient().getDB(databaseName);
-    }
+  /**
+   * Returns a DB database with a given String name.
+   *
+   * @param databaseName The String name of the DB database.
+   * @return The DB database.
+   */
+  @SuppressWarnings("deprecation")
+  public static DB getDatabase(String databaseName) {
+    return SledgeHammer.instance.getDatabase().getClient().getDB(databaseName);
+  }
 
-    /**
-     * @return Returns the default DB database.
-     */
-    public static DB getDefaultDatabase() {
-        return SledgeHammer.instance.getDatabase().getDatabase();
-    }
+  /** @return Returns the default DB database. */
+  public static DB getDefaultDatabase() {
+    return SledgeHammer.instance.getDatabase().getDatabase();
+  }
 }

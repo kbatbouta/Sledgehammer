@@ -33,54 +33,50 @@ import zombie.sledgehammer.module.vanilla.VanillaCommandListener;
  */
 public class ModuleVanilla extends Module {
 
-    /**
-     * The CommandListener instance for the Module.
-     */
-    private VanillaCommandListener commandListener;
+  /** The CommandListener instance for the Module. */
+  private VanillaCommandListener commandListener;
 
-    private VanillaEventListener eventListener;
+  private VanillaEventListener eventListener;
 
-    private LanguagePackage languagePackage;
+  private LanguagePackage languagePackage;
 
-    @Override
-    public void onLoad() {
-        loadLanguagePackage();
-        commandListener = new VanillaCommandListener(this);
-        eventListener = new VanillaEventListener();
-        register(eventListener);
-    }
+  @Override
+  public void onLoad() {
+    loadLanguagePackage();
+    commandListener = new VanillaCommandListener(this);
+    eventListener = new VanillaEventListener();
+    register(eventListener);
+  }
 
-    @Override
-    public void onUnload() {
-        unregister(eventListener);
-    }
+  @Override
+  public void onUnload() {
+    unregister(eventListener);
+  }
 
-    private void loadLanguagePackage() {
-        File langDir = getLanguageDirectory();
-        boolean override = !isLangOverriden();
-        saveResourceAs("lang/vanilla_en.yml", new File(langDir, "vanilla_en.yml"), override);
-        languagePackage = new LanguagePackage(getLanguageDirectory(), "vanilla");
-    }
+  private void loadLanguagePackage() {
+    File langDir = getLanguageDirectory();
+    boolean override = !isLangOverriden();
+    saveResourceAs("lang/vanilla_en.yml", new File(langDir, "vanilla_en.yml"), override);
+    languagePackage = new LanguagePackage(getLanguageDirectory(), "vanilla");
+  }
 
-    /**
-     * @return Returns the VanillaCommandListener for the Vanilla Module.
-     */
-    public VanillaCommandListener getCommandListener() {
-        return commandListener;
-    }
+  /** @return Returns the VanillaCommandListener for the Vanilla Module. */
+  public VanillaCommandListener getCommandListener() {
+    return commandListener;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the VanillaCommandListener for the Vanilla Module.
-     *
-     * @param listener The VanillaCommandListener to set.
-     */
-    public void setCommandListener(VanillaCommandListener listener) {
-        this.commandListener = listener;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the VanillaCommandListener for the Vanilla Module.
+   *
+   * @param listener The VanillaCommandListener to set.
+   */
+  public void setCommandListener(VanillaCommandListener listener) {
+    this.commandListener = listener;
+  }
 
-    public LanguagePackage getLanguagePackage() {
-        return languagePackage;
-    }
+  public LanguagePackage getLanguagePackage() {
+    return languagePackage;
+  }
 }

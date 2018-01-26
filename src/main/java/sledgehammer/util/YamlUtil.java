@@ -31,22 +31,18 @@ import org.yaml.snakeyaml.DumperOptions.ScalarStyle;
  */
 public class YamlUtil {
 
-    /**
-     * The Yaml instance for SledgeHammer to use.
-     */
-    private static Yaml yaml;
+  /** The Yaml instance for SledgeHammer to use. */
+  private static Yaml yaml;
 
-    static {
-        DumperOptions options = new DumperOptions();
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        options.setDefaultScalarStyle(ScalarStyle.LITERAL);
-        yaml = new Yaml(options);
-    }
+  static {
+    DumperOptions options = new DumperOptions();
+    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+    options.setDefaultScalarStyle(ScalarStyle.LITERAL);
+    yaml = new Yaml(options);
+  }
 
-    /**
-     * @return Returns the global instance of Yaml.
-     */
-    public static Yaml getYaml() {
-        return yaml;
-    }
+  /** @return Returns the global instance of Yaml. */
+  public static Yaml getYaml() {
+    return yaml;
+  }
 }

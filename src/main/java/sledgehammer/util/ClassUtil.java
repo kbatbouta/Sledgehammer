@@ -27,36 +27,35 @@ import java.util.List;
 
 public class ClassUtil {
 
-    public static boolean isSubClass(Class subClass, Class superClass) {
-        if (isClass(subClass, subClass)) {
-            return false;
-        }
-        boolean returned = false;
-        Class c = subClass;
-        while ((c = c.getSuperclass()) != null) {
-            if (superClass.equals(c)) {
-                returned = true;
-                break;
-            }
-        }
-        return returned;
+  public static boolean isSubClass(Class subClass, Class superClass) {
+    if (isClass(subClass, subClass)) {
+      return false;
     }
+    boolean returned = false;
+    Class c = subClass;
+    while ((c = c.getSuperclass()) != null) {
+      if (superClass.equals(c)) {
+        returned = true;
+        break;
+      }
+    }
+    return returned;
+  }
 
-    public static boolean isClass(Class<?> class1, Class<?> class2) {
-        return class1.equals(class2);
-    }
+  public static boolean isClass(Class<?> class1, Class<?> class2) {
+    return class1.equals(class2);
+  }
 
-    public static Method[] getAllDeclaredMethods(Class clazz) {
-        List<Method> listDeclaredMethods = new ArrayList<>();
-        Class c = clazz;
-        do {
-            listDeclaredMethods.addAll(Arrays.asList(c.getDeclaredMethods()));
-        }
-        while ((c = c.getSuperclass()) != null);
-        Method[] m = new Method[listDeclaredMethods.size()];
-        for (int index = 0; index < listDeclaredMethods.size(); index++) {
-            m[index] = listDeclaredMethods.get(index);
-        }
-        return m;
+  public static Method[] getAllDeclaredMethods(Class clazz) {
+    List<Method> listDeclaredMethods = new ArrayList<>();
+    Class c = clazz;
+    do {
+      listDeclaredMethods.addAll(Arrays.asList(c.getDeclaredMethods()));
+    } while ((c = c.getSuperclass()) != null);
+    Method[] m = new Method[listDeclaredMethods.size()];
+    for (int index = 0; index < listDeclaredMethods.size(); index++) {
+      m[index] = listDeclaredMethods.get(index);
     }
+    return m;
+  }
 }

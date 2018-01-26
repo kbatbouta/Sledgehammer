@@ -27,27 +27,27 @@ import sledgehammer.util.YamlUtil;
 
 /**
  * This is a test class for verifying the YAML for the config.yml file.
- * 
+ *
  * @author Jab
  */
 @SuppressWarnings("rawtypes")
 public class TestConfigYAML {
 
-	Map data;
+  Map data;
 
-	public void run() {
-		try {
-			FileInputStream fis;
-			fis = new FileInputStream(new File("config.yml"));
-			data = YamlUtil.getYaml().load(fis);
-			System.out.println(data);
-			fis.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+  public void run() {
+    try {
+      FileInputStream fis;
+      fis = new FileInputStream(new File("config.yml"));
+      data = YamlUtil.getYaml().load(fis);
+      System.out.println(data);
+      fis.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
 
-	public static void main(String[] args) {
-		new TestConfigYAML().run();
-	}
+  public static void main(String[] args) {
+    new TestConfigYAML().run();
+  }
 }

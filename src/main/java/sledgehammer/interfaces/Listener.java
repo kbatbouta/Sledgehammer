@@ -22,10 +22,9 @@ package sledgehammer.interfaces;
 
 /**
  * Interface for listening to and handling Events in the Sledgehammer engine.
- * 
- * TODO: Rewrite to support Annotation assignment.
- * 
+ *
+ * <p>TODO: Rewrite to support Annotation assignment.
+ *
  * @author Jab
  */
-public interface Listener {
-}
+public interface Listener {}

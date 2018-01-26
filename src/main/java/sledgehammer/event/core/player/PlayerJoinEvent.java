@@ -24,35 +24,35 @@ import sledgehammer.lua.core.Player;
 
 public class PlayerJoinEvent extends PlayerEvent {
 
-    public static final String ID = "PlayerJoinEvent";
+  public static final String ID = "PlayerJoinEvent";
 
-    private long timestamp = -1L;
+  private long timestamp = -1L;
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player associated with the PlayerEvent.
-     */
-    public PlayerJoinEvent(Player player) {
-        super(player);
-        setTimestamp(System.currentTimeMillis());
-    }
+  /**
+   * Main constructor.
+   *
+   * @param player The Player associated with the PlayerEvent.
+   */
+  public PlayerJoinEvent(Player player) {
+    super(player);
+    setTimestamp(System.currentTimeMillis());
+  }
 
-    @Override
-    public String getLogMessage() {
-        return "The Player " + getPlayer().getName() + " joined to the server.";
-    }
+  @Override
+  public String getLogMessage() {
+    return "The Player " + getPlayer().getName() + " joined to the server.";
+  }
 
-    @Override
-    public String getID() {
-        return PlayerJoinEvent.ID;
-    }
+  @Override
+  public String getID() {
+    return PlayerJoinEvent.ID;
+  }
 
-    public long getTimestamp() {
-        return this.timestamp;
-    }
+  public long getTimestamp() {
+    return this.timestamp;
+  }
 
-    private void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
+  private void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
 }

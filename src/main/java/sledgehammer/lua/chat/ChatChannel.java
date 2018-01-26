@@ -41,259 +41,262 @@ import sledgehammer.lua.core.Player;
  */
 public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
-    private ChatHistory chatHistory;
+  private ChatHistory chatHistory;
 
-    private List<Player> listPlayersSent;
+  private List<Player> listPlayersSent;
 
-    private SendChatMessages sendChatMessages;
-    private SendChatChannel sendChatChannel;
-    private SendChatChannelRemove sendChatChannelRemove;
-    private SendChatChannelRename sendChatChannelRename;
+  private SendChatMessages sendChatMessages;
+  private SendChatChannel sendChatChannel;
+  private SendChatChannelRemove sendChatChannelRemove;
+  private SendChatChannelRename sendChatChannelRename;
 
-    /**
-     * MongoDB load constructor.
-     *
-     * @param mongoDocument The MongoDocument storing the data for the ChatChannel.
-     */
-    public ChatChannel(MongoChatChannel mongoDocument) {
-        super(mongoDocument, "ChatChannel");
-        initialize();
+  /**
+   * MongoDB load constructor.
+   *
+   * @param mongoDocument The MongoDocument storing the data for the ChatChannel.
+   */
+  public ChatChannel(MongoChatChannel mongoDocument) {
+    super(mongoDocument, "ChatChannel");
+    initialize();
+  }
+
+  /**
+   * Lua load constructor.
+   *
+   * @param mongoDocument The MongoDocument storing the data for the ChatChannel.
+   * @param table The KahluaTable to import from the client.
+   */
+  public ChatChannel(MongoChatChannel mongoDocument, KahluaTable table) {
+    super(mongoDocument, "ChatChannel");
+    initialize();
+    onLoad(table);
+  }
+
+  @Override
+  public void onLoad(KahluaTable table) {
+    setChannelName(table.rawget("name").toString(), false);
+    setPermissionNode(table.rawget("permission_node").toString(), false);
+    importFlags((KahluaTable) table.rawget("flags"));
+  }
+
+  @Override
+  public void onExport() {
+    // @formatter:off
+    set("id", getUniqueId().toString());
+    set("name", getChannelName());
+    set("permission_node", getPermissionNode());
+    set("flags", exportFlags());
+    // @formatter:on
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    boolean returned = false;
+    if (other instanceof ChatChannel) {
+      returned = ((ChatChannel) other).getUniqueId().equals(getUniqueId());
     }
+    return returned;
+  }
 
-    /**
-     * Lua load constructor.
-     *
-     * @param mongoDocument The MongoDocument storing the data for the ChatChannel.
-     * @param table         The KahluaTable to import from the client.
-     */
-    public ChatChannel(MongoChatChannel mongoDocument, KahluaTable table) {
-        super(mongoDocument, "ChatChannel");
-        initialize();
-        onLoad(table);
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Initializes the ChatChannel instance fields.
+   */
+  private void initialize() {
+    chatHistory = new ChatHistory(this);
+    listPlayersSent = new ArrayList<>();
+    sendChatChannel = new SendChatChannel(this);
+    sendChatChannelRename = new SendChatChannelRename();
+    sendChatChannelRename.setChannelId(getUniqueId());
+    sendChatChannelRemove = new SendChatChannelRemove();
+    sendChatChannelRemove.setChannelId(getUniqueId());
+    sendChatMessages = new SendChatMessages(getUniqueId());
+  }
 
-    @Override
-    public void onLoad(KahluaTable table) {
-        setChannelName(table.rawget("name").toString(), false);
-        setPermissionNode(table.rawget("permission_node").toString(), false);
-        importFlags((KahluaTable) table.rawget("flags"));
-    }
+  private void importFlags(KahluaTable table) {
+    setGlobalChannel((boolean) table.rawget("global"), false);
+    setPublicChannel((boolean) table.rawget("public"), false);
+    setCustomChannel((boolean) table.rawget("custom"), false);
+    setCanSpeak((boolean) table.rawget("speak"), false);
+    setSaveHistory((boolean) table.rawget("history"), false);
+    setExplicit((boolean) table.rawget("explicit"), false);
+  }
 
-    @Override
-    public void onExport() {
-        // @formatter:off
-		set("id"             , getUniqueId().toString());
-		set("name"           , getChannelName()        );
-		set("permission_node", getPermissionNode()     );
-		set("flags"          , exportFlags()           );
-		// @formatter:on
-    }
+  private KahluaTable exportFlags() {
+    KahluaTable table = newTable();
+    // @formatter:off
+    table.rawset("global", isGlobalChannel());
+    table.rawset("public", isPublicChannel());
+    table.rawset("custom", isCustomChannel());
+    table.rawset("can_speak", canSpeak());
+    table.rawset("history", saveHistory());
+    table.rawset("explicit", isExplicit());
+    // @formatter:on
+    return table;
+  }
 
-    @Override
-    public boolean equals(Object other) {
-        boolean returned = false;
-        if (other instanceof ChatChannel) {
-            returned = ((ChatChannel) other).getUniqueId().equals(getUniqueId());
-        }
-        return returned;
+  /**
+   * Adds a Player to the ChatChannel.
+   *
+   * @param player The Player to add.
+   * @param send Set to true to send the addition to the Player.
+   */
+  public void addPlayer(Player player, boolean send) {
+    if (!listPlayersSent.contains(player)) {
+      if (send) {
+        SledgeHammer.instance.send(sendChatChannel, player);
+      }
+      listPlayersSent.add(player);
     }
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Initializes the ChatChannel instance fields.
-     */
-    private void initialize() {
-        chatHistory = new ChatHistory(this);
-        listPlayersSent = new ArrayList<>();
-        sendChatChannel = new SendChatChannel(this);
-        sendChatChannelRename = new SendChatChannelRename();
-        sendChatChannelRename.setChannelId(getUniqueId());
-        sendChatChannelRemove = new SendChatChannelRemove();
-        sendChatChannelRemove.setChannelId(getUniqueId());
-        sendChatMessages = new SendChatMessages(getUniqueId());
+  /**
+   * Removes a Player from the ChatChannel.
+   *
+   * @param player The Player to remove.
+   * @param send Set to true to send the removal to the Player. (False if disconnecting)
+   */
+  public void removePlayer(Player player, boolean send) {
+    if (listPlayersSent.contains(player)) {
+      listPlayersSent.remove(player);
+      if (send) {
+        SledgeHammer.instance.send(sendChatChannelRemove, player);
+      }
     }
+  }
 
-    private void importFlags(KahluaTable table) {
-        setGlobalChannel((boolean) table.rawget("global"), false);
-        setPublicChannel((boolean) table.rawget("public"), false);
-        setCustomChannel((boolean) table.rawget("custom"), false);
-        setCanSpeak((boolean) table.rawget("speak"), false);
-        setSaveHistory((boolean) table.rawget("history"), false);
-        setExplicit((boolean) table.rawget("explicit"), false);
+  public void removePlayers(boolean send) {
+    if (send) {
+      SledgeHammer.instance.send(sendChatChannelRemove, getPlayers());
     }
+    listPlayersSent.clear();
+  }
 
-    private KahluaTable exportFlags() {
-        KahluaTable table = newTable();
-        // @formatter:off
-		table.rawset("global"   , isGlobalChannel());
-		table.rawset("public"   , isPublicChannel());
-		table.rawset("custom"   , isCustomChannel());
-		table.rawset("can_speak", canSpeak()       );
-		table.rawset("history"  , saveHistory()    );
-		table.rawset("explicit" , isExplicit()     );
-		// @formatter:on
-        return table;
-    }
+  public boolean hasAccess(Player player) {
+    boolean returned;
+    String permissionNode = getPermissionNode();
+    returned =
+        listPlayersSent.contains(player)
+            || permissionNode == null
+            || player.hasPermission(permissionNode, true);
+    return returned;
+  }
 
-    /**
-     * Adds a Player to the ChatChannel.
-     *
-     * @param player The Player to add.
-     * @param send   Set to true to send the addition to the Player.
-     */
-    public void addPlayer(Player player, boolean send) {
-        if (!listPlayersSent.contains(player)) {
-            if (send) {
-                SledgeHammer.instance.send(sendChatChannel, player);
-            }
-            listPlayersSent.add(player);
-        }
-    }
+  public void rename(String nameNew, boolean save) {
+    sendChatChannelRename.setOldName(getChannelName());
+    setChannelName(nameNew, save);
+    sendChatChannelRename.setNewName(nameNew);
+    SledgeHammer.instance.send(sendChatChannelRename, getPlayers());
+  }
 
-    /**
-     * Removes a Player from the ChatChannel.
-     *
-     * @param player The Player to remove.
-     * @param send   Set to true to send the removal to the Player. (False if disconnecting)
-     */
-    public void removePlayer(Player player, boolean send) {
-        if (listPlayersSent.contains(player)) {
-            listPlayersSent.remove(player);
-            if (send) {
-                SledgeHammer.instance.send(sendChatChannelRemove, player);
-            }
-        }
-    }
+  /**
+   * Sends a ChatMessage directly to a Player in the ChatChannel.
+   *
+   * <p>(Note: This ChatChannel does not save the ChatMessage passed in this method)
+   *
+   * @param message The ChatMessage being sent to the Player.
+   * @param player The Player being sent the ChatMessage.
+   */
+  public void sendChatMessageDirect(ChatMessage message, Player player) {
+    sendChatMessages.clearChatMessages();
+    sendChatMessages.addChatMessage(message);
+    SledgeHammer.instance.send(sendChatMessages, player);
+  }
 
-    public void removePlayers(boolean send) {
-        if(send) {
-            SledgeHammer.instance.send(sendChatChannelRemove, getPlayers());
-        }
-        listPlayersSent.clear();
-    }
+  public void addChatMessage(ChatMessage chatMessage) {
+    getHistory().addChatMessage(chatMessage, true);
+  }
 
-    public boolean hasAccess(Player player) {
-        boolean returned;
-        String permissionNode = getPermissionNode();
-        returned = listPlayersSent.contains(player) || permissionNode == null || player.hasPermission(permissionNode, true);
-        return returned;
-    }
+  public boolean canSpeak() {
+    return getMongoDocument().canSpeak();
+  }
 
-    public void rename(String nameNew, boolean save) {
-        sendChatChannelRename.setOldName(getChannelName());
-        setChannelName(nameNew, save);
-        sendChatChannelRename.setNewName(nameNew);
-        SledgeHammer.instance.send(sendChatChannelRename, getPlayers());
-    }
+  public UUID getUniqueId() {
+    return getMongoDocument().getUniqueId();
+  }
 
-    /**
-     * Sends a ChatMessage directly to a Player in the ChatChannel.
-     * <p>
-     * (Note: This ChatChannel does not save the ChatMessage passed in this method)
-     *
-     * @param message The ChatMessage being sent to the Player.
-     * @param player  The Player being sent the ChatMessage.
-     */
-    public void sendChatMessageDirect(ChatMessage message, Player player) {
-        sendChatMessages.clearChatMessages();
-        sendChatMessages.addChatMessage(message);
-        SledgeHammer.instance.send(sendChatMessages, player);
-    }
+  public String getChannelName() {
+    return getMongoDocument().getChannelName();
+  }
 
-    public void addChatMessage(ChatMessage chatMessage) {
-        getHistory().addChatMessage(chatMessage, true);
-    }
+  public void setChannelName(String channelName, boolean save) {
+    getMongoDocument().setChannelName(channelName, save);
+  }
 
-    public boolean canSpeak() {
-        return getMongoDocument().canSpeak();
-    }
+  public String getChannelDescription() {
+    return getMongoDocument().getChannelDescription();
+  }
 
-    public UUID getUniqueId() {
-        return getMongoDocument().getUniqueId();
-    }
+  public void setChannelDescription(String channelDescription, boolean save) {
+    getMongoDocument().setChannelDescription(channelDescription, save);
+  }
 
-    public String getChannelName() {
-        return getMongoDocument().getChannelName();
-    }
+  public String getPermissionNode() {
+    return getMongoDocument().getPermissionNode();
+  }
 
-    public void setChannelName(String channelName, boolean save) {
-        getMongoDocument().setChannelName(channelName, save);
-    }
+  public void setPermissionNode(String permissionNode, boolean save) {
+    getMongoDocument().setPermissionNode(permissionNode, save);
+  }
 
-    public String getChannelDescription() {
-        return getMongoDocument().getChannelDescription();
-    }
+  public boolean isGlobalChannel() {
+    return getMongoDocument().isGlobalChannel();
+  }
 
-    public void setChannelDescription(String channelDescription, boolean save) {
-        getMongoDocument().setChannelDescription(channelDescription, save);
-    }
+  public void setGlobalChannel(boolean isGlobalChannel, boolean save) {
+    getMongoDocument().setGlobalChannel(isGlobalChannel, save);
+  }
 
-    public String getPermissionNode() {
-        return getMongoDocument().getPermissionNode();
-    }
+  public boolean isPublicChannel() {
+    return getMongoDocument().isPublicChannel();
+  }
 
-    public void setPermissionNode(String permissionNode, boolean save) {
-        getMongoDocument().setPermissionNode(permissionNode, save);
-    }
+  public void setPublicChannel(boolean isPublicChannel, boolean save) {
+    getMongoDocument().setPublicChannel(isPublicChannel, save);
+  }
 
-    public boolean isGlobalChannel() {
-        return getMongoDocument().isGlobalChannel();
-    }
+  public boolean isCustomChannel() {
+    return getMongoDocument().isCustomChannel();
+  }
 
-    public void setGlobalChannel(boolean isGlobalChannel, boolean save) {
-        getMongoDocument().setGlobalChannel(isGlobalChannel, save);
-    }
+  public void setCustomChannel(boolean isCustomChannel, boolean save) {
+    getMongoDocument().setCustomChannel(isCustomChannel, save);
+  }
 
-    public boolean isPublicChannel() {
-        return getMongoDocument().isPublicChannel();
-    }
+  public void setCanSpeak(boolean canSpeak, boolean save) {
+    getMongoDocument().setCanSpeak(canSpeak, save);
+  }
 
-    public void setPublicChannel(boolean isPublicChannel, boolean save) {
-        getMongoDocument().setPublicChannel(isPublicChannel, save);
-    }
+  public boolean saveHistory() {
+    return getMongoDocument().saveHistory();
+  }
 
-    public boolean isCustomChannel() {
-        return getMongoDocument().isCustomChannel();
-    }
+  public void setSaveHistory(boolean saveHistory, boolean save) {
+    getMongoDocument().setSaveHistory(saveHistory, save);
+  }
 
-    public void setCustomChannel(boolean isCustomChannel, boolean save) {
-        getMongoDocument().setCustomChannel(isCustomChannel, save);
-    }
+  public ChatHistory getHistory() {
+    return this.chatHistory;
+  }
 
-    public void setCanSpeak(boolean canSpeak, boolean save) {
-        getMongoDocument().setCanSpeak(canSpeak, save);
-    }
+  public void setHistory(ChatHistory chatHistory) {
+    this.chatHistory = chatHistory;
+  }
 
-    public boolean saveHistory() {
-        return getMongoDocument().saveHistory();
-    }
+  public void delete() {
+    getMongoDocument().delete();
+  }
 
-    public void setSaveHistory(boolean saveHistory, boolean save) {
-        getMongoDocument().setSaveHistory(saveHistory, save);
-    }
+  public List<Player> getPlayers() {
+    return this.listPlayersSent;
+  }
 
-    public ChatHistory getHistory() {
-        return this.chatHistory;
-    }
+  public boolean isExplicit() {
+    return getMongoDocument().isExplicit();
+  }
 
-    public void setHistory(ChatHistory chatHistory) {
-        this.chatHistory = chatHistory;
-    }
-
-    public void delete() {
-        getMongoDocument().delete();
-    }
-
-    public List<Player> getPlayers() {
-        return this.listPlayersSent;
-    }
-
-    public boolean isExplicit() {
-        return getMongoDocument().isExplicit();
-    }
-
-    public void setExplicit(boolean explicit, boolean save) {
-        getMongoDocument().setExplicit(explicit, save);
-    }
+  public void setExplicit(boolean explicit, boolean save) {
+    getMongoDocument().setExplicit(explicit, save);
+  }
 }

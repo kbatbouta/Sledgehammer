@@ -35,7 +35,7 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
 import zombie.sledgehammer.npc.NPC;
 
-//Imports chat colors for short-hand.
+// Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
 
 /**
@@ -45,79 +45,78 @@ import static sledgehammer.util.ChatTags.*;
  */
 public class CoreEventListener implements Listener {
 
-    private ModuleCore module;
-    private Map<String, Long> mapPlayerTimeStamps;
+  private ModuleCore module;
+  private Map<String, Long> mapPlayerTimeStamps;
 
-    public CoreEventListener(ModuleCore module) {
-        this.module = module;
-        mapPlayerTimeStamps = new HashMap<>();
-    }
+  public CoreEventListener(ModuleCore module) {
+    this.module = module;
+    mapPlayerTimeStamps = new HashMap<>();
+  }
 
-    @EventHandler(id = "core.event.join", priority = 1)
-    private void on(PlayerJoinEvent event) {
-    }
+  @EventHandler(id = "core.event.join", priority = 1)
+  private void on(PlayerJoinEvent event) {}
 
-    @EventHandler(id = "core.event.quit", priority = 1)
-    private void on(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        SledgeHammer.instance.getPlayerManager().removePlayer(player);
-    }
+  @EventHandler(id = "core.event.quit", priority = 1)
+  private void on(PlayerQuitEvent event) {
+    Player player = event.getPlayer();
+    SledgeHammer.instance.getPlayerManager().removePlayer(player);
+  }
 
-    @EventHandler(id = "core.event.disconnect", priority = 1)
-    private void on(DisconnectEvent event) {
-        Player player = event.getPlayer();
-        if (player != null) {
-            SledgeHammer.instance.getPlayerManager().removePlayer(player);
-        }
+  @EventHandler(id = "core.event.disconnect", priority = 1)
+  private void on(DisconnectEvent event) {
+    Player player = event.getPlayer();
+    if (player != null) {
+      SledgeHammer.instance.getPlayerManager().removePlayer(player);
     }
+  }
 
-    @EventHandler(id = "core.event.death", priority = 1)
-    private void on(DeathEvent event) {
-        if (!event.shouldAnnounce() || event.getPlayer().getIso() instanceof NPC) {
-            return;
-        }
-        String username = event.getPlayer().getUsername();
-        if (username != null) {
-            Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-            if (timeStamp != null) {
-                event.setHandled(true);
-                event.setCanceled(true);
-                return;
-            }
-            mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-            String text = event.getLogMessage();
-            module.sendGlobalMessage(ChatTags.COLOR_RED + " " + text);
-            SledgeHammer.instance.handleCommand("/thunder start", false);
-        }
+  @EventHandler(id = "core.event.death", priority = 1)
+  private void on(DeathEvent event) {
+    if (!event.shouldAnnounce() || event.getPlayer().getIso() instanceof NPC) {
+      return;
     }
+    String username = event.getPlayer().getUsername();
+    if (username != null) {
+      Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
+      if (timeStamp != null) {
+        event.setHandled(true);
+        event.setCanceled(true);
+        return;
+      }
+      mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
+      String text = event.getLogMessage();
+      module.sendGlobalMessage(ChatTags.COLOR_RED + " " + text);
+      SledgeHammer.instance.handleCommand("/thunder start", false);
+    }
+  }
 
-    @EventHandler(id = "core.event.pvp.kill", priority = 1)
-    private void on(PVPKillEvent event) {
-        if (!event.shouldAnnounce()) {
-            return;
-        }
-        Player killed = event.getKilled();
-        if (killed.getIso() instanceof NPC) {
-            return;
-        }
-        String username = killed.getUsername();
-        Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
-        if (timeStamp != null) {
-            event.setHandled(true);
-            event.setCanceled(true);
-            return;
-        }
-        mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
-        String text = event.getLogMessage();
-        module.sendGlobalMessage(COLOR_RED + " " + text);
-        SledgeHammer.instance.handleCommand(null, "/thunder start", false);
+  @EventHandler(id = "core.event.pvp.kill", priority = 1)
+  private void on(PVPKillEvent event) {
+    if (!event.shouldAnnounce()) {
+      return;
     }
+    Player killed = event.getKilled();
+    if (killed.getIso() instanceof NPC) {
+      return;
+    }
+    String username = killed.getUsername();
+    Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
+    if (timeStamp != null) {
+      event.setHandled(true);
+      event.setCanceled(true);
+      return;
+    }
+    mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
+    String text = event.getLogMessage();
+    module.sendGlobalMessage(COLOR_RED + " " + text);
+    SledgeHammer.instance.handleCommand(null, "/thunder start", false);
+  }
 
-    public void update() {
-        mapPlayerTimeStamps.clear();
-    }
+  public void update() {
+    mapPlayerTimeStamps.clear();
+  }
 
-    public Map<String, Long> getPlayerTimeStamps() {
-        return this.mapPlayerTimeStamps;
-    }
+  public Map<String, Long> getPlayerTimeStamps() {
+    return this.mapPlayerTimeStamps;
+  }
 }

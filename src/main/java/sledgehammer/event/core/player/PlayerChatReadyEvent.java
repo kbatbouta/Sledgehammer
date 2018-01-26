@@ -24,24 +24,24 @@ import sledgehammer.lua.core.Player;
 
 public class PlayerChatReadyEvent extends PlayerEvent {
 
-    public static final String ID = "PlayerChatReadyEvent";
+  public static final String ID = "PlayerChatReadyEvent";
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player associated with the PlayerEvent.
-     */
-    public PlayerChatReadyEvent(Player player) {
-        super(player);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param player The Player associated with the PlayerEvent.
+   */
+  public PlayerChatReadyEvent(Player player) {
+    super(player);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return null;
-    }
+  @Override
+  public String getLogMessage() {
+    return null;
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 }

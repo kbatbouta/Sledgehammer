@@ -25,23 +25,23 @@ import sledgehammer.lua.chat.ChatHistory;
 
 public class SendChatHistory extends Send {
 
-    private ChatHistory chatHistory;
+  private ChatHistory chatHistory;
 
-    public SendChatHistory(ChatHistory chatHistory) {
-        super("core.chat", "sendChatHistory");
-        setChatHistory(chatHistory);
-    }
+  public SendChatHistory(ChatHistory chatHistory) {
+    super("core.chat", "sendChatHistory");
+    setChatHistory(chatHistory);
+  }
 
-    @Override
-    public void onExport() {
-        set("history", getChatHistory());
-    }
+  @Override
+  public void onExport() {
+    set("history", getChatHistory());
+  }
 
-    public ChatHistory getChatHistory() {
-        return this.chatHistory;
-    }
+  public ChatHistory getChatHistory() {
+    return this.chatHistory;
+  }
 
-    public void setChatHistory(ChatHistory chatHistory) {
-        this.chatHistory = chatHistory;
-    }
+  public void setChatHistory(ChatHistory chatHistory) {
+    this.chatHistory = chatHistory;
+  }
 }

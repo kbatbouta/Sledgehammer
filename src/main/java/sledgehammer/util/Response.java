@@ -31,102 +31,106 @@ import sledgehammer.enums.Result;
  */
 public class Response {
 
-    private String response;
-    private Result result;
+  private String response;
+  private Result result;
 
-    private String log;
-    private LogType logType = LogType.INFO;
-    private boolean logImportant = false;
-    private boolean handled = false;
+  private String log;
+  private LogType logType = LogType.INFO;
+  private boolean logImportant = false;
+  private boolean handled = false;
 
-    public Response() {
+  public Response() {}
 
-    }
+  public Response(String response, String log, Result result) {
+    this.response = response;
+    this.log = log;
+    this.result = result;
+  }
 
-    public Response(String response, String log, Result result) {
-        this.response = response;
-        this.log = log;
-        this.result = result;
-    }
+  public Response(Response response) {
+    set(response);
+  }
 
-    public Response(Response response) {
-        set(response);
-    }
+  @Override
+  public String toString() {
+    return "Response: \n"
+        + "Handled: "
+        + isHandled()
+        + "\n"
+        + (result != null ? "Result: " + result.name() + "\n" : "")
+        + "Message: "
+        + getResponse()
+        + "\n"
+        + "Log: "
+        + getLogMessage()
+        + "\n"
+        + "Important: "
+        + getLogImportance()
+        + "\n";
+  }
 
-    @Override
-    public String toString() {
-        return "Response: \n"
-                + "Handled: " + isHandled() + "\n"
-                + (result != null ? "Result: " + result.name() + "\n" : "")
-                + "Message: " + getResponse() + "\n"
-                + "Log: " + getLogMessage() + "\n"
-                + "Important: " + getLogImportance() + "\n";
-    }
+  public void set(Response response) {
+    // Sets the Response fields. @formatter:off
+    this.result = response.result;
+    this.response = response.response;
+    this.handled = response.handled;
+    this.logImportant = response.logImportant;
+    this.log = response.log;
+    // @formatter:on
+  }
 
-    public void set(Response response) {
-        // Sets the Response fields. @formatter:off
-        this.result       = response.result      ;
-        this.response     = response.response    ;
-        this.handled      = response.handled     ;
-        this.logImportant = response.logImportant;
-        this.log          = response.log         ;
-        // @formatter:on
-    }
+  public void set(Result result, String message) {
+    this.result = result;
+    this.response = message;
+    this.setHandled(true);
+  }
 
-    public void set(Result result, String message) {
-        this.result = result;
-        this.response = message;
-        this.setHandled(true);
-    }
+  public void log(String log) {
+    this.log = log;
+  }
 
-    public void log(String log) {
-        this.log = log;
-    }
+  public void log(LogType logType, String log) {
+    this.log = log;
+    this.logType = logType;
+  }
 
-    public void log(LogType logType, String log) {
-        this.log = log;
-        this.logType = logType;
-    }
+  public void deny() {
+    this.result = Result.FAILURE;
+    this.response = SledgeHammer.instance.getPermissionDeniedMessage();
+    this.setHandled(true);
+  }
 
-    public void deny() {
-        this.result = Result.FAILURE;
-        this.response = SledgeHammer.instance.getPermissionDeniedMessage();
-        this.setHandled(true);
-    }
+  public void setHandled(boolean flag) {
+    this.handled = flag;
+  }
 
-    public void setHandled(boolean flag) {
-        this.handled = flag;
-    }
+  public boolean isHandled() {
+    return this.handled;
+  }
 
-    public boolean isHandled() {
-        return this.handled;
-    }
+  public String getResponse() {
+    return this.response;
+  }
 
-    public String getResponse() {
-        return this.response;
-    }
+  public void setLoggedImportant(boolean b) {
+    this.logImportant = b;
+  }
 
-    public void setLoggedImportant(boolean b) {
-        this.logImportant = b;
-    }
+  public boolean getLogImportance() {
+    return this.logImportant;
+  }
 
-    public boolean getLogImportance() {
-        return this.logImportant;
-    }
+  public String getLogMessage() {
+    if (log == null) return null;
+    if (log.isEmpty()) return null;
+    return this.log;
+  }
 
-    public String getLogMessage() {
-        if (log == null)
-            return null;
-        if (log.isEmpty())
-            return null;
-        return this.log;
-    }
+  public Result getResult() {
+    return result;
+  }
 
-    public Result getResult() {
-        return result;
-    }
-
-    public LogType getLogType() {
-        return this.logType;
-    }
+  public LogType getLogType() {
+    return this.logType;
+  }
 }

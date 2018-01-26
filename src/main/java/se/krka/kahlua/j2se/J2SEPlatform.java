@@ -1,6 +1,6 @@
 /*
  * https://github.com/krka/kahlua2
- * 
+ *
  * =License=
  * Kahlua is distributed under the MIT licence which is the same as standard Lua
  * which means you can
@@ -34,53 +34,56 @@ import zombie.core.Collections.NonBlockingHashMap;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class J2SEPlatform implements Platform {
-	private static J2SEPlatform INSTANCE = new J2SEPlatform();
+  private static J2SEPlatform INSTANCE = new J2SEPlatform();
 
-	public static J2SEPlatform getInstance() {
-		return INSTANCE;
-	}
+  public static J2SEPlatform getInstance() {
+    return INSTANCE;
+  }
 
-	public double pow(double x, double y) {
-		return Math.pow(x, y);
-	}
+  public double pow(double x, double y) {
+    return Math.pow(x, y);
+  }
 
-	public KahluaTable newTable() {
-		return new KahluaTableImpl(new NonBlockingHashMap());
-	}
+  public KahluaTable newTable() {
+    return new KahluaTableImpl(new NonBlockingHashMap());
+  }
 
-	public KahluaTable newEnvironment() {
-		KahluaTable env = this.newTable();
-		this.setupEnvironment(env);
-		return env;
-	}
+  public KahluaTable newEnvironment() {
+    KahluaTable env = this.newTable();
+    this.setupEnvironment(env);
+    return env;
+  }
 
-	public void setupEnvironment(KahluaTable env) {
-		env.wipe();
-		env.rawset("_G", env);
-		env.rawset("_VERSION", "Kahlua kahlua.major.kahlua.minor.kahlua.fix for Lua lua.version (J2SE)");
-		MathLib.register(this, env);
-		BaseLib.register(env);
-		RandomLib.register(this, env);
-		UserdataArray.register(this, env);
-		StringLib.register(this, env);
-		CoroutineLib.register(this, env);
-		OsLib.register(this, env);
-		TableLib.register(this, env);
-		LuaCompiler.register(env);
-		KahluaThread workerThread = this.setupWorkerThread(env);
-		KahluaUtil.setupLibrary(env, workerThread, "natives/stdlib");
+  public void setupEnvironment(KahluaTable env) {
+    env.wipe();
+    env.rawset("_G", env);
+    env.rawset(
+        "_VERSION", "Kahlua kahlua.major.kahlua.minor.kahlua.fix for Lua lua.version (J2SE)");
+    MathLib.register(this, env);
+    BaseLib.register(env);
+    RandomLib.register(this, env);
+    UserdataArray.register(this, env);
+    StringLib.register(this, env);
+    CoroutineLib.register(this, env);
+    OsLib.register(this, env);
+    TableLib.register(this, env);
+    LuaCompiler.register(env);
+    KahluaThread workerThread = this.setupWorkerThread(env);
+    KahluaUtil.setupLibrary(env, workerThread, "natives/stdlib");
 
-		try {
-			LuaClosure e = LuaCompiler.loadis(new FileInputStream(new File("natives/serialize.lua")), "natives/serialize.lua", env);
-			workerThread.call(e, (Object) null, (Object) null, (Object) null);
-		} catch (IOException arg3) {
-			throw new RuntimeException(arg3);
-		}
-	}
+    try {
+      LuaClosure e =
+          LuaCompiler.loadis(
+              new FileInputStream(new File("natives/serialize.lua")), "natives/serialize.lua", env);
+      workerThread.call(e, (Object) null, (Object) null, (Object) null);
+    } catch (IOException arg3) {
+      throw new RuntimeException(arg3);
+    }
+  }
 
-	private KahluaThread setupWorkerThread(KahluaTable env) {
-		BlockingKahluaThread thread = new BlockingKahluaThread(this, env);
-		KahluaUtil.setWorkerThread(env, thread);
-		return thread;
-	}
+  private KahluaThread setupWorkerThread(KahluaTable env) {
+    BlockingKahluaThread thread = new BlockingKahluaThread(this, env);
+    KahluaUtil.setWorkerThread(env, thread);
+    return thread;
+  }
 }

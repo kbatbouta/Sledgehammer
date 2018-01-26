@@ -31,100 +31,89 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.module.faction.ModuleFactions;
 
 /**
- * MongoLuaObject to handle faction-member data and operations for the Factions
- * Module.
+ * MongoLuaObject to handle faction-member data and operations for the Factions Module.
  *
  * @author Jab
  */
 public class FactionMember extends MongoLuaObject<MongoFactionMember> {
 
-    /**
-     * The Faction the FactionMember is in.
-     */
-    private Faction faction;
+  /** The Faction the FactionMember is in. */
+  private Faction faction;
 
-    /**
-     * Main constructor.
-     *
-     * @param mongoDocument The MongoDocument container.
-     */
-    public FactionMember(MongoFactionMember mongoDocument) {
-        super(mongoDocument, "FactionMember");
-        setMongoDocument(mongoDocument);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param mongoDocument The MongoDocument container.
+   */
+  public FactionMember(MongoFactionMember mongoDocument) {
+    super(mongoDocument, "FactionMember");
+    setMongoDocument(mongoDocument);
+  }
 
-    @Override
-    public void onLoad(KahluaTable table) {
-        // TODO: implement.
-    }
+  @Override
+  public void onLoad(KahluaTable table) {
+    // TODO: implement.
+  }
 
-    @Override
-    public void onExport() {
-        // TODO: implement.
-    }
+  @Override
+  public void onExport() {
+    // TODO: implement.
+  }
 
-    /**
-     * Sets the new Faction.
-     *
-     * @param faction The Faction to set.
-     * @param save    The flag to save the Document.
-     */
-    public void setFaction(Faction faction, boolean save) {
-        Faction factionOld = getFaction();
-        if (factionOld != null) {
-            factionOld.removeMember(this);
-        }
-        if (faction != null) {
-            boolean success = faction.addMember(this);
-            if (success) {
-                this.faction = faction;
-                getMongoDocument().setFactionId(faction.getUniqueId(), save);
-            }
-        } else {
-            this.faction = null;
-        }
-        Player player = SledgeHammer.instance.getPlayer(getPlayerId());
-        setTag(player);
+  /**
+   * Sets the new Faction.
+   *
+   * @param faction The Faction to set.
+   * @param save The flag to save the Document.
+   */
+  public void setFaction(Faction faction, boolean save) {
+    Faction factionOld = getFaction();
+    if (factionOld != null) {
+      factionOld.removeMember(this);
     }
+    if (faction != null) {
+      boolean success = faction.addMember(this);
+      if (success) {
+        this.faction = faction;
+        getMongoDocument().setFactionId(faction.getUniqueId(), save);
+      }
+    } else {
+      this.faction = null;
+    }
+    Player player = SledgeHammer.instance.getPlayer(getPlayerId());
+    setTag(player);
+  }
 
-    public void setTag(Player player) {
-        if (player != null) {
-            if (faction != null) {
-                player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
-                player.setColor(Color.getColor(faction.getFactionRawColor()));
-            } else {
-                player.setNickname(null);
-                player.setColor(Color.WHITE);
-            }
-        }
+  public void setTag(Player player) {
+    if (player != null) {
+      if (faction != null) {
+        player.setNickname("[" + faction.getFactionTag() + "] " + player.getUsername());
+        player.setColor(Color.getColor(faction.getFactionRawColor()));
+      } else {
+        player.setNickname(null);
+        player.setColor(Color.WHITE);
+      }
     }
+  }
 
-    /**
-     * Removes the FactionMember from the Faction.
-     */
-    public void leaveFaction() {
-        ModuleFactions moduleFactions = SledgeHammer.instance.getModule(ModuleFactions.class);
-        moduleFactions.removeFactionMember(this);
-    }
+  /** Removes the FactionMember from the Faction. */
+  public void leaveFaction() {
+    ModuleFactions moduleFactions = SledgeHammer.instance.getModule(ModuleFactions.class);
+    moduleFactions.removeFactionMember(this);
+  }
 
-    /**
-     * @return Returns the Unique ID of the Player as the FactionMember.
-     */
-    public UUID getPlayerId() {
-        return getMongoDocument().getPlayerId();
-    }
+  /** @return Returns the Unique ID of the Player as the FactionMember. */
+  public UUID getPlayerId() {
+    return getMongoDocument().getPlayerId();
+  }
 
-    /**
-     * @return Returns the Unique ID of the Faction the FactionMember is in.
-     */
-    public UUID getFactionId() {
-        return getMongoDocument().getFactionId();
-    }
+  /** @return Returns the Unique ID of the Faction the FactionMember is in. */
+  public UUID getFactionId() {
+    return getMongoDocument().getFactionId();
+  }
 
-    /**
-     * @return Returns the Faction the FactionMember is in.
-     */
-    public Faction getFaction() {
-        return this.faction;
-    }
+  /** @return Returns the Faction the FactionMember is in. */
+  public Faction getFaction() {
+    return this.faction;
+  }
 }

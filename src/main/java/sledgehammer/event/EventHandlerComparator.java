@@ -23,15 +23,15 @@ package sledgehammer.event;
 import java.util.Comparator;
 
 /**
- * The Comparator is a simple way of comparing and organizing EventHandlers by the
- * priority defined with the Annotation.
+ * The Comparator is a simple way of comparing and organizing EventHandlers by the priority defined
+ * with the Annotation.
  *
  * @author Jab
  */
 public class EventHandlerComparator implements Comparator<EventHandlerContainer> {
 
-    @Override
-    public int compare(EventHandlerContainer handler1, EventHandlerContainer handler2) {
-        return handler1.getPriority() - handler2.getPriority();
-    }
+  @Override
+  public int compare(EventHandlerContainer handler1, EventHandlerContainer handler2) {
+    return handler1.getPriority() - handler2.getPriority();
+  }
 }

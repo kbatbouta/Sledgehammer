@@ -20,10 +20,8 @@
 
 package sledgehammer.util;
 
-/**
- * Enumeration to define the nature of a Task's assignment to the TaskManager.
- */
+/** Enumeration to define the nature of a Task's assignment to the TaskManager. */
 public enum TaskType {
-    ONCE,
-    TIMER;
+  ONCE,
+  TIMER;
 }

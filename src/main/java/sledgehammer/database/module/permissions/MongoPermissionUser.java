@@ -34,77 +34,74 @@ import sledgehammer.database.document.MongoUniqueNodeDocument;
  */
 public class MongoPermissionUser extends MongoUniqueNodeDocument {
 
-    /**
-     * The Unique ID of the group the user is in. Null if no group is assigned.
-     */
-    private UUID groupId;
+  /** The Unique ID of the group the user is in. Null if no group is assigned. */
+  private UUID groupId;
 
-    /**
-     * MongoDB constructor.
-     *
-     * @param collection The MongoCollection storing the document.
-     * @param object     The DBObject storing the data.
-     */
-    public MongoPermissionUser(MongoCollection collection, DBObject object) {
-        super(collection, object);
-        onLoad(object);
-    }
+  /**
+   * MongoDB constructor.
+   *
+   * @param collection The MongoCollection storing the document.
+   * @param object The DBObject storing the data.
+   */
+  public MongoPermissionUser(MongoCollection collection, DBObject object) {
+    super(collection, object);
+    onLoad(object);
+  }
 
-    /**
-     * New constructor.
-     *
-     * @param collection The MongoCollection storing the document.
-     * @param playerId   the Unique ID of the Player.
-     */
-    public MongoPermissionUser(MongoCollection collection, UUID playerId) {
-        super(collection, playerId);
-    }
+  /**
+   * New constructor.
+   *
+   * @param collection The MongoCollection storing the document.
+   * @param playerId the Unique ID of the Player.
+   */
+  public MongoPermissionUser(MongoCollection collection, UUID playerId) {
+    super(collection, playerId);
+  }
 
-    @Override
-    public void onLoad(DBObject object) {
-        Object oGroupId = object.get("groupId");
-        if (oGroupId != null) {
-            setGroupId(oGroupId.toString());
-        }
+  @Override
+  public void onLoad(DBObject object) {
+    Object oGroupId = object.get("groupId");
+    if (oGroupId != null) {
+      setGroupId(oGroupId.toString());
     }
+  }
 
-    @Override
-    public void onSave(DBObject object) {
-        String groupId = null;
-        if (getGroupId() != null) {
-            groupId = getGroupId().toString();
-        }
-        object.put("groupId", groupId);
+  @Override
+  public void onSave(DBObject object) {
+    String groupId = null;
+    if (getGroupId() != null) {
+      groupId = getGroupId().toString();
     }
+    object.put("groupId", groupId);
+  }
 
-    /**
-     * @return Returns the Unique ID for the PermissionGroup that the user
-     * is assigned to. Returns null if the user is not assigned to a group.
-     */
-    public UUID getGroupId() {
-        return this.groupId;
-    }
+  /**
+   * @return Returns the Unique ID for the PermissionGroup that the user is assigned to. Returns
+   *     null if the user is not assigned to a group.
+   */
+  public UUID getGroupId() {
+    return this.groupId;
+  }
 
-    /**
-     * Sets the PermissionGroup Unique ID for the PermissionUser.
-     *
-     * @param groupId The Unique ID of the PermissionGroup being assigned to the user.
-     * @param save    Flag to save the document.
-     */
-    public void setGroupId(UUID groupId, boolean save) {
-        this.groupId = groupId;
-        if (save)
-            save();
-    }
+  /**
+   * Sets the PermissionGroup Unique ID for the PermissionUser.
+   *
+   * @param groupId The Unique ID of the PermissionGroup being assigned to the user.
+   * @param save Flag to save the document.
+   */
+  public void setGroupId(UUID groupId, boolean save) {
+    this.groupId = groupId;
+    if (save) save();
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the Unique ID for the PermissionUser.
-     *
-     * @param groupIdAsString The String version of the Unique ID to set.
-     */
-    private void setGroupId(String groupIdAsString) {
-        setGroupId(UUID.fromString(groupIdAsString), false);
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the Unique ID for the PermissionUser.
+   *
+   * @param groupIdAsString The String version of the Unique ID to set.
+   */
+  private void setGroupId(String groupIdAsString) {
+    setGroupId(UUID.fromString(groupIdAsString), false);
+  }
 }

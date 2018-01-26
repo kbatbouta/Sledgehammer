@@ -24,10 +24,8 @@ import sledgehammer.lua.Send;
 
 public class SendReload extends Send {
 
-    /**
-     * Main constructor.
-     */
-    public SendReload() {
-        super("core", "reload");
-    }
+  /** Main constructor. */
+  public SendReload() {
+    super("core", "reload");
+  }
 }

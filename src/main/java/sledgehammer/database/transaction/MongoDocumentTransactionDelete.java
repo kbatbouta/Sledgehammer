@@ -28,41 +28,47 @@ import sledgehammer.database.MongoCollection;
 
 public class MongoDocumentTransactionDelete extends MongoDocumentTransaction {
 
-    private String field;
-    private Object value;
+  private String field;
+  private Object value;
 
-    public MongoDocumentTransactionDelete(MongoCollection collection, String field, Object value) {
-        super(collection);
-        setField(field);
-        setValue(value);
+  public MongoDocumentTransactionDelete(MongoCollection collection, String field, Object value) {
+    super(collection);
+    setField(field);
+    setValue(value);
+  }
+
+  @Override
+  public void run() {
+    MongoCollection collection = getMongoCollection();
+    DBCollection dbCollection = collection.getDBCollection();
+    String field = getField();
+    Object value = getValue();
+    if (Settings.getInstance().isDebug()) {
+      System.out.println(
+          "("
+              + dbCollection.getName()
+              + "): Deleting Document (Field:"
+              + field
+              + " Value:"
+              + value
+              + ")");
     }
+    dbCollection.remove(new BasicDBObject(field, value));
+  }
 
-    @Override
-    public void run() {
-        MongoCollection collection = getMongoCollection();
-        DBCollection dbCollection = collection.getDBCollection();
-        String field = getField();
-        Object value = getValue();
-        if(Settings.getInstance().isDebug()) {
-            System.out.println("(" + dbCollection.getName() + "): Deleting Document (Field:" + field + " Value:" + value + ")");
-        }
-        dbCollection.remove(new BasicDBObject(field, value));
-    }
+  public String getField() {
+    return this.field;
+  }
 
-    public String getField() {
-        return this.field;
-    }
+  private void setField(String field) {
+    this.field = field;
+  }
 
-    private void setField(String field) {
-        this.field = field;
-    }
+  public Object getValue() {
+    return this.value;
+  }
 
-    public Object getValue() {
-        return this.value;
-    }
-
-    private void setValue(Object value) {
-        this.value = value;
-    }
-
+  private void setValue(Object value) {
+    this.value = value;
+  }
 }

@@ -34,68 +34,64 @@ import java.io.Writer;
  */
 public class ThrowableEvent extends Event {
 
-    private Throwable throwable;
+  private Throwable throwable;
 
-    /**
-     * Main constructor.
-     *
-     * @param throwable The Throwable that was thrown.
-     */
-    public ThrowableEvent(Throwable throwable) {
-        setThrowable(throwable);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param throwable The Throwable that was thrown.
+   */
+  public ThrowableEvent(Throwable throwable) {
+    setThrowable(throwable);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return null;
-    }
+  @Override
+  public String getLogMessage() {
+    return null;
+  }
 
-    @Override
-    public String getID() {
-        return null;
-    }
+  @Override
+  public String getID() {
+    return null;
+  }
 
-    /**
-     * @return Returns a PrintWriter render of the Throwable.
-     */
-    public String printStackTrace() {
-        return getStackTrace(getThrowable());
-    }
+  /** @return Returns a PrintWriter render of the Throwable. */
+  public String printStackTrace() {
+    return getStackTrace(getThrowable());
+  }
 
-    /**
-     * @return Returns the Throwable Object that was thrown.
-     */
-    public Throwable getThrowable() {
-        return this.throwable;
-    }
+  /** @return Returns the Throwable Object that was thrown. */
+  public Throwable getThrowable() {
+    return this.throwable;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the Throwable for the Event.
-     *
-     * @param throwable The Throwable to set.
-     */
-    private void setThrowable(Throwable throwable) {
-        this.throwable = throwable;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the Throwable for the Event.
+   *
+   * @param throwable The Throwable to set.
+   */
+  private void setThrowable(Throwable throwable) {
+    this.throwable = throwable;
+  }
 
-    /**
-     * Prints a formal StackTrace into a String.
-     *
-     * @param aThrowable The Throwable to print.
-     * @return Returns a printed String of the StackTrace.
-     */
-    public static String getStackTrace(Throwable aThrowable) {
-        Writer stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        aThrowable.printStackTrace(printWriter);
-        String stackTrace = stringWriter.toString();
-        try {
-            stringWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return stackTrace;
+  /**
+   * Prints a formal StackTrace into a String.
+   *
+   * @param aThrowable The Throwable to print.
+   * @return Returns a printed String of the StackTrace.
+   */
+  public static String getStackTrace(Throwable aThrowable) {
+    Writer stringWriter = new StringWriter();
+    PrintWriter printWriter = new PrintWriter(stringWriter);
+    aThrowable.printStackTrace(printWriter);
+    String stackTrace = stringWriter.toString();
+    try {
+      stringWriter.close();
+    } catch (IOException e) {
+      e.printStackTrace();
     }
+    return stackTrace;
+  }
 }

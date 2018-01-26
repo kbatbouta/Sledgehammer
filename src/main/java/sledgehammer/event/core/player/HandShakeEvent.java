@@ -43,35 +43,32 @@ package sledgehammer.event.core.player;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent to handle dispatching the SledgehammerLua handshake with the
- * Sledgehammer engine and the registered Modules listening for the
- * HandshakeEvent.
+ * PlayerEvent to handle dispatching the SledgehammerLua handshake with the Sledgehammer engine and
+ * the registered Modules listening for the HandshakeEvent.
  *
  * @author Jab
  */
 public class HandShakeEvent extends PlayerEvent {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "HandShakeEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "HandShakeEvent";
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player hand-shaking with the server.
-     */
-    public HandShakeEvent(Player player) {
-        super(player);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param player The Player hand-shaking with the server.
+   */
+  public HandShakeEvent(Player player) {
+    super(player);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return null;
-    }
+  @Override
+  public String getLogMessage() {
+    return null;
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 }

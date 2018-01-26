@@ -50,99 +50,85 @@ import sledgehammer.lua.core.Player;
  */
 public class PVPAttackEvent extends Event {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "PVPAttackEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "PVPAttackEvent";
 
-    /**
-     * The Player attacking the other Player.
-     */
-    private Player playerAttacking;
-    /**
-     * The Player being attacked by the other Player.
-     */
-    private Player playerAttacked;
-    /**
-     * The String name of the weapon used.
-     */
-    private String weaponName;
+  /** The Player attacking the other Player. */
+  private Player playerAttacking;
+  /** The Player being attacked by the other Player. */
+  private Player playerAttacked;
+  /** The String name of the weapon used. */
+  private String weaponName;
 
-    /**
-     * Main constructor.
-     *
-     * @param playerAttacking The Player attacking.
-     * @param playerAttacked  The Player being attacked.
-     * @param weaponName      The String name of the weapon used.
-     */
-    public PVPAttackEvent(Player playerAttacking, Player playerAttacked, String weaponName) {
-        super();
-        setPlayerAttacking(playerAttacking);
-        setPlayerAttacked(playerAttacked);
-        setWeaponName(weaponName);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param playerAttacking The Player attacking.
+   * @param playerAttacked The Player being attacked.
+   * @param weaponName The String name of the weapon used.
+   */
+  public PVPAttackEvent(Player playerAttacking, Player playerAttacked, String weaponName) {
+    super();
+    setPlayerAttacking(playerAttacking);
+    setPlayerAttacked(playerAttacked);
+    setWeaponName(weaponName);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return playerAttacking.getUsername() + " is attacking " + playerAttacked.getUsername() + ".";
-    }
+  @Override
+  public String getLogMessage() {
+    return playerAttacking.getUsername() + " is attacking " + playerAttacked.getUsername() + ".";
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 
-    /**
-     * @return Returns the Player attacking the other Player.
-     */
-    public Player getPlayerAttacking() {
-        return this.playerAttacking;
-    }
+  /** @return Returns the Player attacking the other Player. */
+  public Player getPlayerAttacking() {
+    return this.playerAttacking;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the Player attacking.
-     *
-     * @param playerAttacking The Player to set.
-     */
-    private void setPlayerAttacking(Player playerAttacking) {
-        this.playerAttacking = playerAttacking;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the Player attacking.
+   *
+   * @param playerAttacking The Player to set.
+   */
+  private void setPlayerAttacking(Player playerAttacking) {
+    this.playerAttacking = playerAttacking;
+  }
 
-    /**
-     * @return Returns the Player being attacked by the other Player.
-     */
-    public Player getPlayerAttacked() {
-        return this.playerAttacked;
-    }
+  /** @return Returns the Player being attacked by the other Player. */
+  public Player getPlayerAttacked() {
+    return this.playerAttacked;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the Player being attacked.
-     *
-     * @param playerAttacked The Player to set.
-     */
-    private void setPlayerAttacked(Player playerAttacked) {
-        this.playerAttacked = playerAttacked;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the Player being attacked.
+   *
+   * @param playerAttacked The Player to set.
+   */
+  private void setPlayerAttacked(Player playerAttacked) {
+    this.playerAttacked = playerAttacked;
+  }
 
-    /**
-     * @return Returns the String name of the weapon used to attack the Player.
-     */
-    public String getWeaponName() {
-        return this.weaponName;
-    }
+  /** @return Returns the String name of the weapon used to attack the Player. */
+  public String getWeaponName() {
+    return this.weaponName;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the String weapon name used to attack the Player.
-     *
-     * @param weaponName The String name to set.
-     */
-    private void setWeaponName(String weaponName) {
-        this.weaponName = weaponName;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the String weapon name used to attack the Player.
+   *
+   * @param weaponName The String name to set.
+   */
+  private void setWeaponName(String weaponName) {
+    this.weaponName = weaponName;
+  }
 }

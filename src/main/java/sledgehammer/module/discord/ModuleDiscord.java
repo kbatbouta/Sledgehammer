@@ -33,174 +33,167 @@ import sledgehammer.lua.discord.request.RequestDiscordInformation;
 import sledgehammer.plugin.MongoModule;
 
 /**
- * Module designed to load a Discord bot for SledgeHammer logging, and
- * interfacing purposes.
+ * Module designed to load a Discord bot for SledgeHammer logging, and interfacing purposes.
  *
  * @author Jab
  */
 public class ModuleDiscord extends MongoModule {
 
-    /**
-     * Static boolean to clarify if the Module is in 'debug mode'.
-     */
-    public static boolean DEBUG = true;
+  /** Static boolean to clarify if the Module is in 'debug mode'. */
+  public static boolean DEBUG = true;
 
-    /**
-     * The settings instance the Module is using to define and manage its settings.
-     */
-    private DiscordSettings settings;
+  /** The settings instance the Module is using to define and manage its settings. */
+  private DiscordSettings settings;
 
-    /**
-     * The JavaCord Bot instance.
-     */
-    private DiscordBot bot;
+  /** The JavaCord Bot instance. */
+  private DiscordBot bot;
 
-    private DiscordEventListener eventListener;
-    private DiscordCommandListener commandHandler;
-    private String __debugToken;
-    private SendLua sendLuaDiscord;
-    private DiscordInformation discordInformation;
-    private LanguagePackage languagePackage;
+  private DiscordEventListener eventListener;
+  private DiscordCommandListener commandHandler;
+  private String __debugToken;
+  private SendLua sendLuaDiscord;
+  private DiscordInformation discordInformation;
+  private LanguagePackage languagePackage;
 
-    public ModuleDiscord() {
-        super(getDefaultDatabase());
+  public ModuleDiscord() {
+    super(getDefaultDatabase());
+  }
+
+  @Override
+  public void onLoad() {
+    loadLanguagePackage();
+    loadLua();
+    File directory = getModuleDirectory();
+    if (!directory.exists()) {
+      directory.mkdirs();
     }
+    eventListener = new DiscordEventListener(this);
+    commandHandler = new DiscordCommandListener(this);
+    register(commandHandler);
+  }
 
-    @Override
-    public void onLoad() {
-        loadLanguagePackage();
-        loadLua();
-        File directory = getModuleDirectory();
-        if (!directory.exists()) {
-            directory.mkdirs();
+  @Override
+  public void onStart() {
+    // Initialize the Settings Handler.
+    settings = new DiscordSettings(this);
+    // Load the settings.
+    settings.load();
+    DEBUG = settings.isDebug();
+    // Grab the token from the settings file.
+    String token = settings.getBotAccessToken();
+    if (token == null || token.isEmpty()) {
+      token = __debugToken;
+    }
+    // Check if token exists.
+    if (token == null || token.isEmpty() || token.equals("<TOKEN_HERE>")) {
+      println("Token is invalid!");
+      stopModule();
+      return;
+    } else {
+      // Initialize the Bot.
+      bot = new DiscordBot(this);
+      bot.connect(settings.getBotAccessToken());
+    }
+    register(eventListener);
+  }
+
+  @Override
+  public void onStop() {
+    if (bot != null && bot.isConnected()) {
+      bot.disconnect();
+    }
+    unregister(eventListener);
+  }
+
+  @Override
+  public void onUnload() {
+    unregister(commandHandler);
+  }
+
+  @Override
+  public void onBuildLua(SendLua send) {
+    send.append(sendLuaDiscord);
+  }
+
+  @Override
+  public void onClientCommand(final ClientEvent event) {
+    String clientCommand = event.getCommand();
+    if (clientCommand.equalsIgnoreCase("requestInformation")) {
+      RequestDiscordInformation request = new RequestDiscordInformation();
+      if (discordInformation == null) {
+        discordInformation = new DiscordInformation();
+        try {
+          discordInformation.setDiscordName(bot.getServer().getName());
+        } catch (Exception e) {
+          discordInformation.setDiscordName("The Discord Server");
         }
-        eventListener = new DiscordEventListener(this);
-        commandHandler = new DiscordCommandListener(this);
-        register(commandHandler);
+        discordInformation.setInviteURL(settings.getInviteURL());
+      }
+      request.setInfo(discordInformation);
+      event.respond(request);
     }
+  }
 
-    @Override
-    public void onStart() {
-        // Initialize the Settings Handler.
-        settings = new DiscordSettings(this);
-        // Load the settings.
-        settings.load();
-        DEBUG = settings.isDebug();
-        // Grab the token from the settings file.
-        String token = settings.getBotAccessToken();
-        if (token == null || token.isEmpty()) {
-            token = __debugToken;
-        }
-        // Check if token exists.
-        if (token == null || token.isEmpty() || token.equals("<TOKEN_HERE>")) {
-            println("Token is invalid!");
-            stopModule();
-            return;
-        } else {
-            // Initialize the Bot.
-            bot = new DiscordBot(this);
-            bot.connect(settings.getBotAccessToken());
-        }
-        register(eventListener);
-    }
+  private void loadLanguagePackage() {
+    File langDir = getLanguageDirectory();
+    boolean override = !isLangOverriden();
+    saveResourceAs("lang/discord_en.yml", new File(langDir, "discord_en.yml"), override);
+    languagePackage = new LanguagePackage(getLanguageDirectory(), "discord");
+  }
 
-    @Override
-    public void onStop() {
-        if (bot != null && bot.isConnected()) {
-            bot.disconnect();
-        }
-        unregister(eventListener);
-    }
+  private void loadLua() {
+    File lua = getLuaDirectory();
+    boolean overwrite = !isLuaOverriden();
+    File fileDiscordModule = new File(lua, "ModuleDiscord.lua");
+    saveResourceAs("lua/module/core.discord/ModuleDiscord.lua", fileDiscordModule, overwrite);
+    // Make sure that the core language file(s) are provided.
+    sendLuaDiscord = new SendLua(fileDiscordModule);
+  }
 
-    @Override
-    public void onUnload() {
-        unregister(commandHandler);
+  public void broadcast(String channelName, String text) {
+    // messageGlobal(message);
+    ChatChannel channel = getChatModule().getChatChannel(channelName);
+    if (channel == null) {
+      println("Channel does not exist: " + channelName + ".");
+      return;
     }
+    if (text == null || text.isEmpty()) {
+      println("Text is invalid.");
+      return;
+    }
+    ChatMessage message = createChatMessage(text);
+    // TODO: Implement. ?
+  }
 
-    @Override
-    public void onBuildLua(SendLua send) {
-        send.append(sendLuaDiscord);
-    }
+  public String getPublicChannelName() {
+    return "channel_global";
+  }
 
-    @Override
-    public void onClientCommand(final ClientEvent event) {
-        String clientCommand = event.getCommand();
-        if (clientCommand.equalsIgnoreCase("requestInformation")) {
-            RequestDiscordInformation request = new RequestDiscordInformation();
-            if (discordInformation == null) {
-                discordInformation = new DiscordInformation();
-                try {
-                    discordInformation.setDiscordName(bot.getServer().getName());
-                } catch (Exception e) {
-                    discordInformation.setDiscordName("The Discord Server");
-                }
-                discordInformation.setInviteURL(settings.getInviteURL());
-            }
-            request.setInfo(discordInformation);
-            event.respond(request);
-        }
-    }
+  public String getConsoleChannelName() {
+    return "console";
+  }
 
-    private void loadLanguagePackage() {
-        File langDir = getLanguageDirectory();
-        boolean override = !isLangOverriden();
-        saveResourceAs("lang/discord_en.yml", new File(langDir, "discord_en.yml"), override);
-        languagePackage = new LanguagePackage(getLanguageDirectory(), "discord");
-    }
+  public DiscordBot getBot() {
+    return bot;
+  }
 
-    private void loadLua() {
-        File lua = getLuaDirectory();
-        boolean overwrite = !isLuaOverriden();
-        File fileDiscordModule = new File(lua, "ModuleDiscord.lua");
-        saveResourceAs("lua/module/core.discord/ModuleDiscord.lua", fileDiscordModule, overwrite);
-        // Make sure that the core language file(s) are provided.
-        sendLuaDiscord = new SendLua(fileDiscordModule);
-    }
+  public String getToken() {
+    return settings.getBotAccessToken();
+  }
 
-    public void broadcast(String channelName, String text) {
-        // messageGlobal(message);
-        ChatChannel channel = getChatModule().getChatChannel(channelName);
-        if (channel == null) {
-            println("Channel does not exist: " + channelName + ".");
-            return;
-        }
-        if (text == null || text.isEmpty()) {
-            println("Text is invalid.");
-            return;
-        }
-        ChatMessage message = createChatMessage(text);
-        // TODO: Implement. ?
-    }
+  public DiscordSettings getSettings() {
+    return settings;
+  }
 
-    public String getPublicChannelName() {
-        return "channel_global";
-    }
+  public void setDebugToken(String string) {
+    this.__debugToken = string;
+  }
 
-    public String getConsoleChannelName() {
-        return "console";
-    }
+  public Channel getConsoleChannel() {
+    return getBot().getConsoleChannel();
+  }
 
-    public DiscordBot getBot() {
-        return bot;
-    }
-
-    public String getToken() {
-        return settings.getBotAccessToken();
-    }
-
-    public DiscordSettings getSettings() {
-        return settings;
-    }
-
-    public void setDebugToken(String string) {
-        this.__debugToken = string;
-    }
-
-    public Channel getConsoleChannel() {
-        return getBot().getConsoleChannel();
-    }
-
-    public LanguagePackage getLanguagePackage() {
-        return this.languagePackage;
-    }
+  public LanguagePackage getLanguagePackage() {
+    return this.languagePackage;
+  }
 }

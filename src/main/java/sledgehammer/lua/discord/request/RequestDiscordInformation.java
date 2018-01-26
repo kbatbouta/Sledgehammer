@@ -25,28 +25,23 @@ import sledgehammer.lua.discord.DiscordInformation;
 
 public class RequestDiscordInformation extends LuaTable {
 
-    private DiscordInformation information;
+  private DiscordInformation information;
 
-    /**
-     * Main constructor.
-     */
-    public RequestDiscordInformation() {
-        super("requestDiscordInformation");
-    }
+  /** Main constructor. */
+  public RequestDiscordInformation() {
+    super("requestDiscordInformation");
+  }
 
-    @Override
-    public void onExport() {
-        set("info", getInfo());
-    }
+  @Override
+  public void onExport() {
+    set("info", getInfo());
+  }
 
-    public DiscordInformation getInfo() {
-        return this.information;
-    }
+  public DiscordInformation getInfo() {
+    return this.information;
+  }
 
-    public void setInfo(DiscordInformation information) {
-        this.information = information;
-    }
-
-
-
+  public void setInfo(DiscordInformation information) {
+    this.information = information;
+  }
 }

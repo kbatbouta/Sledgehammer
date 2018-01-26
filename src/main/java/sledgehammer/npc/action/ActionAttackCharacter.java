@@ -32,27 +32,24 @@ import zombie.sledgehammer.npc.NPC;
  */
 public class ActionAttackCharacter extends Action {
 
-    /**
-     * The String name of the Action.
-     */
-    public static final String NAME = "Action->AttackCharacter";
+  /** The String name of the Action. */
+  public static final String NAME = "Action->AttackCharacter";
 
-    @Override
-    public boolean act(NPC npc) {
-        IsoGameCharacter target = npc.getAttackTarget();
-        HandWeapon weapon = npc.getPrimaryWeapon();
-        npc.faceDirection(target);
-        if (weapon != null && npc.CanAttack()) {
-            PacketHelper.hitCharacter(npc, target, weapon);
-        }
-        // Make sure target is valid.
-        if (target != null) {
-        }
-        return false;
+  @Override
+  public boolean act(NPC npc) {
+    IsoGameCharacter target = npc.getAttackTarget();
+    HandWeapon weapon = npc.getPrimaryWeapon();
+    npc.faceDirection(target);
+    if (weapon != null && npc.CanAttack()) {
+      PacketHelper.hitCharacter(npc, target, weapon);
     }
+    // Make sure target is valid.
+    if (target != null) {}
+    return false;
+  }
 
-    @Override
-    public String getName() {
-        return NAME;
-    }
+  @Override
+  public String getName() {
+    return NAME;
+  }
 }

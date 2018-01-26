@@ -32,39 +32,38 @@ import sledgehammer.util.Response;
 
 public class ChatCommandListener implements Listener {
 
-    private static final String permissionNodeEspanol = "core.chat.channel.espanol";
+  private static final String permissionNodeEspanol = "core.chat.channel.espanol";
 
-    private ModuleChat module;
+  private ModuleChat module;
 
-    ChatCommandListener(ModuleChat module) {
-        setModule(module);
+  ChatCommandListener(ModuleChat module) {
+    setModule(module);
+  }
+
+  @CommandHandler(command = "espanol", permission = permissionNodeEspanol, defaultPermission = true)
+  public void onCommandEspanol(Command c, Response r) {
+    Player commander = c.getPlayer();
+    ChatChannel channel = module.getChatChannel("Espanol");
+    if (commander.hasPermission(permissionNodeEspanol, true)) {
+      commander.setPermission(permissionNodeEspanol, null);
+      channel.removePlayer(commander, true);
+      r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
+    } else {
+      commander.setPermission(permissionNodeEspanol, true);
+      channel.addPlayer(commander, true);
+      r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
     }
+  }
 
-    @CommandHandler(command = "espanol", permission = permissionNodeEspanol,
-            defaultPermission = true)
-    public void onCommandEspanol(Command c, Response r) {
-        Player commander = c.getPlayer();
-        ChatChannel channel = module.getChatChannel("Espanol");
-        if (commander.hasPermission(permissionNodeEspanol, true)) {
-            commander.setPermission(permissionNodeEspanol, null);
-            channel.removePlayer(commander, true);
-            r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
-        } else {
-            commander.setPermission(permissionNodeEspanol, true);
-            channel.addPlayer(commander, true);
-            r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
-        }
-    }
+  public LanguagePackage getLanguagePackage() {
+    return getModule().getLanguagePackage();
+  }
 
-    public LanguagePackage getLanguagePackage() {
-        return getModule().getLanguagePackage();
-    }
+  public ModuleChat getModule() {
+    return this.module;
+  }
 
-    public ModuleChat getModule() {
-        return this.module;
-    }
-
-    private void setModule(ModuleChat module) {
-        this.module = module;
-    }
+  private void setModule(ModuleChat module) {
+    this.module = module;
+  }
 }

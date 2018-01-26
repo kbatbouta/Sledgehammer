@@ -22,8 +22,7 @@ package sledgehammer.interfaces;
 
 /**
  * TODO: Implement
- * 
+ *
  * @author Jab
  */
-public interface MapGenerator {
-}
+public interface MapGenerator {}

@@ -35,94 +35,97 @@ import sledgehammer.util.YamlUtil;
 @SuppressWarnings({"rawtypes"})
 public class DiscordSettings {
 
-    private ModuleDiscord module;
-    private Map map;
-    private File file;
-    private boolean debug = false;
-    private String token;
-    private String inviteURL;
-    private String channelPublic;
-    private String channelModerator;
+  private ModuleDiscord module;
+  private Map map;
+  private File file;
+  private boolean debug = false;
+  private String token;
+  private String inviteURL;
+  private String channelPublic;
+  private String channelModerator;
 
-    /**
-     * Main constructor.
-     *
-     * @param module The <ModuleDiscord> instance using the settings.
-     */
-    DiscordSettings(ModuleDiscord module) {
-        setModule(module);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param module The <ModuleDiscord> instance using the settings.
+   */
+  DiscordSettings(ModuleDiscord module) {
+    setModule(module);
+  }
 
-    public void load() {
-        file = new File(module.getModuleDirectory(), "config.yml");
-        if (!file.exists()) {
-            module.println("The Discord module must be configured to run. The config file is located here: ");
-            module.println(file.getAbsolutePath());
-            module.saveResourceAs("discord-config.yml", "config.yml", false);
-            module.unload();
-            return;
-        }
-        try {
-            FileInputStream fis = new FileInputStream(file);
-            map = YamlUtil.getYaml().load(fis);
-            fis.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        Boolean debug = (Boolean) map.get("debug");
-        if (debug != null) {
-            this.debug = debug;
-        }
-        String token = (String) map.get("token");
-        if (token != null) {
-            this.token = token;
-        }
-        String inviteURL = (String) map.get("invite_url");
-        if (inviteURL != null) {
-            if(!inviteURL.equals("www.discordapp.com") && !inviteURL.toLowerCase().startsWith("https://discord.gg/")) {
-                module.errln("ERROR: The Invite URL link provided is not a valid Discord link. "
-                        + "Make sure the link is valid, and is a discord invite link. E.G: https://discord.gg/#####");
-                this.inviteURL = "www.discordapp.com";
-            } else {
-                this.inviteURL = inviteURL;
-            }
-        }
-        String channelPublic = (String) map.get("public_channel");
-        if (channelPublic != null) {
-            this.channelPublic = channelPublic;
-        }
-        String channelModerator = (String) map.get("moderator_channel");
-        if (channelModerator != null) {
-            this.channelModerator = channelModerator;
-        }
+  public void load() {
+    file = new File(module.getModuleDirectory(), "config.yml");
+    if (!file.exists()) {
+      module.println(
+          "The Discord module must be configured to run. The config file is located here: ");
+      module.println(file.getAbsolutePath());
+      module.saveResourceAs("discord-config.yml", "config.yml", false);
+      module.unload();
+      return;
     }
+    try {
+      FileInputStream fis = new FileInputStream(file);
+      map = YamlUtil.getYaml().load(fis);
+      fis.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return;
+    }
+    Boolean debug = (Boolean) map.get("debug");
+    if (debug != null) {
+      this.debug = debug;
+    }
+    String token = (String) map.get("token");
+    if (token != null) {
+      this.token = token;
+    }
+    String inviteURL = (String) map.get("invite_url");
+    if (inviteURL != null) {
+      if (!inviteURL.equals("www.discordapp.com")
+          && !inviteURL.toLowerCase().startsWith("https://discord.gg/")) {
+        module.errln(
+            "ERROR: The Invite URL link provided is not a valid Discord link. "
+                + "Make sure the link is valid, and is a discord invite link. E.G: https://discord.gg/#####");
+        this.inviteURL = "www.discordapp.com";
+      } else {
+        this.inviteURL = inviteURL;
+      }
+    }
+    String channelPublic = (String) map.get("public_channel");
+    if (channelPublic != null) {
+      this.channelPublic = channelPublic;
+    }
+    String channelModerator = (String) map.get("moderator_channel");
+    if (channelModerator != null) {
+      this.channelModerator = channelModerator;
+    }
+  }
 
-    public boolean isDebug() {
-        return this.debug;
-    }
+  public boolean isDebug() {
+    return this.debug;
+  }
 
-    public String getBotAccessToken() {
-        return this.token;
-    }
+  public String getBotAccessToken() {
+    return this.token;
+  }
 
-    public String getInviteURL() {
-        return this.inviteURL;
-    }
+  public String getInviteURL() {
+    return this.inviteURL;
+  }
 
-    public String getPublicChannel() {
-        return this.channelPublic;
-    }
+  public String getPublicChannel() {
+    return this.channelPublic;
+  }
 
-    public String getModeratorChannel() {
-        return this.channelModerator;
-    }
+  public String getModeratorChannel() {
+    return this.channelModerator;
+  }
 
-    public ModuleDiscord getModule() {
-        return this.module;
-    }
+  public ModuleDiscord getModule() {
+    return this.module;
+  }
 
-    private void setModule(ModuleDiscord module) {
-        this.module = module;
-    }
+  private void setModule(ModuleDiscord module) {
+    this.module = module;
+  }
 }

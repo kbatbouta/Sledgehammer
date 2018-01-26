@@ -55,86 +55,70 @@ import sledgehammer.module.chat.ModuleChat;
  */
 public class ChatMessageEvent extends Event {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "ChatMessageEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "ChatMessageEvent";
 
-    /**
-     * The ChatChannel the ChatMessage is in.
-     */
-    private ChatChannel chatChannel;
-    /**
-     * The invoked ChatMessage.
-     */
-    private ChatMessage chatMessage;
+  /** The ChatChannel the ChatMessage is in. */
+  private ChatChannel chatChannel;
+  /** The invoked ChatMessage. */
+  private ChatMessage chatMessage;
 
-    /**
-     * Main constructor.
-     *
-     * @param chatMessage The ChatMessage invoked.
-     */
-    public ChatMessageEvent(ChatMessage chatMessage) {
-        setMessage(chatMessage);
-        UUID channelId = getMessage().getChannelId();
-        ModuleChat moduleChat = getChatModule();
-        setChatChannel(moduleChat.getChatChannel(channelId));
-    }
+  /**
+   * Main constructor.
+   *
+   * @param chatMessage The ChatMessage invoked.
+   */
+  public ChatMessageEvent(ChatMessage chatMessage) {
+    setMessage(chatMessage);
+    UUID channelId = getMessage().getChannelId();
+    ModuleChat moduleChat = getChatModule();
+    setChatChannel(moduleChat.getChatChannel(channelId));
+  }
 
-    /**
-     * @return Returns the invoked ChatMessage.
-     */
-    public ChatMessage getMessage() {
-        return this.chatMessage;
-    }
+  /** @return Returns the invoked ChatMessage. */
+  public ChatMessage getMessage() {
+    return this.chatMessage;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the invoked ChatMessage.
-     *
-     * @param chatMessage The ChatMessage to set.
-     */
-    private void setMessage(ChatMessage chatMessage) {
-        this.chatMessage = chatMessage;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the invoked ChatMessage.
+   *
+   * @param chatMessage The ChatMessage to set.
+   */
+  private void setMessage(ChatMessage chatMessage) {
+    this.chatMessage = chatMessage;
+  }
 
-    /**
-     * @return Returns the ChatChannel that the invoked ChatMessage is in.
-     */
-    public ChatChannel getChatChannel() {
-        return this.chatChannel;
-    }
+  /** @return Returns the ChatChannel that the invoked ChatMessage is in. */
+  public ChatChannel getChatChannel() {
+    return this.chatChannel;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the ChatChannel that the invoked ChatMessage is in.
-     *
-     * @param chatChannel The ChatChannel to set.
-     */
-    private void setChatChannel(ChatChannel chatChannel) {
-        this.chatChannel = chatChannel;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the ChatChannel that the invoked ChatMessage is in.
+   *
+   * @param chatChannel The ChatChannel to set.
+   */
+  private void setChatChannel(ChatChannel chatChannel) {
+    this.chatChannel = chatChannel;
+  }
 
-    /**
-     * @return Returns the ModuleChat instance of the Sledgehammer engine.
-     */
-    public ModuleChat getChatModule() {
-        return SledgeHammer.instance.getPluginManager().getChatModule();
-    }
+  /** @return Returns the ModuleChat instance of the Sledgehammer engine. */
+  public ModuleChat getChatModule() {
+    return SledgeHammer.instance.getPluginManager().getChatModule();
+  }
 
-    /**
-     * Returns the String Log message set for the Event.
-     */
-    public String getLogMessage() {
-        return null;
-    }
+  /** Returns the String Log message set for the Event. */
+  public String getLogMessage() {
+    return null;
+  }
 
-    /**
-     * @return Returns the Event's ID.
-     */
-    public String getID() {
-        return ID;
-    }
+  /** @return Returns the Event's ID. */
+  public String getID() {
+    return ID;
+  }
 }

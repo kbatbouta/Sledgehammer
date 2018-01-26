@@ -25,31 +25,30 @@ import sledgehammer.database.module.faction.MongoFactionRelationship;
 import sledgehammer.lua.MongoLuaObject;
 
 /**
- * MongoLuaObject that handles faction relationships data and operations for the
- * Factions Module.
- * <p>
- * TODO: Implement.
+ * MongoLuaObject that handles faction relationships data and operations for the Factions Module.
+ *
+ * <p>TODO: Implement.
  *
  * @author Jab
  */
 public class FactionRelationship extends MongoLuaObject<MongoFactionRelationship> {
 
-    /**
-     * Main constructor.
-     *
-     * @param mongoDocument The MongoDocument to set.
-     */
-    public FactionRelationship(MongoFactionRelationship mongoDocument) {
-        super(mongoDocument, "FactionRelationship");
-    }
+  /**
+   * Main constructor.
+   *
+   * @param mongoDocument The MongoDocument to set.
+   */
+  public FactionRelationship(MongoFactionRelationship mongoDocument) {
+    super(mongoDocument, "FactionRelationship");
+  }
 
-    @Override
-    public void onLoad(KahluaTable table) {
-        // TODO: Implement
-    }
+  @Override
+  public void onLoad(KahluaTable table) {
+    // TODO: Implement
+  }
 
-    @Override
-    public void onExport() {
-        // TODO: Implement
-    }
+  @Override
+  public void onExport() {
+    // TODO: Implement
+  }
 }

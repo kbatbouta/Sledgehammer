@@ -29,41 +29,40 @@ import zombie.network.GameServer;
 import zombie.sledgehammer.npc.NPC;
 
 /**
- * EventListener to assist the NPCManager to send NPC player info to connecting
- * Players, since NPCs do not have a UDPConnection instance.
- * <p>
+ * EventListener to assist the NPCManager to send NPC player info to connecting Players, since NPCs
+ * do not have a UDPConnection instance.
  *
- * TODO: Rewrite NPCs and remove the NPCManager.
+ * <p>TODO: Rewrite NPCs and remove the NPCManager.
  *
  * @author Jab
  */
 class NPCEventListener implements Listener {
 
-    private ModuleNPC module;
+  private ModuleNPC module;
 
-    /**
-     * Main constructor.
-     *
-     * @param module The npc module instance registering the listener.
-     */
-    public NPCEventListener(ModuleNPC module) {
-        setModule(module);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param module The npc module instance registering the listener.
+   */
+  public NPCEventListener(ModuleNPC module) {
+    setModule(module);
+  }
 
-    @EventHandler(id = "core.npc.event.connect")
-    public void on(ConnectEvent event) {
-        Player commander = event.getPlayer();
-        UdpConnection connection = commander.getConnection();
-        for (NPC npc : getModule().getNPCs()) {
-            GameServer.sendPlayerConnect(npc, connection);
-        }
+  @EventHandler(id = "core.npc.event.connect")
+  public void on(ConnectEvent event) {
+    Player commander = event.getPlayer();
+    UdpConnection connection = commander.getConnection();
+    for (NPC npc : getModule().getNPCs()) {
+      GameServer.sendPlayerConnect(npc, connection);
     }
+  }
 
-    private ModuleNPC getModule() {
-        return this.module;
-    }
+  private ModuleNPC getModule() {
+    return this.module;
+  }
 
-    private void setModule(ModuleNPC module) {
-        this.module = module;
-    }
+  private void setModule(ModuleNPC module) {
+    this.module = module;
+  }
 }

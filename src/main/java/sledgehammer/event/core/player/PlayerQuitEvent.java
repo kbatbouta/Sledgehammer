@@ -24,24 +24,24 @@ import sledgehammer.lua.core.Player;
 
 public class PlayerQuitEvent extends PlayerEvent {
 
-    public static final String ID = "PlayerQuitEvent";
+  public static final String ID = "PlayerQuitEvent";
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player associated with the PlayerEvent.
-     */
-    public PlayerQuitEvent(Player player) {
-        super(player);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param player The Player associated with the PlayerEvent.
+   */
+  public PlayerQuitEvent(Player player) {
+    super(player);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return "The player " + getPlayer().getName() + " quit the server.";
-    }
+  @Override
+  public String getLogMessage() {
+    return "The player " + getPlayer().getName() + " quit the server.";
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 }

@@ -49,27 +49,25 @@ import sledgehammer.lua.core.Player;
  */
 public class ConnectEvent extends PlayerEvent {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "ConnectEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "ConnectEvent";
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player connecting to the PZ server.
-     */
-    public ConnectEvent(Player player) {
-        super(player);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param player The Player connecting to the PZ server.
+   */
+  public ConnectEvent(Player player) {
+    super(player);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return getPlayer().getUsername() + " connected.";
-    }
+  @Override
+  public String getLogMessage() {
+    return getPlayer().getUsername() + " connected.";
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 }

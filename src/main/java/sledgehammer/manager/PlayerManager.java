@@ -35,85 +35,75 @@ import sledgehammer.lua.core.Player;
  */
 public class PlayerManager extends Manager {
 
-    /**
-     * The String name of the Manager.
-     */
-    public static final String NAME = "PlayerManager";
+  /** The String name of the Manager. */
+  public static final String NAME = "PlayerManager";
 
-    /**
-     * The Map of Players identified by their Unique IDs.
-     */
-    public Map<UUID, Player> mapPlayersByID = new HashMap<>();
-    /**
-     * The Map of Players identified by their user-names.
-     */
-    public Map<String, Player> mapPlayersByUsername = new HashMap<>();
-    /**
-     * A List of Players online.
-     */
-    public List<Player> listPlayers = new ArrayList<>();
+  /** The Map of Players identified by their Unique IDs. */
+  public Map<UUID, Player> mapPlayersByID = new HashMap<>();
+  /** The Map of Players identified by their user-names. */
+  public Map<String, Player> mapPlayersByUsername = new HashMap<>();
+  /** A List of Players online. */
+  public List<Player> listPlayers = new ArrayList<>();
 
-    @Override
-    public String getName() {
-        return NAME;
+  @Override
+  public String getName() {
+    return NAME;
+  }
+
+  /** @return Returns a List of Players registered in the PlayerManager. */
+  public List<Player> getPlayers() {
+    return listPlayers;
+  }
+
+  /**
+   * @param username The String user-name of the Player.
+   * @return Returns a Player with the given String user-name. If no Player identifies with the
+   *     String user-name, then null is returned.
+   */
+  public Player getPlayer(String username) {
+    return mapPlayersByUsername.get(username.toLowerCase());
+  }
+
+  /**
+   * @param uniqueId The Unique ID of the Player.
+   * @return Returns a Player with the given Unique ID. If no Player identifies with the Unique ID,
+   *     then null is returned.
+   */
+  public Player getPlayer(UUID uniqueId) {
+    return mapPlayersByID.get(uniqueId);
+  }
+
+  /**
+   * Adds a Player to the PlayerManager.
+   *
+   * @param player The Player to add.
+   */
+  public void addPlayer(Player player) {
+    if (!listPlayers.contains(player)) {
+      listPlayers.add(player);
     }
-
-    /**
-     * @return Returns a List of Players registered in the PlayerManager.
-     */
-    public List<Player> getPlayers() {
-        return listPlayers;
+    if (!mapPlayersByID.containsKey(player.getUniqueId())) {
+      mapPlayersByID.put(player.getUniqueId(), player);
     }
-
-    /**
-     * @param username The String user-name of the Player.
-     * @return Returns a Player with the given String user-name. If no Player
-     * identifies with the String user-name, then null is returned.
-     */
-    public Player getPlayer(String username) {
-        return mapPlayersByUsername.get(username.toLowerCase());
+    if (!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
+      mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
     }
+  }
 
-    /**
-     * @param uniqueId The Unique ID of the Player.
-     * @return Returns a Player with the given Unique ID. If no Player
-     * identifies with the Unique ID, then null is returned.
-     */
-    public Player getPlayer(UUID uniqueId) {
-        return mapPlayersByID.get(uniqueId);
+  /**
+   * Removes a Player from the PlayerManager.
+   *
+   * @param player The Player to remove.
+   */
+  public void removePlayer(Player player) {
+    if (listPlayers.contains(player)) {
+      listPlayers.remove(player);
     }
-
-    /**
-     * Adds a Player to the PlayerManager.
-     *
-     * @param player The Player to add.
-     */
-    public void addPlayer(Player player) {
-        if (!listPlayers.contains(player)) {
-            listPlayers.add(player);
-        }
-        if (!mapPlayersByID.containsKey(player.getUniqueId())) {
-            mapPlayersByID.put(player.getUniqueId(), player);
-        }
-        if (!mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
-            mapPlayersByUsername.put(player.getUsername().toLowerCase(), player);
-        }
+    if (mapPlayersByID.containsKey(player.getUniqueId())) {
+      mapPlayersByID.remove(player.getUniqueId());
     }
-
-    /**
-     * Removes a Player from the PlayerManager.
-     *
-     * @param player The Player to remove.
-     */
-    public void removePlayer(Player player) {
-        if (listPlayers.contains(player)) {
-            listPlayers.remove(player);
-        }
-        if (mapPlayersByID.containsKey(player.getUniqueId())) {
-            mapPlayersByID.remove(player.getUniqueId());
-        }
-        if (mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
-            mapPlayersByUsername.remove(player.getUsername().toLowerCase());
-        }
+    if (mapPlayersByUsername.containsKey(player.getUsername().toLowerCase())) {
+      mapPlayersByUsername.remove(player.getUsername().toLowerCase());
     }
+  }
 }

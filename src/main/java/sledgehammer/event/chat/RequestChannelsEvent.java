@@ -28,70 +28,63 @@ import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent to dispatch when a Player requests ChatChannels from
- * registered Modules in the Sledgehammer engine.
+ * PlayerEvent to dispatch when a Player requests ChatChannels from registered Modules in the
+ * Sledgehammer engine.
  *
  * @author Jab
  */
 public class RequestChannelsEvent extends PlayerEvent {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "RequestChannelsEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "RequestChannelsEvent";
 
-    /**
-     * The List of ChatChannel's to send to the Player.
-     */
-    private List<ChatChannel> listChatChannels;
+  /** The List of ChatChannel's to send to the Player. */
+  private List<ChatChannel> listChatChannels;
 
-    /**
-     * Main constructor.
-     *
-     * @param player The Player requesting ChatChannels.
-     */
-    public RequestChannelsEvent(Player player) {
-        super(player);
-        listChatChannels = new ArrayList<>();
+  /**
+   * Main constructor.
+   *
+   * @param player The Player requesting ChatChannels.
+   */
+  public RequestChannelsEvent(Player player) {
+    super(player);
+    listChatChannels = new ArrayList<>();
+  }
+
+  @Override
+  public String getLogMessage() {
+    return null;
+  }
+
+  @Override
+  public String getID() {
+    return ID;
+  }
+
+  /**
+   * Adds a ChatChannel to the List of ChatChannels to send to the Player.
+   *
+   * @param chatChannel The ChatChannel to add.
+   */
+  public void addChatChannel(ChatChannel chatChannel) {
+    if (!listChatChannels.contains(chatChannel)) {
+      listChatChannels.add(chatChannel);
     }
+  }
 
-    @Override
-    public String getLogMessage() {
-        return null;
+  /**
+   * Removes a ChatChannel from the List of ChatChannels to send to the Player.
+   *
+   * @param chatChannel The ChatChannel to remove.
+   */
+  public void removeChatChannel(ChatChannel chatChannel) {
+    if (listChatChannels.contains(chatChannel)) {
+      listChatChannels.remove(chatChannel);
     }
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
-
-    /**
-     * Adds a ChatChannel to the List of ChatChannels to send to the Player.
-     *
-     * @param chatChannel The ChatChannel to add.
-     */
-    public void addChatChannel(ChatChannel chatChannel) {
-        if (!listChatChannels.contains(chatChannel)) {
-            listChatChannels.add(chatChannel);
-        }
-    }
-
-    /**
-     * Removes a ChatChannel from the List of ChatChannels to send to the
-     * Player.
-     *
-     * @param chatChannel The ChatChannel to remove.
-     */
-    public void removeChatChannel(ChatChannel chatChannel) {
-        if (listChatChannels.contains(chatChannel)) {
-            listChatChannels.remove(chatChannel);
-        }
-    }
-
-    /**
-     * @return Returns the List of ChatChannels to send to the Player.
-     */
-    public List<ChatChannel> getChatChannels() {
-        return this.listChatChannels;
-    }
+  /** @return Returns the List of ChatChannels to send to the Player. */
+  public List<ChatChannel> getChatChannels() {
+    return this.listChatChannels;
+  }
 }

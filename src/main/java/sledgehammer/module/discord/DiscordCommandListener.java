@@ -31,44 +31,44 @@ import sledgehammer.util.Response;
 
 public class DiscordCommandListener implements Listener {
 
-    private ModuleDiscord module;
+  private ModuleDiscord module;
 
-    DiscordCommandListener(ModuleDiscord module) {
-        setModule(module);
-    }
+  DiscordCommandListener(ModuleDiscord module) {
+    setModule(module);
+  }
 
-    @CommandHandler(command = "discord", permission = "core.discord.command.discord")
-    public void onCommandDiscord(Command c, Response r) {
-        Player commander = c.getPlayer();
-        LanguagePackage lang = getLanguagePackage();
-        Language language = commander.getLanguage();
-        String command;
-        String[] args = c.getArguments();
-        if (args.length != 1) {
-            r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
-            return;
-        }
-        command = args[0];
-        if (command.equalsIgnoreCase("start")) {
-            module.onStart();
-            r.set(Result.SUCCESS, "Starting the Discord bot.");
-        } else if (command.equalsIgnoreCase("stop")) {
-            module.onStop();
-            r.set(Result.SUCCESS, "Stopping the Discord bot.");
-        } else {
-            r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
-        }
+  @CommandHandler(command = "discord", permission = "core.discord.command.discord")
+  public void onCommandDiscord(Command c, Response r) {
+    Player commander = c.getPlayer();
+    LanguagePackage lang = getLanguagePackage();
+    Language language = commander.getLanguage();
+    String command;
+    String[] args = c.getArguments();
+    if (args.length != 1) {
+      r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
+      return;
     }
+    command = args[0];
+    if (command.equalsIgnoreCase("start")) {
+      module.onStart();
+      r.set(Result.SUCCESS, "Starting the Discord bot.");
+    } else if (command.equalsIgnoreCase("stop")) {
+      module.onStop();
+      r.set(Result.SUCCESS, "Stopping the Discord bot.");
+    } else {
+      r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
+    }
+  }
 
-    public LanguagePackage getLanguagePackage() {
-        return getModule().getLanguagePackage();
-    }
+  public LanguagePackage getLanguagePackage() {
+    return getModule().getLanguagePackage();
+  }
 
-    public ModuleDiscord getModule() {
-        return this.module;
-    }
+  public ModuleDiscord getModule() {
+    return this.module;
+  }
 
-    private void setModule(ModuleDiscord module) {
-        this.module = module;
-    }
+  private void setModule(ModuleDiscord module) {
+    this.module = module;
+  }
 }

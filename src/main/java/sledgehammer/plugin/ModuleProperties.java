@@ -34,251 +34,225 @@ import sledgehammer.lua.LuaTable;
 @SuppressWarnings("rawtypes")
 public class ModuleProperties extends LuaTable {
 
-    /**
-     * The defined properties for the plug-in.
-     */
-    private PluginProperties pluginProperties;
-    /**
-     * The String name of the Module.
-     */
-    private String name;
-    /**
-     * The String version of the Module.
-     */
-    private String version;
-    /**
-     * The String module location of the Module class.
-     */
-    private String moduleLocation;
-    /**
-     * The String description of the Module.
-     */
-    private String description;
-    /**
-     * The String client ID of the Module for Lua communication.
-     */
-    private String clientModuleId;
-    private List<String> defaultPermissions;
+  /** The defined properties for the plug-in. */
+  private PluginProperties pluginProperties;
+  /** The String name of the Module. */
+  private String name;
+  /** The String version of the Module. */
+  private String version;
+  /** The String module location of the Module class. */
+  private String moduleLocation;
+  /** The String description of the Module. */
+  private String description;
+  /** The String client ID of the Module for Lua communication. */
+  private String clientModuleId;
 
-    /**
-     * Used for core module, or test-cases.
-     *
-     * @param name           The String name of the Module.
-     * @param version        The String version of the Module.
-     * @param moduleLocation The String location of the Module (package.ModuleName)
-     * @param description    The String description of the Module.
-     */
-    public ModuleProperties(String name, String version, String moduleLocation, String description) {
-        super("ModuleProperties");
-        // Set the properties.
-        setModuleName(name);
-        setModuleVersion(version);
-        setModuleLocation(moduleLocation);
-        setModuleDescription(description);
-    }
+  private List<String> defaultPermissions;
 
-    /**
-     * Main constructor.
-     *
-     * @param name The String name of the Module.
-     * @param map  The Map definitions of the Module.
-     */
-    public ModuleProperties(String name, Map map) {
-        super("ModuleProperties");
-        loadProperties(name, map);
-    }
+  /**
+   * Used for core module, or test-cases.
+   *
+   * @param name The String name of the Module.
+   * @param version The String version of the Module.
+   * @param moduleLocation The String location of the Module (package.ModuleName)
+   * @param description The String description of the Module.
+   */
+  public ModuleProperties(String name, String version, String moduleLocation, String description) {
+    super("ModuleProperties");
+    // Set the properties.
+    setModuleName(name);
+    setModuleVersion(version);
+    setModuleLocation(moduleLocation);
+    setModuleDescription(description);
+  }
 
-    /**
-     * Default constructor. Sets default values.
-     */
-    public ModuleProperties() {
-        super("ModuleProperties");
-        // Set default variables
-        setModuleName("Untitled Module");
-        setModuleVersion("1.0");
-        setModuleDescription("No description.");
-        setModuleLocation("unknown");
-    }
+  /**
+   * Main constructor.
+   *
+   * @param name The String name of the Module.
+   * @param map The Map definitions of the Module.
+   */
+  public ModuleProperties(String name, Map map) {
+    super("ModuleProperties");
+    loadProperties(name, map);
+  }
 
-    /**
-     * Loads the properties for the Module.
-     *
-     * @param name The String name of the Module.
-     * @param map  The Map definitions of the Module.
-     */
-    private void loadProperties(String name, Map map) {
-        setModuleName(name);
-        // Default variables
-        String version = "1.0";
-        String description = "No description.";
-        String moduleLocation = "unknown";
-        String clientModuleId = name.toLowerCase().trim();
-        List<String> listPermissionNodes = new LinkedList<>();
-        // Grab the version.
-        Object oVersion = map.get("version");
-        // If it exists, set it.
-        if (oVersion != null) {
-            version = oVersion.toString();
-        }
-        // Grab the description.
-        Object oDescription = map.get("description");
-        // If it exists, set it.
-        if (oDescription != null) {
-            description = oDescription.toString();
-        }
-        // Grab the module-location.
-        Object oModuleLocation = map.get("class");
-        // If it exists, set it.
-        if (oModuleLocation != null) {
-            moduleLocation = oModuleLocation.toString();
-        }
-        Object oClientModuleId = map.get("client-module-id");
-        if (oClientModuleId != null) {
-            clientModuleId = oClientModuleId.toString().toLowerCase().trim();
-        }
-        List oDefaultPermissions = (List) map.get("default-permissions");
-        if(oDefaultPermissions != null) {
-            for (Object o : oDefaultPermissions) {
-                listPermissionNodes.add((String) o);
-            }
-        }
-        if (DEBUG) {
-            System.out.println("Name: " + name);
-            System.out.println("Version: " + version);
-            System.out.println("Location: " + moduleLocation);
-            System.out.println("Description: " + description);
-            System.out.println("ClientModuleId: " + clientModuleId);
-            System.out.println("Permission-Nodes:");
-            for(String permissionNode : listPermissionNodes) {
-                System.out.println("\t" + permissionNode);
-            }
-        }
-        // Set the result properties.
-        setModuleVersion(version);
-        setModuleLocation(moduleLocation);
-        setModuleDescription(description);
-        setClientModuleId(clientModuleId);
-        setDefaultPermissions(listPermissionNodes);
-    }
+  /** Default constructor. Sets default values. */
+  public ModuleProperties() {
+    super("ModuleProperties");
+    // Set default variables
+    setModuleName("Untitled Module");
+    setModuleVersion("1.0");
+    setModuleDescription("No description.");
+    setModuleLocation("unknown");
+  }
 
-    /**
-     * @return Returns the client ID of the Module for Lua communication.
-     */
-    public String getClientModuleId() {
-        return this.clientModuleId;
+  /**
+   * Loads the properties for the Module.
+   *
+   * @param name The String name of the Module.
+   * @param map The Map definitions of the Module.
+   */
+  private void loadProperties(String name, Map map) {
+    setModuleName(name);
+    // Default variables
+    String version = "1.0";
+    String description = "No description.";
+    String moduleLocation = "unknown";
+    String clientModuleId = name.toLowerCase().trim();
+    List<String> listPermissionNodes = new LinkedList<>();
+    // Grab the version.
+    Object oVersion = map.get("version");
+    // If it exists, set it.
+    if (oVersion != null) {
+      version = oVersion.toString();
     }
+    // Grab the description.
+    Object oDescription = map.get("description");
+    // If it exists, set it.
+    if (oDescription != null) {
+      description = oDescription.toString();
+    }
+    // Grab the module-location.
+    Object oModuleLocation = map.get("class");
+    // If it exists, set it.
+    if (oModuleLocation != null) {
+      moduleLocation = oModuleLocation.toString();
+    }
+    Object oClientModuleId = map.get("client-module-id");
+    if (oClientModuleId != null) {
+      clientModuleId = oClientModuleId.toString().toLowerCase().trim();
+    }
+    List oDefaultPermissions = (List) map.get("default-permissions");
+    if (oDefaultPermissions != null) {
+      for (Object o : oDefaultPermissions) {
+        listPermissionNodes.add((String) o);
+      }
+    }
+    if (DEBUG) {
+      System.out.println("Name: " + name);
+      System.out.println("Version: " + version);
+      System.out.println("Location: " + moduleLocation);
+      System.out.println("Description: " + description);
+      System.out.println("ClientModuleId: " + clientModuleId);
+      System.out.println("Permission-Nodes:");
+      for (String permissionNode : listPermissionNodes) {
+        System.out.println("\t" + permissionNode);
+      }
+    }
+    // Set the result properties.
+    setModuleVersion(version);
+    setModuleLocation(moduleLocation);
+    setModuleDescription(description);
+    setClientModuleId(clientModuleId);
+    setDefaultPermissions(listPermissionNodes);
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the client ID of the Module for Lua communication.
-     *
-     * @param clientModuleId The String client ID to set.
-     */
-    private void setClientModuleId(String clientModuleId) {
-        this.clientModuleId = clientModuleId;
-    }
+  /** @return Returns the client ID of the Module for Lua communication. */
+  public String getClientModuleId() {
+    return this.clientModuleId;
+  }
 
-    /**
-     * @return Returns the String name of the Module.
-     */
-    public String getModuleName() {
-        return this.name;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the client ID of the Module for Lua communication.
+   *
+   * @param clientModuleId The String client ID to set.
+   */
+  private void setClientModuleId(String clientModuleId) {
+    this.clientModuleId = clientModuleId;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the name of the Module.
-     *
-     * @param name The name to set.
-     */
-    private void setModuleName(String name) {
-        this.name = name;
-    }
+  /** @return Returns the String name of the Module. */
+  public String getModuleName() {
+    return this.name;
+  }
 
-    /**
-     * @return Returns the String version of the Module.
-     */
-    public String getModuleVersion() {
-        return this.version;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the name of the Module.
+   *
+   * @param name The name to set.
+   */
+  private void setModuleName(String name) {
+    this.name = name;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the Module's version.
-     *
-     * @param version The version to set.
-     */
-    private void setModuleVersion(String version) {
-        this.version = version;
-    }
+  /** @return Returns the String version of the Module. */
+  public String getModuleVersion() {
+    return this.version;
+  }
 
-    /**
-     * @return Returns the location of the Module's Class in Java..
-     */
-    public String getModuleLocation() {
-        return this.moduleLocation;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the Module's version.
+   *
+   * @param version The version to set.
+   */
+  private void setModuleVersion(String version) {
+    this.version = version;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the location of the Module's Class in Java.
-     *
-     * @param moduleLocation The location to set.
-     */
-    private void setModuleLocation(String moduleLocation) {
-        this.moduleLocation = moduleLocation;
-    }
+  /** @return Returns the location of the Module's Class in Java.. */
+  public String getModuleLocation() {
+    return this.moduleLocation;
+  }
 
-    /**
-     * @return Returns the description of the Module.
-     */
-    public String getModuleDescription() {
-        return this.description;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the location of the Module's Class in Java.
+   *
+   * @param moduleLocation The location to set.
+   */
+  private void setModuleLocation(String moduleLocation) {
+    this.moduleLocation = moduleLocation;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the description of the Module.
-     *
-     * @param description The description to set.
-     */
-    private void setModuleDescription(String description) {
-        this.description = description;
-    }
+  /** @return Returns the description of the Module. */
+  public String getModuleDescription() {
+    return this.description;
+  }
 
-    /**
-     * @return Returns the properties of the Plug-in containing the Module.
-     */
-    public PluginProperties getPluginProperties() {
-        return this.pluginProperties;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the description of the Module.
+   *
+   * @param description The description to set.
+   */
+  private void setModuleDescription(String description) {
+    this.description = description;
+  }
 
-    /**
-     * Sets the properties of the Plug-in containing the Module.
-     *
-     * @param pluginProperties The PluginProperties to set.
-     */
-    public void setPluginProperties(PluginProperties pluginProperties) {
-        this.pluginProperties = pluginProperties;
-    }
+  /** @return Returns the properties of the Plug-in containing the Module. */
+  public PluginProperties getPluginProperties() {
+    return this.pluginProperties;
+  }
 
-    /**
-     * @return Returns the List of defined default Permission Nodes.
-     */
-    public List<String> getDefaultPermissions() {
-        return this.defaultPermissions;
-    }
+  /**
+   * Sets the properties of the Plug-in containing the Module.
+   *
+   * @param pluginProperties The PluginProperties to set.
+   */
+  public void setPluginProperties(PluginProperties pluginProperties) {
+    this.pluginProperties = pluginProperties;
+  }
 
-    /**
-     * Sets the List of defined default Permission Nodes.
-     * @param defaultPermissions The List to set.
-     */
-    public void setDefaultPermissions(List<String> defaultPermissions) {
-        this.defaultPermissions = defaultPermissions;
-    }
+  /** @return Returns the List of defined default Permission Nodes. */
+  public List<String> getDefaultPermissions() {
+    return this.defaultPermissions;
+  }
+
+  /**
+   * Sets the List of defined default Permission Nodes.
+   *
+   * @param defaultPermissions The List to set.
+   */
+  public void setDefaultPermissions(List<String> defaultPermissions) {
+    this.defaultPermissions = defaultPermissions;
+  }
 }

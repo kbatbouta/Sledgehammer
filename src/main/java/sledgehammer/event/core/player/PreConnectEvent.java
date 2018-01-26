@@ -49,54 +49,48 @@ import sledgehammer.event.Event;
  */
 public class PreConnectEvent extends Event {
 
-    /**
-     * The String ID of the Event.
-     */
-    public static final String ID = "LoginUsernameDefinedEvent";
+  /** The String ID of the Event. */
+  public static final String ID = "LoginUsernameDefinedEvent";
 
-    /**
-     * The String user-name of the Player attempting to connect to the PZ
-     * server.
-     */
-    private String username;
+  /** The String user-name of the Player attempting to connect to the PZ server. */
+  private String username;
 
-    /**
-     * Main constructor.
-     *
-     * @param username The String user-name of the Player that is attempting to
-     *                 connect to the PZ server.
-     */
-    public PreConnectEvent(String username) {
-        setUsername(username);
-    }
+  /**
+   * Main constructor.
+   *
+   * @param username The String user-name of the Player that is attempting to connect to the PZ
+   *     server.
+   */
+  public PreConnectEvent(String username) {
+    setUsername(username);
+  }
 
-    @Override
-    public String getLogMessage() {
-        return "User attempting to log in with username: \"" + username + "\".";
-    }
+  @Override
+  public String getLogMessage() {
+    return "User attempting to log in with username: \"" + username + "\".";
+  }
 
-    @Override
-    public String getID() {
-        return ID;
-    }
+  @Override
+  public String getID() {
+    return ID;
+  }
 
-    /**
-     * @return Returns the String user-name of the Player that is attempting to
-     * connect to the PZ server.
-     */
-    public String getUsername() {
-        return username;
-    }
+  /**
+   * @return Returns the String user-name of the Player that is attempting to connect to the PZ
+   *     server.
+   */
+  public String getUsername() {
+    return username;
+  }
 
-    /**
-     * (Private Method)
-     * <p>
-     * Sets the String user-name of the Player that is
-     * attempting to connect to the PZ server.
-     *
-     * @param username The String user-name to set.
-     */
-    private void setUsername(String username) {
-        this.username = username;
-    }
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the String user-name of the Player that is attempting to connect to the PZ server.
+   *
+   * @param username The String user-name to set.
+   */
+  private void setUsername(String username) {
+    this.username = username;
+  }
 }

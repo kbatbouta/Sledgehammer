@@ -38,7 +38,7 @@ import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
 import zombie.characters.IsoPlayer;
 
-//Imports chat colors for short-hand.
+// Imports chat colors for short-hand.
 import static sledgehammer.util.ChatTags.*;
 
 /**
@@ -48,121 +48,113 @@ import static sledgehammer.util.ChatTags.*;
  */
 public class CoreCommandListener extends Printable implements Listener {
 
-    private static final boolean DEBUG = true;
-    public static final Command commandProperties = new Command("properties");
+  private static final boolean DEBUG = true;
+  public static final Command commandProperties = new Command("properties");
 
-    private ModuleCore module;
-    private SendBroadcast sendBroadcast;
+  private ModuleCore module;
+  private SendBroadcast sendBroadcast;
 
-    public CoreCommandListener(ModuleCore module) {
-        this.module = module;
-        sendBroadcast = new SendBroadcast();
+  public CoreCommandListener(ModuleCore module) {
+    this.module = module;
+    sendBroadcast = new SendBroadcast();
+  }
+
+  @CommandHandler(command = "broadcast", permission = "core.command.broadcast")
+  private void onCommandBroadcast(Command c, Response r) {
+    Player commander = c.getPlayer();
+    LanguagePackage lang = getLanguagePackage();
+    Language language = commander.getLanguage();
+    String[] args = c.getArguments();
+    if (args.length <= 1) {
+      r.set(Result.FAILURE, lang.getString("tooltip_command_broadcast", language));
+      return;
     }
-
-    @CommandHandler(
-            command = "broadcast",
-            permission = "core.command.broadcast"
-    )
-    private void onCommandBroadcast(Command c, Response r) {
-        Player commander = c.getPlayer();
-        LanguagePackage lang = getLanguagePackage();
-        Language language = commander.getLanguage();
-        String[] args = c.getArguments();
-        if (args.length <= 1) {
-            r.set(Result.FAILURE, lang.getString("tooltip_command_broadcast", language));
-            return;
-        }
-        String color = ChatTags.getColor(args[0]);
-        if (color == null) {
-            color = COLOR_LIGHT_RED;
-        }
-        Broadcast broadcast = new Broadcast(color + args[1]);
-        sendBroadcast.setBroadcast(broadcast);
-        SledgeHammer.instance.send(sendBroadcast);
-        r.set(Result.SUCCESS, "Broadcast sent.");
-        r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" +
-                args[1] + "\".");
+    String color = ChatTags.getColor(args[0]);
+    if (color == null) {
+      color = COLOR_LIGHT_RED;
     }
+    Broadcast broadcast = new Broadcast(color + args[1]);
+    sendBroadcast.setBroadcast(broadcast);
+    SledgeHammer.instance.send(sendBroadcast);
+    r.set(Result.SUCCESS, "Broadcast sent.");
+    r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
+  }
 
-    @CommandHandler(
-            command = "colors",
-            permission = "core.command.colors",
-            defaultPermission = true
-    )
-    private void onCommandColors(Command c, Response r) {
-        r.set(Result.SUCCESS, ChatTags.listColors());
-    }
+  @CommandHandler(command = "colors", permission = "core.command.colors", defaultPermission = true)
+  private void onCommandColors(Command c, Response r) {
+    r.set(Result.SUCCESS, ChatTags.listColors());
+  }
 
-    @CommandHandler(
-            command = "commitsuicide",
-            permission = "core.command.commitsuicide",
-            defaultPermission = true
-    )
-    private void onCommandCommitSuicide(Command c, Response r) {
-        Player commander = c.getPlayer();
-        LanguagePackage lang = getLanguagePackage();
-        Language language = commander.getLanguage();
-        IsoPlayer iso = commander.getIso();
-        if (iso != null) {
-            iso.setHealth(-1.0F);
-            iso.DoDeath(iso.bareHands, iso, true);
-        }
-        r.set(Result.SUCCESS, "Done.");
-        r.log(LogType.INFO, commander.getUsername() + " committed suicide.");
+  @CommandHandler(
+    command = "commitsuicide",
+    permission = "core.command.commitsuicide",
+    defaultPermission = true
+  )
+  private void onCommandCommitSuicide(Command c, Response r) {
+    Player commander = c.getPlayer();
+    LanguagePackage lang = getLanguagePackage();
+    Language language = commander.getLanguage();
+    IsoPlayer iso = commander.getIso();
+    if (iso != null) {
+      iso.setHealth(-1.0F);
+      iso.DoDeath(iso.bareHands, iso, true);
     }
+    r.set(Result.SUCCESS, "Done.");
+    r.log(LogType.INFO, commander.getUsername() + " committed suicide.");
+  }
 
-    @CommandHandler(
-            command = "properties",
-            permission = "core.command.properties"
-    )
-    private void onCommandProperties(Command c, Response r) {
-        Player commander = c.getPlayer();
-        LanguagePackage lang = getLanguagePackage();
-        Language language = commander.getLanguage();
-        String[] args = c.getArguments();
-        String username = null;
-        Player playerProperties;
-        switch (args.length) {
-            case 0:
-                playerProperties = commander;
-                break;
-            case 1:
-                username = args[0];
-                playerProperties = SledgeHammer.instance.getPlayer(username);
-                break;
-            default:
-                r.set(Result.FAILURE, lang.getString("tooltip_command_properties", language));
-                return;
-        }
-        if (playerProperties == null) {
-            r.set(Result.FAILURE, lang.getString("tooltip_command_properties", language));
-            return;
-        }
-        Map<String, String> properties = playerProperties.getProperties();
-        StringBuilder builder = new StringBuilder();
-        builder.append("Properties for player \"").append(playerProperties).append
-                ("\":").append(ChatTags.NEW_LINE).append(" ");
-        for (String key : properties.keySet()) {
-            String value = properties.get(key);
-            builder.append(key).append(": ").append(value).append(ChatTags.NEW_LINE)
-                    .append(" ");
-        }
-        r.set(Result.SUCCESS, builder.toString());
-        r.log(LogType.INFO,
-                username + " looked up properties for player \"" + playerProperties
-                        .getUsername() + "\".");
+  @CommandHandler(command = "properties", permission = "core.command.properties")
+  private void onCommandProperties(Command c, Response r) {
+    Player commander = c.getPlayer();
+    LanguagePackage lang = getLanguagePackage();
+    Language language = commander.getLanguage();
+    String[] args = c.getArguments();
+    String username = null;
+    Player playerProperties;
+    switch (args.length) {
+      case 0:
+        playerProperties = commander;
+        break;
+      case 1:
+        username = args[0];
+        playerProperties = SledgeHammer.instance.getPlayer(username);
+        break;
+      default:
+        r.set(Result.FAILURE, lang.getString("tooltip_command_properties", language));
+        return;
     }
+    if (playerProperties == null) {
+      r.set(Result.FAILURE, lang.getString("tooltip_command_properties", language));
+      return;
+    }
+    Map<String, String> properties = playerProperties.getProperties();
+    StringBuilder builder = new StringBuilder();
+    builder
+        .append("Properties for player \"")
+        .append(playerProperties)
+        .append("\":")
+        .append(ChatTags.NEW_LINE)
+        .append(" ");
+    for (String key : properties.keySet()) {
+      String value = properties.get(key);
+      builder.append(key).append(": ").append(value).append(ChatTags.NEW_LINE).append(" ");
+    }
+    r.set(Result.SUCCESS, builder.toString());
+    r.log(
+        LogType.INFO,
+        username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
+  }
 
-    @Override
-    public String getName() {
-        return "CoreCommandListener";
-    }
+  @Override
+  public String getName() {
+    return "CoreCommandListener";
+  }
 
-    public ModuleCore getModule() {
-        return this.module;
-    }
+  public ModuleCore getModule() {
+    return this.module;
+  }
 
-    public LanguagePackage getLanguagePackage() {
-        return getModule().getLanguagePackage();
-    }
+  public LanguagePackage getLanguagePackage() {
+    return getModule().getLanguagePackage();
+  }
 }
