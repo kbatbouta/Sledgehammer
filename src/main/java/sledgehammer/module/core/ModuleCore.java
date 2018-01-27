@@ -263,9 +263,9 @@ public class ModuleCore extends Module {
     boolean langOverwrite = !isLangOverriden();
     // Make sure that the core language file(s) are provided.
     saveResourceAs(
-            "lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), langOverwrite);
+        "lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), langOverwrite);
     saveResourceAs(
-            "spawnregions.yml", new File("settings" + File.separator + "spawnregions.yml"), false);
+        "spawnregions.yml", new File("settings" + File.separator + "spawnregions.yml"), false);
     // Load the LanguagePackage.
     lang = new LanguagePackage(getLanguageDirectory(), "core");
     lang.load();

@@ -82,6 +82,7 @@ public @interface CommandHandler {
    *
    * <p>The additional prefix logic 'not' or invert character '!' can be applied to the
    * permission-node to invert the result.
+   *
    * <p>
    *
    * <p>Multiple permission nodes can be assigned to a command. This is useful when checking
