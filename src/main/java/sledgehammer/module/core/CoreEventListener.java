@@ -80,7 +80,7 @@ public class CoreEventListener implements Listener {
       Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
       if (timeStamp != null) {
         event.setHandled(true);
-        event.setCanceled(true);
+        event.setCancelled(true);
         return;
       }
       mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
@@ -103,7 +103,7 @@ public class CoreEventListener implements Listener {
     Long timeStamp = mapPlayerTimeStamps.get(username.toLowerCase());
     if (timeStamp != null) {
       event.setHandled(true);
-      event.setCanceled(true);
+      event.setCancelled(true);
       return;
     }
     mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());

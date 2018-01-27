@@ -83,16 +83,8 @@ public class ModuleCore extends Module {
 
   @Override
   public void onLoad() {
+    loadLanguagePackage();
     loadLua();
-    boolean langOverwrite = !isLangOverriden();
-    // Make sure that the core language file(s) are provided.
-    saveResourceAs(
-        "lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), langOverwrite);
-    saveResourceAs(
-        "spawnregions.yml", new File("settings" + File.separator + "spawnregions.yml"), false);
-    // Load the LanguagePackage.
-    lang = new LanguagePackage(getLanguageDirectory(), "core");
-    lang.load();
     sendPlayer = new SendPlayer();
     SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
     collectionPeriodicMessages = database.createMongoCollection("sledgehammer_periodic_messages");
@@ -265,6 +257,18 @@ public class ModuleCore extends Module {
         commander.sendChatMessage(message);
       }
     }
+  }
+
+  private void loadLanguagePackage() {
+    boolean langOverwrite = !isLangOverriden();
+    // Make sure that the core language file(s) are provided.
+    saveResourceAs(
+            "lang/core_en.yml", new File(getLanguageDirectory(), "core_en.yml"), langOverwrite);
+    saveResourceAs(
+            "spawnregions.yml", new File("settings" + File.separator + "spawnregions.yml"), false);
+    // Load the LanguagePackage.
+    lang = new LanguagePackage(getLanguageDirectory(), "core");
+    lang.load();
   }
 
   private void loadLua() {

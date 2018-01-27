@@ -52,9 +52,6 @@ import sledgehammer.lua.core.Player;
  */
 public class PlayerInfoEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "PlayerInfoEvent";
-
   /** The String logged message for the PlayerInfoEvent. */
   private String logMessage = null;
 
@@ -70,11 +67,6 @@ public class PlayerInfoEvent extends PlayerEvent {
   @Override
   public String getLogMessage() {
     return this.logMessage;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /**

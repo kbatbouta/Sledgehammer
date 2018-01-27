@@ -38,6 +38,8 @@ import sledgehammer.lua.LuaTable;
 import sledgehammer.lua.Send;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendReload;
+import sledgehammer.lua.permissions.PermissionGroup;
+import sledgehammer.lua.permissions.PermissionUser;
 import sledgehammer.manager.*;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.module.core.ModuleCore;
@@ -163,6 +165,7 @@ public class SledgeHammer extends Printable {
       PlayerCreatedEvent event = new PlayerCreatedEvent(player);
       SledgeHammer.instance.handle(event);
     }
+    getEventManager().onStart();
     started = true;
   }
 
@@ -505,6 +508,43 @@ public class SledgeHammer extends Printable {
         send(send, player);
       }
     }
+  }
+
+  /**
+   * This method returns a permission group with the given name. The given name must be trimmed
+   * prior to the method call.
+   *
+   * @param groupName The name of the permission group.
+   * @return Returns a permission group. If no permission group has the name given, null is
+   *     returned.
+   */
+  public PermissionGroup getPermissionGroup(String groupName) {
+    return getPermissionsModule().getPermissionGroup(groupName);
+  }
+
+  /**
+   * @return Returns the permission group for the default player, without an assigned permission
+   *     user, or a permission user without an assigned permission group.
+   */
+  public PermissionGroup getDefaultPermissionGroup() {
+    return getPermissionsModule().getDefaultPermissionGroup();
+  }
+
+  /**
+   * @param player The player to identify for the permission user.
+   * @return Returns the permission user for the given player. If the player doesn't have an
+   *     assigned permission user, null is returned.
+   */
+  public PermissionUser getPermissionUser(Player player) {
+    return getPermissionsModule().getPermissionUser(player);
+  }
+
+  /**
+   * @param player The player to identify for the constructed permission user.
+   * @return Returns the created permission user for the player.
+   */
+  public PermissionUser createPermissionUser(Player player) {
+    return getPermissionsModule().createPermissionUser(player.getUniqueId());
   }
 
   /** Reloads SledgeHammer entirely. */

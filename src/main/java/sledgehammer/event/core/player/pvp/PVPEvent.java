@@ -50,9 +50,6 @@ import sledgehammer.lua.core.Player;
  */
 public class PVPEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "PVPEvent";
-
   /** Flag to note if PVP Mode is enabled. */
   private boolean pvpModeEnabled;
 
@@ -73,11 +70,6 @@ public class PVPEvent extends PlayerEvent {
         + " "
         + (isPVPModeEnabled() ? "enabled" : "disabled")
         + " PVP.";
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /** @return Returns true if PVP Mode is enabled. */

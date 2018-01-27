@@ -35,9 +35,6 @@ import sledgehammer.lua.core.Player;
  */
 public class RequestChannelsEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "RequestChannelsEvent";
-
   /** The List of ChatChannel's to send to the Player. */
   private List<ChatChannel> listChatChannels;
 
@@ -49,16 +46,6 @@ public class RequestChannelsEvent extends PlayerEvent {
   public RequestChannelsEvent(Player player) {
     super(player);
     listChatChannels = new ArrayList<>();
-  }
-
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /**

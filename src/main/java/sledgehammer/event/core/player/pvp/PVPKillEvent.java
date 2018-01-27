@@ -41,6 +41,7 @@
 package sledgehammer.event.core.player.pvp;
 
 import sledgehammer.event.Event;
+import sledgehammer.interfaces.Cancellable;
 import sledgehammer.lua.core.Player;
 
 /**
@@ -48,15 +49,14 @@ import sledgehammer.lua.core.Player;
  *
  * @author Jab
  */
-public class PVPKillEvent extends Event {
-
-  /** The String ID of the Event. */
-  public static final String ID = "PVPKillEvent";
+public class PVPKillEvent extends Event implements Cancellable {
 
   /** The Player killed by the other Player. */
   private Player playerKiller;
   /** The Player killing the other Player. */
   private Player playerKilled;
+
+  private boolean isCancelled;
 
   /**
    * Main constructor.
@@ -80,8 +80,13 @@ public class PVPKillEvent extends Event {
   }
 
   @Override
-  public String getID() {
-    return ID;
+  public void setCancelled(boolean flag) {
+    this.isCancelled = flag;
+  }
+
+  @Override
+  public boolean isCancelled() {
+    return this.isCancelled;
   }
 
   /** @return Returns the Player killing the other Player. */

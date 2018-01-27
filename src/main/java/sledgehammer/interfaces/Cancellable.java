@@ -18,18 +18,23 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event.core.player;
+package sledgehammer.interfaces;
 
-import sledgehammer.lua.core.Player;
-
-public class PlayerChatReadyEvent extends PlayerEvent {
+/**
+ * This interface helps identify events that are cancellable.
+ *
+ * @author Jab
+ */
+public interface Cancellable {
 
   /**
-   * Main constructor.
+   * Sets the event cancelled. All event handlers that handle this event will be able to check if
+   * the event is cancelled.
    *
-   * @param player The Player associated with the PlayerEvent.
+   * @param flag
    */
-  public PlayerChatReadyEvent(Player player) {
-    super(player);
-  }
+  void setCancelled(boolean flag);
+
+  /** @return Returns true if the event has been cancelled. */
+  boolean isCancelled();
 }

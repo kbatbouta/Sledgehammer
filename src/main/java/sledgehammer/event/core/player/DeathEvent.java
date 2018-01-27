@@ -40,6 +40,7 @@
 
 package sledgehammer.event.core.player;
 
+import sledgehammer.interfaces.Cancellable;
 import sledgehammer.lua.core.Player;
 
 /**
@@ -47,10 +48,10 @@ import sledgehammer.lua.core.Player;
  *
  * @author Jab
  */
-public class DeathEvent extends PlayerEvent {
+public class DeathEvent extends PlayerEvent implements Cancellable {
 
-  /** The String ID of the Event. */
-  public static final String ID = "DeathEvent";
+  /** Flag for cancelling the event. */
+  private boolean cancelled;
 
   /**
    * Main constructor.
@@ -67,7 +68,12 @@ public class DeathEvent extends PlayerEvent {
   }
 
   @Override
-  public String getID() {
-    return ID;
+  public void setCancelled(boolean flag) {
+    this.cancelled = true;
+  }
+
+  @Override
+  public boolean isCancelled() {
+    return this.cancelled;
   }
 }

@@ -9,26 +9,6 @@ not_found: "Player not found: {{player}}"
 permission_denied: "Sorry! You do not have permission to do that."
 error_database_command: "Database error on command: {{command}}"
 
-## Tool-Tips
-command_tooltip_colors: "Displays all supported colors on this server."
-command_tooltip_pm: "Private messages a player. ex: /pm \"player\" \"message\""
-command_tooltip_warn: "Warns a player. ex: /warn \"player\" \"message\""
-command_tooltip_broadcast: "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\""
-command_tooltip_commitsuicide: "End your character's life."
-command_tooltip_properties: "Lists a player's properties. ex: /properties rj."
-command_ban:
-- "Bans a player. Flags:"
-- " -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s"
-- " -S: SteamID flag (ID required!) ex: /ban -S \"11330\""
-- " -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\""
-- " -i: IP flag (No IP required, but must be online!)"
-- " -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)"
-command_tooltip_unban:
-- "Unbans a player. Flags:"
-- " -U: Username flag (Required!) ex: /unban -U \"username\""
-- " -S: SteamID flag (ID required!) ex: /unban -S \"11330\""
-- " -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\""
-
 ## Commands
 # Warn message for the Player.
 #
@@ -98,8 +78,22 @@ command_unban_id_success: "Steam ID unbanned."
 # {{player}} -> The Player banned.
 command_unban_success_log: "{{commander}} unbanned {{player}}."
 
-#   _____             _       
-#  |   __|_ _ ___ ___| |_ ___ 
-#  |   __| | | -_|   |  _|_ -|
-#  |_____|\_/|___|_|_|_| |___|
-#
+## Tool-Tips
+tooltip_command_colors: "Displays all supported colors on this server."
+tooltip_command_pm: "Private messages a player. ex: /pm \"player\" \"message\""
+tooltip_command_warn: "Warns a player. ex: /warn \"player\" \"message\""
+tooltip_command_broadcast: "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\""
+tooltip_command_commitsuicide: "End your character's life."
+tooltip_command_properties: "Lists a player's properties. ex: /properties rj."
+tooltip_command_ban:
+- "Bans a player. Flags:"
+- " -s: SteamID flag (No ID required, but must be online!) ex: /ban -U \"username\" -s"
+- " -S: SteamID flag (ID required!) ex: /ban -S \"11330\""
+- " -U: Username flag (Required unless \"-S\" or \"-I\") ex: /ban -U \"username\""
+- " -i: IP flag (No IP required, but must be online!)"
+- " -I: IP flag (IP required!) ex: /ban -I \"127.0.0.1\" (Note: without -U given, To undo this ban, the IP will be manditory as an argument!)"
+tooltip_command_unban:
+- "Unbans a player. Flags:"
+- " -U: Username flag (Required!) ex: /unban -U \"username\""
+- " -S: SteamID flag (ID required!) ex: /unban -S \"11330\""
+- " -I: IP flag (IP required!) ex: /unban -I \"127.0.0.1\""

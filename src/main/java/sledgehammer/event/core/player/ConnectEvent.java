@@ -49,9 +49,6 @@ import sledgehammer.lua.core.Player;
  */
 public class ConnectEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "ConnectEvent";
-
   /**
    * Main constructor.
    *
@@ -64,10 +61,5 @@ public class ConnectEvent extends PlayerEvent {
   @Override
   public String getLogMessage() {
     return getPlayer().getUsername() + " connected.";
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 }

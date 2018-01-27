@@ -24,8 +24,6 @@ import sledgehammer.lua.core.Player;
 
 public class PlayerJoinEvent extends PlayerEvent {
 
-  public static final String ID = "PlayerJoinEvent";
-
   private long timestamp = -1L;
 
   /**
@@ -41,11 +39,6 @@ public class PlayerJoinEvent extends PlayerEvent {
   @Override
   public String getLogMessage() {
     return "The Player " + getPlayer().getName() + " joined to the server.";
-  }
-
-  @Override
-  public String getID() {
-    return PlayerJoinEvent.ID;
   }
 
   public long getTimestamp() {

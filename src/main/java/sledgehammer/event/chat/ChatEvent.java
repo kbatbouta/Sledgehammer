@@ -58,9 +58,6 @@ import static sledgehammer.util.ChatTags.*;
  */
 public class ChatEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "ChatEvent";
-
   /** The String message content. */
   private String input;
   /** The String header of the ChatMessage. */
@@ -106,11 +103,6 @@ public class ChatEvent extends PlayerEvent {
     } else {
       return "(Local) " + ChatTags.stripTags(getHeader() + getText(), false);
     }
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /** @return Returns the String input from the ChatMessage. */

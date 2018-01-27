@@ -50,9 +50,6 @@ import sledgehammer.lua.core.Player;
  */
 public class PVPAttackEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "PVPAttackEvent";
-
   /** The Player attacking the other Player. */
   private Player playerAttacking;
   /** The Player being attacked by the other Player. */
@@ -77,11 +74,6 @@ public class PVPAttackEvent extends Event {
   @Override
   public String getLogMessage() {
     return playerAttacking.getUsername() + " is attacking " + playerAttacked.getUsername() + ".";
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /** @return Returns the Player attacking the other Player. */

@@ -45,12 +45,24 @@ public class ModuleVanilla extends Module {
     loadLanguagePackage();
     commandListener = new VanillaCommandListener(this);
     eventListener = new VanillaEventListener();
+  }
+
+  @Override
+  public void onStart() {
+    register(commandListener);
     register(eventListener);
   }
 
   @Override
-  public void onUnload() {
+  public void onStop() {
+    unregister(commandListener);
     unregister(eventListener);
+  }
+
+  @Override
+  public void onUnload() {
+    commandListener = null;
+    eventListener = null;
   }
 
   private void loadLanguagePackage() {
@@ -58,6 +70,7 @@ public class ModuleVanilla extends Module {
     boolean override = !isLangOverriden();
     saveResourceAs("lang/vanilla_en.yml", new File(langDir, "vanilla_en.yml"), override);
     languagePackage = new LanguagePackage(getLanguageDirectory(), "vanilla");
+    languagePackage.load();
   }
 
   /** @return Returns the VanillaCommandListener for the Vanilla Module. */

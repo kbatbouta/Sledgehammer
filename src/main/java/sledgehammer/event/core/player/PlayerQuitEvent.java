@@ -24,8 +24,6 @@ import sledgehammer.lua.core.Player;
 
 public class PlayerQuitEvent extends PlayerEvent {
 
-  public static final String ID = "PlayerQuitEvent";
-
   /**
    * Main constructor.
    *
@@ -38,10 +36,5 @@ public class PlayerQuitEvent extends PlayerEvent {
   @Override
   public String getLogMessage() {
     return "The player " + getPlayer().getName() + " quit the server.";
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 }

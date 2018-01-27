@@ -29,13 +29,14 @@ import sledgehammer.event.core.command.CommandEvent;
 import sledgehammer.event.core.ThrowableEvent;
 import sledgehammer.event.core.command.CommandHandlerComparator;
 import sledgehammer.event.core.command.CommandHandlerContainer;
+import sledgehammer.interfaces.Cancellable;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ClassUtil;
 import sledgehammer.util.Command;
 import sledgehammer.interfaces.Listener;
+import sledgehammer.util.Response;
 import zombie.core.raknet.UdpConnection;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -63,6 +64,13 @@ public class EventManager extends Manager {
   }
 
   @Override
+  public void onStart() {
+    if (Settings.getInstance().isDebug()) {
+      println(printRegisteredHandlers());
+    }
+  }
+
+  @Override
   public void onShutDown() {
     reset();
   }
@@ -86,9 +94,8 @@ public class EventManager extends Manager {
     }
     LinkedList<EventHandlerContainer> listContainers = getEventHandlers(event);
     if (listContainers != null) {
-      if (Settings.getInstance().isDebug()) {
-        println("listContainers for event: " + event + " size: " + listContainers.size());
-      }
+      // Copy the array to prevent ConcurrentModificationExceptions.
+      listContainers = new LinkedList<>(listContainers);
       for (EventHandlerContainer container : listContainers) {
         // Make sure the EventHandler is enabled to handle events.
         if (!container.isEnabled()) {
@@ -97,8 +104,10 @@ public class EventManager extends Manager {
         // If the Event is cancelled and the EventHandler does not handle cancelled
         // events, do
         // not invoke it.
-        if (event.canceled() && !container.ignoreCancelled()) {
-          continue;
+        if (!container.ignoreCancelled() && (event instanceof Cancellable)) {
+          if (((Cancellable) event).isCancelled()) {
+            continue;
+          }
         }
         try {
           // Invoke the EventHandler.
@@ -106,8 +115,7 @@ public class EventManager extends Manager {
         } catch (Throwable throwable) {
           // Print the information of the handler if debug mode is enabled.
           if (Settings.getInstance().isDebug()) {
-            errln("The EventHandler failed to execute: ");
-            errln(container.toString());
+            errln("The EventHandler failed to execute: " + container.toString());
             errln("The EventHandler is now disabled.");
           }
           // Disable the container to prevent further issues. Disabling the Event
@@ -123,7 +131,7 @@ public class EventManager extends Manager {
     if (log
         && !(event instanceof LogEvent)
         && !(event instanceof ThrowableEvent)
-        && !event.canceled()
+        && (!(event instanceof Cancellable) || !((Cancellable) event).isCancelled())
         && event.getLogMessage() != null) {
       // Create a LogEvent, and handle it.
       LogEvent logEvent = new LogEvent(event);
@@ -154,8 +162,89 @@ public class EventManager extends Manager {
    * @return Returns the CommandEvent result.
    */
   public CommandEvent handleCommand(Command command, boolean log) {
+    if (command == null) {
+      throw new IllegalArgumentException("Command given is null.");
+    }
+    boolean isHelp = command.getCommand().equalsIgnoreCase("help");
     CommandEvent event = new CommandEvent(command);
-    handleEvent(event, log);
+    Player commander = command.getPlayer();
+    if (commander == null) {
+      if (Settings.getInstance().isDebug()) {
+        println("Command is given but does not have an assigned Player: " + command.getRaw());
+        println("Assign 'Sledgehammer.getAdministrator()' if this is a Plug-in command.");
+        println("Command not executed.");
+      }
+      return event;
+    }
+    Response response = event.getResponse();
+    if (isHelp) {
+      response.appendLine();
+    }
+    boolean deniedOnce = false;
+    boolean handledOnce = false;
+    String raw = command.getRaw().toLowerCase().trim();
+    String[] split = raw.split(" ");
+    for (int index = split.length - 1; index >= 0; index--) {
+      StringBuilder stringBuilder = new StringBuilder();
+      int subIndex = 0;
+      do {
+        stringBuilder.append(split[subIndex++]);
+      } while (subIndex <= index);
+      String commandSearch = stringBuilder.toString().replace("\"", "");
+      LinkedList<CommandHandlerContainer> listContainers = mapCommandHandlers.get(commandSearch);
+      if (listContainers != null) {
+        // Copy the array to prevent ConcurrentModificationExceptions.
+        listContainers = new LinkedList<>(listContainers);
+        for (CommandHandlerContainer container : listContainers) {
+          if (!container.isEnabled()) {
+            continue;
+          }
+          String[] permissionNodes = container.getPermissionNodes();
+          // If the commanding player has permission to the handler, invoke it.
+          if (commander.hasPermission(permissionNodes)) {
+            try {
+              handledOnce = true;
+              container.handleCommand(command, response);
+            } catch (Throwable throwable) {
+              if (Settings.getInstance().isDebug()) {
+                errln("The CommandHandler failed to execute: " + container.toString());
+                errln("The CommandHandler is now disabled.");
+              }
+              container.setEnabled(false);
+              handleThrown(throwable);
+            }
+          } else {
+            deniedOnce = true;
+          }
+          // If the command is denied and not handled, then this is due to permission nodes not
+          // being granted. Set the response message to the permission denied message.
+          if (deniedOnce && !handledOnce) {
+            response.deny();
+          }
+        }
+      }
+    }
+    if (isHelp) {
+      String responseText = response.getResponse();
+      String[] lines = response.getResponse().split("<LINE>");
+      ArrayList<String> listLines = new ArrayList<>(Arrays.asList(lines));
+      Collections.sort(
+          listLines,
+          new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+              return o1.compareTo(o2);
+            }
+          });
+      response.setResponse("Commands: <LINE> ");
+      for (String line : listLines) {
+        line = line.trim();
+        if (!line.isEmpty()) {
+          response.appendLine(line);
+        }
+      }
+      response.setHandled(true);
+    }
     return event;
   }
 
@@ -221,7 +310,6 @@ public class EventManager extends Manager {
     Method[] methods = ClassUtil.getAllDeclaredMethods(listener.getClass());
     if (Settings.getInstance().isDebug()) {
       println("Registering listener: " + listener.getClass().getSimpleName());
-      println("Methods: " + methods.length);
     }
     // We will go through each one to see if it is an EventHandler.
     for (Method method : methods) {
@@ -236,7 +324,6 @@ public class EventManager extends Manager {
         CommandHandlerContainer container =
             new CommandHandlerContainer(listener, method, commandHandler);
         register(container);
-        continue;
       }
     }
   }
@@ -268,12 +355,12 @@ public class EventManager extends Manager {
     // does not register more than once in the list.
     else if (listContainers.contains(container)) {
       if (Settings.getInstance().isDebug()) {
-        errln("EventHandler is already registered:\n" + container.toString());
+        errln("EventHandler is already registered: " + container.toString());
       }
       return;
     }
     if (Settings.getInstance().isDebug()) {
-      println("Registered EventHandler:\n" + container.toString());
+      println("Registered EventHandler: " + container.toString());
     }
     // At this point we know that the handler is valid, and is not already in the list for the
     // event, so we add it to the list.
@@ -302,12 +389,12 @@ public class EventManager extends Manager {
       // does not register more than once in the list.
       else if (listContainers.contains(container)) {
         if (Settings.getInstance().isDebug()) {
-          errln("CommandHandler is already registered:\n" + container.toString());
+          errln("CommandHandler is already registered: " + container.toString());
         }
         return;
       }
       if (Settings.getInstance().isDebug()) {
-        println("Registered CommandHandler:\n" + container.toString());
+        println("Registered CommandHandler: " + container.toString());
       }
       // At this point we know that the handler is valid, and is not already in the list for the
       // event, so we add it to the list.
@@ -325,7 +412,7 @@ public class EventManager extends Manager {
    */
   public void unregister(Listener Listener) {
     // Go through all registered Event Classes.
-    for (Class<? extends Event> classEvent : mapEventHandlers.keySet()) {
+    for (Class<? extends Event> classEvent : new ArrayList<>(mapEventHandlers.keySet())) {
       // Grab the EventHandlers that handle the current Event.
       List<EventHandlerContainer> listContainers = getEventHandlers(classEvent);
       // Make sure that the list is defined to check EventHandlers.
@@ -444,6 +531,165 @@ public class EventManager extends Manager {
       }
     }
     mapEventHandlers.clear();
+  }
+
+  public String printRegisteredHandlers() {
+    return "EventManager diagnostics:\n" + printEventHandlers("") + printCommandHandlers("") + "\n";
+  }
+
+  public String printEventHandlers(String prefix) {
+    String title = "# Events registered";
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(prefix).append(createBar('#', 169)).append('\n');
+    stringBuilder.append(prefix).append("#").append(createBar(' ', 168)).append("#\n");
+    stringBuilder
+        .append(prefix)
+        .append(title)
+        .append(createBar(' ', 169 - title.length()))
+        .append("#\n");
+    stringBuilder.append(prefix).append("#").append(createBar(' ', 168)).append("#\n");
+    stringBuilder.append(prefix).append(createBar('#', 170)).append('\n');
+    List<Class<? extends Event>> listEvents = new ArrayList<>(mapEventHandlers.keySet());
+    Collections.sort(
+        listEvents,
+        new Comparator<Class<? extends Event>>() {
+          @Override
+          public int compare(Class<? extends Event> o1, Class<? extends Event> o2) {
+            String className1 = ClassUtil.getClassName(o1);
+            String className2 = ClassUtil.getClassName(o2);
+            return className1.compareTo(className2);
+          }
+        });
+    String sPriority = "Priority";
+    String sListener = "Listener";
+    String sMethod = "Method";
+    String sId = "ID";
+    for (Class<? extends Event> classEvent : listEvents) {
+      String eventName = ClassUtil.getClassName(classEvent);
+      StringBuilder stringBuilderEvent = new StringBuilder();
+      LinkedList<EventHandlerContainer> listContainers = mapEventHandlers.get(classEvent);
+      stringBuilderEvent.append(prefix).append("[").append(eventName).append("]");
+      stringBuilderEvent.append(createBar('=', 165 - eventName.length())).append("[");
+      stringBuilderEvent.append(listContainers.size()).append("]\n");
+      stringBuilderEvent.append(prefix).append("| ").append("\n");
+      stringBuilderEvent.append(prefix).append("| ");
+      stringBuilderEvent.append(sPriority).append(space(sPriority, 16));
+      stringBuilderEvent.append(sListener).append(space(sListener, 32));
+      stringBuilderEvent.append(sMethod).append(space(sMethod, 40));
+      stringBuilderEvent.append(sId).append(space(sId, 32)).append("\n");
+      ;
+      for (EventHandlerContainer container : listContainers) {
+        stringBuilderEvent.append(printEventHandler(container, prefix));
+      }
+      stringBuilder.append(stringBuilderEvent);
+    }
+    return stringBuilder.toString();
+  }
+
+  public String printEventHandler(EventHandlerContainer container, String prefix) {
+    int tabsContainer = 4;
+    String sPriority = "" + container.getPriority();
+    String sContainer = ClassUtil.getClassName(container.getContainer());
+    String sMethod = container.getMethod().getName();
+    String sId = "\"" + container.getId() + "\"";
+    return (prefix + "| ")
+        + (sPriority + space(sPriority, 16))
+        + (sContainer + space(sContainer, 32))
+        + (sMethod + space(sMethod, 40))
+        + (sId + space(sId, 32) + "\n");
+  }
+
+  public String printCommandHandlers(String prefix) {
+    String title = "# Commands registered";
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(prefix).append(createBar('#', 169)).append('\n');
+    stringBuilder.append(prefix).append("#").append(createBar(' ', 168)).append("#\n");
+    stringBuilder
+        .append(prefix)
+        .append(title)
+        .append(createBar(' ', 169 - title.length()))
+        .append("#\n");
+    stringBuilder.append(prefix).append("#").append(createBar(' ', 168)).append("#\n");
+    stringBuilder.append(prefix).append(createBar('#', 170)).append('\n');
+    // Go through each Event and print the diagnostic for it.
+    List<String> listCommands = new ArrayList<>(mapCommandHandlers.keySet());
+    Collections.sort(
+        listCommands,
+        new Comparator<String>() {
+          @Override
+          public int compare(String o1, String o2) {
+            return o1.compareTo(o2);
+          }
+        });
+    String sPriority = "Priority";
+    String sListener = "Listener";
+    String sMethod = "Method";
+    String sId = "ID";
+    String sPermission = "Permission";
+    for (String command : listCommands) {
+      StringBuilder stringBuilderEvent = new StringBuilder();
+      LinkedList<CommandHandlerContainer> listContainers = mapCommandHandlers.get(command);
+      stringBuilderEvent.append(prefix).append("[").append(command).append("]");
+      stringBuilderEvent.append(createBar('=', 165 - command.length())).append("[");
+      stringBuilderEvent.append(listContainers.size()).append("]\n");
+      stringBuilderEvent.append(prefix).append("| ").append("\n");
+      stringBuilderEvent.append(prefix).append("| ");
+      stringBuilderEvent.append(sPriority).append(space(sPriority, 16));
+      stringBuilderEvent.append(sListener).append(space(sListener, 32));
+      stringBuilderEvent.append(sMethod).append(space(sMethod, 40));
+      stringBuilderEvent.append(sId).append(space(sId, 32));
+      stringBuilderEvent.append(sPermission).append("\n");
+      for (CommandHandlerContainer container : listContainers) {
+        stringBuilderEvent.append(printCommandHandler(container, prefix));
+      }
+      stringBuilder.append(stringBuilderEvent);
+    }
+    return stringBuilder.toString();
+  }
+
+  public String printCommandHandler(CommandHandlerContainer container, String prefix) {
+    int tabsContainer = 4;
+    String sPriority = "" + container.getPriority();
+    String sContainer = ClassUtil.getClassName(container.getContainer());
+    String sMethod = container.getMethod().getName();
+    String sId = "\"" + container.getId() + "\"";
+    int permissionNodeOffset = 120;
+    String result =
+        (prefix + "| ")
+            + (sPriority + space(sPriority, 16))
+            + (sContainer + space(sContainer, 32))
+            + (sMethod + space(sMethod, 40))
+            + (sId + space(sId, 32));
+    String[] sPermissions = container.getPermissionNodes();
+    if (sPermissions.length == 1) {
+      return result + "\"" + sPermissions[0] + "\"\n";
+    } else if (sPermissions.length > 1) {
+      StringBuilder permissionAppend = new StringBuilder("\"" + sPermissions[0] + "\"\n");
+      for (int index = 1; index < sPermissions.length; index++) {
+        String sPermission = "\"" + sPermissions[index] + "\"\n";
+        permissionAppend.append(prefix).append("| ");
+        permissionAppend.append(createBar(' ', permissionNodeOffset)).append(sPermission);
+      }
+      return result + permissionAppend.toString();
+    } else {
+      return result + "\"" + "NULL" + "\"\n";
+    }
+  }
+
+  private static String space(String string, int spaces) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (int index = 0; index < spaces - string.length(); index++) {
+      stringBuilder.append(" ");
+    }
+    return stringBuilder.toString();
+  }
+
+  private static String createBar(char c, int size) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (int index = 0; index < size; index++) {
+      stringBuilder.append(c);
+    }
+    return stringBuilder.toString();
   }
 
   /**

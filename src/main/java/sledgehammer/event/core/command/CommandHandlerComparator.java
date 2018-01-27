@@ -51,6 +51,6 @@ public class CommandHandlerComparator implements Comparator<CommandHandlerContai
 
   @Override
   public int compare(CommandHandlerContainer handler1, CommandHandlerContainer handler2) {
-    return handler1.getPriority() - handler2.getPriority();
+    return handler2.getPriority() - handler1.getPriority();
   }
 }

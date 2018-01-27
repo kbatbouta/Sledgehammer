@@ -49,9 +49,6 @@ import sledgehammer.event.Event;
  */
 public class PreConnectEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "LoginUsernameDefinedEvent";
-
   /** The String user-name of the Player attempting to connect to the PZ server. */
   private String username;
 
@@ -68,11 +65,6 @@ public class PreConnectEvent extends Event {
   @Override
   public String getLogMessage() {
     return "User attempting to log in with username: \"" + username + "\".";
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /**

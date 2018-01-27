@@ -23,6 +23,7 @@ package sledgehammer.event.core.command;
 import sledgehammer.Settings;
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.event.Event;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.util.ClassUtil;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
@@ -66,7 +67,7 @@ public class CommandHandlerContainer {
   private Method method;
   private MethodHandle methodHandle;
   private MethodType methodType;
-  private Object container;
+  private Listener container;
   private Object[] methodArgumentsCache;
   private String methodName;
   private boolean isStatic;
@@ -83,7 +84,7 @@ public class CommandHandlerContainer {
    * @param annotation The command handler annotation that contains the information important to the
    *     functions of the command handler.
    */
-  public CommandHandlerContainer(Object container, Method method, CommandHandler annotation) {
+  public CommandHandlerContainer(Listener container, Method method, CommandHandler annotation) {
     setTimeCreated(System.currentTimeMillis());
     setContainer(container);
     setMethod(method);
@@ -95,34 +96,21 @@ public class CommandHandlerContainer {
   @Override
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder
-        .append("Method: \"")
-        .append(methodName)
-        .append("\" container = \"")
-        .append(getContainer().getClass().getSimpleName())
-        .append("\" static = \"")
-        .append(isStatic)
-        .append("\" enabled = \"")
-        .append(isEnabled())
-        .append("\" Arguments:");
+    stringBuilder.append("Method: \"").append(methodName);
+    stringBuilder.append("\" container = \"").append(ClassUtil.getClassName(getContainer()));
+    stringBuilder.append("\" static = \"").append(isStatic);
     Object[] parameters = getMethodParameters();
     if (parameters != null && parameters.length > 0) {
+      stringBuilder.append("\" args =");
       for (int index = 0; index < parameters.length; index++) {
         Object param = parameters[index];
         if (param != null) {
-          stringBuilder
-              .append(" (")
-              .append(index)
-              .append("): (")
-              .append(param.getClass().getSimpleName())
-              .append(") = ")
-              .append(param.toString());
+          String name = ClassUtil.getClassName(param);
+          stringBuilder.append(" (").append(index).append("): (").append(name).append(")");
         } else {
           stringBuilder.append(" (").append(index).append("): (NULL)");
         }
       }
-    } else {
-      stringBuilder.append("None.");
     }
     return stringBuilder.toString();
   }
@@ -159,8 +147,6 @@ public class CommandHandlerContainer {
     }
     // Make note if the handler is static.
     isStatic = Modifier.isStatic(method.getModifiers());
-    // Make sure the container identifier is valid.
-    setContainer(container != null ? container.getClass() : method.getDeclaringClass());
     // This will expressly note the parameters to pass to the handle, and the type of
     // Class expected to return.
     methodType = MethodType.methodType(method.getReturnType(), methodParameters);
@@ -275,7 +261,7 @@ public class CommandHandlerContainer {
   }
 
   /** @return Returns the container for the method to invoke. */
-  public Object getContainer() {
+  public Listener getContainer() {
     return this.container;
   }
 
@@ -286,7 +272,7 @@ public class CommandHandlerContainer {
    *
    * @param container The declaring class instance to set.
    */
-  private void setContainer(Object container) {
+  private void setContainer(Listener container) {
     this.container = container;
   }
 
@@ -359,5 +345,9 @@ public class CommandHandlerContainer {
 
   public String[] getCommands() {
     return getAnnotation().command();
+  }
+
+  public String[] getPermissionNodes() {
+    return getAnnotation().permission();
   }
 }

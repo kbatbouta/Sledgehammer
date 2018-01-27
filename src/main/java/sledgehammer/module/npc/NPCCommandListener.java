@@ -22,7 +22,7 @@ package sledgehammer.module.npc;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.Listener;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
@@ -42,7 +42,7 @@ import zombie.sledgehammer.npc.NPC;
  *
  * @author Jab
  */
-public class NPCCommandListener implements Listener {
+public class NPCCommandListener extends CommandListener {
 
   /** The ModuleNPC instance using the CommandListener. */
   private ModuleNPC module;
@@ -53,6 +53,7 @@ public class NPCCommandListener implements Listener {
    * @param module The ModuleNPC instance using the CommandListener.
    */
   public NPCCommandListener(ModuleNPC module) {
+    super(module.getLanguagePackage());
     setModule(module);
   }
 
@@ -121,10 +122,6 @@ public class NPCCommandListener implements Listener {
   public void onCommandDestroyNPCS(Command c, Response r) {
     getModule().destroyNPCs();
     r.set(Result.SUCCESS, "NPCs destroyed.");
-  }
-
-  public LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
   }
 
   /** @return Returns the ModuleNPC instance using the CommandListener. */

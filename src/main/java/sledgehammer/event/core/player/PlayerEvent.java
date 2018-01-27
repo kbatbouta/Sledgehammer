@@ -50,9 +50,6 @@ import sledgehammer.lua.core.Player;
  */
 public abstract class PlayerEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "PlayerEvent";
-
   /** The Player associated with the PlayerEvent. */
   private Player player;
 

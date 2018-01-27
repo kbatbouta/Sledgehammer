@@ -74,15 +74,7 @@ public class ModulePermissions extends MongoModule {
 
   @Override
   public void onLoad() {
-    boolean langOverwrite = !isLangOverriden();
-    // Make sure that the core language file(s) are provided.
-    saveResourceAs(
-        "lang/permissions_en.yml",
-        new File(getLanguageDirectory(), "permissions_en.yml"),
-        langOverwrite);
-    // Load the LanguagePackage.
-    lang = new LanguagePackage(getLanguageDirectory(), "permissions");
-    lang.load();
+    loadLanguagePackage();
     // Grab the database we are using to store permission data.
     SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
     // Grab the collection for permission groups.
@@ -98,19 +90,40 @@ public class ModulePermissions extends MongoModule {
     PermissionsListener permissionsListener = new PermissionsListener(this);
     setPermissionListener(permissionsListener);
     permissionsCommandListener = new PermissionsCommandListener(this);
+  }
+
+  @Override
+  public void onStart() {
     register(permissionsCommandListener);
   }
 
   @Override
-  public void onUnload() {
+  public void onStop() {
     unregister(permissionsCommandListener);
+  }
+
+  @Override
+  public void onUnload() {
+    setPermissionListener(null);
     mapMongoPermissionGroups.clear();
     mapMongoPermissionUsers.clear();
     mapPermissionGroups.clear();
     mapPermissionUsers.clear();
     collectionGroups = null;
     collectionUsers = null;
-    setPermissionListener(null);
+    permissionsCommandListener = null;
+  }
+
+  private void loadLanguagePackage() {
+    boolean langOverwrite = !isLangOverriden();
+    // Make sure that the core language file(s) are provided.
+    saveResourceAs(
+            "lang/permissions_en.yml",
+            new File(getLanguageDirectory(), "permissions_en.yml"),
+            langOverwrite);
+    // Load the LanguagePackage.
+    lang = new LanguagePackage(getLanguageDirectory(), "permissions");
+    lang.load();
   }
 
   /**

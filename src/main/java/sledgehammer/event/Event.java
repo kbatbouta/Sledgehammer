@@ -28,9 +28,6 @@ package sledgehammer.event;
  */
 public abstract class Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "Event";
-
   /** The <Long> time-stamp for when the Event is created. */
   private long timeStamp;
   /** Flag for if the Event has been handled by an EventListener. */
@@ -39,8 +36,6 @@ public abstract class Event {
   private boolean announce = false;
   /** Flag for whether or not to ignore the Core plug-in's EventListeners. */
   private boolean ignoreCore = false;
-  /** Flag for if the Event is cancelled. */
-  private boolean canceled = false;
 
   /** Main constructor. */
   public Event() {
@@ -80,40 +75,11 @@ public abstract class Event {
     return this.timeStamp;
   }
 
-  /** @return Returns true if the Event has been cancelled. */
-  public boolean canceled() {
-    return this.canceled;
-  }
-
-  /**
-   * Sets the Event cancelled.
-   *
-   * @param canceled The flag to set.
-   */
-  public void setCanceled(boolean canceled) {
-    this.canceled = canceled;
-  }
-
-  /** @return Returns true if the Core plug-in's EventListeners are ignored by this Event. */
-  public boolean ignoreCore() {
-    return ignoreCore;
-  }
-
-  /**
-   * Sets the Event to ignore the Core plug-in's EventListeners.
-   *
-   * @param flag The flag to set.
-   */
-  public void setIgnoreCore(boolean flag) {
-    ignoreCore = flag;
-  }
-
   /**
    * @return Returns the String logged message for the Event. If null is returned, the Event is not
    *     logged.
    */
-  public abstract String getLogMessage();
-
-  /** @return Returns the static String ID of the Event for identity purposes. */
-  public abstract String getID();
+  public String getLogMessage() {
+    return null;
+  }
 }

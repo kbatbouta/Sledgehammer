@@ -24,7 +24,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.LogType;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.Listener;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatMessage;
@@ -36,11 +36,12 @@ import zombie.core.znet.SteamUtils;
 import zombie.network.ServerWorldDatabase;
 import zombie.sledgehammer.PacketHelper;
 
-public class CoreBanCommandListener implements Listener {
+public class CoreBanCommandListener extends CommandListener {
 
   private ModuleCore module;
 
   CoreBanCommandListener(ModuleCore module) {
+    super(module.getLanguagePackage());
     setModule(module);
   }
 
@@ -348,9 +349,5 @@ public class CoreBanCommandListener implements Listener {
 
   public void setModule(ModuleCore module) {
     this.module = module;
-  }
-
-  public LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
   }
 }

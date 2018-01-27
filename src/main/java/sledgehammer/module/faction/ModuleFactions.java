@@ -94,12 +94,7 @@ public class ModuleFactions extends MongoModule {
 
   @Override
   public void onLoad() {
-    File langDirectory = getLanguageDirectory();
-    boolean overrideLang = !this.isLangOverriden();
-    saveResourceAs(
-        "lang/factions_en.yml", new File(langDirectory, "factions_en.yml"), overrideLang);
-    lang = new LanguagePackage(getLanguageDirectory(), "factions");
-    lang.load();
+    loadLanguagePackage();
     factionsCommandListener = new FactionsCommandListener(this);
     factionsEventHandler = new FactionsEventHandler(this);
     SledgehammerDatabase database = SledgeHammer.instance.getDatabase();
@@ -145,10 +140,21 @@ public class ModuleFactions extends MongoModule {
   @Override
   public void onUnload() {
     reset();
+    factionsCommandListener = null;
+    factionsEventHandler = null;
   }
 
   @Override
   public void onClientCommand(ClientEvent e) {}
+
+  private void loadLanguagePackage() {
+    File langDirectory = getLanguageDirectory();
+    boolean overrideLang = !this.isLangOverriden();
+    saveResourceAs(
+        "lang/factions_en.yml", new File(langDirectory, "factions_en.yml"), overrideLang);
+    lang = new LanguagePackage(getLanguageDirectory(), "factions");
+    lang.load();
+  }
 
   /**
    * (Private Method)

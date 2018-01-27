@@ -22,6 +22,8 @@ package sledgehammer.event;
 
 import sledgehammer.Settings;
 import sledgehammer.annotations.EventHandler;
+import sledgehammer.interfaces.Cancellable;
+import sledgehammer.interfaces.Listener;
 import sledgehammer.util.ClassUtil;
 
 import java.lang.invoke.MethodHandle;
@@ -62,7 +64,7 @@ public class EventHandlerContainer {
   private Method method;
   private MethodHandle methodHandle;
   private MethodType methodType;
-  private Object container;
+  private Listener container;
   private Object[] methodArgumentsCache;
   private String methodName;
   private boolean isStatic;
@@ -79,7 +81,7 @@ public class EventHandlerContainer {
    * @param annotation The event handler Annotation that contains the information important to the
    *     functions of the event handler.
    */
-  public EventHandlerContainer(Object container, Method method, EventHandler annotation) {
+  public EventHandlerContainer(Listener container, Method method, EventHandler annotation) {
     setTimeCreated(System.currentTimeMillis());
     setContainer(container);
     setMethod(method);
@@ -91,34 +93,21 @@ public class EventHandlerContainer {
   @Override
   public String toString() {
     StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder
-        .append("Method: \"")
-        .append(methodName)
-        .append("\" container = \"")
-        .append(getContainer().getClass().getSimpleName())
-        .append("\" static = \"")
-        .append(isStatic)
-        .append("\" enabled = \"")
-        .append(isEnabled())
-        .append("\" Arguments:");
+    stringBuilder.append("Method: \"").append(methodName);
+    stringBuilder.append("\" container = \"").append(ClassUtil.getClassName(getContainer()));
+    stringBuilder.append("\" static = \"").append(isStatic);
     Object[] parameters = getMethodParameters();
     if (parameters != null && parameters.length > 0) {
+      stringBuilder.append("\" args =");
       for (int index = 0; index < parameters.length; index++) {
         Object param = parameters[index];
         if (param != null) {
-          stringBuilder
-              .append(" (")
-              .append(index)
-              .append("): (")
-              .append(param.getClass().getSimpleName())
-              .append(") = ")
-              .append(param.toString());
+          String name = ClassUtil.getClassName(param);
+          stringBuilder.append(" (").append(index).append("): (").append(name).append(")");
         } else {
           stringBuilder.append(" (").append(index).append("): (NULL)");
         }
       }
-    } else {
-      stringBuilder.append("None.");
     }
     return stringBuilder.toString();
   }
@@ -139,8 +128,7 @@ public class EventHandlerContainer {
     // Make sure that the first parameter given is an Event Object.
     if (!ClassUtil.isSubClass(methodParameters[0], Event.class)) {
       if (Settings.getInstance().isDebug()) {
-        System.err.println("The EventHandler does not have Event as the first parameter.");
-        System.err.println(toString());
+        System.err.println("The EventHandler parameters are invalid: " + toString());
       }
       return;
     }
@@ -148,8 +136,6 @@ public class EventHandlerContainer {
     classEvent = (Class<? extends Event>) methodParameters[0];
     // Make note if the event handler is static.
     isStatic = Modifier.isStatic(method.getModifiers());
-    // Make sure the container identifier is valid.
-    setContainer(container != null ? container.getClass() : method.getDeclaringClass());
     // This will expressly note the parameters to pass to the EventHandle, and the type of
     // Class expected to return.
     methodType = MethodType.methodType(method.getReturnType(), methodParameters);
@@ -190,29 +176,17 @@ public class EventHandlerContainer {
    *     fails to invoke.
    */
   public void handleEvent(Event event) throws Throwable {
-    if (Settings.getInstance().isDebug()) {
-      System.out.println("Attempting to handle event: " + event.getClass().getSimpleName());
-    }
     // Make sure that the event handler is enabled before invoking the event handler.
     if (!isEnabled()) {
-      if (Settings.getInstance().isDebug()) {
-        System.out.println("EventHandler is not enabled: " + toString());
-      }
       return;
     }
     // If the Event is cancelled, and the event handler does not ignore this, do not handle
     // the Event.
-    if (event.canceled() && !this.ignoreCancelled()) {
-      if (Settings.getInstance().isDebug()) {
-        System.out.println("EventHandler is not handling cancelled event: " + toString());
-      }
+    if (!this.ignoreCancelled()
+        && event instanceof Cancellable
+        && ((Cancellable) event).isCancelled()) {
       return;
     }
-    if (Settings.getInstance().isDebug()) {
-      System.out.println("Invoking method:\n" + toString());
-    }
-    // Grab the parameter cache for the event handler.
-    Object[] parameters = getMethodParameters();
     // If the method is static, we do not need to reference the instance of the declaring class.
     if (isStatic()) {
       // The method is static, so we need to only pass the Event instance being handled.
@@ -267,7 +241,7 @@ public class EventHandlerContainer {
   }
 
   /** @return Returns the container for the Method to invoke. */
-  public Object getContainer() {
+  public Listener getContainer() {
     return this.container;
   }
 
@@ -278,7 +252,7 @@ public class EventHandlerContainer {
    *
    * @param container The declaring class instance to set.
    */
-  private void setContainer(Object container) {
+  private void setContainer(Listener container) {
     this.container = container;
   }
 

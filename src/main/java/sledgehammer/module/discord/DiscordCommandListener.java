@@ -22,6 +22,7 @@ package sledgehammer.module.discord;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
@@ -29,11 +30,12 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
-public class DiscordCommandListener implements Listener {
+public class DiscordCommandListener extends CommandListener {
 
   private ModuleDiscord module;
 
   DiscordCommandListener(ModuleDiscord module) {
+    super(module.getLanguagePackage());
     setModule(module);
   }
 
@@ -58,10 +60,6 @@ public class DiscordCommandListener implements Listener {
     } else {
       r.set(Result.FAILURE, lang.getString("tooltip_command_discord", language));
     }
-  }
-
-  public LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
   }
 
   public ModuleDiscord getModule() {

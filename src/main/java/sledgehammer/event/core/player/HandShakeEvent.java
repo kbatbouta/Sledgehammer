@@ -50,9 +50,6 @@ import sledgehammer.lua.core.Player;
  */
 public class HandShakeEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "HandShakeEvent";
-
   /**
    * Main constructor.
    *
@@ -60,15 +57,5 @@ public class HandShakeEvent extends PlayerEvent {
    */
   public HandShakeEvent(Player player) {
     super(player);
-  }
-
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 }

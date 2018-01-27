@@ -36,6 +36,8 @@ import sledgehammer.language.Language;
 import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
+import sledgehammer.lua.permissions.PermissionGroup;
+import sledgehammer.lua.permissions.PermissionUser;
 import sledgehammer.module.chat.ModuleChat;
 import zombie.characters.IsoPlayer;
 import zombie.core.raknet.UdpConnection;
@@ -356,24 +358,84 @@ public class Player extends MongoLuaObject<MongoPlayer> {
   }
 
   /**
-   * @param node The String node that is being tested.
-   * @param ignoreAdmin Boolean flag for ignoring Administrator check.
-   * @return Returns true if the Player is granted the given String node permission. If the Player
-   *     is an administrator and the ignoreAdmin flag is set to false, this method will always
-   *     return true. To grab the raw permission, use 'hasRawPermission(String node)...'.
-   */
-  public boolean hasPermission(String node, boolean ignoreAdmin) {
-    return !ignoreAdmin && isAdministrator() || SledgeHammer.instance.hasPermission(this, node);
-  }
-
-  /**
-   * @param node The String node that is being tested.
+   * @param permissionNodes The command's permission nodes.
    * @return Returns true if the Player is granted the given String node permission. If the Player
    *     is an administrator, this method will always return true. To grab the raw permission, use
    *     'hasRawPermission(String node)...'.
    */
-  public boolean hasPermission(String node) {
-    return hasPermission(node, false);
+  public boolean hasPermission(String... permissionNodes) {
+    return hasPermission(false, permissionNodes);
+  }
+
+  /**
+   * Validates if a commanding player is granted the permission node for the command. Only one
+   * permission node has to grant permission for this method to return true.
+   *
+   * @param ignoreAdmin Boolean flag for ignoring Administrator check.
+   * @param permissionNodes The command's permission nodes.
+   * @return Returns true if the commanding player is granted the command's permission node.
+   */
+  public boolean hasPermission(boolean ignoreAdmin, String... permissionNodes) {
+    boolean returned = false;
+    boolean isDefault = false;
+    for (String permissionNode : permissionNodes) {
+      boolean inverted = permissionNode.startsWith("!");
+      if (inverted) {
+        permissionNode = permissionNode.substring(1, permissionNode.length());
+      }
+      // If the permission node given is the default wildcard, this will always return true.
+      if (permissionNode.equals("*")) {
+        returned = true;
+      }
+      // Check if the permission node defines a specific group.
+      else if (permissionNode.startsWith("group:")) {
+        PermissionGroup permissionGroup;
+        String groupName = permissionNode.split(":")[1].trim();
+        // If the permission group defined is the default permission group, set the permission
+        // group to be the default permission group. This will still be evaluated as players can be
+        // assigned to other groups than default.
+        if (groupName.equals("default")) {
+          isDefault = true;
+          permissionGroup = SledgeHammer.instance.getDefaultPermissionGroup();
+        }
+        // Attempt to grab the defined permission group.
+        else {
+          permissionGroup = SledgeHammer.instance.getPermissionGroup(groupName);
+        }
+        // Check to see if the permission group is defined.
+        if (permissionGroup != null) {
+          // Check to see if the permission user is also defined.
+          PermissionUser permissionUser = getPermissionUser();
+          if (permissionUser != null) {
+            PermissionGroup groupUser = permissionUser.getPermissionGroup();
+            if (groupUser.equals(permissionGroup)) {
+              returned = true;
+            }
+          }
+          // If the permission user is not defined and the group defined is default, then this will
+          // automatically return true.
+          else if (isDefault) {
+            returned = true;
+          }
+        }
+      }
+      // If no permission group syntax is provided, check the given string as true.
+      else {
+        returned =
+            !ignoreAdmin && isAdministrator()
+                || SledgeHammer.instance.hasPermission(this, permissionNode);
+      }
+      // If the permission node is inverted, then flip the result.
+      if (inverted) {
+        returned = !returned;
+      }
+      // If the permission node is granted to the commanding player, then break. We only need one
+      // to return true.
+      if (returned) {
+        break;
+      }
+    }
+    return returned;
   }
 
   /**
@@ -787,6 +849,19 @@ public class Player extends MongoLuaObject<MongoPlayer> {
       }
     }
     return returned;
+  }
+
+  public PermissionUser getPermissionUser() {
+    return SledgeHammer.instance.getPermissionUser(this);
+  }
+
+  public PermissionUser createPermissionUser() {
+    PermissionUser permissionUser = getPermissionUser();
+    if (permissionUser != null) {
+      return permissionUser;
+    }
+
+    return SledgeHammer.instance.createPermissionUser(this);
   }
 
   static {

@@ -22,12 +22,11 @@ package sledgehammer.module.faction;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.Listener;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.Command;
-import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
 
 /**
@@ -37,7 +36,7 @@ import sledgehammer.util.Response;
  *
  * @author Jab
  */
-class FactionsCommandListener extends Printable implements Listener {
+class FactionsCommandListener extends CommandListener {
 
   private ModuleFactions module;
 
@@ -47,6 +46,7 @@ class FactionsCommandListener extends Printable implements Listener {
    * @param module The faction module instance registering the listener.
    */
   FactionsCommandListener(ModuleFactions module) {
+    super(module.getLanguagePackage());
     setModule(module);
   }
 
@@ -80,7 +80,7 @@ class FactionsCommandListener extends Printable implements Listener {
       // @formatter:on
       r.set(module.commandCreateFaction(commander, name, tag, password));
     } else {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_create", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_create", language));
     }
   }
 
@@ -95,7 +95,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length != 0) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_disband", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_disband", language));
       return;
     }
     r.set(module.commandDisbandFaction(commander));
@@ -112,7 +112,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length != 2) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_join", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_join", language));
       return;
     }
     String factionName = args[0];
@@ -131,7 +131,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length != 0) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_leave", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_leave", language));
       return;
     }
     r.set(module.commandLeaveFaction(commander));
@@ -148,7 +148,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_invite", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_invite", language));
       return;
     }
     // Grab the username argument.
@@ -168,7 +168,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_accept", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_accept", language));
       return;
     }
     String factionName = args[0];
@@ -186,7 +186,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_reject", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_reject", language));
       return;
     }
     String factionName = args[0];
@@ -204,7 +204,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = c.getArguments();
     if (args.length == 0) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_kick", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_kick", language));
       return;
     }
     String usernameKicked = args[0];
@@ -235,7 +235,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set_color", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_set_color", language));
       return;
     }
     String color = args[0];
@@ -253,7 +253,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length == 0) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set_name", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_set_name", language));
       return;
     }
     String factionName = Command.combineArguments(args, 0);
@@ -284,7 +284,7 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 2) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set_password", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_set_password", language));
       return;
     }
     // @formatter:off
@@ -305,15 +305,11 @@ class FactionsCommandListener extends Printable implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_faction_set_tag", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_faction_set_tag", language));
       return;
     }
     String tag = args[0];
     r.set(module.commandSetFactionTag(commander, tag));
-  }
-
-  private LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
   }
 
   private ModuleFactions getModule() {
@@ -322,10 +318,5 @@ class FactionsCommandListener extends Printable implements Listener {
 
   private void setModule(ModuleFactions module) {
     this.module = module;
-  }
-
-  @Override
-  public String getName() {
-    return "FactionsCommandListener";
   }
 }

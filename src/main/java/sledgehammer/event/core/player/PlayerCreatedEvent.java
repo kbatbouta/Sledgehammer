@@ -49,9 +49,6 @@ import sledgehammer.lua.core.Player;
  */
 public class PlayerCreatedEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "PlayerCreatedEvent";
-
   /**
    * Main constructor.
    *
@@ -59,15 +56,5 @@ public class PlayerCreatedEvent extends PlayerEvent {
    */
   public PlayerCreatedEvent(Player player) {
     super(player);
-  }
-
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 }

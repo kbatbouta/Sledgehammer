@@ -52,9 +52,6 @@ import zombie.network.GameServer;
  */
 public class ClientEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "ClientCommandEvent";
-
   /** The String client ID of the Module. */
   private String moduleName;
   /** The String raw client ID of the Module. */
@@ -91,16 +88,6 @@ public class ClientEvent extends PlayerEvent {
     }
     setCommand(command);
     setTable(table);
-  }
-
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /** Sends a LuaNet ServerCommand with the KahluaTable in the ClientEvent. */

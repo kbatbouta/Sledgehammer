@@ -124,6 +124,7 @@ public class ModuleNPC extends Module {
     boolean override = !isLangOverriden();
     saveResourceAs("lang/npc_en.yml", new File(langDir, "npc_en.yml"), override);
     languagePackage = new LanguagePackage(getLanguageDirectory(), "npc");
+    languagePackage.load();
   }
 
   /** Initializes all default Actions for Behavior classes to use for NPCs. */

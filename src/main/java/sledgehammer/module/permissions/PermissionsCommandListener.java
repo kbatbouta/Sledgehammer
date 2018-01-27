@@ -22,6 +22,7 @@ package sledgehammer.module.permissions;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
@@ -35,11 +36,12 @@ import sledgehammer.util.Response;
  *
  * @author Jab
  */
-public class PermissionsCommandListener implements Listener {
+public class PermissionsCommandListener extends CommandListener {
 
   private ModulePermissions module;
 
   PermissionsCommandListener(ModulePermissions module) {
+    super(module.getLanguagePackage());
     setModule(module);
   }
 
@@ -80,7 +82,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_create", language));
+      r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group_create", language));
       return;
     }
     String permissionGroupName = args[0];
@@ -102,7 +104,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_delete", language));
+      r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group_delete", language));
       return;
     }
     String permissionGroupName = args[0];
@@ -124,7 +126,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_list", language));
+      r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group_list", language));
       return;
     }
     String permissionGroupName = args[0];
@@ -146,7 +148,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 2) {
-      r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_rename", language));
+      r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group_rename", language));
       return;
     }
     String permissionGroupName = args[0];
@@ -187,7 +189,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 3);
     if (args.length != 3) {
-      r.set(Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_node", language));
+      r.set(Result.SUCCESS, lang.getString("tooltip_command_permissions_group_set_node", language));
       return;
     }
     String permissionGroupName = args[0];
@@ -212,7 +214,7 @@ public class PermissionsCommandListener implements Listener {
     String[] args = Command.getSubArgs(c.getArguments(), 3);
     if (args.length != 2) {
       r.set(
-          Result.SUCCESS, lang.getString("command_tooltip_permissions_group_set_parent", language));
+          Result.SUCCESS, lang.getString("tooltip_command_permissions_group_set_parent", language));
       return;
     }
     String permissionGroupName = args[0];
@@ -262,7 +264,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_create", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_permissions_user_create", language));
       return;
     }
     String username = args[0];
@@ -284,7 +286,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_delete", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_permissions_user_delete", language));
       return;
     }
     String username = args[0];
@@ -306,7 +308,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 2);
     if (args.length != 1) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_list", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_permissions_user_list", language));
       return;
     }
     String username = args[0];
@@ -344,7 +346,7 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 3);
     if (args.length != 3) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set_node", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_permissions_user_set_node", language));
       return;
     }
     String username = args[0];
@@ -368,16 +370,12 @@ public class PermissionsCommandListener implements Listener {
     Language language = commander.getLanguage();
     String[] args = Command.getSubArgs(c.getArguments(), 3);
     if (args.length != 2) {
-      r.set(Result.FAILURE, lang.getString("command_tooltip_permissions_user_set_group", language));
+      r.set(Result.FAILURE, lang.getString("tooltip_command_permissions_user_set_group", language));
       return;
     }
     String username = args[0];
     String permissionGroupName = args[1];
     r.set(module.commandSetPermissionUserGroup(commander, username, permissionGroupName));
-  }
-
-  public LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
   }
 
   public ModulePermissions getModule() {

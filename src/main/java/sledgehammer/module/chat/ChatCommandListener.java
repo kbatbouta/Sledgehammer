@@ -22,21 +22,20 @@ package sledgehammer.module.chat;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.Listener;
-import sledgehammer.language.Language;
-import sledgehammer.language.LanguagePackage;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
-public class ChatCommandListener implements Listener {
+public class ChatCommandListener extends CommandListener {
 
   private static final String permissionNodeEspanol = "core.chat.channel.espanol";
 
   private ModuleChat module;
 
   ChatCommandListener(ModuleChat module) {
+    super(module.getLanguagePackage());
     setModule(module);
   }
 
@@ -44,7 +43,7 @@ public class ChatCommandListener implements Listener {
   public void onCommandEspanol(Command c, Response r) {
     Player commander = c.getPlayer();
     ChatChannel channel = module.getChatChannel("Espanol");
-    if (commander.hasPermission(permissionNodeEspanol, true)) {
+    if (commander.hasPermission(true, permissionNodeEspanol)) {
       commander.setPermission(permissionNodeEspanol, null);
       channel.removePlayer(commander, true);
       r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
@@ -53,10 +52,6 @@ public class ChatCommandListener implements Listener {
       channel.addPlayer(commander, true);
       r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
     }
-  }
-
-  public LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
   }
 
   public ModuleChat getModule() {

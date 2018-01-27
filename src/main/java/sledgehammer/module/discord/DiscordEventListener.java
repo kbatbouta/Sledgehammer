@@ -107,13 +107,12 @@ public class DiscordEventListener implements Listener {
   public void on(LogEvent logEntry) {
     Player player;
     Event event = logEntry.getEvent();
-    String eventType = event.getID();
     DiscordBot bot = module.getBot();
     // This event spams too much.
     if (event instanceof PVPAttackEvent) {
       return;
     }
-    if (eventType.equals(CommandEvent.ID)) {
+    if (event instanceof CommandEvent) {
       CommandEvent command = (CommandEvent) event;
       Command com = command.getCommand();
       Response r = command.getResponse();
@@ -129,7 +128,7 @@ public class DiscordEventListener implements Listener {
       } else if (r.getLogType() == LogType.WARN || r.getLogType() == LogType.ERROR) {
         bot.warn(true, loggedMessage);
       }
-    } else if (eventType.equals(ChatEvent.ID)) {
+    } else if (event instanceof ChatEvent) {
       ChatEvent chatEvent = (ChatEvent) event;
       player = chatEvent.getPlayer();
       if (chatEvent.isGlobal()) {
@@ -144,8 +143,7 @@ public class DiscordEventListener implements Listener {
             false,
             "[Local]:" + ChatTags.stripTags(chatEvent.getHeader() + chatEvent.getText(), false));
       }
-    } else if (eventType.equals(CheaterEvent.ID)) {
-
+    } else if (event instanceof CheaterEvent) {
       bot.info(true, logEntry.getLogMessage());
     } else {
       bot.info(false, logEntry.getLogMessage());

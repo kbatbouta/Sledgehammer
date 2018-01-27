@@ -49,9 +49,6 @@ import sledgehammer.lua.core.Player;
  */
 public class CheaterEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "CheaterEvent";
-
   /** The String message to log for the CheaterEvent. */
   private String logMessage;
 
@@ -69,10 +66,5 @@ public class CheaterEvent extends PlayerEvent {
   @Override
   public String getLogMessage() {
     return "CHEATER: " + logMessage;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 }

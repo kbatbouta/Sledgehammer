@@ -99,6 +99,7 @@ public class ModuleChat extends MongoModule {
     boolean override = !isLangOverriden();
     saveResourceAs("lang/chat_en.yml", new File(langDir, "chat_en.yml"), override);
     languagePackage = new LanguagePackage(getLanguageDirectory(), "chat");
+    languagePackage.load();
   }
 
   @Override

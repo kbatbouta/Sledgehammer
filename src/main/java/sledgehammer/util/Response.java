@@ -69,6 +69,31 @@ public class Response {
         + "\n";
   }
 
+  public void appendLine() {
+    appendLine(null);
+  }
+
+  public void appendLine(String line) {
+    if (line == null) {
+      line = "";
+    }
+    if (response == null) {
+      response = line;
+    } else if (response.trim().toLowerCase().endsWith("<line>")) {
+      response += line;
+    } else {
+      response += " <LINE> " + line;
+    }
+  }
+
+  public void append(String line) {
+    if (response == null) {
+      response = line;
+    } else {
+      response += line;
+    }
+  }
+
   public void set(Response response) {
     // Sets the Response fields. @formatter:off
     this.result = response.result;
@@ -110,6 +135,10 @@ public class Response {
 
   public String getResponse() {
     return this.response;
+  }
+
+  public void setResponse(String response) {
+    this.response = response;
   }
 
   public void setLoggedImportant(boolean b) {

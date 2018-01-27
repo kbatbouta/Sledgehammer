@@ -45,16 +45,6 @@ public class ThrowableEvent extends Event {
     setThrowable(throwable);
   }
 
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return null;
-  }
-
   /** @return Returns a PrintWriter render of the Throwable. */
   public String printStackTrace() {
     return getStackTrace(getThrowable());

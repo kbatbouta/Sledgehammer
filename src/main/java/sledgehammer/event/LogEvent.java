@@ -30,9 +30,6 @@ import sledgehammer.lua.core.Player;
  */
 public class LogEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "LogEvent";
-
   /** The Player being logged. (Optional) */
   private Player player;
   /** The Event being logged. */
@@ -57,11 +54,6 @@ public class LogEvent extends Event {
   @Override
   public String getLogMessage() {
     return this.message;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /** @return Returns the Player of the LogEvent, if set. Otherwise returns null. */

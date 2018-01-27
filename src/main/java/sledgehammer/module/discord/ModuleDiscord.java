@@ -139,6 +139,7 @@ public class ModuleDiscord extends MongoModule {
     boolean override = !isLangOverriden();
     saveResourceAs("lang/discord_en.yml", new File(langDir, "discord_en.yml"), override);
     languagePackage = new LanguagePackage(getLanguageDirectory(), "discord");
+    languagePackage.load();
   }
 
   private void loadLua() {

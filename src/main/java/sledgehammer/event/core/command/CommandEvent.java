@@ -31,9 +31,6 @@ import sledgehammer.util.Response;
  */
 public class CommandEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "CommandEvent";
-
   /** The Command sent to Sledgehammer. */
   private Command command;
   /** The Response to send back. */
@@ -52,11 +49,6 @@ public class CommandEvent extends Event {
   @Override
   public String getLogMessage() {
     return getResponse().getLogMessage();
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   @Override

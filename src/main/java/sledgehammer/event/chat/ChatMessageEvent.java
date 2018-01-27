@@ -55,9 +55,6 @@ import sledgehammer.module.chat.ModuleChat;
  */
 public class ChatMessageEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "ChatMessageEvent";
-
   /** The ChatChannel the ChatMessage is in. */
   private ChatChannel chatChannel;
   /** The invoked ChatMessage. */
@@ -110,15 +107,5 @@ public class ChatMessageEvent extends Event {
   /** @return Returns the ModuleChat instance of the Sledgehammer engine. */
   public ModuleChat getChatModule() {
     return SledgeHammer.instance.getPluginManager().getChatModule();
-  }
-
-  /** Returns the String Log message set for the Event. */
-  public String getLogMessage() {
-    return null;
-  }
-
-  /** @return Returns the Event's ID. */
-  public String getID() {
-    return ID;
   }
 }

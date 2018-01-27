@@ -32,6 +32,6 @@ public class EventHandlerComparator implements Comparator<EventHandlerContainer>
 
   @Override
   public int compare(EventHandlerContainer handler1, EventHandlerContainer handler2) {
-    return handler1.getPriority() - handler2.getPriority();
+    return handler2.getPriority() - handler1.getPriority();
   }
 }

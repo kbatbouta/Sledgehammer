@@ -26,7 +26,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.LogType;
 import sledgehammer.enums.Result;
-import sledgehammer.interfaces.Listener;
+import sledgehammer.event.core.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Broadcast;
@@ -34,7 +34,6 @@ import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendBroadcast;
 import sledgehammer.util.ChatTags;
 import sledgehammer.util.Command;
-import sledgehammer.util.Printable;
 import sledgehammer.util.Response;
 import zombie.characters.IsoPlayer;
 
@@ -46,7 +45,7 @@ import static sledgehammer.util.ChatTags.*;
  *
  * @author Jab
  */
-public class CoreCommandListener extends Printable implements Listener {
+public class CoreCommandListener extends CommandListener {
 
   private static final boolean DEBUG = true;
   public static final Command commandProperties = new Command("properties");
@@ -55,7 +54,8 @@ public class CoreCommandListener extends Printable implements Listener {
   private SendBroadcast sendBroadcast;
 
   public CoreCommandListener(ModuleCore module) {
-    this.module = module;
+    super(module.getLanguagePackage());
+    setModule(module);
     sendBroadcast = new SendBroadcast();
   }
 
@@ -145,16 +145,11 @@ public class CoreCommandListener extends Printable implements Listener {
         username + " looked up properties for player \"" + playerProperties.getUsername() + "\".");
   }
 
-  @Override
-  public String getName() {
-    return "CoreCommandListener";
-  }
-
   public ModuleCore getModule() {
     return this.module;
   }
 
-  public LanguagePackage getLanguagePackage() {
-    return getModule().getLanguagePackage();
+  public void setModule(ModuleCore module) {
+    this.module = module;
   }
 }

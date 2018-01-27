@@ -48,16 +48,6 @@ public class ScriptEvent extends Event {
     setArguments(arguments);
   }
 
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
-  }
-
   /** @return Returns the String context of the ScriptEvent. */
   public String getContext() {
     return context;

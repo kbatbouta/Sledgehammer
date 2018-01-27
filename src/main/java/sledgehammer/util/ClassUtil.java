@@ -28,9 +28,6 @@ import java.util.List;
 public class ClassUtil {
 
   public static boolean isSubClass(Class subClass, Class superClass) {
-    if (isClass(subClass, subClass)) {
-      return false;
-    }
     boolean returned = false;
     Class c = subClass;
     while ((c = c.getSuperclass()) != null) {
@@ -57,5 +54,16 @@ public class ClassUtil {
       m[index] = listDeclaredMethods.get(index);
     }
     return m;
+  }
+
+  public static String getClassName(Object o) {
+    Class c = o instanceof Class ? (Class) o : o.getClass();
+    String name = c.toString();
+    if (name.contains(".")) {
+      String[] split = c.toString().split("\\.");
+      return split[split.length - 1];
+    } else {
+      return name;
+    }
   }
 }

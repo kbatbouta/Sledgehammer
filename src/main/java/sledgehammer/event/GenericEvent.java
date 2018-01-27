@@ -33,9 +33,6 @@ import sledgehammer.plugin.Module;
  */
 public class GenericEvent extends Event {
 
-  /** The String ID of the Event. */
-  public static final String ID = "GENERIC_EVENT";
-
   /** The module that created this Event. */
   private Module moduleSent;
   /** The context of the Event. Usually carrying data or a simple string. */
@@ -68,11 +65,6 @@ public class GenericEvent extends Event {
   @Override
   public String getLogMessage() {
     return this.logMessage;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /**

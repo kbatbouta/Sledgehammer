@@ -51,9 +51,6 @@ import zombie.core.raknet.UdpConnection;
  */
 public class DisconnectEvent extends PlayerEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "DisconnectEvent";
-
   /** The message Sent to the Player for being disconnected. */
   private String message;
   /** The DisconnectType type of disconnection the Player received. */
@@ -113,11 +110,6 @@ public class DisconnectEvent extends PlayerEvent {
         return player.getUsername() + " disconnected. (Unknown)";
     }
     return player.getUsername() + " disconnected.";
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /**

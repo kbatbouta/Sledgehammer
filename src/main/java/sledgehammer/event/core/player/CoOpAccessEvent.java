@@ -49,9 +49,6 @@ import sledgehammer.enums.AccessResult;
  */
 public class CoOpAccessEvent extends CoOpEvent {
 
-  /** The String ID of the Event. */
-  public static final String ID = "CoOpAccessEvent";
-
   /** The AccessResult of the CopAccessEvent. */
   private AccessResult accessResult = null;
   /** The String reason provided for the AccessResult. */
@@ -75,16 +72,6 @@ public class CoOpAccessEvent extends CoOpEvent {
   public CoOpAccessEvent(AccessResult accessResult, String reason) {
     setAccessResult(accessResult);
     setReason(reason);
-  }
-
-  @Override
-  public String getLogMessage() {
-    return null;
-  }
-
-  @Override
-  public String getID() {
-    return ID;
   }
 
   /** @return Returns the String reason for the AccessResult given. */

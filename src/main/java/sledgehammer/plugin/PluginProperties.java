@@ -62,7 +62,6 @@ public class PluginProperties extends LuaTable {
     listModuleNames = new ArrayList<>();
     mapModuleProperties = new HashMap<>();
     loadProperties();
-    println(getPluginName() + ": Loaded module properties: " + listModuleNames.size());
   }
 
   /**
