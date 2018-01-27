@@ -1,0 +1,34 @@
+# Put your chat channel definitions here.
+#
+# E.G:
+# -- The name of the channel
+# MyChannel:
+#   -- Permission to join the channel.
+#   permission: "core.chat.channel.mychannel"
+#   -- If the channel is public by default.
+#   public: true
+#   -- Set to false if you want local-chat functionality.
+#   global: true
+#   -- Set to false to not save history for the channel.
+#   history: true
+#   -- Set to false if you don't want people to talk in the channel.
+#   speak: true
+channels:
+  Espanol:
+    permission: "core.chat.channel.espanol"
+    public: false
+    global: true
+    history: true
+    speak: true
+  Italiano:
+    permission: "core.chat.channel.italiano"
+    public: false
+    global: true
+    history: true
+    speak: true
+  Russian:
+    permission: "core.chat.channel.russian"
+    public: false
+    global: true
+    history: true
+    speak: true

@@ -28,6 +28,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import se.krka.kahlua.vm.KahluaTable;
+import sledgehammer.Settings;
 import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatChannel;
@@ -56,16 +57,16 @@ public class ModuleChat extends MongoModule {
 
   private Map<UUID, ChatChannel> mapChatChannels;
   private LinkedList<ChatChannel> listOrderedChatChannels;
+  private LinkedList<ChatChannel> listOrderedDefinedChatChannels;
   private MongoCollection collectionChannels;
   private MongoCollection collectionMessages;
   private ChatChannel all;
   private ChatChannel global;
   private ChatChannel local;
-  private ChatChannel espanol;
   private ChatEventListener eventListener;
   private ChatCommandListener commandListener;
   private LanguagePackage languagePackage;
-
+  private ChatSettings settings;
   private SendLua sendLua;
 
   /** Main constructor. */
@@ -77,6 +78,7 @@ public class ModuleChat extends MongoModule {
   public void onLoad() {
     loadLanguagePackage();
     loadLua();
+    loadSettings();
     eventListener = new ChatEventListener(this);
     commandListener = new ChatCommandListener(this);
     mapChatChannels = new LinkedHashMap<>();
@@ -85,21 +87,9 @@ public class ModuleChat extends MongoModule {
     SledgehammerDatabase database = getSledgehammerDatabase();
     collectionChannels = database.createMongoCollection("sledgehammer_chat_channels");
     collectionMessages = database.createMongoCollection("sledgehammer_chat_messages");
-    // Handle chat command initializations.
-    addDefaultPermission("sledgehammer.chat.global");
-    addDefaultPermission("sledgehammer.chat.local");
-    addDefaultPermission("sledgehammer.chat.command.espanol");
-    // @formatter:on
     loadMongoDocuments();
     verifyCoreChannels();
-  }
-
-  private void loadLanguagePackage() {
-    File langDir = getLanguageDirectory();
-    boolean override = !isLangOverriden();
-    saveResourceAs("lang/chat_en.yml", new File(langDir, "chat_en.yml"), override);
-    languagePackage = new LanguagePackage(getLanguageDirectory(), "chat");
-    languagePackage.load();
+    loadChannelDefinitions();
   }
 
   @Override
@@ -148,17 +138,16 @@ public class ModuleChat extends MongoModule {
       RequestChannelsEvent requestEvent = new RequestChannelsEvent(player);
       RequestChatChannels request = new RequestChatChannels();
       // Add the main ChatChannels first in order.
-      if (global.hasAccess(player)) {
-        global.addPlayer(player, false);
-        request.addChannel(global);
-      }
-      if (local.hasAccess(player)) {
-        local.addPlayer(player, false);
-        request.addChannel(local);
-      }
-      if (espanol.hasAccess(player)) {
-        espanol.addPlayer(player, false);
-        request.addChannel(espanol);
+      global.addPlayer(player, false);
+      local.addPlayer(player, false);
+      request.addChannel(global);
+      request.addChannel(local);
+      // Go through each defined channel in the config.
+      for (ChatChannel channel : listOrderedDefinedChatChannels) {
+        if (channel.hasAccess(player)) {
+          channel.addPlayer(player, false);
+          request.addChannel(channel);
+        }
       }
       handleEvent(requestEvent);
       for (ChatChannel chatChannel : requestEvent.getChatChannels()) {
@@ -226,17 +215,20 @@ public class ModuleChat extends MongoModule {
     if (chatChannel != null) {
       return chatChannel;
     }
-    MongoChatChannel mongoChatChannel =
-        new MongoChatChannel(
-            collectionChannels,
-            channelName,
-            channelDescription,
-            permissionNode,
-            isGlobalChannel,
-            isPublicChannel,
-            isCustomChannel,
-            saveHistory,
-            canSpeak);
+    MongoChatChannel mongoChatChannel = loadMongoChatChannel(channelName);
+    if (mongoChatChannel == null) {
+      mongoChatChannel =
+          new MongoChatChannel(
+              collectionChannels,
+              channelName,
+              channelDescription,
+              permissionNode,
+              isGlobalChannel,
+              isPublicChannel,
+              isCustomChannel,
+              saveHistory,
+              canSpeak);
+    }
     chatChannel = new ChatChannel(mongoChatChannel);
     mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
     listOrderedChatChannels.add(chatChannel);
@@ -268,6 +260,14 @@ public class ModuleChat extends MongoModule {
     return chatMessage;
   }
 
+  private void loadLanguagePackage() {
+    File langDir = getLanguageDirectory();
+    boolean override = !isLangOverriden();
+    saveResourceAs("lang/chat_en.yml", new File(langDir, "chat_en.yml"), override);
+    languagePackage = new LanguagePackage(getLanguageDirectory(), "chat");
+    languagePackage.load();
+  }
+
   private void loadLua() {
     File lua = getLuaDirectory();
     boolean overwrite = !isLuaOverriden();
@@ -286,6 +286,12 @@ public class ModuleChat extends MongoModule {
     sendLua =
         new SendLua(
             fileChatChannel, fileChatHistory, fileChatMessage, fileChatWindow, fileChatModule);
+  }
+
+  private void loadSettings() {
+    saveResourceAs("chat-config.yml", new File(getModuleDirectory(), "config.yml"), false);
+    settings = new ChatSettings(this);
+    settings.load();
   }
 
   private void loadMongoDocuments() {
@@ -318,6 +324,58 @@ public class ModuleChat extends MongoModule {
           getChatMessages(chatChannel.getUniqueId(), ChatHistory.MAX_SIZE);
       chatHistory.addChatMessages(listChatMessages, false);
     }
+  }
+
+  private void loadChannelDefinitions() {
+    listOrderedDefinedChatChannels = new LinkedList<>();
+    List<ChannelDefinition> listDefinitions = settings.getChannelDefinitions();
+    for (ChannelDefinition definition : listDefinitions) {
+      if (Settings.getInstance().isDebug()) {
+        println("Loading defined ChatChannel: " + definition.getName());
+      }
+      String channelName = definition.getName();
+      ChatChannel chatChannel = getChatChannel(channelName);
+      if (chatChannel != null) {
+        continue;
+      }
+      MongoChatChannel mongoChatChannel = loadMongoChatChannel(channelName);
+      if (mongoChatChannel == null) {
+        mongoChatChannel =
+            new MongoChatChannel(
+                collectionChannels,
+                definition.getName(),
+                "No description.",
+                definition.getPermission(),
+                definition.isGlobal(),
+                definition.isPublic(),
+                true,
+                definition.saveHistory(),
+                definition.canSpeak());
+        mongoChatChannel.save();
+      } else {
+        mongoChatChannel.setPermissionNode(definition.getPermission(), false);
+        mongoChatChannel.setPublicChannel(definition.isPublic(), false);
+        mongoChatChannel.setGlobalChannel(definition.isGlobal(), false);
+        mongoChatChannel.setCustomChannel(true, false);
+        mongoChatChannel.setSaveHistory(definition.saveHistory(), false);
+        mongoChatChannel.setCanSpeak(definition.canSpeak(), false);
+        mongoChatChannel.save();
+      }
+      chatChannel = new ChatChannel(mongoChatChannel);
+      mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
+      listOrderedChatChannels.add(chatChannel);
+      listOrderedDefinedChatChannels.add(chatChannel);
+    }
+  }
+
+  private MongoChatChannel loadMongoChatChannel(String name) {
+    MongoChatChannel returned = null;
+    DBCursor cursor = collectionChannels.find(new BasicDBObject("name", name));
+    if (cursor.hasNext()) {
+      returned = new MongoChatChannel(collectionChannels, cursor.next());
+    }
+    cursor.close();
+    return returned;
   }
 
   /**
@@ -429,33 +487,8 @@ public class ModuleChat extends MongoModule {
               false,
               true);
     }
-    ChatChannel espanol = getChatChannel("Espanol");
-    if (espanol == null) {
-      channelName = "Espanol";
-      channelDescription = "Spanish channel for the server.";
-      channelPermissionNode = "sledgehammer.chat.espanol";
-      espanol =
-          createChatChannel(
-              channelName,
-              channelDescription,
-              channelPermissionNode,
-              true,
-              false,
-              false,
-              true,
-              true);
-    }
     setGlobalChatChannel(global);
     setLocalChatChannel(local);
-    setEspanolChannel(espanol);
-  }
-
-  public ChatChannel getEspanolChannel() {
-    return this.espanol;
-  }
-
-  private void setEspanolChannel(ChatChannel espanol) {
-    this.espanol = espanol;
   }
 
   /**
@@ -526,5 +559,16 @@ public class ModuleChat extends MongoModule {
 
   public LanguagePackage getLanguagePackage() {
     return this.languagePackage;
+  }
+
+  public ChatChannel getDefinedChatChannel(String channelName) {
+    ChatChannel returned = null;
+    for (ChatChannel chatChannel : listOrderedDefinedChatChannels) {
+      if (chatChannel.getChannelName().equalsIgnoreCase(channelName.trim())) {
+        returned = chatChannel;
+        break;
+      }
+    }
+    return returned;
   }
 }

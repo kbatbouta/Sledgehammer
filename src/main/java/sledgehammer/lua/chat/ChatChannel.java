@@ -42,9 +42,7 @@ import sledgehammer.lua.core.Player;
 public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
   private ChatHistory chatHistory;
-
   private List<Player> listPlayersSent;
-
   private SendChatMessages sendChatMessages;
   private SendChatChannel sendChatChannel;
   private SendChatChannelRemove sendChatChannelRemove;
@@ -81,12 +79,10 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
   @Override
   public void onExport() {
-    // @formatter:off
     set("id", getUniqueId().toString());
     set("name", getChannelName());
     set("permission_node", getPermissionNode());
     set("flags", exportFlags());
-    // @formatter:on
   }
 
   @Override
@@ -125,14 +121,12 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
   private KahluaTable exportFlags() {
     KahluaTable table = newTable();
-    // @formatter:off
     table.rawset("global", isGlobalChannel());
     table.rawset("public", isPublicChannel());
     table.rawset("custom", isCustomChannel());
     table.rawset("can_speak", canSpeak());
     table.rawset("history", saveHistory());
     table.rawset("explicit", isExplicit());
-    // @formatter:on
     return table;
   }
 
@@ -298,5 +292,9 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
 
   public void setExplicit(boolean explicit, boolean save) {
     getMongoDocument().setExplicit(explicit, save);
+  }
+
+  public boolean hasPlayer(Player commander) {
+    return listPlayersSent.contains(commander);
   }
 }

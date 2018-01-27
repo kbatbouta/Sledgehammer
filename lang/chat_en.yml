@@ -1,2 +1,11 @@
-will_write_soon: "true"
+channel_not_found: "Chat channel not found: \"{{channel}}\"."
+already_in_channel: "Already joined chat channel: \"{{channel}}\"."
+not_in_channel: "Not in chat channel: \"{{channel}}\"."
+
+command_joinchannel_success: "Joined chat channel: \"{{channel}}\"."
+command_leavechannel_success: "Left chat channel: \"{{channel}}\"."
+
+# Tool-Tips
+tooltip_command_joinchannel: "/joinchannel \"channel-name\""
+tooltip_command_leavechannel: "/leavechannel \"channel-name\""
 tooltip_command_espanol: "Toggles the spanish chat channel."
