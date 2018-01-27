@@ -739,7 +739,12 @@ public class SledgeHammer extends Printable {
    * @return Returns the native IsoPlayer Object of the Player.
    */
   public IsoPlayer getIsoPlayerDirty(String nameFragment) {
-    return SledgeHelper.getIsoPlayerDirty(nameFragment);
+    IsoPlayer returned = null;
+    Player player = getPlayerDirty(nameFragment);
+    if(player != null) {
+      returned = player.getIso();
+    }
+    return returned;
   }
 
   /**
