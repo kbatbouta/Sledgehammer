@@ -86,7 +86,7 @@ public class DiscordEventListener implements Listener {
           return;
         }
         String channel = chatChannel.getChannelName();
-        bot.say("console", false, "[" + channel + "] : " + compiled);
+        bot.say("local", false, "[" + channel + "] : " + compiled);
         return;
       } else {
         String channelName = DiscordBot.toAsciiString(chatChannel.getChannelName());
