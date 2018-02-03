@@ -90,10 +90,7 @@ public class DiscordEventListener implements Listener {
         return;
       } else {
         String channelName = DiscordBot.toAsciiString(chatChannel.getChannelName());
-        Channel channel = module.getBot().getChannel("channel_" + channelName);
-        if (channel == null) {
-          channel = module.getBot().getChannel(channelName);
-        }
+        Channel channel = module.getBot().getChannel(channelName);
         if (channel != null) {
           module.getBot().say(channelName, false, compiled);
           return;

@@ -36,7 +36,11 @@ import de.btobastian.javacord.Javacord;
 import de.btobastian.javacord.entities.Channel;
 import de.btobastian.javacord.entities.Server;
 import de.btobastian.javacord.entities.User;
+import de.btobastian.javacord.entities.impl.ImplChannel;
 import de.btobastian.javacord.entities.message.Message;
+import de.btobastian.javacord.entities.permissions.*;
+import de.btobastian.javacord.entities.permissions.impl.ImplPermissions;
+import de.btobastian.javacord.entities.permissions.impl.ImplPermissionsBuilder;
 import de.btobastian.javacord.listener.message.MessageCreateListener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
@@ -140,19 +144,27 @@ public class DiscordBot extends Printable
     Collection<ChatChannel> channels = module.getChatModule().getChatChannels();
     for (ChatChannel channel : channels) {
       String name = channel.getChannelName();
-      // TODO: Find a way to work around the JDK8 limitation with JavaCord 3.0 not being able to
+      println("Creating Discord channel: " + name);
       // support categories.
-      if (name.toLowerCase().contains("faction")) {
-        continue;
-      }
+      //      if (name.toLowerCase().contains("faction")) {
+      //        continue;
+      //      }
       // Only register public channels.
-      if (!channel.isPublicChannel()) {
-        continue;
-      }
-      String ascii = toAsciiString("channel_" + name);
-      Channel dChannel = getChannel(ascii);
+      //      if (!channel.isPublicChannel()) {
+      //        continue;
+      //      }
+      String ascii = toAsciiString(name);
+      ImplChannel dChannel = (ImplChannel) getChannel(ascii);
       if (dChannel == null) {
-        dChannel = createChannelIfNotExists(ascii);
+        dChannel = (ImplChannel) createChannelIfNotExists(ascii);
+        if (!channel.isPublicChannel()) {
+          Role role = server.getRoleById("everyone");
+
+          PermissionsBuilder builder = api.getPermissionsBuilder();
+          builder.setState(PermissionType.READ_MESSAGES, PermissionState.DENIED);
+          Permissions permissions = builder.build();
+          dChannel.updateOverwrittenPermissions(role, permissions);
+        }
       }
       listPublicChannels.add(dChannel);
     }
@@ -189,9 +201,9 @@ public class DiscordBot extends Printable
       if (api.getServers().isEmpty()) {
         return;
       }
-      this.server = api.getServers().iterator().next();
-      registerChannels();
     }
+    this.server = api.getServers().iterator().next();
+    registerChannels();
     if (ModuleDiscord.DEBUG) {
       println("Dispatcher started.");
     }

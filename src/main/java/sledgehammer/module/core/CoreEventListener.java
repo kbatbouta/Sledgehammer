@@ -33,6 +33,7 @@ import sledgehammer.event.core.player.pvp.PVPKillEvent;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
+import zombie.GameTime;
 import zombie.sledgehammer.npc.NPC;
 
 // Imports chat colors for short-hand.
@@ -85,8 +86,9 @@ public class CoreEventListener implements Listener {
       }
       mapPlayerTimeStamps.put(username.toLowerCase(), System.currentTimeMillis());
       String text = event.getLogMessage();
+      System.out.println("Death Text: " + text);
       module.sendGlobalMessage(ChatTags.COLOR_RED + " " + text);
-      SledgeHammer.instance.handleCommand("/thunder start", false);
+      GameTime.getInstance().thunderStart(true);
     }
   }
 

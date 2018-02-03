@@ -42,7 +42,7 @@ public class ChatCommandListener extends CommandListener {
     setModule(module);
   }
 
-  @CommandHandler(command = "joinchannel")
+  @CommandHandler(command = "joinchannel", permission = "core.chat.command.joinchannel")
   public void onCommandJoin(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -68,7 +68,7 @@ public class ChatCommandListener extends CommandListener {
     r.set(Result.SUCCESS, lang.getString("command_joinchannel_success", language, fieldChannel));
   }
 
-  @CommandHandler(command = "leavechannel")
+  @CommandHandler(command = "leavechannel", permission = "core.chat.command.leavechannel")
   public void onCommandLeave(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -93,23 +93,6 @@ public class ChatCommandListener extends CommandListener {
     chatChannel.removePlayer(commander, true);
     r.set(Result.SUCCESS, lang.getString("command_leavechannel_success", language, fieldChannel));
   }
-
-  /*
-  @CommandHandler(command = "espanol", permission = permissionNodeEspanol, defaultPermission = true)
-  public void onCommandEspanol(Command c, Response r) {
-    Player commander = c.getPlayer();
-    ChatChannel channel = module.getChatChannel("Espanol");
-    if (commander.hasPermission(true, permissionNodeEspanol)) {
-      commander.setPermission(permissionNodeEspanol, null);
-      channel.removePlayer(commander, true);
-      r.set(Result.SUCCESS, "You have been removed from the Espanol channel.");
-    } else {
-      commander.setPermission(permissionNodeEspanol, true);
-      channel.addPlayer(commander, true);
-      r.set(Result.SUCCESS, "You are now added to the Espanol channel.");
-    }
-  }
-  */
 
   public ModuleChat getModule() {
     return this.module;

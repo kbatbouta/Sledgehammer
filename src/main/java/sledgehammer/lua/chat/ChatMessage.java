@@ -28,6 +28,7 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoChatMessage;
 import sledgehammer.lua.MongoLuaObject;
 import sledgehammer.lua.core.Player;
+import zombie.Lua.LuaManager;
 
 /**
  * TODO: Document.
@@ -121,12 +122,12 @@ public class ChatMessage extends MongoLuaObject<MongoChatMessage> {
     setOriginalMessage(table.rawget("message_original").toString(), false);
     // Check to see if the printed timestamp is given. If not, the method
     // with a null String passed will generate one instead.
-    String timestampPrinted = null;
     Object oTimestampPrinted = table.rawget("timestamp_printed");
     if (oTimestampPrinted != null) {
-      timestampPrinted = oTimestampPrinted.toString();
+      setPrintedTimestamp(oTimestampPrinted.toString(), false);
+    } else {
+      setPrintedTimestamp(LuaManager.getHourMinuteJava(), false);
     }
-    setPrintedTimestamp(timestampPrinted, false);
     // Check to see if a timestamp is given. If not, create one.
     Object oTimestamp = table.rawget("timestamp");
     if (oTimestamp != null) {

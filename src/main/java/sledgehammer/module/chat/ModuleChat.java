@@ -336,32 +336,39 @@ public class ModuleChat extends MongoModule {
       String channelName = definition.getName();
       ChatChannel chatChannel = getChatChannel(channelName);
       if (chatChannel != null) {
-        continue;
-      }
-      MongoChatChannel mongoChatChannel = loadMongoChatChannel(channelName);
-      if (mongoChatChannel == null) {
-        mongoChatChannel =
-            new MongoChatChannel(
-                collectionChannels,
-                definition.getName(),
-                "No description.",
-                definition.getPermission(),
-                definition.isGlobal(),
-                definition.isPublic(),
-                true,
-                definition.saveHistory(),
-                definition.canSpeak());
-        mongoChatChannel.save();
+        chatChannel.setPermissionNode(definition.getPermission(), false);
+        chatChannel.setPublicChannel(definition.isPublic(), false);
+        chatChannel.setGlobalChannel(definition.isGlobal(), false);
+        chatChannel.setCustomChannel(true, false);
+        chatChannel.setSaveHistory(definition.saveHistory(), false);
+        chatChannel.setCanSpeak(definition.canSpeak(), false);
+        chatChannel.save();
       } else {
-        mongoChatChannel.setPermissionNode(definition.getPermission(), false);
-        mongoChatChannel.setPublicChannel(definition.isPublic(), false);
-        mongoChatChannel.setGlobalChannel(definition.isGlobal(), false);
-        mongoChatChannel.setCustomChannel(true, false);
-        mongoChatChannel.setSaveHistory(definition.saveHistory(), false);
-        mongoChatChannel.setCanSpeak(definition.canSpeak(), false);
-        mongoChatChannel.save();
+        MongoChatChannel mongoChatChannel = loadMongoChatChannel(channelName);
+        if (mongoChatChannel == null) {
+          mongoChatChannel =
+              new MongoChatChannel(
+                  collectionChannels,
+                  definition.getName(),
+                  "No description.",
+                  definition.getPermission(),
+                  definition.isGlobal(),
+                  definition.isPublic(),
+                  true,
+                  definition.saveHistory(),
+                  definition.canSpeak());
+          mongoChatChannel.save();
+        } else {
+          mongoChatChannel.setPermissionNode(definition.getPermission(), false);
+          mongoChatChannel.setPublicChannel(definition.isPublic(), false);
+          mongoChatChannel.setGlobalChannel(definition.isGlobal(), false);
+          mongoChatChannel.setCustomChannel(true, false);
+          mongoChatChannel.setSaveHistory(definition.saveHistory(), false);
+          mongoChatChannel.setCanSpeak(definition.canSpeak(), false);
+          mongoChatChannel.save();
+        }
+        chatChannel = new ChatChannel(mongoChatChannel);
       }
-      chatChannel = new ChatChannel(mongoChatChannel);
       mapChatChannels.put(chatChannel.getUniqueId(), chatChannel);
       listOrderedChatChannels.add(chatChannel);
       listOrderedDefinedChatChannels.add(chatChannel);
@@ -395,7 +402,7 @@ public class ModuleChat extends MongoModule {
   }
 
   /**
-   * @param channelId The Unique ID of the channel.
+   * @param channelId The unique ID of the channel.
    * @param limit The Integer limit of ChatMessages to load.
    * @return Returns a List of ChatMessages for the ChatChannel.
    */
@@ -562,8 +569,10 @@ public class ModuleChat extends MongoModule {
   }
 
   public ChatChannel getDefinedChatChannel(String channelName) {
+    println("given defined chatChannel name: " + channelName);
     ChatChannel returned = null;
     for (ChatChannel chatChannel : listOrderedDefinedChatChannels) {
+      println("\tNext defined chatChannel: " + chatChannel.getChannelName());
       if (chatChannel.getChannelName().equalsIgnoreCase(channelName.trim())) {
         returned = chatChannel;
         break;

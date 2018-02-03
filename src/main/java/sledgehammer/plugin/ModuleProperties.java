@@ -24,6 +24,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import sledgehammer.Settings;
+import sledgehammer.SledgeHammer;
 import sledgehammer.lua.LuaTable;
 
 /**
@@ -129,7 +131,7 @@ public class ModuleProperties extends LuaTable {
         listPermissionNodes.add((String) o);
       }
     }
-    if (DEBUG) {
+    if (Settings.getInstance().isDebug()) {
       System.out.println("Name: " + name);
       System.out.println("Version: " + version);
       System.out.println("Location: " + moduleLocation);

@@ -22,11 +22,18 @@ modules:
     version: "1.3_0"
     description: "Vanilla module for Sledgehammer."
     class: "sledgehammer.module.vanilla.ModuleVanilla"
+    default-permissions:
+    - "core.vanilla.command.rolldice"
+    - "core.vanilla.command.drawcard"
+    - "core.vanilla.command.changepwd"
   Chat:
     client-module-id: "core.chat"
     version: "2.0_0"
     description: "Chat module for Sledgehammer."
     class: "sledgehammer.module.chat.ModuleChat"
+    default-permissions:
+    - "core.chat.command.joinchannel"
+    - "core.chat.command.leavechannel"
   Discord:
     client-module-id: "core.discord"
     version: "2.0_0"
@@ -37,3 +44,20 @@ modules:
     version: "3.0_0"
     description: "Factions module for Sledgehammer."
     class: "sledgehammer.module.faction.ModuleFactions"
+    default-permissions:
+    # (Note: If you want to define permissions specifically, comment this line and uncomment the lines below it)
+    - "core.faction.command.faction"
+    # - "core.faction.command.faction.accept"
+    # - "core.faction.command.faction.create"
+    # - "core.faction.command.faction.disband"
+    # - "core.faction.command.faction.invite"
+    # - "core.faction.command.faction.join"
+    # - "core.faction.command.faction.kick"
+    # - "core.faction.command.faction.leave"
+    # - "core.faction.command.faction.reject"
+    # - "core.faction.command.faction.set"
+    # #- "core.faction.command.faction.set.color"
+    # #- "core.faction.command.faction.set.name"
+    # #- "core.faction.command.faction.set.owner"
+    # #- "core.faction.command.faction.set.password"
+    # #- "core.faction.command.faction.set.tag"

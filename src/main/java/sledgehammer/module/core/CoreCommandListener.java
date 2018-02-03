@@ -56,6 +56,8 @@ public class CoreCommandListener extends CommandListener {
   public CoreCommandListener(ModuleCore module) {
     super(module.getLanguagePackage());
     setModule(module);
+    module.addDefaultPermission("core.command.commitsuicide");
+    module.addDefaultPermission("core.command.colors");
     sendBroadcast = new SendBroadcast();
   }
 
@@ -80,15 +82,14 @@ public class CoreCommandListener extends CommandListener {
     r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
   }
 
-  @CommandHandler(command = "colors", permission = "core.command.colors", defaultPermission = true)
+  @CommandHandler(command = "colors", permission = "core.command.colors")
   private void onCommandColors(Command c, Response r) {
     r.set(Result.SUCCESS, ChatTags.listColors());
   }
 
   @CommandHandler(
     command = "commitsuicide",
-    permission = "core.command.commitsuicide",
-    defaultPermission = true
+    permission = "core.command.commitsuicide"
   )
   private void onCommandCommitSuicide(Command c, Response r) {
     Player commander = c.getPlayer();

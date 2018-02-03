@@ -94,16 +94,6 @@ public @interface CommandHandler {
   String[] permission() default "*";
 
   /**
-   * If this is set to true, the permission will be granted to the default permission group for
-   * players who aren't registered as permission users with a group or a specific definition. This
-   * means that the permission can be explicitly denied to players with defined permissions, while
-   * allowing quicker access to public commands.
-   *
-   * @return Returns true if the command's permission node is granted by default to players.
-   */
-  boolean defaultPermission() default false;
-
-  /**
    * The CommandHandler priority is a means of determining the importance of the CommandHandler when
    * compared to other handlers. If the number set is higher than another command handler, then the
    * command handler will run first. The highest number is the most important.

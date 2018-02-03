@@ -50,11 +50,7 @@ class FactionsCommandListener extends CommandListener {
     setModule(module);
   }
 
-  @CommandHandler(
-    command = "faction",
-    permission = "core.faction.command.faction.*",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction", permission = "core.faction.command.faction.*")
   private void onCommandFaction(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -62,11 +58,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(Result.SUCCESS, lang.getString("tooltip_command_faction", language));
   }
 
-  @CommandHandler(
-    command = "faction create",
-    permission = "core.faction.command.faction.create",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction create", permission = "core.faction.command.faction.create")
   private void onCommandFactionCreate(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -84,11 +76,7 @@ class FactionsCommandListener extends CommandListener {
     }
   }
 
-  @CommandHandler(
-    command = "faction disband",
-    permission = "core.faction.command.faction.disband",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction disband", permission = "core.faction.command.faction.disband")
   private void onCommandFactionDisband(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -101,11 +89,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandDisbandFaction(commander));
   }
 
-  @CommandHandler(
-    command = "faction join",
-    permission = "core.faction.command.faction.join",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction join", permission = "core.faction.command.faction.join")
   private void onCommandFactionJoin(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -120,11 +104,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandJoinFaction(commander, factionName, password));
   }
 
-  @CommandHandler(
-    command = "faction leave",
-    permission = "core.faction.command.faction.leave",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction leave", permission = "core.faction.command.faction.leave")
   private void onCommandFactionLeave(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -137,11 +117,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandLeaveFaction(commander));
   }
 
-  @CommandHandler(
-    command = "faction invite",
-    permission = "core.faction.command.faction.invite",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction invite", permission = "core.faction.command.faction.invite")
   private void onCommandFactionInvite(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -157,11 +133,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandInviteToFaction(commander, usernameInvited));
   }
 
-  @CommandHandler(
-    command = "faction accept",
-    permission = "core.faction.command.faction.accept",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction accept", permission = "core.faction.command.faction.accept")
   private void onCommandFactionAccept(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -175,11 +147,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandAcceptInvite(commander, factionName));
   }
 
-  @CommandHandler(
-    command = "faction reject",
-    permission = "core.faction.command.faction.reject",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction reject", permission = "core.faction.command.faction.reject")
   private void onCommandFactionReject(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -193,11 +161,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandRejectInvites(commander, factionName));
   }
 
-  @CommandHandler(
-    command = "faction kick",
-    permission = "core.faction.command.faction.kick",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction kick", permission = "core.faction.command.faction.kick")
   private void onCommandFactionKick(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -212,11 +176,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandKickFromFaction(commander, usernameKicked, reason));
   }
 
-  @CommandHandler(
-    command = "faction set",
-    permission = "core.faction.command.faction.set.*",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction set", permission = "core.faction.command.faction.set.*")
   private void onCommandFactionSet(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
@@ -226,8 +186,7 @@ class FactionsCommandListener extends CommandListener {
 
   @CommandHandler(
     command = "faction set color",
-    permission = "core.faction.command.faction.set.color",
-    defaultPermission = true
+    permission = "core.faction.command.faction.set.color"
   )
   private void onCommandFactionSetColor(Command c, Response r) {
     Player commander = c.getPlayer();
@@ -244,8 +203,7 @@ class FactionsCommandListener extends CommandListener {
 
   @CommandHandler(
     command = "faction set name",
-    permission = "core.faction.command.faction.set.name",
-    defaultPermission = true
+    permission = "core.faction.command.faction.set.name"
   )
   private void onCommandFactionSetName(Command c, Response r) {
     Player commander = c.getPlayer();
@@ -262,8 +220,7 @@ class FactionsCommandListener extends CommandListener {
 
   @CommandHandler(
     command = "faction set owner",
-    permission = "core.faction.command.faction.set.owner",
-    defaultPermission = true
+    permission = "core.faction.command.faction.set.owner"
   )
   private void onCommandFactionSetOwner(Command c, Response r) {
     Player commander = c.getPlayer();
@@ -275,8 +232,7 @@ class FactionsCommandListener extends CommandListener {
 
   @CommandHandler(
     command = "faction set password",
-    permission = "core.faction.command.faction.set.password",
-    defaultPermission = true
+    permission = "core.faction.command.faction.set.password"
   )
   private void onCommandFactionSetPassword(Command c, Response r) {
     Player commander = c.getPlayer();
@@ -294,11 +250,7 @@ class FactionsCommandListener extends CommandListener {
     r.set(module.commandSetFactionPassword(commander, password, passwordNew));
   }
 
-  @CommandHandler(
-    command = "faction set tag",
-    permission = "core.faction.command.faction.set.tag",
-    defaultPermission = true
-  )
+  @CommandHandler(command = "faction set tag", permission = "core.faction.command.faction.set.tag")
   private void onCommandFactionSetTag(Command c, Response r) {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();

@@ -340,7 +340,7 @@ function ChatWindow:handleMessage(message)
 		message_original   = message,
 		timestamp          = nil,
 		timestamp_modified = nil,
-		timestamp_printed  = getHourMinute(),
+		timestamp_printed  = nil,
 		message_type       = 1,
 		edited             = false,
 		deleted            = false,

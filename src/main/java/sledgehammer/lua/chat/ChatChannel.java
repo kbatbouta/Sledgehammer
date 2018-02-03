@@ -297,4 +297,8 @@ public class ChatChannel extends MongoLuaObject<MongoChatChannel> {
   public boolean hasPlayer(Player commander) {
     return listPlayersSent.contains(commander);
   }
+
+  public void save() {
+    getMongoDocument().save();
+  }
 }

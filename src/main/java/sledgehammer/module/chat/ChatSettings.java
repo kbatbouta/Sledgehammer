@@ -96,8 +96,8 @@ public class ChatSettings {
     isGlobal = isGlobal != null ? isGlobal : false;
     Boolean saveHistory = (Boolean) mapChannel.get("history");
     saveHistory = saveHistory != null ? saveHistory : false;
-    Boolean canSpeak = (Boolean) mapChannel.get("can_speak");
-    canSpeak = canSpeak != null ? canSpeak : false;
+    Boolean canSpeak = (Boolean) mapChannel.get("speak");
+    canSpeak = canSpeak != null ? canSpeak : true;
     return new ChannelDefinition(
         channelName, permission, isPublic, isGlobal, saveHistory, canSpeak);
   }
