@@ -47,7 +47,6 @@ import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ClassUtil;
-import sledgehammer.util.Command;
 import sledgehammer.util.Response;
 
 import java.lang.reflect.Method;

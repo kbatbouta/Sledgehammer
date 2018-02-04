@@ -27,7 +27,7 @@ import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.npc.behavior.BehaviorSurvive;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.util.Response;
 import sledgehammer.util.ZUtil;
 import zombie.characters.IsoPlayer;

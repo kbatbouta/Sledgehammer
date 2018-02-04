@@ -36,7 +36,7 @@ import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ChatTags;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.util.Response;
 import sledgehammer.util.TickTask;
 

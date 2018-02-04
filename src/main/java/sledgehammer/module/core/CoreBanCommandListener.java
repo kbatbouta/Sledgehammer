@@ -29,7 +29,7 @@ import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatMessage;
 import sledgehammer.lua.core.Player;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.util.Response;
 import zombie.core.raknet.UdpConnection;
 import zombie.core.znet.SteamUtils;

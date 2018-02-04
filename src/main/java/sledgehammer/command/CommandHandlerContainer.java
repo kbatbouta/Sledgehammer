@@ -45,7 +45,7 @@ import sledgehammer.annotations.CommandHandler;
 import sledgehammer.event.Event;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.util.ClassUtil;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.util.Response;
 
 import java.lang.invoke.MethodHandle;

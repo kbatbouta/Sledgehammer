@@ -32,7 +32,7 @@ import sledgehammer.command.CommandHandlerContainer;
 import sledgehammer.interfaces.Cancellable;
 import sledgehammer.lua.core.Player;
 import sledgehammer.util.ClassUtil;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.util.Response;
 import zombie.core.raknet.UdpConnection;

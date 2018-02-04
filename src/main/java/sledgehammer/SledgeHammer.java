@@ -47,7 +47,7 @@ import sledgehammer.module.faction.ModuleFactions;
 import sledgehammer.module.permissions.ModulePermissions;
 import sledgehammer.module.vanilla.ModuleVanilla;
 import sledgehammer.plugin.Module;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.util.Printable;
 import zombie.GameWindow;
 import zombie.characters.IsoPlayer;

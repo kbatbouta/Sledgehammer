@@ -49,7 +49,7 @@ import sledgehammer.lua.core.send.SendLua;
 import sledgehammer.lua.core.send.SendPlayer;
 import sledgehammer.module.chat.ModuleChat;
 import sledgehammer.plugin.Module;
-import sledgehammer.util.Command;
+import sledgehammer.command.Command;
 import sledgehammer.util.TickTask;
 import zombie.network.ServerWorldDatabase;
 
