@@ -570,8 +570,11 @@ ChatWindow.onChatKeyPressed = function(key)
 	-- This handles the ChatWindow setting itself visible.
 	if key == 20 then -- 'T'
 		if not chat.input.javaObject:isFocused() then
+			if chat:getActiveChatPanel()._name == "Global" then
+				chat.selectionBox:setOption("Local");
+			end
 			chat:setVisible(true);
-		end
+			end
         chat.input:focus();
     end
 	-- This handles the ChatWindow setting itself visible, and switching
@@ -580,6 +583,9 @@ ChatWindow.onChatKeyPressed = function(key)
 		if not chat.input.javaObject:isFocused() then
 			chat:setVisible(true);
 			chat.tab_panel:setActiveTab("Global");
+			if chat:getActiveChatPanel()._name == "Global" then
+				chat.selectionBox:setOption("Global");
+			end
 		end
 	end
 	-- If the CTRL key and a NUMBER key is pressed, this is a short-cut

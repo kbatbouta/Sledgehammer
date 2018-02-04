@@ -262,6 +262,7 @@ function SelectionBox:setOption(option)
     -- TODO: Integrity check.
     self.option = option;
   end
+  self.alpha_factor = 1;
 end
 
 
