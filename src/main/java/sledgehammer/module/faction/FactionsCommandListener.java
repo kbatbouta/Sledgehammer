@@ -65,7 +65,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length == 3) {
       // @formatter:off
       String name = args[0];
@@ -83,7 +83,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length != 0) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_disband", language));
       return;
@@ -96,7 +96,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length != 2) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_join", language));
       return;
@@ -111,7 +111,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length != 0) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_leave", language));
       return;
@@ -124,7 +124,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length != 1) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_invite", language));
       return;
@@ -140,7 +140,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length != 1) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_accept", language));
       return;
@@ -154,7 +154,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length != 1) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_reject", language));
       return;
@@ -168,7 +168,7 @@ class FactionsCommandListener extends CommandListener {
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
-    String[] args = c.getArguments();
+    String[] args = Command.getSubArgs(c.getArguments(), 1);
     if (args.length == 0) {
       r.set(Result.FAILURE, lang.getString("tooltip_command_faction_kick", language));
       return;

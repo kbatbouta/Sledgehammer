@@ -188,10 +188,11 @@ public class EventManager extends Manager {
       StringBuilder stringBuilder = new StringBuilder();
       int subIndex = 0;
       do {
-        stringBuilder.append(split[subIndex++]);
+        stringBuilder.append(" ").append(split[subIndex++]);
       } while (subIndex <= index);
-      String commandSearch = stringBuilder.toString().replace("\"", "");
+      String commandSearch = stringBuilder.toString().trim().replace("\"", "");
       LinkedList<CommandHandlerContainer> listContainers = mapCommandHandlers.get(commandSearch);
+      boolean found = false;
       if (listContainers != null) {
         // Copy the array to prevent ConcurrentModificationExceptions.
         listContainers = new LinkedList<>(listContainers);
@@ -199,6 +200,7 @@ public class EventManager extends Manager {
           if (!container.isEnabled()) {
             continue;
           }
+          found = true;
           String[] permissionNodes = container.getPermissionNodes();
           // If the commanding player has permission to the handler, invoke it.
           if (commander.hasPermission(permissionNodes)) {
@@ -221,6 +223,9 @@ public class EventManager extends Manager {
           if (deniedOnce && !handledOnce) {
             response.deny();
           }
+        }
+        if(found) {
+          break;
         }
       }
     }
