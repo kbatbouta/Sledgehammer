@@ -166,6 +166,9 @@ function ChatWindow:createSelectionBox()
 	selectionBox:setAnchorTop(false);
 	selectionBox:setAnchorBottom(true);
 	selectionBox:setOption("Global");
+	selectionBox.onSelection = function(option)
+		ChatWindow.instance.input:focus();
+	end
 	return selectionBox;
 end
 

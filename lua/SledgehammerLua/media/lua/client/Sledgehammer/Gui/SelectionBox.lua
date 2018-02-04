@@ -263,7 +263,10 @@ function SelectionBox:setOption(option)
     self.option = option;
   end
   self.alpha_factor = 1;
+  self:onSelection(option);
 end
+
+function SelectionBox:onSelection(option) end
 
 
 ----------------------------------------------------------------
