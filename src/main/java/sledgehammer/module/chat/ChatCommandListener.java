@@ -22,7 +22,7 @@ package sledgehammer.module.chat;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.event.core.command.CommandListener;
+import sledgehammer.command.CommandListener;
 import sledgehammer.language.EntryField;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;

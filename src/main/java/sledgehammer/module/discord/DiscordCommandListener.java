@@ -22,8 +22,7 @@ package sledgehammer.module.discord;
 
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.Result;
-import sledgehammer.event.core.command.CommandListener;
-import sledgehammer.interfaces.Listener;
+import sledgehammer.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.core.Player;

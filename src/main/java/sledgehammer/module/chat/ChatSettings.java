@@ -21,7 +21,7 @@
 package sledgehammer.module.chat;
 
 import sledgehammer.Settings;
-import sledgehammer.event.core.ThrowableEvent;
+import sledgehammer.event.ThrowableEvent;
 import sledgehammer.util.YamlUtil;
 
 import java.io.File;

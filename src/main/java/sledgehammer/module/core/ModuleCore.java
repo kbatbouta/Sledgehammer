@@ -36,7 +36,7 @@ import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoPeriodicMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.player.ClientEvent;
-import sledgehammer.event.core.command.CommandEvent;
+import sledgehammer.command.CommandEvent;
 import sledgehammer.event.player.HandShakeEvent;
 import sledgehammer.event.player.PlayerJoinEvent;
 import sledgehammer.language.LanguagePackage;

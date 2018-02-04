@@ -24,7 +24,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.enums.LogType;
 import sledgehammer.enums.Result;
-import sledgehammer.event.core.command.CommandListener;
+import sledgehammer.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatMessage;

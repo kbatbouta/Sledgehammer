@@ -21,7 +21,7 @@
 package sledgehammer.util;
 
 import sledgehammer.SledgeHammer;
-import sledgehammer.event.core.ThrowableEvent;
+import sledgehammer.event.ThrowableEvent;
 
 /**
  * TODO: Document
