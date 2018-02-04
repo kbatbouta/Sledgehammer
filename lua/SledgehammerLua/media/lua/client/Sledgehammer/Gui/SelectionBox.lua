@@ -124,15 +124,6 @@ function SelectionBox:prerender()
   end
 end
 
---function SelectionBox:render()
---  if self.open then
---    self:renderBase();
---    self:renderOpen();
---  else
---    Component.render(self);
---  end
---end
-
 ----------------------------------------------------------------
 --
 ----------------------------------------------------------------
@@ -267,7 +258,6 @@ function SelectionBox:setOption(option)
 end
 
 function SelectionBox:onSelection(option) end
-
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------

@@ -72,28 +72,6 @@ function Component:getLocalMouse()
   return { x = m.x - ax, y = m.y - ay };
 end
 
---function Component:getAbsoluteX()
---  local x = 0;
---  local p = self:getParent();
---  if p ~= nil then
---    x = p:getAbsoluteX() + ISPanel.getAbsoluteX(self);
---  else
---    x = ISPanel.getAbsoluteX(self);
---  end
---  return x;
---end
---
---function Component:getAbsoluteY()
---  local y = 0;
---  local p = self:getParent();
---  if p ~= nil then
---    y = p:getAbsoluteY() + ISPanel.getAbsoluteY(self);
---  else
---    y = ISPanel.getAbsoluteY(self);
---  end
---  return y;
---end
-
 function Component:containsPoint(x, y, dimension)
   if dimension == nil then
     return ISUIElement.containsPoint(self, x, y);
