@@ -31,7 +31,7 @@ import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.database.module.core.SledgehammerDatabase;
 import sledgehammer.event.core.command.CommandEvent;
 import sledgehammer.event.Event;
-import sledgehammer.event.core.player.PlayerCreatedEvent;
+import sledgehammer.event.player.PlayerCreatedEvent;
 import sledgehammer.interfaces.*;
 import sledgehammer.lua.LuaObject;
 import sledgehammer.lua.LuaTable;

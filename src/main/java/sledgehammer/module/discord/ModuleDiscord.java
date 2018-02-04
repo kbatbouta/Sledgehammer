@@ -23,7 +23,7 @@ package sledgehammer.module.discord;
 import java.io.File;
 
 import de.btobastian.javacord.entities.Channel;
-import sledgehammer.event.core.player.ClientEvent;
+import sledgehammer.event.player.ClientEvent;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.chat.ChatMessage;

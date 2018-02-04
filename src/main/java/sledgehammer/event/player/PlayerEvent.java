@@ -38,24 +38,67 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event.core.player;
+/*
+ * This file is part of Sledgehammer.
+ *
+ *    Sledgehammer is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Lesser General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    Sledgehammer is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public License
+ *    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    Sledgehammer is free to use and modify, ONLY for non-official third-party servers
+ *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
+ */
 
+package sledgehammer.event.player;
+
+import sledgehammer.event.Event;
 import sledgehammer.lua.core.Player;
 
 /**
- * PlayerEvent to handle dispatching the SledgehammerLua handshake with the Sledgehammer engine and
- * the registered Modules listening for the HandshakeEvent.
+ * Abstract Event that associates a Player with Player-oriented Events in the Sledgehammer engine.
  *
  * @author Jab
  */
-public class HandShakeEvent extends PlayerEvent {
+public abstract class PlayerEvent extends Event {
+
+  /** The Player associated with the PlayerEvent. */
+  private Player player;
 
   /**
    * Main constructor.
    *
-   * @param player The Player hand-shaking with the server.
+   * @param player The Player associated with the PlayerEvent.
    */
-  public HandShakeEvent(Player player) {
-    super(player);
+  public PlayerEvent(Player player) {
+    super();
+    if (player == null) {
+      throw new IllegalArgumentException("Player is null!");
+    }
+    setPlayer(player);
+  }
+
+  /** @return Returns the Player associated with the PlayerEvent. */
+  public Player getPlayer() {
+    return this.player;
+  }
+
+  /**
+   * (Private Method)
+   *
+   * <p>Sets the Player associated with the PlayerEvent.
+   *
+   * @param player The Player to set.
+   */
+  private void setPlayer(Player player) {
+    this.player = player;
   }
 }

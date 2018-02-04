@@ -35,10 +35,10 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.database.MongoCollection;
 import sledgehammer.database.module.chat.MongoPeriodicMessage;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.event.core.player.ClientEvent;
+import sledgehammer.event.player.ClientEvent;
 import sledgehammer.event.core.command.CommandEvent;
-import sledgehammer.event.core.player.HandShakeEvent;
-import sledgehammer.event.core.player.PlayerJoinEvent;
+import sledgehammer.event.player.HandShakeEvent;
+import sledgehammer.event.player.PlayerJoinEvent;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.LuaObject;
 import sledgehammer.lua.chat.ChatChannel;
@@ -101,7 +101,6 @@ public class ModuleCore extends Module {
   @Override
   public void onUpdate(long delta) {
     int delayPeriodicMessages = 60000;
-    eventListener.getPlayerTimeStamps().clear();
     // Grab the current time.
     long timeNow = System.currentTimeMillis();
     // If it has been a minute since the last check.
@@ -220,7 +219,7 @@ public class ModuleCore extends Module {
       }
       String raw = oRaw.toString();
       Object oChannelId = command_table.rawget("channel_id");
-      UUID channelId = null;
+      UUID channelId;
       if (oChannelId != null) {
         try {
           channelId = UUID.fromString(oChannelId.toString());

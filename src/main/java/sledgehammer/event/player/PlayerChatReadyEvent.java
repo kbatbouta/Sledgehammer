@@ -38,23 +38,18 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event.core.player;
+package sledgehammer.event.player;
 
 import sledgehammer.lua.core.Player;
 
-/**
- * PlayerEvent sent when a Player is created.
- *
- * @author Jab
- */
-public class PlayerCreatedEvent extends PlayerEvent {
+public class PlayerChatReadyEvent extends PlayerEvent {
 
   /**
    * Main constructor.
    *
-   * @param player The Player created.
+   * @param player The Player associated with the PlayerEvent.
    */
-  public PlayerCreatedEvent(Player player) {
+  public PlayerChatReadyEvent(Player player) {
     super(player);
   }
 }

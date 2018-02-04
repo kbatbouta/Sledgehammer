@@ -38,51 +38,67 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event.core.player;
+/*
+ * This file is part of Sledgehammer.
+ *
+ *    Sledgehammer is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Lesser General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    Sledgehammer is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public License
+ *    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    Sledgehammer is free to use and modify, ONLY for non-official third-party servers
+ *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
+ */
 
-import sledgehammer.event.Event;
+package sledgehammer.event.player;
+
+import sledgehammer.interfaces.Cancellable;
+import sledgehammer.lua.core.Player;
 
 /**
- * Event that is passed when a Player attempts to connect to the PZ server.
+ * PlayerEvent to pass when a Player dies.
  *
  * @author Jab
  */
-public class PreConnectEvent extends Event {
+public class DeathEvent extends PlayerEvent implements Cancellable {
 
-  /** The String user-name of the Player attempting to connect to the PZ server. */
-  private String username;
+  /** Flag for cancelling the event. */
+  private boolean cancelled;
 
   /**
    * Main constructor.
    *
-   * @param username The String user-name of the Player that is attempting to connect to the PZ
-   *     server.
+   * @param player The Player that died.
    */
-  public PreConnectEvent(String username) {
-    setUsername(username);
+  public DeathEvent(Player player) {
+    super(player);
   }
 
   @Override
   public String getLogMessage() {
-    return "User attempting to log in with username: \"" + username + "\".";
+    return getPlayer().getUsername() + " has died.";
   }
 
-  /**
-   * @return Returns the String user-name of the Player that is attempting to connect to the PZ
-   *     server.
-   */
-  public String getUsername() {
-    return username;
+  @Override
+  public void setCancelled(boolean flag) {
+    this.cancelled = true;
   }
 
-  /**
-   * (Private Method)
-   *
-   * <p>Sets the String user-name of the Player that is attempting to connect to the PZ server.
-   *
-   * @param username The String user-name to set.
-   */
-  private void setUsername(String username) {
-    this.username = username;
+  @Override
+  public boolean isCancelled() {
+    return this.cancelled;
+  }
+
+  @Override
+  public boolean shouldAnnounce() {
+    return true;
   }
 }

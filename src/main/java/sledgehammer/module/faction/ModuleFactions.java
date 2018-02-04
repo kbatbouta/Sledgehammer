@@ -38,7 +38,7 @@ import sledgehammer.database.module.faction.MongoFactionInvite;
 import sledgehammer.database.module.faction.MongoFactionMember;
 import sledgehammer.enums.LogType;
 import sledgehammer.enums.Result;
-import sledgehammer.event.core.player.ClientEvent;
+import sledgehammer.event.player.ClientEvent;
 import sledgehammer.language.EntryField;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;

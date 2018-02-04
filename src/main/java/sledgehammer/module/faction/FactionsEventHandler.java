@@ -26,7 +26,7 @@ import java.util.List;
 import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.EventHandler;
 import sledgehammer.event.chat.RequestChannelsEvent;
-import sledgehammer.event.core.player.*;
+import sledgehammer.event.player.*;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Color;

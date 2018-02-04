@@ -38,14 +38,23 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.event.core.player;
+package sledgehammer.event.player;
 
-import sledgehammer.event.Event;
+import sledgehammer.lua.core.Player;
 
-/**
- * Abstract Event to identify the subset of Co-Op related Events fired in the PZ server and sent to
- * the Sledgehammer engine.
- *
- * @author Jab
- */
-public abstract class CoOpEvent extends Event {}
+public class PlayerQuitEvent extends PlayerEvent {
+
+  /**
+   * Main constructor.
+   *
+   * @param player The Player associated with the PlayerEvent.
+   */
+  public PlayerQuitEvent(Player player) {
+    super(player);
+  }
+
+  @Override
+  public String getLogMessage() {
+    return "The player " + getPlayer().getName() + " quit the server.";
+  }
+}

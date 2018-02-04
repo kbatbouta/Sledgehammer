@@ -21,7 +21,7 @@
 package sledgehammer.module.npc;
 
 import sledgehammer.annotations.EventHandler;
-import sledgehammer.event.core.player.ConnectEvent;
+import sledgehammer.event.player.ConnectEvent;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.core.Player;
 import zombie.core.raknet.UdpConnection;

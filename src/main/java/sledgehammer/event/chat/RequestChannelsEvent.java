@@ -23,7 +23,7 @@ package sledgehammer.event.chat;
 import java.util.ArrayList;
 import java.util.List;
 
-import sledgehammer.event.core.player.PlayerEvent;
+import sledgehammer.event.player.PlayerEvent;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
 

@@ -23,7 +23,7 @@ package sledgehammer.module.chat;
 import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.EventHandler;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.event.core.player.DisconnectEvent;
+import sledgehammer.event.player.DisconnectEvent;
 import sledgehammer.interfaces.Listener;
 import sledgehammer.lua.chat.ChatChannel;
 import sledgehammer.lua.core.Player;
