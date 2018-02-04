@@ -25,7 +25,7 @@ import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.CommandHandler;
 import sledgehammer.annotations.EventHandler;
 import sledgehammer.event.*;
-import sledgehammer.command.CommandEvent;
+import sledgehammer.event.CommandEvent;
 import sledgehammer.event.ThrowableEvent;
 import sledgehammer.command.CommandHandlerComparator;
 import sledgehammer.command.CommandHandlerContainer;

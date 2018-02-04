@@ -29,7 +29,7 @@ import java.util.UUID;
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.database.module.core.MongoPlayer;
 import sledgehammer.database.module.core.SledgehammerDatabase;
-import sledgehammer.command.CommandEvent;
+import sledgehammer.event.CommandEvent;
 import sledgehammer.event.Event;
 import sledgehammer.event.player.PlayerCreatedEvent;
 import sledgehammer.interfaces.*;

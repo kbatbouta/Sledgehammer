@@ -28,7 +28,7 @@ import sledgehammer.event.LogEvent;
 import sledgehammer.event.chat.ChatEvent;
 import sledgehammer.event.chat.ChatMessageEvent;
 import sledgehammer.event.ThrowableEvent;
-import sledgehammer.command.CommandEvent;
+import sledgehammer.event.CommandEvent;
 import sledgehammer.event.player.CheaterEvent;
 import sledgehammer.event.player.pvp.PVPAttackEvent;
 import sledgehammer.interfaces.Listener;
