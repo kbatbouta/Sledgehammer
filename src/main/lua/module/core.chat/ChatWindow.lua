@@ -65,6 +65,7 @@ function ChatWindow:new(module_chat)
 	o.discord_fade        = 1                     ;
 	o.discord             = true                  ;
 	o.resizable           = true                  ;
+	o.selectionWidth      = 60                    ;
 	-- Set singleton instance.
 	ChatWindow.instance = o;
 	-- Return the result instance.
@@ -98,13 +99,15 @@ function ChatWindow:createChildren()
 	-- Invoke super method (psuedo-static method).
 	Window.createChildren(self);
 	-- Create the LuaObjects.
-	self.tab_panel = self:createTabPanel();
-	self.input     = self:createTextEntryBox();
-	self.top_bar   = self:createTopBar();
+	self.tab_panel    = self:createTabPanel();
+	self.selectionBox = self:createSelectionBox();
+	self.input        = self:createTextEntryBox();
+	self.top_bar      = self:createTopBar();
 	-- Add them to the children list of the ChatWindow.
-	self:addChild(self.tab_panel);
-	self:addChild(self.input    );
-	self:addChild(self.top_bar  );
+	self:addChild(self.tab_panel   );
+	self:addChild(self.input       );
+	self:addChild(self.top_bar     );
+	self:addChild(self.selectionBox);
 	-- Set the ChatWindow visible.
 	self.top_bar:setVisible(true);
 end
@@ -119,7 +122,19 @@ function ChatWindow:createTabPanel()
 	-- Set method to focus on the text input.
 	tab_panel.onTabFocus = function(panel)
 		if ChatWindow.instance ~= nil and ChatWindow.instance.input ~= nil then
-			ChatWindow.instance.input:focus();
+			local i = ChatWindow.instance;
+			local selectionBox = i.selectionBox;
+			local input = i.input;
+			if i:getActiveChatPanel()._name == "Global" then
+				selectionBox:setVisible(true);
+				input:setX(5 + i.selectionWidth);
+				input:setWidth(i:getWidth() - 8 - i.selectionWidth);
+			else
+				selectionBox:setVisible(false);
+				input:setX(4);
+				input:setWidth(i:getWidth() - 7);
+			end
+			input:focus();
 		end
 	end
 	return tab_panel;
@@ -129,7 +144,8 @@ end
 -- Creates the ISTextEntryBox used to enter text in the ChatWindow.
 ----------------------------------------------------------------
 function ChatWindow:createTextEntryBox()
-	local input = ISTextEntryBox:new("", 4, self:getHeight() - 21, self:getWidth() - 7, 18);
+	local input = ISTextEntryBox:new("", 5 + self.selectionWidth, self:getHeight() - 21,
+					self:getWidth() - 8 - self.selectionWidth, 18);
 	input:initialise();
 	input:instantiate();
 	input:setAnchorTop(false);
@@ -141,6 +157,16 @@ function ChatWindow:createTextEntryBox()
 	input.backgroundColor.a = 0                      ;
 	-- Return the result value.
 	return input;
+end
+
+function ChatWindow:createSelectionBox()
+	local selectionBox = SelectionBox:new(4, self:getHeight() - 21, self.selectionWidth);
+	selectionBox:initialise();
+	selectionBox:instantiate();
+	selectionBox:setAnchorTop(false);
+	selectionBox:setAnchorBottom(true);
+	selectionBox:setOption("Global");
+	return selectionBox;
 end
 
 ----------------------------------------------------------------
@@ -161,7 +187,7 @@ end
 ----------------------------------------------------------------
 function ChatWindow:update()
 	self:updateAlphaFactor();
-	self.input:bringToTop();
+	--self.input:bringToTop();
 end
 
 ----------------------------------------------------------------
@@ -187,7 +213,7 @@ end
 
 ----------------------------------------------------------------
 -- Updates the Alpha-factor so the ChatWindow becomes more visible
---   when the Player is interfacing the window.
+--   when the Player is interfacing it.
 ----------------------------------------------------------------
 function ChatWindow:updateAlphaFactor()
 	if self:isMouseOver() then
@@ -260,6 +286,9 @@ function ChatWindow:onFocus(x, y)
 		end
 	end
 	self.tab_panel:click();
+	if self.selectionBox == open then
+		SelectionBox.onMouseDown(x, y);
+	end
 end
 
 ----------------------------------------------------------------
@@ -305,10 +334,18 @@ function ChatWindow:handleMessage(message)
 		print("WARNING: No active ChatChannel set! (Message: \""..message.."\")");
 		return;
 	end
+	if panel._name == "Global" then
+		panel = self.tab_panel:getTab(self.selectionBox.option);
+	end
+	if panel == nil then
+		print("WARNING: No active ChatChannel set! (Message: \""..message.."\")");
+		return;
+	end
 	-- Grab the Player LuaObject.
 	local player = SledgeHammer.instance.self;
 	-- Grab the ChatChannel controling the ChatPanel.
 	local chat_channel = panel.chat_channel;
+
 	-- Flag for whether or not to send the ChatMessage LuaObject 
 	--   to the server.
 	local send = true;
@@ -399,6 +436,8 @@ function ChatWindow:createChatTab(chat_channel)
     pane.public             = false       ;
     pane.speak              = true        ;
     pane:ignoreHeightChange();
+
+	self.selectionBox:addOption(name);
     -- Return the result TextPane.
    	return pane;
 end
@@ -411,6 +450,7 @@ function ChatWindow:removeChatTab(chat_channel)
 	local name = chat_channel.name;
 	self.tab_panel:removeTab(name);
 	self.tab_panel:setActiveTab(0);
+	self.selectionBox:removeOption(name);
 end
 
 ----------------------------------------------------------------

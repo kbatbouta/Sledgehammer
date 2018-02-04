@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.lwjgl.input.Mouse;
 import sledgehammer.lua.core.Player;
 
 /**

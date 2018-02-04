@@ -52,6 +52,7 @@ class FactionsCommandListener extends CommandListener {
 
   @CommandHandler(command = "faction", permission = "core.faction.command.faction.*")
   private void onCommandFaction(Command c, Response r) {
+    System.out.println("faction");
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
@@ -60,6 +61,7 @@ class FactionsCommandListener extends CommandListener {
 
   @CommandHandler(command = "faction create", permission = "core.faction.command.faction.create")
   private void onCommandFactionCreate(Command c, Response r) {
+    System.out.println("faction create");
     Player commander = c.getPlayer();
     LanguagePackage lang = getLanguagePackage();
     Language language = commander.getLanguage();
