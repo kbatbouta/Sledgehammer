@@ -37,9 +37,11 @@ public class SendBroadcast extends Send {
   /** The Broadcast LuaObject being packaged. */
   private Broadcast broadcast;
 
+  private SendBroadcast sendBroadcast;
+
   /** Main constructor. */
   public SendBroadcast() {
-    super("core", "sendBroadcast");
+    super("core.chat", "sendBroadcast");
   }
 
   @Override
