@@ -53,7 +53,7 @@ end
 --
 ----------------------------------------------------------------
 function Module:writeFile(args)
-	local packet = args.packet;
+--[[	local packet = args.packet;
 	local execute = false;
 	if packet == 0 then
 		self._explodedFile          = args.explodedFile;
@@ -69,7 +69,7 @@ function Module:writeFile(args)
 	if execute then
 		writeFile(self._explodedFile);
 		self._explodedFile = nil;
-	end
+	end]]
 end
 
 ----------------------------------------------------------------

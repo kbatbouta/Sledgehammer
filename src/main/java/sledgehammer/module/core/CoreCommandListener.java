@@ -29,16 +29,15 @@ import sledgehammer.enums.Result;
 import sledgehammer.command.CommandListener;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
-import sledgehammer.lua.core.Broadcast;
 import sledgehammer.lua.core.Player;
-import sledgehammer.lua.core.send.SendBroadcast;
 import sledgehammer.util.ChatTags;
 import sledgehammer.command.Command;
 import sledgehammer.util.Response;
 import zombie.characters.IsoPlayer;
+import zombie.ui.UIFont;
 
 // Imports chat colors for short-hand.
-import static sledgehammer.util.ChatTags.*;
+
 
 /**
  * TODO: Document.
@@ -51,40 +50,31 @@ public class CoreCommandListener extends CommandListener {
   public static final Command commandProperties = new Command("properties");
 
   private ModuleCore module;
-  private SendBroadcast sendBroadcast;
 
   public CoreCommandListener(ModuleCore module) {
     super(module.getLanguagePackage());
     setModule(module);
     module.addDefaultPermission("core.command.commitsuicide");
     module.addDefaultPermission("core.command.colors");
-    sendBroadcast = new SendBroadcast();
-  }
-
-  @CommandHandler(command = "broadcast", permission = "core.command.broadcast")
-  private void onCommandBroadcast(Command c, Response r) {
-    Player commander = c.getPlayer();
-    LanguagePackage lang = getLanguagePackage();
-    Language language = commander.getLanguage();
-    String[] args = c.getArguments();
-    if (args.length <= 1) {
-      r.set(Result.FAILURE, lang.getString("tooltip_command_broadcast", language));
-      return;
-    }
-    String color = ChatTags.getColor(args[0]);
-    if (color == null) {
-      color = COLOR_LIGHT_RED;
-    }
-    Broadcast broadcast = new Broadcast(color + args[1]);
-    sendBroadcast.setBroadcast(broadcast);
-    SledgeHammer.instance.send(sendBroadcast);
-    r.set(Result.SUCCESS, "Broadcast sent.");
-    r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
+    module.addDefaultPermission("core.command.fonts");
   }
 
   @CommandHandler(command = "colors", permission = "core.command.colors")
   private void onCommandColors(Command c, Response r) {
     r.set(Result.SUCCESS, ChatTags.listColors());
+  }
+
+  @CommandHandler(command = "fonts", permission = "core.command.fonts")
+  private void onCommandFonts(Command c, Response r) {
+    StringBuilder stringBuilder = new StringBuilder();
+    for(UIFont font: UIFont.values()) {
+      if(stringBuilder.length() == 0) {
+        stringBuilder.append("Fonts: ").append(font.name());
+      } else {
+        stringBuilder.append(", ").append(font.name());
+      }
+    }
+    r.set(Result.SUCCESS, stringBuilder.toString());
   }
 
   @CommandHandler(

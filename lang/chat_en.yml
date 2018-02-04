@@ -5,7 +5,18 @@ not_in_channel: "Not in chat channel: \"{{channel}}\"."
 command_joinchannel_success: "Joined chat channel: \"{{channel}}\"."
 command_leavechannel_success: "Left chat channel: \"{{channel}}\"."
 
+# Broadcast message sent to the commander.
+command_broadcast_success: "Broadcast sent."
+# Log message for broadcast.
+#
+# {{commander}} -> The commanding Player.
+# {{message}} -> The message broadcasted.
+command_broadcast_success_log: "{{commander}} broadcasted message: \"{{message}}\""
+
 # Tool-Tips
 tooltip_command_joinchannel: "/joinchannel \"channel-name\""
 tooltip_command_leavechannel: "/leavechannel \"channel-name\""
 tooltip_command_espanol: "Toggles the spanish chat channel."
+tooltip_command_broadcast:
+- "Broadcasts a message to the server. ex: /broadcast \"font\" \"color\" \"message\""
+- "To see fonts, type \"/fonts\". To see colors, type \"colors\"."

@@ -108,6 +108,9 @@ function Module_Chat:command(command, args)
         if chat_channel ~= nil then
             chat_channel:rename(args.name_new);
         end
+    elseif command == "sendBroadcast" then
+        rPrint(args.broadcast);
+        ChatWindow.instance:setBroadcast(args.broadcast);
     end
 end
 

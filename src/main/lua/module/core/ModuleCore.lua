@@ -22,6 +22,7 @@ Module_Core = class(Module, function(o)
 	Module.init(o, "core", "Core");
 	-- Debug flag.
 	o.DEBUG = true;
+	o.broadcastCurrent = nil;
 end);
 
 function Module_Core:load()
@@ -53,12 +54,13 @@ end
 
 function Module_Core:command(command, args)
 	rPrint(args);
-    if command == "updatePlayer" then
-        self:updatePlayer(args.player);
-    elseif command == "sendFile" then
+	if command == "updatePlayer" then
+		self:updatePlayer(args.player);
+	elseif command == "sendFile" then
 		self:writeFile(args);
-    end
+	end
 end
+
 
 render_sledgehammer = function(main_screen)
 	if not SledgeHammer.instance then return end

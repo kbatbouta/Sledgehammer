@@ -10,6 +10,52 @@ Utils = class(function(o)
 
 end);
 
+function getFont(str, fallback)
+	if not fallback then fallback = UIFont.Small; end
+	local f = string.lower(str);
+	local font = fallback;
+	if f == "small" then
+		font = UIFont.Small;
+	elseif f == "medium" then
+		font = UIFont.Medium;
+	elseif f == "large" then
+		font = UIFont.Large;
+	elseif f == "massive" then
+		font = UIFont.Massive;
+	elseif f == "mainmenu1" then
+		font = UIFont.MainMenu1;
+	elseif f == "mainmenu2" then
+		font = UIFont.MainMenu2;
+	elseif f == "cred1" then
+		font = UIFont.Cred1;
+	elseif f == "cred2" then
+		font = UIFont.Cred2;
+	elseif f == "newsmall" then
+		font = UIFont.NewSmall;
+	elseif f == "newmedium" then
+		font = UIFont.NewMedium;
+	elseif f == "newlarge" then
+		font = UIFont.NewLarge;
+	elseif f == "code" then
+		font = UIFont.Code;
+	elseif f == "mediumnew" then
+		font = UIFont.MediumNew;
+	elseif f == "autonormsmall" then
+		font = UIFont.AutoNormSmall;
+	elseif f == "autonormmedium" then
+		font = UIFont.AutoNormMedium;
+	elseif f == "autonormlarge" then
+		font = UIFont.AutoNormLarge;
+	elseif f == "dialogue" then
+		font = UIFont.Dialogue;
+	elseif f == "intro" then
+		font = UIFont.Intro;
+	elseif f == "handwritten" then
+		font = UIFont.Handwritten;
+	end
+	return font;
+end
+
 ----------------------------------------------------------------
 -- @return 	Returns a compressed table-array with no null entries.
 ----------------------------------------------------------------

@@ -20,16 +20,22 @@
 
 package sledgehammer.module.chat;
 
+import sledgehammer.SledgeHammer;
 import sledgehammer.annotations.CommandHandler;
+import sledgehammer.enums.LogType;
 import sledgehammer.enums.Result;
 import sledgehammer.command.CommandListener;
 import sledgehammer.language.EntryField;
 import sledgehammer.language.Language;
 import sledgehammer.language.LanguagePackage;
 import sledgehammer.lua.chat.ChatChannel;
+import sledgehammer.lua.chat.send.Broadcast;
+import sledgehammer.lua.core.Color;
 import sledgehammer.lua.core.Player;
 import sledgehammer.command.Command;
+import sledgehammer.lua.chat.send.SendBroadcast;
 import sledgehammer.util.Response;
+import zombie.ui.UIFont;
 
 public class ChatCommandListener extends CommandListener {
 
@@ -37,9 +43,45 @@ public class ChatCommandListener extends CommandListener {
 
   private ModuleChat module;
 
+  private SendBroadcast sendBroadcast;
+
   ChatCommandListener(ModuleChat module) {
     super(module.getLanguagePackage());
     setModule(module);
+    sendBroadcast = new SendBroadcast();
+  }
+
+  @CommandHandler(command = "broadcast", permission = "core.chat.command.broadcast")
+  private void onCommandBroadcast(Command c, Response r) {
+    Player commander = c.getPlayer();
+    LanguagePackage lang = getLanguagePackage();
+    Language language = commander.getLanguage();
+    String[] args = c.getArguments();
+    if (args.length <= 2) {
+      r.set(Result.FAILURE, lang.getString("tooltip_command_broadcast", language));
+      return;
+    }
+    String message = Command.combineArguments(args, 2, " ").trim();
+    Color color = Color.getColor(args[1]);
+    String fontName = args[0].trim().toLowerCase();
+    UIFont font = null;
+    for(UIFont fontNext : UIFont.values()) {
+      if(fontNext.name().equalsIgnoreCase(fontName)) {
+        font = fontNext;
+        break;
+      }
+    }
+    if(font == null) {
+      font = UIFont.Massive;
+    }
+    if (color == null) {
+      color = Color.LIGHT_RED;
+    }
+    Broadcast broadcast = new Broadcast(message, font, color);
+    sendBroadcast.setBroadcast(broadcast);
+    SledgeHammer.instance.send(sendBroadcast);
+    r.set(Result.SUCCESS, "Broadcast sent.");
+    r.log(LogType.STAFF, commander.getUsername() + " broadcasted message: \"" + args[1] + "\".");
   }
 
   @CommandHandler(command = "joinchannel", permission = "core.chat.command.joinchannel")

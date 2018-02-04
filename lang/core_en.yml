@@ -23,14 +23,7 @@ command_warn_success: "{{player}} warned."
 # {{commander}} -> The commanding Player.
 # {{player}} -> The Player warned.
 # {{reason}} -> The warning message sent to the Player.
-command_warn_success_log: "{{commander}} warned the player {{player}} with message: \"{{message}}\"." 
-# Broadcast message sent to the commander.
-command_broadcast_success: "Broadcast sent."
-# Log message for broadcast.
-#
-# {{commander}} -> The commanding Player.
-# {{message}} -> The message broadcasted.
-command_broadcast_success_log: "{{commander}} broadcasted message: \"{{message}}\""
+command_warn_success_log: "{{commander}} warned the player {{player}} with message: \"{{message}}\"."
 # /commitsuicide
 #
 # Commitsuicide message sent to the commander.
@@ -82,7 +75,6 @@ command_unban_success_log: "{{commander}} unbanned {{player}}."
 tooltip_command_colors: "Displays all supported colors on this server."
 tooltip_command_pm: "Private messages a player. ex: /pm \"player\" \"message\""
 tooltip_command_warn: "Warns a player. ex: /warn \"player\" \"message\""
-tooltip_command_broadcast: "Broadcasts a message to the server. ex: /broadcast \"red\" \"message\""
 tooltip_command_commitsuicide: "End your character's life."
 tooltip_command_properties: "Lists a player's properties. ex: /properties rj."
 tooltip_command_ban:

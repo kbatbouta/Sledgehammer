@@ -18,13 +18,35 @@
  *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
  */
 
-package sledgehammer.lua.core;
+/*
+ * This file is part of Sledgehammer.
+ *
+ *    Sledgehammer is free software: you can redistribute it and/or modify
+ *    it under the terms of the GNU Lesser General Public License as published by
+ *    the Free Software Foundation, either version 3 of the License, or
+ *    (at your option) any later version.
+ *
+ *    Sledgehammer is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *    GNU Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public License
+ *    along with Sledgehammer. If not, see <http://www.gnu.org/licenses/>.
+ *
+ *    Sledgehammer is free to use and modify, ONLY for non-official third-party servers
+ *    not affiliated with TheIndieStone, or it's immediate affiliates, or contractors.
+ */
+
+package sledgehammer.lua.chat.send;
 
 import java.util.UUID;
 
 import se.krka.kahlua.vm.KahluaTable;
 import sledgehammer.lua.LuaTable;
+import sledgehammer.lua.core.Color;
 import zombie.Lua.LuaManager;
+import zombie.ui.UIFont;
 
 // @formatter:off
 /**
@@ -48,15 +70,20 @@ public class Broadcast extends LuaTable {
   /** The message content of the Broadcast. */
   private String message;
 
+  private Color color;
+  private UIFont font;
+
   /**
    * Main constructor.
    *
    * @param message The String message content of the Broadcast.
    */
-  public Broadcast(String message) {
+  public Broadcast(String message, UIFont font, Color color) {
     super("Broadcast");
     setTimestamp(LuaManager.getHourMinuteJava());
     setMessage(message);
+    setColor(color);
+    setFont(font);
   }
 
   @Override
@@ -84,6 +111,8 @@ public class Broadcast extends LuaTable {
     set("timestamp", getTimestamp());
     set("player_id", getPlayerId());
     set("message", getMessage());
+    set("color", getColor());
+    set("font", getFont().name());
     // @formatter:on
   }
 
@@ -132,5 +161,21 @@ public class Broadcast extends LuaTable {
    */
   public void setTimestamp(String timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public Color getColor() {
+    return this.color;
+  }
+
+  public void setColor(Color color) {
+    this.color = color;
+  }
+
+  public void setFont(UIFont font) {
+    this.font = font;
+  }
+
+  public UIFont getFont() {
+    return this.font;
   }
 }

@@ -66,6 +66,7 @@ function ChatWindow:new(module_chat)
 	o.discord             = true                  ;
 	o.resizable           = true                  ;
 	o.selectionWidth      = 60                    ;
+	o.broadcast           = nil                   ;
 	-- Set singleton instance.
 	ChatWindow.instance = o;
 	-- Return the result instance.
@@ -212,6 +213,43 @@ function ChatWindow:_render()
 	self:_renderChildren();
 	-- Render the Input TextEntryBox last, so that it is on top.
 	self.input.javaObject:render();
+	self:renderBroadcast();
+end
+
+function ChatWindow:renderBroadcast()
+	-- Make sure there's a Broadcast to render.
+	if self.broadcast == nil then return; end
+	-- Grab the current tick count remaining.
+	local ticks = self.broadcastTicks;
+	-- If the timer is 0, then the Broadcast is done. clean up and return.
+	if ticks == 0 then
+		self.broadcast = nil;
+		return;
+	end
+	local broadcast = self.broadcast;
+	local message = broadcast.message;
+	local color = broadcast.color;
+	local r = color.r;
+	local g = color.g;
+	local b = color.b;
+	local a = 1;
+	-- Fade the Broadcast.
+	if ticks < 70 then a = ticks / 70; end
+	local core = getCore();
+	local sw = core:getScreenWidth();
+	local sh = core:getScreenHeight();
+	local x = (sw / 2);
+	local y = (sh / 4);
+	local yh = 100;
+	if ticks < 70 then
+		y = y - (100 - yh * (ticks / 70));
+	end
+	x = x - self:getAbsoluteX();
+	y = y - self:getAbsoluteY();
+	-- Draw the broadcast in the center.
+	self:drawTextCentre(message, x, y, r, g, b, a, self.broadcastFont);
+	-- Move to the next tick value.
+	self.broadcastTicks = ticks - 1;
 end
 
 ----------------------------------------------------------------
@@ -505,6 +543,14 @@ end
 
 function ChatWindow:setActiveChatPanel(chat_channel)
 	self.tab_panel:setActiveTab(chat_channel.name);
+end
+
+function ChatWindow:setBroadcast(broadcast)
+	print("Set the broadcast: "..tostring(broadcast.message).." time: 500");
+	self.broadcast = broadcast;
+	self.broadcastTicks = broadcast.ticks;
+	if self.broadcastTicks == nil then self.broadcastTicks = 500; end;
+	self.broadcastFont = getFont(self.broadcast.font, UIFont.Massive);
 end
 
 ----------------------------------------------------------------

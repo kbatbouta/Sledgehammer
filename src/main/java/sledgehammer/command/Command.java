@@ -292,12 +292,16 @@ public class Command extends LuaTable {
   }
 
   public static String combineArguments(String[] args, int index) {
+    return combineArguments(args, index, "");
+  }
+
+  public static String combineArguments(String[] args, int index, String glueString) {
     if (args == null) {
       throw new IllegalArgumentException("Arguments array given is null.");
     }
     if (args.length == 0) {
       System.err.println(
-          "WARNING: Arguments given is empty for argument combination. Returning as an empty string.");
+              "WARNING: Arguments given is empty for argument combination. Returning as an empty string.");
       SledgeHammer.instance.stackTrace();
       return "";
     }
@@ -306,11 +310,15 @@ public class Command extends LuaTable {
     }
     if (args.length <= index) {
       throw new IndexOutOfBoundsException(
-          "Index provided is larger or equal to the length of the arguments array given.");
+              "Index provided is larger or equal to the length of the arguments array given.");
     }
     StringBuilder builder = new StringBuilder();
     for (int i = index; i < args.length; i++) {
-      builder.append(args[i]);
+      if(builder.length() == 0) {
+        builder.append(args[i]);
+      } else {
+        builder.append(glueString).append(args[i]);
+      }
     }
     return builder.toString().trim();
   }
