@@ -1,4 +1,6 @@
 sledgehammer
+sledgehammer.annotations
+sledgehammer.command
 sledgehammer.conversion
 sledgehammer.database
 sledgehammer.database.document
@@ -10,6 +12,8 @@ sledgehammer.database.transaction
 sledgehammer.enums
 sledgehammer.event
 sledgehammer.event.chat
+sledgehammer.event.player
+sledgehammer.event.player.pvp
 sledgehammer.interfaces
 sledgehammer.language
 sledgehammer.lua
