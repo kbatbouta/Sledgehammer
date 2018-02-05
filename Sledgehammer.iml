@@ -23,6 +23,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/docs" isTestSource="false" generated="true" />
       <excludeFolder url="file://$MODULE_DIR$/${dir}" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/java/zombie3709" />
       <excludeFolder url="file://$MODULE_DIR$/src/main/java/zombie3710" />

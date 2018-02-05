@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import sledgehammer.SledgeHammer;
+import sledgehammer.command.Command;
 import sledgehammer.event.player.ClientEvent;
 import sledgehammer.lua.core.Player;
 import sledgehammer.lua.core.send.SendLua;
@@ -95,9 +96,9 @@ public class PluginManager extends Manager {
     moduleChat = pluginSledgehammer.getModule(ModuleChat.class);
     moduleFactions = pluginSledgehammer.getModule(ModuleFactions.class);
     // @formatter:on
-    if (!debug) {
+//    if (!debug) {
       loadInstalledPlugins();
-    }
+//    }
     for (Plugin plugin : listPluginsToLoad) {
       println("Loading plug-in " + plugin.getPluginName() + "'s module(s):");
       plugin.loadModules();
@@ -178,11 +179,12 @@ public class PluginManager extends Manager {
       for (File jar : plugins) {
         if (jar.isFile()) {
           String fileName = jar.getName();
-          String fileExtension = fileName.split("\\.")[1].toLowerCase();
-          if (fileExtension.endsWith("jar")) {
+          String[] fileExtensionSplit = fileName.split("\\.");
+          String fileExtension = fileExtensionSplit[fileExtensionSplit.length - 1].toLowerCase();
+          if (fileExtension.equals("jar")) {
             try {
               if (SledgeHammer.DEBUG) {
-                println("Reading plugin: " + jar.getName().split("\\.")[0] + ".");
+                println("Reading plugin: " + fileName.substring(0, fileName.length() - 4) + ".");
               }
               Plugin plugin = loadPlugin(jar);
               registerPlugin(plugin);
