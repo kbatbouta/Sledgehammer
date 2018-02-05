@@ -135,7 +135,7 @@ function ChatWindow:createTabPanel()
 				input:setX(4);
 				input:setWidth(i:getWidth() - 7);
 			end
-			input:focus();
+			-- input:focus();
 		end
 	end
 	return tab_panel;
